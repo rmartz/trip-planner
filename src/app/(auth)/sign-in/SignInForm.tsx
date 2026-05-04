@@ -4,7 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { FirebaseError } from "firebase/app";
-import { createSession, signIn } from "@/services/auth";
+import {
+  createSession,
+  signIn,
+  signInWithApple,
+  signInWithGoogle,
+} from "@/services/auth";
 import { SIGN_IN_COPY } from "./copy";
 
 export default function SignInForm() {
@@ -15,6 +20,17 @@ export default function SignInForm() {
   const [error, setError] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
 
+  function getRedirectPath() {
+    const next = searchParams.get("next");
+    return next?.startsWith("/") && !next.startsWith("//") ? next : "/";
+  }
+
+  function handleSignInError(err: unknown) {
+    const code = (err as FirebaseError).code;
+    const messages = SIGN_IN_COPY.errors;
+    setError((messages as Record<string, string>)[code] ?? messages.default);
+  }
+
   async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setError(undefined);
@@ -22,14 +38,35 @@ export default function SignInForm() {
     try {
       const credential = await signIn(email, password);
       await createSession(await credential.user.getIdToken());
-      const next = searchParams.get("next");
-      const redirectTo =
-        next?.startsWith("/") && !next.startsWith("//") ? next : "/";
-      router.push(redirectTo);
+      router.push(getRedirectPath());
     } catch (err) {
-      const code = (err as FirebaseError).code;
-      const messages = SIGN_IN_COPY.errors;
-      setError((messages as Record<string, string>)[code] ?? messages.default);
+      handleSignInError(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setError(undefined);
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+      router.push(getRedirectPath());
+    } catch (err) {
+      handleSignInError(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAppleSignIn() {
+    setError(undefined);
+    setLoading(true);
+    try {
+      await signInWithApple();
+      router.push(getRedirectPath());
+    } catch (err) {
+      handleSignInError(err);
     } finally {
       setLoading(false);
     }
@@ -38,6 +75,29 @@ export default function SignInForm() {
   return (
     <div className="w-full max-w-sm space-y-6">
       <h1 className="text-2xl font-semibold">{SIGN_IN_COPY.title}</h1>
+      <div className="space-y-3">
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void handleGoogleSignIn()}
+          className="w-full rounded border px-4 py-2 text-sm font-medium disabled:opacity-50"
+        >
+          {SIGN_IN_COPY.googleButton}
+        </button>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void handleAppleSignIn()}
+          className="w-full rounded border px-4 py-2 text-sm font-medium disabled:opacity-50"
+        >
+          {SIGN_IN_COPY.appleButton}
+        </button>
+      </div>
+      <div className="flex items-center gap-3 text-sm text-gray-400">
+        <hr className="flex-1" />
+        <span>{SIGN_IN_COPY.orDivider}</span>
+        <hr className="flex-1" />
+      </div>
       <form
         onSubmit={(e) => {
           void handleSubmit(e);
