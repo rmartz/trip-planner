@@ -12,7 +12,8 @@ This document captures non-business-logic technical decisions, patterns, and inf
 | UI Components   | ShadCN UI + Tailwind CSS        | Composable, accessible component primitives    |
 | State (server)  | TanStack Query                  | Server state caching, polling, invalidation    |
 | State (client)  | Redux Toolkit                   | Local UI state (forms, config panels)          |
-| Database        | Firebase Realtime Database      | Persistent storage with real-time push         |
+| Database        | Firestore                       | Primary persistent storage                     |
+| Real-time state | Firebase Realtime Database      | Lightweight real-time push (e.g. badge counts) |
 | Auth            | Firebase Admin SDK (server)     | Session-based auth via API routes              |
 | Hosting         | Vercel                          | Deployment, preview URLs, edge functions       |
 | Testing         | Vitest + @testing-library/react | Unit, component, and integration tests         |
@@ -63,66 +64,96 @@ project-root/
 
 ## Firebase Architecture
 
+### Database strategy
+
+**Firestore** is the primary datastore. The relational structure of trips, stops, legs, members, lodging, transportation, and activity preferences maps naturally to Firestore subcollections with richer querying than RTDB's flat tree model.
+
+**Firebase Realtime Database (RTDB)** is used only for real-time state that needs push-without-polling. In practice this means a single unread-count path per user for the notification badge:
+
+```
+users/{uid}/unreadCount    # Incremented server-side; client subscribes via onValue
+```
+
+Prefer Firestore for everything else. Reach for RTDB only when you need guaranteed sub-second client push and polling is not acceptable.
+
 ### Packages
 
-- `firebase` (client SDK) — browser-side Firebase access
-- `firebase-admin` (server SDK) — server-side Firebase access via API routes
+- `firebase` (client SDK) — browser-side Firestore and RTDB access
+- `firebase-admin` (server SDK) — server-side Firestore and RTDB access via API routes
 
 ### Initialization
 
-Both SDKs are lazily initialized to avoid errors during static builds (CI has no env vars). The template provides product-agnostic app accessors — projects import the specific Firebase products they need (Realtime Database, Firestore, Auth, Storage, etc.) on top of these:
+Both SDKs are lazily initialized to avoid errors during static builds (CI has no env vars). Import the specific Firebase product on top of the shared app accessor:
 
 ```typescript
-// Client: src/lib/firebase/client.ts
+// Example usage (in a service or hook):
+
+// Client-side (browser)
 import { getClientApp } from "@/lib/firebase/client";
-import { getDatabase } from "firebase/database";
-// or: import { getFirestore } from "firebase/firestore";
-// or: import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database"; // RTDB — only for real-time state
 
-const db = getDatabase(getClientApp());
+const db = getFirestore(getClientApp());
 
-// Server: src/lib/firebase/admin.ts
+// Server-side (API route)
 import { getAdminApp } from "@/lib/firebase/admin";
-import { getDatabase } from "firebase-admin/database";
+import { getFirestore } from "firebase-admin/firestore";
+import { getDatabase } from "firebase-admin/database"; // RTDB — only for real-time state
 
-const db = getDatabase(getAdminApp());
+const db = getFirestore(getAdminApp());
 ```
 
 Product instances should be accessed via function calls, never module-level constants.
 
-### Database Schema Pattern (Realtime Database)
+### Firestore schema patterns
 
-When using Realtime Database, separate public and private data at the path level:
+Collections are organized as top-level collections with subcollections:
 
 ```
-/{collection}/{id}/public    # World-readable data (client SDK subscribes here)
-/{collection}/{id}/private   # Server-only data (Admin SDK only)
+users/{uid}                                    # User profile document
+users/{uid}/destinations/{destinationId}       # Personal destination catalog
+users/{uid}/notifications/{notificationId}     # Per-user notification records
+
+trips/{tripId}                                 # Trip document
+trips/{tripId}/members/{uid}                   # Member role (Planner / Guest)
+trips/{tripId}/stops/{stopId}                  # Stop document
+trips/{tripId}/stops/{stopId}/activities/{id}  # Activity proposals per stop
+trips/{tripId}/stops/{stopId}/lodging/{uid}    # Lodging status per guest per stop
+trips/{tripId}/legs/{legId}                    # Leg document (between stops)
+trips/{tripId}/legs/{legId}/transport/{uid}    # Transport status per guest per leg
+trips/{tripId}/expenses/{expenseId}            # Expense records
 ```
 
-### Serialization Layer
+Security rules scope all reads and writes to the authenticated `uid`. Trip-scoped data is readable by members of that trip.
 
-- TypeScript types define the domain model
-- `{domain}ToFirebase()` converts domain objects to Firebase-safe format (no `undefined` values)
-- `firebaseTo{Domain}()` converts Firebase snapshots back to domain objects with defaults
-- Boolean settings are always written explicitly (not sparse) and deserialized with `?? false`
+### Serialization layer
 
-### Real-Time Updates (Realtime Database)
+- TypeScript interfaces define the domain model — co-located with their feature or in `src/lib/types/` as the project grows
+- `{domain}ToFirebase()` converts domain objects to Firestore-safe format — no `undefined` values; use `null` only when the Firestore schema explicitly requires it
+- `firebaseTo{Domain}()` converts Firestore `DocumentSnapshot` data back to domain objects, applying defaults
+- Boolean fields are always written explicitly (not sparse) and deserialized with `?? false`
+- Timestamps are converted to `Date` at the service boundary; never store raw `Timestamp` objects in domain types
 
-- Clients subscribe to Firebase RTDB paths via `onValue` (wrapped in custom hooks)
-- Server pre-computes per-user state and writes it to per-user paths — clients never need to derive state
-- TanStack Query caches Firebase data; mutations invalidate the cache
+### Real-time updates (RTDB only)
 
-### Environment Variables
+RTDB is used exclusively for the notification badge unread count:
 
-| Variable                 | Side   | Description                                                  |
-| ------------------------ | ------ | ------------------------------------------------------------ |
-| `FIREBASE_PROJECT_ID`    | Server | Firebase project ID                                          |
-| `FIREBASE_CLIENT_EMAIL`  | Server | Service account email                                        |
-| `FIREBASE_PRIVATE_KEY`   | Server | Service account key (literal `\n`)                           |
-| `FIREBASE_DATABASE_URL`  | Server | RTDB URL                                                     |
-| `NEXT_PUBLIC_FIREBASE_*` | Client | Client SDK config (API key, auth domain, project ID, DB URL) |
+- Server increments `users/{uid}/unreadCount` when writing a notification record to Firestore
+- Client subscribes via `onValue` (wrapped in a custom hook) — no polling needed
+- All other data is fetched from Firestore via TanStack Query; mutations go through API routes
 
-`NEXT_PUBLIC_` variables are bundled into client JavaScript — this is by design. Access control is enforced by Firebase security rules (RTDB rules or Firestore rules), not by hiding these keys.
+### Environment variables
+
+| Variable                            | Side   | Description                                       |
+| ----------------------------------- | ------ | ------------------------------------------------- |
+| `FIREBASE_PROJECT_ID`               | Server | Firebase project ID                               |
+| `FIREBASE_CLIENT_EMAIL`             | Server | Service account email                             |
+| `FIREBASE_PRIVATE_KEY`              | Server | Service account key (literal `\n`)                |
+| `FIREBASE_DATABASE_URL`             | Server | RTDB URL (required for notification badge counts) |
+| `NEXT_PUBLIC_FIREBASE_*`            | Client | Client SDK config (API key, auth domain, etc.)    |
+| `NEXT_PUBLIC_FIREBASE_DATABASE_URL` | Client | RTDB URL (client subscribes to unread-count path) |
+
+`NEXT_PUBLIC_` variables are bundled into client JavaScript — this is by design. Access control is enforced by Firestore security rules and RTDB rules, not by hiding these keys.
 
 ## Vitest Configuration
 
@@ -240,9 +271,9 @@ API Route → Service (data access) → Firebase
 
 ### Server State (TanStack Query)
 
-- Data fetched via `useQuery` with Firebase `onValue` for real-time push
-- Mutations via `useMutation` → API routes → Firebase Admin SDK
-- Cache invalidation on successful mutation
+- Data fetched via `useQuery` → API routes → Firestore (Admin SDK)
+- Mutations via `useMutation` → API routes → Firestore (Admin SDK); cache invalidated on success
+- RTDB `onValue` subscriptions are used only for the notification badge unread count — not for general data fetching
 
 ### Client State (Redux Toolkit)
 
@@ -260,13 +291,13 @@ Root Layout → Providers ("use client") → QueryClientProvider → AuthProvide
 
 `QueryClient` is created via `useState` inside the Providers component to avoid re-creation on re-renders.
 
-### Real-Time Pattern
+### Real-Time Pattern (notification badge only)
 
 ```
-Firebase RTDB push → onValue callback → TanStack Query cache update → React re-render
+Server writes to Firestore + increments RTDB unreadCount → onValue callback → React re-render
 ```
 
-No polling needed for subscribed paths. Mutations go through API routes, which write to Firebase, which triggers the push.
+All other data follows a request/response pattern through TanStack Query. Mutations go through API routes → Firestore Admin SDK → TanStack Query cache invalidation.
 
 ## Authentication Pattern
 
@@ -315,18 +346,18 @@ The verified session cookie decoded by `verifySessionCookie()` contains `uid`. U
 
 ### Dependencies
 
-| Package                                                | Purpose                              |
-| ------------------------------------------------------ | ------------------------------------ |
-| `next`                                                 | Fullstack React framework            |
-| `react` / `react-dom`                                  | UI rendering                         |
-| `@reduxjs/toolkit` / `react-redux`                     | Client state management              |
-| `@tanstack/react-query`                                | Server state management              |
-| `firebase`                                             | Client SDK (real-time subscriptions) |
-| `firebase-admin`                                       | Server SDK (data mutations)          |
-| `@sentry/nextjs`                                       | Error tracking                       |
-| `@vercel/analytics`                                    | Usage analytics                      |
-| `class-variance-authority` / `clsx` / `tailwind-merge` | ShadCN UI utilities                  |
-| `lucide-react`                                         | Icons                                |
+| Package                                                | Purpose                       |
+| ------------------------------------------------------ | ----------------------------- |
+| `next`                                                 | Fullstack React framework     |
+| `react` / `react-dom`                                  | UI rendering                  |
+| `@reduxjs/toolkit` / `react-redux`                     | Client state management       |
+| `@tanstack/react-query`                                | Server state management       |
+| `firebase`                                             | Client SDK (Firestore + RTDB) |
+| `firebase-admin`                                       | Server SDK (Firestore + RTDB) |
+| `@sentry/nextjs`                                       | Error tracking                |
+| `@vercel/analytics`                                    | Usage analytics               |
+| `class-variance-authority` / `clsx` / `tailwind-merge` | ShadCN UI utilities           |
+| `lucide-react`                                         | Icons                         |
 
 ### Dev Dependencies
 
