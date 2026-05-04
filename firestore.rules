@@ -1,7 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -22,6 +21,11 @@ service cloud.firestore {
       }
 
       match /destinations/{destinationId} {
+        allow read: if isAuthenticated() && request.auth.uid == uid;
+        allow write: if false;
+      }
+
+      match /unavailableRanges/{rangeId} {
         allow read: if isAuthenticated() && request.auth.uid == uid;
         allow write: if false;
       }
