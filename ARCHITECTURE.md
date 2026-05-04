@@ -86,14 +86,16 @@ Prefer Firestore for everything else. Reach for RTDB only when you need guarante
 Both SDKs are lazily initialized to avoid errors during static builds (CI has no env vars). Import the specific Firebase product on top of the shared app accessor:
 
 ```typescript
-// Client: src/lib/firebase/client.ts
+// Example usage (in a service or hook):
+
+// Client-side (browser)
 import { getClientApp } from "@/lib/firebase/client";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database"; // RTDB — only for real-time state
 
 const db = getFirestore(getClientApp());
 
-// Server: src/lib/firebase/admin.ts
+// Server-side (API route)
 import { getAdminApp } from "@/lib/firebase/admin";
 import { getFirestore } from "firebase-admin/firestore";
 import { getDatabase } from "firebase-admin/database"; // RTDB — only for real-time state
@@ -126,7 +128,7 @@ Security rules scope all reads and writes to the authenticated `uid`. Trip-scope
 
 ### Serialization layer
 
-- TypeScript interfaces define the domain model (see `src/lib/types/`)
+- TypeScript interfaces define the domain model — co-located with their feature or in `src/lib/types/` as the project grows
 - `{domain}ToFirebase()` converts domain objects to Firestore-safe format — no `undefined` values; use `null` only when the Firestore schema explicitly requires it
 - `firebaseTo{Domain}()` converts Firestore `DocumentSnapshot` data back to domain objects, applying defaults
 - Boolean fields are always written explicitly (not sparse) and deserialized with `?? false`
@@ -142,14 +144,14 @@ RTDB is used exclusively for the notification badge unread count:
 
 ### Environment variables
 
-| Variable                      | Side   | Description                                       |
-| ----------------------------- | ------ | ------------------------------------------------- |
-| `FIREBASE_PROJECT_ID`         | Server | Firebase project ID                               |
-| `FIREBASE_CLIENT_EMAIL`       | Server | Service account email                             |
-| `FIREBASE_PRIVATE_KEY`        | Server | Service account key (literal `\n`)                |
-| `FIREBASE_DATABASE_URL`       | Server | RTDB URL (required for notification badge counts) |
-| `NEXT_PUBLIC_FIREBASE_*`      | Client | Client SDK config (API key, auth domain, etc.)    |
-| `NEXT_PUBLIC_FIREBASE_DB_URL` | Client | RTDB URL (client subscribes to unread-count path) |
+| Variable                            | Side   | Description                                       |
+| ----------------------------------- | ------ | ------------------------------------------------- |
+| `FIREBASE_PROJECT_ID`               | Server | Firebase project ID                               |
+| `FIREBASE_CLIENT_EMAIL`             | Server | Service account email                             |
+| `FIREBASE_PRIVATE_KEY`              | Server | Service account key (literal `\n`)                |
+| `FIREBASE_DATABASE_URL`             | Server | RTDB URL (required for notification badge counts) |
+| `NEXT_PUBLIC_FIREBASE_*`            | Client | Client SDK config (API key, auth domain, etc.)    |
+| `NEXT_PUBLIC_FIREBASE_DATABASE_URL` | Client | RTDB URL (client subscribes to unread-count path) |
 
 `NEXT_PUBLIC_` variables are bundled into client JavaScript — this is by design. Access control is enforced by Firestore security rules and RTDB rules, not by hiding these keys.
 
