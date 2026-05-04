@@ -16,9 +16,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky",
-    "env:pull": "scripts/generate-local-env.sh",
+    "env:pull": "generate-local-env",
     "env:validate": "node scripts/validate-config.mjs",
-    "secrets-check": "node scripts/secrets-check.mjs"
+    "secrets-check": "pnpm run env:validate && secrets-check --config .gitleaks.toml"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,ts,tsx,jsx}": [
@@ -36,6 +36,7 @@
     ]
   },
   "dependencies": {
+    "vercel-deploy-scripts": "github:rmartz/vercel-deploy-scripts#v1.0.0",
     "@sentry/nextjs": "^10.47.0",
     "@reduxjs/toolkit": "^2.11.2",
     "@vercel/analytics": "^2.0.1",

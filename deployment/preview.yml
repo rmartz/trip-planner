@@ -19,6 +19,7 @@ variables:
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ""
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ""
   NEXT_PUBLIC_FIREBASE_APP_ID: ""
+  NEXT_PUBLIC_FIREBASE_DATABASE_URL: ""
 
   # Firebase Admin SDK — project identifier only, not a credential
   FIREBASE_PROJECT_ID: ""
@@ -26,8 +27,3 @@ variables:
   # Sentry — slugs only, not credentials
   SENTRY_ORG: ""
   SENTRY_PROJECT: ""
-
-  # Add project-specific public variables here as needed, for example:
-  # NEXT_PUBLIC_FIREBASE_DATABASE_URL: ""   # Realtime Database (see issue #42)
-  # NEXT_PUBLIC_DEBUG_MODE: "false"
-  # NEXT_PUBLIC_VERCEL_ENV: "preview"
