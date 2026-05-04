@@ -305,7 +305,7 @@ The template uses Firebase Auth with server-side session cookies for SSR compati
 
 ### AuthProvider → useAuth() contract
 
-`AuthProvider` (`src/components/auth/AuthProvider.tsx`) subscribes to `onAuthStateChanged` and exposes `{ user: User | null, loading: boolean }` via React context. Components and hooks access this via `useAuth()` from `src/hooks/use-auth.ts` — never import Firebase Auth directly in components.
+`AuthProvider` (`src/components/auth/AuthProvider.tsx`) subscribes to `onAuthStateChanged` and exposes `{ user: User | null, profile: UserProfile | undefined, loading: boolean }` via React context. Components and hooks access this via `useAuth()` from `src/hooks/use-auth.ts` — never import Firebase Auth directly in components. `profile` is populated asynchronously after sign-in from the `users/{uid}` Firestore document and is `undefined` while loading or when signed out.
 
 ### Session cookie flow
 
