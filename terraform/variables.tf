@@ -11,6 +11,6 @@ variable "vercel_team_id" {
 
 variable "vercel_api_token" {
   type        = string
-  description = "Vercel API token — set via TF_VAR_vercel_api_token or VERCEL_API_TOKEN env var"
+  description = "Vercel API token — set via TF_VAR_vercel_api_token env var"
   sensitive   = true
 }
