@@ -33,16 +33,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const handleAuthChange = async (firebaseUser: User | null) => {
+    let callId = 0;
+
+    const handleAuthChange = async (
+      firebaseUser: User | null,
+      currentId: number,
+    ) => {
       setUser(firebaseUser);
       if (firebaseUser !== null) {
         try {
           const userProfile = await getOrCreateUserProfile(firebaseUser);
-          setProfile(userProfile);
+          if (currentId === callId) {
+            setProfile(userProfile);
+          }
         } catch (error) {
           console.error("Failed to load user profile:", error);
         } finally {
-          setLoading(false);
+          if (currentId === callId) {
+            setLoading(false);
+          }
         }
       } else {
         setProfile(undefined);
@@ -51,7 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     const unsubscribe = onAuthStateChanged(getClientAuth(), (firebaseUser) => {
-      void handleAuthChange(firebaseUser);
+      void handleAuthChange(firebaseUser, ++callId);
     });
     return unsubscribe;
   }, []);
