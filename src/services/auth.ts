@@ -26,7 +26,12 @@ export async function signInWithGoogle() {
     getClientAuth(),
     new GoogleAuthProvider(),
   );
-  await createSession(await credential.user.getIdToken());
+  try {
+    await createSession(await credential.user.getIdToken());
+  } catch (err) {
+    await firebaseSignOut(getClientAuth());
+    throw err;
+  }
 }
 
 export async function signInWithApple() {
@@ -34,7 +39,12 @@ export async function signInWithApple() {
     getClientAuth(),
     new OAuthProvider("apple.com"),
   );
-  await createSession(await credential.user.getIdToken());
+  try {
+    await createSession(await credential.user.getIdToken());
+  } catch (err) {
+    await firebaseSignOut(getClientAuth());
+    throw err;
+  }
 }
 
 export async function signOut() {

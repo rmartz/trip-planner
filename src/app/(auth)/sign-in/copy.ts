@@ -15,6 +15,8 @@ export const SIGN_IN_COPY = {
     "auth/user-not-found": "Invalid email or password.",
     "auth/wrong-password": "Invalid email or password.",
     "auth/too-many-requests": "Too many attempts. Please try again later.",
+    "auth/popup-blocked":
+      "Sign-in popup was blocked. Please allow popups for this site and try again.",
     "auth/popup-closed-by-user": "Sign-in was cancelled.",
     "auth/cancelled-popup-request": "Sign-in was cancelled.",
     default: "Something went wrong. Please try again.",
