@@ -67,8 +67,8 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
     e.preventDefault();
     if (!startDate || !endDate) return;
     onSubmit({
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: new Date(startDate + "T00:00:00"),
+      endDate: new Date(endDate + "T00:00:00"),
       note: note.trim() || undefined,
     });
     setStartDate("");
@@ -80,10 +80,14 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          <label
+            htmlFor="start-date"
+            className="text-xs font-medium text-zinc-600 dark:text-zinc-400"
+          >
             {COPY.startDateLabel}
           </label>
           <input
+            id="start-date"
             type="date"
             value={startDate}
             onChange={(e) => {
@@ -94,10 +98,14 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          <label
+            htmlFor="end-date"
+            className="text-xs font-medium text-zinc-600 dark:text-zinc-400"
+          >
             {COPY.endDateLabel}
           </label>
           <input
+            id="end-date"
             type="date"
             value={endDate}
             min={startDate}
@@ -110,10 +118,14 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+        <label
+          htmlFor="range-note"
+          className="text-xs font-medium text-zinc-600 dark:text-zinc-400"
+        >
           {COPY.noteLabel}
         </label>
         <input
+          id="range-note"
           type="text"
           value={note}
           onChange={(e) => {

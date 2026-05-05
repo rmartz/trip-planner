@@ -54,9 +54,23 @@ export async function POST(request: Request) {
     );
   }
 
+  const start = new Date(body.startDate);
+  const end = new Date(body.endDate);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+  }
+
+  if (start > end) {
+    return NextResponse.json(
+      { error: "startDate must be before or equal to endDate" },
+      { status: 400 },
+    );
+  }
+
   const range = await createUnavailableRange(uid, {
-    startDate: new Date(body.startDate),
-    endDate: new Date(body.endDate),
+    startDate: start,
+    endDate: end,
     note: typeof body.note === "string" ? body.note : undefined,
   });
 

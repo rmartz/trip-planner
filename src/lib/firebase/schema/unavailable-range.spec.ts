@@ -62,22 +62,22 @@ describe("firebaseToUnavailableRange", () => {
 });
 
 describe("unavailableRangeToFirebase", () => {
-  it("converts startDate to Timestamp", () => {
+  it("passes through startDate as Date", () => {
     const date = new Date(START);
     const data = unavailableRangeToFirebase({
       startDate: date,
       endDate: new Date(END),
     });
-    expect(data.startDate.toDate().toISOString()).toBe(date.toISOString());
+    expect(data.startDate.toISOString()).toBe(date.toISOString());
   });
 
-  it("converts endDate to Timestamp", () => {
+  it("passes through endDate as Date", () => {
     const date = new Date(END);
     const data = unavailableRangeToFirebase({
       startDate: new Date(START),
       endDate: date,
     });
-    expect(data.endDate.toDate().toISOString()).toBe(date.toISOString());
+    expect(data.endDate.toISOString()).toBe(date.toISOString());
   });
 
   it("includes note when defined", () => {

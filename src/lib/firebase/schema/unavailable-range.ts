@@ -23,13 +23,13 @@ export function firebaseToUnavailableRange(
 export function unavailableRangeToFirebase(
   range: Omit<UnavailableRange, "rangeId" | "uid">,
 ): {
-  startDate: Timestamp;
-  endDate: Timestamp;
+  startDate: Date;
+  endDate: Date;
   note?: string;
 } {
   return {
-    startDate: Timestamp.fromDate(range.startDate),
-    endDate: Timestamp.fromDate(range.endDate),
+    startDate: range.startDate,
+    endDate: range.endDate,
     ...(range.note !== undefined ? { note: range.note } : {}),
   };
 }
