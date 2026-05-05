@@ -4,7 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "./page";
 import { HOME_PAGE_COPY } from "./copy";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
