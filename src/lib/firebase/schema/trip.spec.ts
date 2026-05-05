@@ -77,6 +77,14 @@ describe("firebaseToTrip", () => {
     });
     expect(trip.createdBy).toBe("uid-owner");
   });
+
+  it("falls back to current time when startDate is absent", () => {
+    const before = Date.now();
+    const trip = firebaseToTrip("t1", { name: "x", createdBy: "uid-x" });
+    const after = Date.now();
+    expect(trip.startDate.getTime()).toBeGreaterThanOrEqual(before);
+    expect(trip.startDate.getTime()).toBeLessThanOrEqual(after);
+  });
 });
 
 describe("tripToFirebase", () => {
