@@ -47,13 +47,13 @@ export function firebaseToTripMember(
   };
 }
 
-export function tripMemberToFirebase(
-  member: Omit<TripMember, "uid" | "tripId">,
-): {
+export function tripMemberToFirebase(member: Omit<TripMember, "tripId">): {
+  uid: string;
   role: TripRole;
   joinedAt: Timestamp;
 } {
   return {
+    uid: member.uid,
     role: member.role,
     joinedAt: Timestamp.fromDate(member.joinedAt),
   };

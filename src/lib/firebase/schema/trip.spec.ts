@@ -162,15 +162,26 @@ describe("firebaseToTripMember", () => {
 describe("tripMemberToFirebase", () => {
   it("maps role", () => {
     const data = tripMemberToFirebase({
+      uid: "user-1",
       role: TripRole.Planner,
       joinedAt: new Date(JOINED_AT),
     });
     expect(data.role).toBe(TripRole.Planner);
   });
 
+  it("maps uid", () => {
+    const data = tripMemberToFirebase({
+      uid: "user-2",
+      role: TripRole.Guest,
+      joinedAt: new Date(JOINED_AT),
+    });
+    expect(data.uid).toBe("user-2");
+  });
+
   it("converts joinedAt to Timestamp", () => {
     const date = new Date(JOINED_AT);
     const data = tripMemberToFirebase({
+      uid: "user-1",
       role: TripRole.Guest,
       joinedAt: date,
     });
