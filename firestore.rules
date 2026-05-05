@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isTripMember(tripId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid));
+    }
+
+    // User-scoped collections — owner-only read; all writes go through Admin SDK
+    match /users/{uid} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      allow write: if false;
+
+      match /notifications/{notificationId} {
+        allow read: if isAuthenticated() && request.auth.uid == uid;
+        allow write: if false;
+      }
+
+      match /destinations/{destinationId} {
+        allow read: if isAuthenticated() && request.auth.uid == uid;
+        allow write: if false;
+      }
+    }
+
+    // Trip and all subcollections — member-only read; all writes go through Admin SDK
+    match /trips/{tripId} {
+      allow read: if isTripMember(tripId);
+      allow write: if false;
+
+      match /members/{uid} {
+        allow read: if isTripMember(tripId);
+        allow write: if false;
+      }
+
+      match /stops/{stopId} {
+        allow read: if isTripMember(tripId);
+        allow write: if false;
+      }
+
+      match /legs/{legId} {
+        allow read: if isTripMember(tripId);
+        allow write: if false;
+      }
+    }
+  }
+}
