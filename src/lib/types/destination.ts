@@ -3,5 +3,5 @@ export interface Destination {
   uid: string;
   name: string;
   seasonality?: string;
-  tripIds?: string[];
+  tripIds: string[];
 }

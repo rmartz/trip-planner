@@ -61,7 +61,7 @@ describe("firebaseToDestination", () => {
 
 describe("destinationToFirebase", () => {
   it("maps name", () => {
-    const data = destinationToFirebase({ name: "Kyoto" });
+    const data = destinationToFirebase({ name: "Kyoto", tripIds: [] });
     expect(data.name).toBe("Kyoto");
   });
 
@@ -69,12 +69,13 @@ describe("destinationToFirebase", () => {
     const data = destinationToFirebase({
       name: "Kyoto",
       seasonality: "year-round",
+      tripIds: [],
     });
     expect(data.seasonality).toBe("year-round");
   });
 
   it("omits seasonality when undefined", () => {
-    const data = destinationToFirebase({ name: "Kyoto" });
+    const data = destinationToFirebase({ name: "Kyoto", tripIds: [] });
     expect("seasonality" in data).toBe(false);
   });
 
@@ -86,8 +87,8 @@ describe("destinationToFirebase", () => {
     expect(data.tripIds).toEqual(["trip-x"]);
   });
 
-  it("falls back to empty array when tripIds is absent", () => {
-    const data = destinationToFirebase({ name: "Kyoto" });
+  it("maps empty tripIds", () => {
+    const data = destinationToFirebase({ name: "Kyoto", tripIds: [] });
     expect(data.tripIds).toEqual([]);
   });
 });

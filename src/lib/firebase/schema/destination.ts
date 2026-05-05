@@ -27,6 +27,6 @@ export function destinationToFirebase(
     ...(destination.seasonality !== undefined
       ? { seasonality: destination.seasonality }
       : {}),
-    tripIds: destination.tripIds ?? [],
+    tripIds: destination.tripIds,
   };
 }
