@@ -13,21 +13,18 @@ environment: preview
 
 variables:
   # Firebase Client SDK — safe to expose; access control is enforced by Firebase security rules
-  NEXT_PUBLIC_FIREBASE_API_KEY: ""
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ""
-  NEXT_PUBLIC_FIREBASE_PROJECT_ID: ""
-  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ""
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ""
-  NEXT_PUBLIC_FIREBASE_APP_ID: ""
+  NEXT_PUBLIC_FIREBASE_API_KEY: "AIzaSyC3A_hpU1POEK8hkDul68QtUuToG_tfkXI"
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "trip-planner-staging.firebaseapp.com"
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "trip-planner-staging"
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "trip-planner-staging.firebasestorage.app"
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "1049202968387"
+  NEXT_PUBLIC_FIREBASE_APP_ID: "1:1049202968387:web:bcc62492cd29a9ccb311f6"
+  NEXT_PUBLIC_FIREBASE_DATABASE_URL: ""
 
-  # Firebase Admin SDK — project identifier only, not a credential
-  FIREBASE_PROJECT_ID: ""
+  # Firebase Admin SDK — project identifier and SA email for sync-env; private key is a Vercel secret
+  FIREBASE_PROJECT_ID: "trip-planner-staging"
+  FIREBASE_SA_EMAIL: "firebase-adminsdk-fbsvc@trip-planner-staging.iam.gserviceaccount.com"
 
   # Sentry — slugs only, not credentials
   SENTRY_ORG: ""
   SENTRY_PROJECT: ""
-
-  # Add project-specific public variables here as needed, for example:
-  # NEXT_PUBLIC_FIREBASE_DATABASE_URL: ""   # Realtime Database (see issue #42)
-  # NEXT_PUBLIC_DEBUG_MODE: "false"
-  # NEXT_PUBLIC_VERCEL_ENV: "preview"
