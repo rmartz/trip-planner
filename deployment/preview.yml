@@ -21,11 +21,10 @@ variables:
   NEXT_PUBLIC_FIREBASE_APP_ID: "1:1049202968387:web:bcc62492cd29a9ccb311f6"
   NEXT_PUBLIC_FIREBASE_DATABASE_URL: ""
 
-  # Firebase Admin SDK — project identifier only, not a credential
+  # Firebase Admin SDK — project identifier and SA email for sync-env; private key is a Vercel secret
   FIREBASE_PROJECT_ID: "trip-planner-staging"
+  FIREBASE_SA_EMAIL: "firebase-adminsdk-fbsvc@trip-planner-staging.iam.gserviceaccount.com"
 
   # Sentry — slugs only, not credentials
   SENTRY_ORG: ""
   SENTRY_PROJECT: ""
-
-  FIREBASE_CLIENT_EMAIL: "firebase-adminsdk-fbsvc@trip-planner-staging.iam.gserviceaccount.com"
