@@ -1,15 +1,13 @@
+import { TripList } from "@/components/trips/TripList";
+import { HOME_PAGE_COPY } from "./copy";
+
 export default function Home() {
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <main className="flex flex-col items-center gap-6 text-center">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          Firebase + Next.js Template
-        </h1>
-        <p className="max-w-md text-lg text-zinc-600 dark:text-zinc-400">
-          Edit <code className="font-mono text-sm">src/app/page.tsx</code> to
-          get started.
-        </p>
-      </main>
-    </div>
+    <main className="mx-auto w-full max-w-2xl px-4 py-8">
+      <h1 className="mb-6 text-2xl font-semibold tracking-tight">
+        {HOME_PAGE_COPY.title}
+      </h1>
+      <TripList />
+    </main>
   );
 }
