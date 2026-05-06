@@ -20,6 +20,7 @@ allowed_patterns:
 allowed_keys:
   - FIREBASE_PROJECT_ID # Non-sensitive; also exposed via NEXT_PUBLIC_FIREBASE_PROJECT_ID
   - FIREBASE_DATABASE_URL # Non-sensitive RTDB URL; also exposed as NEXT_PUBLIC_FIREBASE_DATABASE_URL when used client-side
+  - FIREBASE_CLIENT_EMAIL # Service account email — identifies the SA but is not a credential; the private key is the secret
   - SENTRY_ORG # Sentry organisation slug — not a credential
   - SENTRY_PROJECT # Sentry project slug — not a credential
 
@@ -30,6 +31,5 @@ denied_patterns:
   - "*SECRET*"
   - "*_TOKEN*"
   - "*AUTH_TOKEN*"
-  - "FIREBASE_CLIENT_EMAIL"
   - "SENTRY_AUTH_TOKEN"
   - "SENTRY_DSN" # Server DSN is sensitive; use NEXT_PUBLIC_SENTRY_DSN for the public one
