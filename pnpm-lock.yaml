@@ -54,8 +54,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       vercel-deploy-scripts:
-        specifier: github:rmartz/vercel-deploy-scripts#v1.0.0
-        version: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/16456e10e836a3e2c1e56cca4d4212223525b60f
+        specifier: github:rmartz/vercel-deploy-scripts#v2.3.0
+        version: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/02f26b34363792c258ec393bd88691051a996105
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -4629,10 +4629,10 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/16456e10e836a3e2c1e56cca4d4212223525b60f:
-    resolution: {tarball: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/16456e10e836a3e2c1e56cca4d4212223525b60f}
+  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/02f26b34363792c258ec393bd88691051a996105:
+    resolution: {tarball: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/02f26b34363792c258ec393bd88691051a996105}
     version: 0.0.0
-    engines: {node: '>=18'}
+    engines: {node: '>=18', pnpm: '>=9'}
     hasBin: true
 
   vite-plugin-storybook-nextjs@3.2.4:
@@ -9567,7 +9567,9 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/16456e10e836a3e2c1e56cca4d4212223525b60f: {}
+  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/02f26b34363792c258ec393bd88691051a996105:
+    dependencies:
+      js-yaml: 4.1.1
 
   vite-plugin-storybook-nextjs@3.2.4(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(storybook@10.3.6(@testing-library/dom@10.4.1)(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.2)(yaml@2.8.3)):
     dependencies:
