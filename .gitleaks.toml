@@ -7,7 +7,7 @@
 title = "trip-planner"
 
 [extend]
-path = "node_modules/vercel-deploy-scripts/.gitleaks.toml"
+url = "https://raw.githubusercontent.com/rmartz/vercel-deploy-scripts/v2.3.3/.gitleaks.toml"
 
 [allowlist]
 description = "Known safe patterns — placeholder values in documentation and config examples"
