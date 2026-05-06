@@ -7,6 +7,7 @@ import storybook from "eslint-plugin-storybook";
 export default tseslint.config(
   {
     ignores: [
+      "**/.claude/**",
       "**/dist/**",
       "**/node_modules/**",
       "**/.next/**",
