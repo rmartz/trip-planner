@@ -6,4 +6,3 @@ onlyBuiltDependencies:
   - "@firebase/util"
   - esbuild
   - protobufjs
-  - vercel-deploy-scripts

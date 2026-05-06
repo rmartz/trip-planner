@@ -29,7 +29,7 @@
     ]
   },
   "dependencies": {
-    "vercel-deploy-scripts": "github:rmartz/vercel-deploy-scripts#v2.3.0",
+    "vercel-deploy-scripts": "github:rmartz/vercel-deploy-scripts#v2.3.3",
     "@sentry/nextjs": "^10.47.0",
     "@reduxjs/toolkit": "^2.11.2",
     "@vercel/analytics": "^2.0.1",
