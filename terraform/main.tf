@@ -39,7 +39,7 @@ locals {
   }
 
   env_vars = merge([
-    for env in local.environments.environments : {
+    for env in local.environments.active : {
       for k, v in yamldecode(file("${path.root}/../deployment/${env}.yml")).variables :
       "${env}:${k}" => {
         key    = k
