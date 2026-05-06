@@ -28,14 +28,6 @@
       "prettier --write"
     ]
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@firebase/util",
-      "esbuild",
-      "protobufjs",
-      "vercel-deploy-scripts"
-    ]
-  },
   "dependencies": {
     "vercel-deploy-scripts": "github:rmartz/vercel-deploy-scripts#v2.3.0",
     "@sentry/nextjs": "^10.47.0",

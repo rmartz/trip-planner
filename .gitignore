@@ -11,3 +11,4 @@ tsconfig.tsbuildinfo
 storybook-static
 next-env.d.ts
 terraform/terraform.tfvars
+.vercel
