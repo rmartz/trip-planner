@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "Template repository for Next.js projects built on Firebase",
   "private": true,
-  "packageManager": "pnpm@10.30.3",
   "type": "module",
   "scripts": {
     "dev": "next dev",
