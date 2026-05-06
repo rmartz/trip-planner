@@ -3,3 +3,4 @@ dist
 .next
 src/components/ui
 pnpm-lock.yaml
+.claude
