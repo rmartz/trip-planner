@@ -25,6 +25,11 @@ service cloud.firestore {
         allow read: if isAuthenticated() && request.auth.uid == uid;
         allow write: if false;
       }
+
+      match /unavailableRanges/{rangeId} {
+        allow read: if isAuthenticated() && request.auth.uid == uid;
+        allow write: if false;
+      }
     }
 
     // Trip and all subcollections — member-only read; all writes go through Admin SDK
