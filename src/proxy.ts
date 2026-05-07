@@ -1,4 +1,4 @@
-// Node.js runtime is required — firebase-admin does not support the Edge runtime.
+// Next.js proxy always runs on Node.js — this allows firebase-admin usage (unsupported on Edge runtime).
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase/admin";
 
