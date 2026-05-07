@@ -15,6 +15,7 @@ function makeLeg(overrides: Partial<Leg> = {}): Leg {
     tripId: "trip-1",
     fromStopId: "stop-1",
     toStopId: "stop-2",
+    name: "London to Paris",
     order: 0,
     memberUids: ["uid-planner"],
     ...overrides,
@@ -144,21 +145,27 @@ describe("addLeg", () => {
   });
 
   it("throws when fromStopId is empty", async () => {
-    await expect(addLeg("uid-1", "trip-1", "", "stop-2")).rejects.toThrow(
-      "fromStopId is required",
-    );
+    await expect(
+      addLeg("uid-1", "trip-1", "", "stop-2", "London to Paris"),
+    ).rejects.toThrow("fromStopId is required");
   });
 
   it("throws when toStopId is empty", async () => {
-    await expect(addLeg("uid-1", "trip-1", "stop-1", "")).rejects.toThrow(
-      "toStopId is required",
-    );
+    await expect(
+      addLeg("uid-1", "trip-1", "stop-1", "", "London to Paris"),
+    ).rejects.toThrow("toStopId is required");
   });
 
   it("throws when fromStopId equals toStopId", async () => {
-    await expect(addLeg("uid-1", "trip-1", "stop-1", "stop-1")).rejects.toThrow(
-      "fromStopId and toStopId must be different",
-    );
+    await expect(
+      addLeg("uid-1", "trip-1", "stop-1", "stop-1", "London to Paris"),
+    ).rejects.toThrow("fromStopId and toStopId must be different");
+  });
+
+  it("throws when name is empty", async () => {
+    await expect(
+      addLeg("uid-1", "trip-1", "stop-1", "stop-2", ""),
+    ).rejects.toThrow("name is required");
   });
 
   it("throws when user is not a Planner", async () => {
@@ -167,7 +174,7 @@ describe("addLeg", () => {
       data: () => ({ role: TripRole.Guest }),
     });
     await expect(
-      addLeg("uid-guest", "trip-1", "stop-1", "stop-2"),
+      addLeg("uid-guest", "trip-1", "stop-1", "stop-2", "London to Paris"),
     ).rejects.toThrow("Only Planners can add legs");
   });
 
@@ -185,13 +192,20 @@ describe("addLeg", () => {
     } satisfies MockQuerySnapshot);
     legDocSet.mockResolvedValue(undefined);
 
-    const legId = await addLeg("uid-1", "trip-1", "stop-1", "stop-2");
+    const legId = await addLeg(
+      "uid-1",
+      "trip-1",
+      "stop-1",
+      "stop-2",
+      "London to Paris",
+    );
 
     expect(legId).toBe("new-leg-id");
     expect(legDocSet).toHaveBeenCalledWith(
       expect.objectContaining({
         fromStopId: "stop-1",
         toStopId: "stop-2",
+        name: "London to Paris",
         order: 0,
       }),
     );
@@ -211,7 +225,7 @@ describe("addLeg", () => {
     } satisfies MockQuerySnapshot);
     legDocSet.mockResolvedValue(undefined);
 
-    await addLeg("uid-1", "trip-1", "stop-1", "stop-2");
+    await addLeg("uid-1", "trip-1", "stop-1", "stop-2", "London to Paris");
 
     expect(legDocSet).toHaveBeenCalledWith(
       expect.objectContaining({ order: 3 }),

@@ -1,10 +1,78 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import type { Stop } from "@/lib/types/trip";
-import { LEG_FORM_COPY } from "./copy";
+import { LEG_FORM_COPY } from "./LegFormView.copy";
 import { LegFormView } from "./LegFormView";
 
 afterEach(cleanup);
+
+// Mock ShadCN Select with a native <select> that the tests can drive with fireEvent.change.
+// The mock extracts the `id` from SelectTrigger and renders a plain <select id={id}> so
+// that screen.getByLabelText() resolves via the Label's htmlFor association.
+vi.mock("@/components/ui/select", async () => {
+  const React = await import("react");
+
+  const SelectTrigger: React.FC<{
+    id?: string;
+    children?: React.ReactNode;
+  }> = () => null;
+
+  function SelectValue() {
+    return null;
+  }
+
+  function SelectContent({ children }: { children?: React.ReactNode }) {
+    return React.createElement(React.Fragment, null, children);
+  }
+
+  function SelectItem({
+    value,
+    children,
+  }: {
+    value: string;
+    children?: React.ReactNode;
+  }) {
+    return React.createElement("option", { value }, children);
+  }
+
+  function Select({
+    children,
+    value,
+    onValueChange,
+  }: {
+    children: React.ReactNode;
+    value?: string;
+    onValueChange?: (v: string) => void;
+  }) {
+    let selectId: string | undefined;
+    const contentChildren: React.ReactNode[] = [];
+
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child)) {
+        if (child.type === SelectTrigger) {
+          selectId = (child.props as { id?: string }).id;
+        }
+        if (child.type === SelectContent) {
+          contentChildren.push(child);
+        }
+      }
+    });
+
+    return React.createElement(
+      "select",
+      {
+        id: selectId,
+        value: value ?? "",
+        onChange: (e: React.ChangeEvent<HTMLSelectElement>) =>
+          onValueChange?.(e.target.value),
+      },
+      React.createElement("option", { value: "" }),
+      ...contentChildren,
+    );
+  }
+
+  return { Select, SelectContent, SelectItem, SelectTrigger, SelectValue };
+});
 
 function makeStop(overrides: Partial<Stop> = {}): Stop {
   return {
@@ -38,6 +106,20 @@ describe("LegFormView — renders form fields", () => {
 
     expect(screen.getByLabelText(LEG_FORM_COPY.fromStopLabel)).toBeDefined();
     expect(screen.getByLabelText(LEG_FORM_COPY.toStopLabel)).toBeDefined();
+  });
+
+  it("renders name and notes fields", () => {
+    render(
+      <LegFormView
+        stops={STOPS}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+      />,
+    );
+
+    expect(screen.getByLabelText(LEG_FORM_COPY.nameLabel)).toBeDefined();
+    expect(screen.getByLabelText(LEG_FORM_COPY.notesLabel)).toBeDefined();
   });
 
   it("renders submit and cancel buttons", () => {
@@ -154,8 +236,33 @@ describe("LegFormView — toStop validation", () => {
 
     expect(screen.getByText(LEG_FORM_COPY.errorSameStop)).toBeDefined();
   });
+});
 
-  it("calls onSubmit with fromStopId and toStopId when form is valid", () => {
+describe("LegFormView — name validation", () => {
+  it("shows error when submitted without a name", () => {
+    render(
+      <LegFormView
+        stops={STOPS}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.fromStopLabel), {
+      target: { value: "stop-1" },
+    });
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.toStopLabel), {
+      target: { value: "stop-2" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: LEG_FORM_COPY.submitAddLeg }),
+    );
+
+    expect(screen.getByText(LEG_FORM_COPY.errorNameRequired)).toBeDefined();
+  });
+
+  it("does not call onSubmit when name is blank", () => {
     const onSubmit = vi.fn();
     render(
       <LegFormView
@@ -176,9 +283,72 @@ describe("LegFormView — toStop validation", () => {
       screen.getByRole("button", { name: LEG_FORM_COPY.submitAddLeg }),
     );
 
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("calls onSubmit with name and stops when form is valid", () => {
+    const onSubmit = vi.fn();
+    render(
+      <LegFormView
+        stops={STOPS}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.fromStopLabel), {
+      target: { value: "stop-1" },
+    });
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.toStopLabel), {
+      target: { value: "stop-2" },
+    });
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.nameLabel), {
+      target: { value: "London to Paris" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: LEG_FORM_COPY.submitAddLeg }),
+    );
+
     expect(onSubmit).toHaveBeenCalledWith({
       fromStopId: "stop-1",
       toStopId: "stop-2",
+      name: "London to Paris",
+    });
+  });
+
+  it("includes notes in onSubmit when provided", () => {
+    const onSubmit = vi.fn();
+    render(
+      <LegFormView
+        stops={STOPS}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.fromStopLabel), {
+      target: { value: "stop-1" },
+    });
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.toStopLabel), {
+      target: { value: "stop-2" },
+    });
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.nameLabel), {
+      target: { value: "London to Paris" },
+    });
+    fireEvent.change(screen.getByLabelText(LEG_FORM_COPY.notesLabel), {
+      target: { value: "Via Eurostar" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: LEG_FORM_COPY.submitAddLeg }),
+    );
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      fromStopId: "stop-1",
+      toStopId: "stop-2",
+      name: "London to Paris",
+      notes: "Via Eurostar",
     });
   });
 });

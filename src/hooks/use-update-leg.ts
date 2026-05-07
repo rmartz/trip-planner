@@ -7,6 +7,8 @@ interface UpdateLegInput {
   legId: string;
   fromStopId?: string;
   toStopId?: string;
+  name?: string;
+  notes?: string;
 }
 
 async function updateLeg({
@@ -14,6 +16,8 @@ async function updateLeg({
   legId,
   fromStopId,
   toStopId,
+  name,
+  notes,
 }: UpdateLegInput): Promise<void> {
   const response = await fetch(`/api/trips/${tripId}/legs/${legId}`, {
     method: "PATCH",
@@ -21,6 +25,8 @@ async function updateLeg({
     body: JSON.stringify({
       ...(fromStopId !== undefined && { fromStopId }),
       ...(toStopId !== undefined && { toStopId }),
+      ...(name !== undefined && { name }),
+      ...(notes !== undefined && { notes }),
     }),
   });
   if (!response.ok) throw new Error("Failed to update leg");

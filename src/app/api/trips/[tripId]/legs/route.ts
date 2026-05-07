@@ -27,11 +27,18 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { fromStopId: unknown; toStopId: unknown };
+  let body: {
+    fromStopId: unknown;
+    toStopId: unknown;
+    name: unknown;
+    notes?: unknown;
+  };
   try {
     body = (await request.json()) as {
       fromStopId: unknown;
       toStopId: unknown;
+      name: unknown;
+      notes?: unknown;
     };
   } catch {
     return NextResponse.json({ error: "Bad Request" }, { status: 400 });
@@ -58,8 +65,21 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
+  if (typeof body.name !== "string" || !body.name.trim()) {
+    return NextResponse.json({ error: "name is required" }, { status: 400 });
+  }
+
+  const notes = typeof body.notes === "string" ? body.notes : undefined;
+
   const { tripId } = await params;
-  const legId = await addLeg(uid, tripId, body.fromStopId, body.toStopId);
+  const legId = await addLeg(
+    uid,
+    tripId,
+    body.fromStopId,
+    body.toStopId,
+    body.name,
+    notes,
+  );
 
   return NextResponse.json({ legId });
 }

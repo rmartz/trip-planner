@@ -419,6 +419,7 @@ describe("legToFirebase", () => {
     const data = legToFirebase({
       fromStopId: "stop-src",
       toStopId: "stop-dst",
+      name: "London to Paris",
       order: 1,
       memberUids: MEMBER_UIDS,
     });
@@ -429,6 +430,7 @@ describe("legToFirebase", () => {
     const data = legToFirebase({
       fromStopId: "stop-src",
       toStopId: "stop-dst",
+      name: "London to Paris",
       order: 1,
       memberUids: MEMBER_UIDS,
     });
@@ -439,6 +441,7 @@ describe("legToFirebase", () => {
     const data = legToFirebase({
       fromStopId: "stop-a",
       toStopId: "stop-b",
+      name: "London to Paris",
       order: 5,
       memberUids: MEMBER_UIDS,
     });
@@ -449,6 +452,7 @@ describe("legToFirebase", () => {
     const data = legToFirebase({
       fromStopId: "stop-a",
       toStopId: "stop-b",
+      name: "London to Paris",
       order: 5,
       memberUids: MEMBER_UIDS,
     });

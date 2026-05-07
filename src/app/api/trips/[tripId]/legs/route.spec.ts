@@ -19,6 +19,7 @@ function makeLeg(overrides: Partial<Leg> = {}): Leg {
     tripId: "trip-1",
     fromStopId: "stop-1",
     toStopId: "stop-2",
+    name: "London to Paris",
     order: 0,
     memberUids: ["uid-planner"],
     ...overrides,
@@ -158,12 +159,24 @@ describe("POST /api/trips/[tripId]/legs", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns 400 when name is missing", async () => {
+    const request = makePostRequest("uid-1", {
+      fromStopId: "stop-1",
+      toStopId: "stop-2",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(400);
+  });
+
   it("returns legId on success", async () => {
     vi.mocked(addLeg).mockResolvedValue("leg-xyz");
 
     const request = makePostRequest("uid-1", {
       fromStopId: "stop-1",
       toStopId: "stop-2",
+      name: "London to Paris",
     });
     const response = await POST(request, {
       params: Promise.resolve({ tripId: "trip-1" }),
@@ -173,12 +186,13 @@ describe("POST /api/trips/[tripId]/legs", () => {
     expect(body.legId).toBe("leg-xyz");
   });
 
-  it("calls addLeg with uid, tripId, fromStopId, and toStopId", async () => {
+  it("calls addLeg with uid, tripId, fromStopId, toStopId, and name", async () => {
     vi.mocked(addLeg).mockResolvedValue("leg-xyz");
 
     const request = makePostRequest("uid-1", {
       fromStopId: "stop-1",
       toStopId: "stop-2",
+      name: "London to Paris",
     });
     await POST(request, { params: Promise.resolve({ tripId: "trip-1" }) });
     expect(vi.mocked(addLeg)).toHaveBeenCalledWith(
@@ -186,6 +200,8 @@ describe("POST /api/trips/[tripId]/legs", () => {
       "trip-1",
       "stop-1",
       "stop-2",
+      "London to Paris",
+      undefined,
     );
   });
 });

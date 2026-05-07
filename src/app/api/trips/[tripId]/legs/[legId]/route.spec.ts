@@ -84,12 +84,22 @@ describe("PATCH /api/trips/[tripId]/legs/[legId]", () => {
     );
   });
 
-  it("propagates service errors as 500", async () => {
+  it("returns 403 when user is not a Planner", async () => {
     vi.mocked(updateLeg).mockRejectedValue(
       new Error("Only Planners can edit legs"),
     );
 
     const request = makePatchRequest("uid-guest", { fromStopId: "stop-3" });
+    const response = await PATCH(request, {
+      params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
+    });
+    expect(response.status).toBe(403);
+  });
+
+  it("returns 500 for unexpected errors", async () => {
+    vi.mocked(updateLeg).mockRejectedValue(new Error("Database unavailable"));
+
+    const request = makePatchRequest("uid-1", { fromStopId: "stop-3" });
     const response = await PATCH(request, {
       params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
     });

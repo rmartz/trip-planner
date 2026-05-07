@@ -16,13 +16,3 @@ export const TRIP_STRUCTURE_COPY = {
   errorEndBeforeStart: "End date must be on or after start date",
   submitAddStop: "Add stop",
 } as const;
-
-export const LEG_FORM_COPY = {
-  fromStopLabel: "From stop",
-  toStopLabel: "To stop",
-  submitAddLeg: "Add leg",
-  cancelEdit: "Cancel",
-  errorFromStopRequired: "From stop is required",
-  errorToStopRequired: "To stop is required",
-  errorSameStop: "From and to stops must be different",
-} as const;

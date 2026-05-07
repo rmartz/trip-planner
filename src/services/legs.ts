@@ -34,11 +34,14 @@ export async function addLeg(
   tripId: string,
   fromStopId: string,
   toStopId: string,
+  name: string,
+  notes?: string,
 ): Promise<string> {
   if (!fromStopId.trim()) throw new Error("fromStopId is required");
   if (!toStopId.trim()) throw new Error("toStopId is required");
   if (fromStopId === toStopId)
     throw new Error("fromStopId and toStopId must be different");
+  if (!name.trim()) throw new Error("name is required");
 
   const db = getAdminFirestore();
   const tripRef = db.collection("trips").doc(tripId);
@@ -65,6 +68,8 @@ export async function addLeg(
   await legRef.set({
     fromStopId,
     toStopId,
+    name,
+    ...(notes !== undefined && { notes }),
     order: nextOrder,
     memberUids,
   });
@@ -76,7 +81,12 @@ export async function updateLeg(
   uid: string,
   tripId: string,
   legId: string,
-  fields: { fromStopId?: string; toStopId?: string },
+  fields: {
+    fromStopId?: string;
+    toStopId?: string;
+    name?: string;
+    notes?: string;
+  },
 ): Promise<void> {
   const db = getAdminFirestore();
   const tripRef = db.collection("trips").doc(tripId);
@@ -94,6 +104,13 @@ export async function updateLeg(
   if (fields.toStopId !== undefined) {
     if (!fields.toStopId.trim()) throw new Error("toStopId is required");
     updates["toStopId"] = fields.toStopId;
+  }
+  if (fields.name !== undefined) {
+    if (!fields.name.trim()) throw new Error("name is required");
+    updates["name"] = fields.name;
+  }
+  if (fields.notes !== undefined) {
+    updates["notes"] = fields.notes;
   }
 
   if (Object.keys(updates).length === 0) return;

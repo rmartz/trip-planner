@@ -9,6 +9,8 @@ interface LegJson {
   tripId: string;
   fromStopId: string;
   toStopId: string;
+  name: string;
+  notes?: string;
   order: number;
   memberUids: string[];
 }
