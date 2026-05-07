@@ -9,22 +9,16 @@ export async function getTripsForUser(uid: string): Promise<Trip[]> {
     .where("uid", "==", uid)
     .get();
 
-  const tripIds = memberDocs.docs.map((doc) => doc.ref.parent.parent?.id);
-
-  const trips = await Promise.all(
-    tripIds.flatMap((tripId) => {
-      if (!tripId) return [];
-      return [
-        db
-          .collection("trips")
-          .doc(tripId)
-          .get()
-          .then((snap) =>
-            snap.exists ? firebaseToTrip(tripId, snap.data() ?? {}) : undefined,
-          ),
-      ];
-    }),
+  const tripRefs = memberDocs.docs.flatMap((doc) =>
+    doc.ref.parent.parent ? [doc.ref.parent.parent] : [],
   );
 
-  return trips.filter((t): t is Trip => t !== undefined);
+  if (tripRefs.length === 0) {
+    return [];
+  }
+
+  const tripDocs = await db.getAll(...tripRefs);
+  return tripDocs.flatMap((tripDoc) =>
+    tripDoc.exists ? [firebaseToTrip(tripDoc.id, tripDoc.data() ?? {})] : [],
+  );
 }
