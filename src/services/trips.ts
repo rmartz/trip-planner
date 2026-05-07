@@ -1,5 +1,6 @@
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
+import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 
 export async function getTripsForUser(uid: string): Promise<Trip[]> {
@@ -27,4 +28,29 @@ export async function getTripsForUser(uid: string): Promise<Trip[]> {
   );
 
   return trips.filter((t): t is Trip => t !== undefined);
+}
+
+export async function createTripForUser(
+  uid: string,
+  name: string,
+  startDate: Date,
+  endDate: Date,
+): Promise<string> {
+  const db = getAdminFirestore();
+  const tripRef = db.collection("trips").doc();
+  const memberRef = tripRef.collection("members").doc(uid);
+
+  const now = new Date();
+  const batch = db.batch();
+  batch.set(tripRef, {
+    name,
+    startDate,
+    endDate,
+    createdAt: now,
+    createdBy: uid,
+  });
+  batch.set(memberRef, { uid, role: TripRole.Planner, joinedAt: now });
+  await batch.commit();
+
+  return tripRef.id;
 }
