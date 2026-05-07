@@ -23,6 +23,7 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
     endDate: toDate(data["endDate"] as Timestamp | null | undefined),
     createdAt: toDate(data["createdAt"] as Timestamp | null | undefined),
     createdBy: (data["createdBy"] as string | undefined) ?? "",
+    memberUids: toMemberUids(data["memberUids"]),
   };
 }
 
@@ -32,6 +33,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
   endDate: Timestamp;
   createdAt: Timestamp;
   createdBy: string;
+  memberUids: string[];
 } {
   return {
     name: trip.name,
@@ -39,6 +41,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
     endDate: Timestamp.fromDate(trip.endDate),
     createdAt: Timestamp.fromDate(trip.createdAt),
     createdBy: trip.createdBy,
+    memberUids: trip.memberUids,
   };
 }
 

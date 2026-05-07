@@ -79,6 +79,18 @@ describe("firebaseToTrip", () => {
     expect(trip.createdBy).toBe("uid-owner");
   });
 
+  it("maps memberUids", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+    });
+    expect(trip.memberUids).toEqual(MEMBER_UIDS);
+  });
+
   it("falls back to current time when startDate is absent", () => {
     const before = Date.now();
     const trip = firebaseToTrip("t1", { name: "x", createdBy: "uid-x" });
@@ -96,6 +108,7 @@ describe("tripToFirebase", () => {
       endDate: new Date(END),
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-x",
+      memberUids: MEMBER_UIDS,
     });
     expect(data.name).toBe("Road Trip");
   });
@@ -108,6 +121,7 @@ describe("tripToFirebase", () => {
       endDate: new Date(END),
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-x",
+      memberUids: MEMBER_UIDS,
     });
     expect(data.startDate.toDate().toISOString()).toBe(date.toISOString());
   });
@@ -119,8 +133,21 @@ describe("tripToFirebase", () => {
       endDate: new Date(END),
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
     });
     expect(data.createdBy).toBe("uid-owner");
+  });
+
+  it("maps memberUids", () => {
+    const data = tripToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      createdAt: new Date(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+    });
+    expect(data.memberUids).toEqual(MEMBER_UIDS);
   });
 });
 

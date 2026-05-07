@@ -10,6 +10,7 @@ export interface Trip {
   endDate: Date;
   createdAt: Date;
   createdBy: string;
+  memberUids: string[];
 }
 
 export interface TripMember {

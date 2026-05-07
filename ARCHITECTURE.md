@@ -126,6 +126,8 @@ trips/{tripId}/expenses/{expenseId}            # Expense records
 
 Security rules scope all reads and writes to the authenticated `uid`. Trip-scoped data is readable by members of that trip.
 
+Before deploying rules that authorize via `memberUids`, run `pnpm migrate:member-uids` (or `pnpm migrate:member-uids -- --dry-run` first) to backfill `memberUids` on existing `trips/{tripId}`, `members`, `stops`, and `legs` documents.
+
 ### Serialization layer
 
 - TypeScript interfaces define the domain model — co-located with their feature or in `src/lib/types/` as the project grows
