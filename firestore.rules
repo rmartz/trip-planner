@@ -6,9 +6,18 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function hasTripMembership(memberUids) {
+      return memberUids is list && request.auth.uid in memberUids;
+    }
+
     function isTripMember(tripId) {
       return isAuthenticated() &&
-        exists(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid));
+        hasTripMembership(get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids);
+    }
+
+    function isTripMemberFromResource() {
+      return isAuthenticated() &&
+        hasTripMembership(resource.data.memberUids);
     }
 
     // User-scoped collections — owner-only read; all writes go through Admin SDK
@@ -34,7 +43,7 @@ service cloud.firestore {
 
     // Trip and all subcollections — member-only read; all writes go through Admin SDK
     match /trips/{tripId} {
-      allow read: if isTripMember(tripId);
+      allow read: if isTripMemberFromResource();
       allow write: if false;
 
       match /members/{uid} {

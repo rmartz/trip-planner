@@ -114,7 +114,7 @@ users/{uid}                                    # User profile document
 users/{uid}/destinations/{destinationId}       # Personal destination catalog
 users/{uid}/notifications/{notificationId}     # Per-user notification records
 
-trips/{tripId}                                 # Trip document
+trips/{tripId}                                 # Trip document (includes memberUids for rule checks)
 trips/{tripId}/members/{uid}                   # Member role (Planner / Guest)
 trips/{tripId}/stops/{stopId}                  # Stop document
 trips/{tripId}/stops/{stopId}/activities/{id}  # Activity proposals per stop
