@@ -6,11 +6,6 @@ import { X_USER_ID_HEADER } from "@/lib/constants";
 vi.mock("@/services/trips", () => ({
   getTripsForUser: vi.fn(),
 }));
-vi.mock("@/lib/firebase/admin", () => ({
-  getAdminAuth: vi.fn(() => ({
-    verifySessionCookie: vi.fn(),
-  })),
-}));
 
 import { getTripsForUser } from "@/services/trips";
 import { GET } from "./route";
@@ -37,10 +32,6 @@ function makeRequest(uid: string | undefined) {
   if (uid !== undefined) {
     headers.set(X_USER_ID_HEADER, uid);
   }
-  return new NextRequest("http://localhost/api/trips", { headers });
-}
-
-function makeMiddlewareRequest(headers?: Headers) {
   return new NextRequest("http://localhost/api/trips", { headers });
 }
 
@@ -91,8 +82,7 @@ describe("GET /api/trips", () => {
 
   it("rejects forged x-user-id when no session cookie is present", async () => {
     // Trust boundary note: route.ts trusts x-user-id only after middleware auth.
-    const forgedHeaders = new Headers({ [X_USER_ID_HEADER]: "uid-forged" });
-    const response = await middleware(makeMiddlewareRequest(forgedHeaders));
+    const response = await middleware(makeRequest("uid-forged"));
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toContain(
