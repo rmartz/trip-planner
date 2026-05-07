@@ -312,10 +312,10 @@ The template uses Firebase Auth with server-side session cookies for SSR compati
 1. User signs in via `signIn()` / `signUp()` from `src/services/auth.ts`
 2. Client calls `user.getIdToken()` and POSTs it to `POST /api/auth/session`
 3. The server calls `getAdminAuth().createSessionCookie()` and sets an `HttpOnly`, `Secure`, `SameSite=Strict` cookie
-4. Middleware (`src/middleware.ts`) verifies the cookie on every request via `getAdminAuth().verifySessionCookie(cookie, true)` and redirects unauthenticated requests to `/sign-in?next=<path>`
+4. Proxy (`src/proxy.ts`) verifies the cookie on every request via `getAdminAuth().verifySessionCookie(cookie, true)` and redirects unauthenticated requests to `/sign-in?next=<path>`
 5. On sign-out, call `DELETE /api/auth/session` to clear the cookie, then call `signOut()` from the auth service
 
-The middleware runs in the Node.js runtime (not Edge) because `firebase-admin` does not support the Edge runtime.
+The proxy runs in the Node.js runtime (not Edge) because `firebase-admin` does not support the Edge runtime.
 
 ### Adding SSO providers (Google, Apple, etc.)
 

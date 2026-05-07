@@ -23,7 +23,7 @@ async function getVerifiedUid(
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));
 
