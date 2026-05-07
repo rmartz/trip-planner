@@ -9,11 +9,9 @@ export async function getTripsForUser(uid: string): Promise<Trip[]> {
     .where("uid", "==", uid)
     .get();
 
-  const tripRefs = memberDocs.docs.flatMap((doc) => {
-    const tripId = doc.ref.parent.parent?.id;
-    if (!tripId) return [];
-    return [db.collection("trips").doc(tripId)];
-  });
+  const tripRefs = memberDocs.docs.flatMap((doc) =>
+    doc.ref.parent.parent ? [doc.ref.parent.parent] : [],
+  );
 
   if (tripRefs.length === 0) {
     return [];

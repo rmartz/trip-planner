@@ -8,10 +8,6 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
 import { getTripsForUser } from "./trips";
 
-interface MockDocRef {
-  id: string;
-}
-
 interface MockMemberDoc {
   ref: {
     parent: {
@@ -32,13 +28,10 @@ describe("getTripsForUser", () => {
   const getMembers = vi.fn();
   const where = vi.fn(() => ({ get: getMembers }));
   const collectionGroup = vi.fn(() => ({ where }));
-  const doc = vi.fn((id: string): MockDocRef => ({ id }));
-  const collection = vi.fn(() => ({ doc }));
   const getAll = vi.fn();
 
   const mockDb = {
     collectionGroup,
-    collection,
     getAll,
   };
 
