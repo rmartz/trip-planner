@@ -54,8 +54,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       vercel-deploy-scripts:
-        specifier: github:rmartz/vercel-deploy-scripts#v2.3.3
-        version: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/73b3ca9c88d8a8ee7da1dc7ab5898bab5c37623a
+        specifier: github:rmartz/vercel-deploy-scripts#v3.1.0
+        version: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/8d0b949e18567992e5c18cd800005f5fde28602f
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -4666,8 +4666,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/73b3ca9c88d8a8ee7da1dc7ab5898bab5c37623a:
-    resolution: {tarball: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/73b3ca9c88d8a8ee7da1dc7ab5898bab5c37623a}
+  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/8d0b949e18567992e5c18cd800005f5fde28602f:
+    resolution: {tarball: https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/8d0b949e18567992e5c18cd800005f5fde28602f}
     version: 0.0.0
     engines: {node: '>=18', pnpm: '>=9'}
     hasBin: true
@@ -9655,7 +9655,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/73b3ca9c88d8a8ee7da1dc7ab5898bab5c37623a:
+  vercel-deploy-scripts@https://codeload.github.com/rmartz/vercel-deploy-scripts/tar.gz/8d0b949e18567992e5c18cd800005f5fde28602f:
     dependencies:
       js-yaml: 4.1.1
 
