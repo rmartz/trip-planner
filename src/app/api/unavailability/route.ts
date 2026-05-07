@@ -1,28 +1,12 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { getAdminAuth } from "@/lib/firebase/admin";
+import { type NextRequest, NextResponse } from "next/server";
 import {
   getUnavailableRanges,
   createUnavailableRange,
 } from "@/services/unavailable-ranges";
+import { X_USER_ID_HEADER } from "@/lib/constants";
 
-async function getUid(): Promise<string | undefined> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("session")?.value;
-  if (!sessionCookie) return undefined;
-  try {
-    const decoded = await getAdminAuth().verifySessionCookie(
-      sessionCookie,
-      true,
-    );
-    return decoded.uid;
-  } catch {
-    return undefined;
-  }
-}
-
-export async function GET() {
-  const uid = await getUid();
+export async function GET(request: NextRequest) {
+  const uid = request.headers.get(X_USER_ID_HEADER);
   if (!uid)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -36,8 +20,8 @@ export async function GET() {
   );
 }
 
-export async function POST(request: Request) {
-  const uid = await getUid();
+export async function POST(request: NextRequest) {
+  const uid = request.headers.get(X_USER_ID_HEADER);
   if (!uid)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
