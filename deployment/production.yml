@@ -26,10 +26,9 @@ variables:
   FIREBASE_SA_EMAIL: "firebase-adminsdk-fbsvc@trip-planner-ae59d.iam.gserviceaccount.com"
 
   # Sentry — slugs only, not credentials
-  SENTRY_ORG: ""
-  SENTRY_PROJECT: ""
+  SENTRY_ORG: "reedmartz"
+  SENTRY_PROJECT: "trip-planner"
 
   # Sentry client DSN — safe to expose publicly; access control is enforced by Sentry project rules.
-  # Set this to the DSN from your Sentry project settings.
   # The server DSN (SENTRY_DSN) is a secret and must be stored directly in Vercel.
-  NEXT_PUBLIC_SENTRY_DSN: ""
+  NEXT_PUBLIC_SENTRY_DSN: "https://0a19d46caf942489cbbe92f67cd2591c@o4511071618072576.ingest.us.sentry.io/4511351010361344"
