@@ -21,6 +21,7 @@ function makeTrip(overrides: Partial<Trip> = {}): Trip {
     endDate: new Date("2025-06-08T12:00:00Z"),
     createdAt: new Date("2025-01-01T12:00:00Z"),
     createdBy: "uid-x",
+    memberUids: ["uid-x"],
     ...overrides,
   };
 }
