@@ -9,6 +9,7 @@ vi.mock("@/services/trips", () => ({
 
 import { getTripsForUser } from "@/services/trips";
 import { GET } from "./route";
+import { proxy } from "@/proxy";
 
 const START = "2025-06-01T00:00:00.000Z";
 const END = "2025-06-08T00:00:00.000Z";
@@ -77,5 +78,15 @@ describe("GET /api/trips", () => {
     expect(response.status).toBe(200);
     const data = (await response.json()) as unknown[];
     expect(data).toHaveLength(0);
+  });
+
+  it("rejects forged x-user-id when no session cookie is present", async () => {
+    // Trust boundary note: route.ts trusts x-user-id only after proxy auth.
+    const response = await proxy(makeRequest("uid-forged"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain(
+      "/sign-in?next=%2Fapi%2Ftrips",
+    );
   });
 });

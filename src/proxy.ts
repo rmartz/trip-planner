@@ -40,6 +40,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete(X_USER_ID_HEADER);
   requestHeaders.set(X_USER_ID_HEADER, uid);
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
