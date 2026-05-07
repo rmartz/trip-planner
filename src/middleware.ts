@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase/admin";
+import { X_USER_ID_HEADER } from "@/lib/constants";
 
 const AUTH_PAGES = ["/sign-in", "/sign-up", "/forgot-password"];
 const SESSION_COOKIE_NAME = "session";
@@ -40,7 +41,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(signIn);
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete(X_USER_ID_HEADER);
+  requestHeaders.set(X_USER_ID_HEADER, uid);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
