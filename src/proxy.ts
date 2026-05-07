@@ -1,6 +1,7 @@
 // Next.js proxy always runs on Node.js — this allows firebase-admin usage (unsupported on Edge runtime).
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase/admin";
+import { X_USER_ID_HEADER } from "@/lib/constants";
 
 const AUTH_PAGES = ["/sign-in", "/sign-up", "/forgot-password"];
 const SESSION_COOKIE_NAME = "session";
@@ -38,7 +39,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(signIn);
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(X_USER_ID_HEADER, uid);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
