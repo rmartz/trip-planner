@@ -21,6 +21,7 @@ const START = "2025-06-01T00:00:00Z";
 const END = "2025-06-08T00:00:00Z";
 const CREATED_AT = "2025-01-15T12:00:00Z";
 const JOINED_AT = "2025-02-20T09:00:00Z";
+const MEMBER_UIDS = ["uid-1", "uid-2"];
 
 describe("firebaseToTrip", () => {
   it("maps tripId from argument", () => {
@@ -78,6 +79,18 @@ describe("firebaseToTrip", () => {
     expect(trip.createdBy).toBe("uid-owner");
   });
 
+  it("maps memberUids", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+    });
+    expect(trip.memberUids).toEqual(MEMBER_UIDS);
+  });
+
   it("falls back to current time when startDate is absent", () => {
     const before = Date.now();
     const trip = firebaseToTrip("t1", { name: "x", createdBy: "uid-x" });
@@ -95,6 +108,7 @@ describe("tripToFirebase", () => {
       endDate: new Date(END),
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-x",
+      memberUids: MEMBER_UIDS,
     });
     expect(data.name).toBe("Road Trip");
   });
@@ -107,6 +121,7 @@ describe("tripToFirebase", () => {
       endDate: new Date(END),
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-x",
+      memberUids: MEMBER_UIDS,
     });
     expect(data.startDate.toDate().toISOString()).toBe(date.toISOString());
   });
@@ -118,8 +133,21 @@ describe("tripToFirebase", () => {
       endDate: new Date(END),
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
     });
     expect(data.createdBy).toBe("uid-owner");
+  });
+
+  it("maps memberUids", () => {
+    const data = tripToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      createdAt: new Date(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+    });
+    expect(data.memberUids).toEqual(MEMBER_UIDS);
   });
 });
 
@@ -165,6 +193,15 @@ describe("firebaseToTripMember", () => {
       new Date(JOINED_AT).toISOString(),
     );
   });
+
+  it("maps memberUids", () => {
+    const member = firebaseToTripMember("uid-x", "trip-1", {
+      role: TripRole.Guest,
+      joinedAt: makeTimestamp(JOINED_AT),
+      memberUids: MEMBER_UIDS,
+    });
+    expect(member.memberUids).toEqual(MEMBER_UIDS);
+  });
 });
 
 describe("tripMemberToFirebase", () => {
@@ -173,6 +210,7 @@ describe("tripMemberToFirebase", () => {
       uid: "user-1",
       role: TripRole.Planner,
       joinedAt: new Date(JOINED_AT),
+      memberUids: MEMBER_UIDS,
     });
     expect(data.role).toBe(TripRole.Planner);
   });
@@ -182,6 +220,7 @@ describe("tripMemberToFirebase", () => {
       uid: "user-2",
       role: TripRole.Guest,
       joinedAt: new Date(JOINED_AT),
+      memberUids: MEMBER_UIDS,
     });
     expect(data.uid).toBe("user-2");
   });
@@ -192,8 +231,19 @@ describe("tripMemberToFirebase", () => {
       uid: "user-1",
       role: TripRole.Guest,
       joinedAt: date,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.joinedAt.toDate().toISOString()).toBe(date.toISOString());
+  });
+
+  it("maps memberUids", () => {
+    const data = tripMemberToFirebase({
+      uid: "user-1",
+      role: TripRole.Guest,
+      joinedAt: new Date(JOINED_AT),
+      memberUids: MEMBER_UIDS,
+    });
+    expect(data.memberUids).toEqual(MEMBER_UIDS);
   });
 });
 
@@ -247,6 +297,17 @@ describe("firebaseToStop", () => {
     });
     expect(stop.startDate.toISOString()).toBe(new Date(START).toISOString());
   });
+
+  it("maps memberUids", () => {
+    const stop = firebaseToStop("stop-1", "trip-1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      order: 1,
+      memberUids: MEMBER_UIDS,
+    });
+    expect(stop.memberUids).toEqual(MEMBER_UIDS);
+  });
 });
 
 describe("stopToFirebase", () => {
@@ -256,6 +317,7 @@ describe("stopToFirebase", () => {
       startDate: new Date(START),
       endDate: new Date(END),
       order: 1,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.name).toBe("Amsterdam");
   });
@@ -266,6 +328,7 @@ describe("stopToFirebase", () => {
       startDate: new Date(START),
       endDate: new Date(END),
       order: 4,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.order).toBe(4);
   });
@@ -277,8 +340,20 @@ describe("stopToFirebase", () => {
       startDate: date,
       endDate: new Date(END),
       order: 1,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.startDate.toDate().toISOString()).toBe(date.toISOString());
+  });
+
+  it("maps memberUids", () => {
+    const data = stopToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      order: 1,
+      memberUids: MEMBER_UIDS,
+    });
+    expect(data.memberUids).toEqual(MEMBER_UIDS);
   });
 });
 
@@ -327,6 +402,16 @@ describe("firebaseToLeg", () => {
     });
     expect(leg.order).toBe(2);
   });
+
+  it("maps memberUids", () => {
+    const leg = firebaseToLeg("leg-1", "trip-1", {
+      fromStopId: "stop-a",
+      toStopId: "stop-b",
+      order: 2,
+      memberUids: MEMBER_UIDS,
+    });
+    expect(leg.memberUids).toEqual(MEMBER_UIDS);
+  });
 });
 
 describe("legToFirebase", () => {
@@ -335,6 +420,7 @@ describe("legToFirebase", () => {
       fromStopId: "stop-src",
       toStopId: "stop-dst",
       order: 1,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.fromStopId).toBe("stop-src");
   });
@@ -344,6 +430,7 @@ describe("legToFirebase", () => {
       fromStopId: "stop-src",
       toStopId: "stop-dst",
       order: 1,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.toStopId).toBe("stop-dst");
   });
@@ -353,7 +440,18 @@ describe("legToFirebase", () => {
       fromStopId: "stop-a",
       toStopId: "stop-b",
       order: 5,
+      memberUids: MEMBER_UIDS,
     });
     expect(data.order).toBe(5);
+  });
+
+  it("maps memberUids", () => {
+    const data = legToFirebase({
+      fromStopId: "stop-a",
+      toStopId: "stop-b",
+      order: 5,
+      memberUids: MEMBER_UIDS,
+    });
+    expect(data.memberUids).toEqual(MEMBER_UIDS);
   });
 });

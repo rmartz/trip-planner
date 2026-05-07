@@ -15,9 +15,11 @@
     "format:check": "prettier --check .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test:storybook": "vitest run --config vitest.storybook.config.ts",
     "prepare": "husky",
     "env:pull": "generate-local-env",
     "env:validate": "node scripts/validate-config.mjs",
+    "migrate:member-uids": "node scripts/migrate-member-uids.mjs",
     "secrets-check": "pnpm run env:validate && secrets-check --config .gitleaks.toml"
   },
   "lint-staged": {
@@ -29,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "@base-ui/react": "^1.4.1",
     "@reduxjs/toolkit": "^2.11.2",
     "@sentry/nextjs": "^10.47.0",
     "@tanstack/react-query": "^5.99.2",
@@ -50,6 +53,7 @@
     "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "^10.3.6",
     "@storybook/addon-docs": "^10.3.6",
+    "@storybook/addon-vitest": "^10.3.6",
     "@storybook/nextjs-vite": "^10.3.6",
     "@tailwindcss/postcss": "^4",
     "@testing-library/react": "^16.3.2",
@@ -57,6 +61,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/browser": "^4.1.5",
+    "@vitest/browser-playwright": "^4.1.5",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-storybook": "^10.3.6",
@@ -64,6 +70,7 @@
     "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "playwright": "^1.59.1",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "shadcn": "^4.6.0",
