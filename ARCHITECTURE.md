@@ -115,11 +115,11 @@ users/{uid}/destinations/{destinationId}       # Personal destination catalog
 users/{uid}/notifications/{notificationId}     # Per-user notification records
 
 trips/{tripId}                                 # Trip document (includes memberUids for rule checks)
-trips/{tripId}/members/{uid}                   # Member role (Planner / Guest)
-trips/{tripId}/stops/{stopId}                  # Stop document
+trips/{tripId}/members/{uid}                   # Member role (Planner / Guest, includes memberUids)
+trips/{tripId}/stops/{stopId}                  # Stop document (includes memberUids)
 trips/{tripId}/stops/{stopId}/activities/{id}  # Activity proposals per stop
 trips/{tripId}/stops/{stopId}/lodging/{uid}    # Lodging status per guest per stop
-trips/{tripId}/legs/{legId}                    # Leg document (between stops)
+trips/{tripId}/legs/{legId}                    # Leg document (between stops, includes memberUids)
 trips/{tripId}/legs/{legId}/transport/{uid}    # Transport status per guest per leg
 trips/{tripId}/expenses/{expenseId}            # Expense records
 ```

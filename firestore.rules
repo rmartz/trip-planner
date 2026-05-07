@@ -10,11 +10,6 @@ service cloud.firestore {
       return memberUids is list && request.auth.uid in memberUids;
     }
 
-    function isTripMember(tripId) {
-      return isAuthenticated() &&
-        hasTripMembership(get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids);
-    }
-
     function isTripMemberFromResource() {
       return isAuthenticated() &&
         hasTripMembership(resource.data.memberUids);
@@ -47,17 +42,17 @@ service cloud.firestore {
       allow write: if false;
 
       match /members/{uid} {
-        allow read: if isTripMember(tripId);
+        allow read: if isTripMemberFromResource();
         allow write: if false;
       }
 
       match /stops/{stopId} {
-        allow read: if isTripMember(tripId);
+        allow read: if isTripMemberFromResource();
         allow write: if false;
       }
 
       match /legs/{legId} {
-        allow read: if isTripMember(tripId);
+        allow read: if isTripMemberFromResource();
         allow write: if false;
       }
     }

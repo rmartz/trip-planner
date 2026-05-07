@@ -17,6 +17,7 @@ export interface TripMember {
   tripId: string;
   role: TripRole;
   joinedAt: Date;
+  memberUids: string[];
 }
 
 export interface Stop {
@@ -26,6 +27,7 @@ export interface Stop {
   startDate: Date;
   endDate: Date;
   order: number;
+  memberUids: string[];
 }
 
 export interface Leg {
@@ -34,4 +36,5 @@ export interface Leg {
   fromStopId: string;
   toStopId: string;
   order: number;
+  memberUids: string[];
 }
