@@ -70,6 +70,58 @@ describe("CreateTripPageView — form validation: name required", () => {
   });
 });
 
+describe("CreateTripPageView — form validation: dates required", () => {
+  it("shows start date required error when submitted without a start date", () => {
+    render(<CreateTripPageView onSubmit={vi.fn()} isSubmitting={false} />);
+
+    fireEvent.change(screen.getByLabelText(CREATE_TRIP_PAGE_COPY.nameLabel), {
+      target: { value: "My Trip" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: CREATE_TRIP_PAGE_COPY.submitButton }),
+    );
+
+    expect(
+      screen.getByText(CREATE_TRIP_PAGE_COPY.errorStartDateRequired),
+    ).toBeDefined();
+  });
+
+  it("shows end date required error when submitted without an end date", () => {
+    render(<CreateTripPageView onSubmit={vi.fn()} isSubmitting={false} />);
+
+    fireEvent.change(screen.getByLabelText(CREATE_TRIP_PAGE_COPY.nameLabel), {
+      target: { value: "My Trip" },
+    });
+    fireEvent.change(
+      screen.getByLabelText(CREATE_TRIP_PAGE_COPY.startDateLabel),
+      {
+        target: { value: "2025-06-01" },
+      },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: CREATE_TRIP_PAGE_COPY.submitButton }),
+    );
+
+    expect(
+      screen.getByText(CREATE_TRIP_PAGE_COPY.errorEndDateRequired),
+    ).toBeDefined();
+  });
+
+  it("does not call onSubmit when dates are empty", () => {
+    const onSubmit = vi.fn();
+    render(<CreateTripPageView onSubmit={onSubmit} isSubmitting={false} />);
+
+    fireEvent.change(screen.getByLabelText(CREATE_TRIP_PAGE_COPY.nameLabel), {
+      target: { value: "My Trip" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: CREATE_TRIP_PAGE_COPY.submitButton }),
+    );
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+});
+
 describe("CreateTripPageView — form validation: end date before start date", () => {
   it("shows date order error when end date is before start date", () => {
     render(<CreateTripPageView onSubmit={vi.fn()} isSubmitting={false} />);

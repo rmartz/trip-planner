@@ -58,6 +58,71 @@ describe("POST /api/trips — invalid session cookie returns 401", () => {
   });
 });
 
+describe("POST /api/trips — malformed JSON body returns 400", () => {
+  it("returns 400", async () => {
+    mockGet.mockReturnValue({ value: "valid-session" });
+    mockVerifySessionCookie.mockResolvedValue({ uid: "user-abc" });
+
+    const request = new Request("http://localhost/api/trips", {
+      method: "POST",
+      body: "not-json",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+});
+
+describe("POST /api/trips — missing required fields returns 400", () => {
+  it("returns 400 when name is missing", async () => {
+    mockGet.mockReturnValue({ value: "valid-session" });
+    mockVerifySessionCookie.mockResolvedValue({ uid: "user-abc" });
+
+    const request = new Request("http://localhost/api/trips", {
+      method: "POST",
+      body: JSON.stringify({ startDate: "2025-06-01", endDate: "2025-06-08" }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when dates are invalid", async () => {
+    mockGet.mockReturnValue({ value: "valid-session" });
+    mockVerifySessionCookie.mockResolvedValue({ uid: "user-abc" });
+
+    const request = new Request("http://localhost/api/trips", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Road Trip",
+        startDate: "not-a-date",
+        endDate: "2025-06-08",
+      }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when end date is before start date", async () => {
+    mockGet.mockReturnValue({ value: "valid-session" });
+    mockVerifySessionCookie.mockResolvedValue({ uid: "user-abc" });
+
+    const request = new Request("http://localhost/api/trips", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Road Trip",
+        startDate: "2025-06-08",
+        endDate: "2025-06-01",
+      }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+});
+
 describe("POST /api/trips — authenticated request creates trip", () => {
   it("returns tripId on success", async () => {
     mockGet.mockReturnValue({ value: "valid-session" });

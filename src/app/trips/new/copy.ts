@@ -5,6 +5,8 @@ export const CREATE_TRIP_PAGE_COPY = {
   startDateLabel: "Start date",
   endDateLabel: "End date",
   submitButton: "Create trip",
-  errorNameRequired: "Trip name is required",
   errorEndBeforeStart: "End date must be on or after start date",
+  errorEndDateRequired: "End date is required",
+  errorNameRequired: "Trip name is required",
+  errorStartDateRequired: "Start date is required",
 } as const;

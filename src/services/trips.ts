@@ -36,6 +36,12 @@ export async function createTripForUser(
   startDate: Date,
   endDate: Date,
 ): Promise<string> {
+  if (!name.trim()) throw new Error("name is required");
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()))
+    throw new Error("startDate and endDate must be valid dates");
+  if (startDate > endDate)
+    throw new Error("startDate must be before or equal to endDate");
+
   const db = getAdminFirestore();
   const tripRef = db.collection("trips").doc();
   const memberRef = tripRef.collection("members").doc(uid);

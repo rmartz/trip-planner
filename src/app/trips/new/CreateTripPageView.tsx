@@ -31,7 +31,15 @@ export function CreateTripPageView({
       setNameError(CREATE_TRIP_PAGE_COPY.errorNameRequired);
       valid = false;
     }
-    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+    if (!startDate) {
+      setDateError(CREATE_TRIP_PAGE_COPY.errorStartDateRequired);
+      valid = false;
+    } else if (!endDate) {
+      setDateError(CREATE_TRIP_PAGE_COPY.errorEndDateRequired);
+      valid = false;
+    } else if (
+      new Date(`${endDate}T00:00:00`) < new Date(`${startDate}T00:00:00`)
+    ) {
       setDateError(CREATE_TRIP_PAGE_COPY.errorEndBeforeStart);
       valid = false;
     }
@@ -39,8 +47,8 @@ export function CreateTripPageView({
 
     onSubmit({
       name: name.trim(),
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: new Date(`${startDate}T00:00:00`),
+      endDate: new Date(`${endDate}T00:00:00`),
     });
   }
 
