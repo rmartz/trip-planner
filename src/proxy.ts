@@ -1,6 +1,4 @@
 // Node.js runtime is required — firebase-admin does not support the Edge runtime.
-export const runtime = "nodejs";
-
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase/admin";
 
