@@ -114,17 +114,19 @@ users/{uid}                                    # User profile document
 users/{uid}/destinations/{destinationId}       # Personal destination catalog
 users/{uid}/notifications/{notificationId}     # Per-user notification records
 
-trips/{tripId}                                 # Trip document
-trips/{tripId}/members/{uid}                   # Member role (Planner / Guest)
-trips/{tripId}/stops/{stopId}                  # Stop document
+trips/{tripId}                                 # Trip document (includes memberUids for rule checks)
+trips/{tripId}/members/{uid}                   # Member role (Planner / Guest, includes memberUids)
+trips/{tripId}/stops/{stopId}                  # Stop document (includes memberUids)
 trips/{tripId}/stops/{stopId}/activities/{id}  # Activity proposals per stop
 trips/{tripId}/stops/{stopId}/lodging/{uid}    # Lodging status per guest per stop
-trips/{tripId}/legs/{legId}                    # Leg document (between stops)
+trips/{tripId}/legs/{legId}                    # Leg document (between stops, includes memberUids)
 trips/{tripId}/legs/{legId}/transport/{uid}    # Transport status per guest per leg
 trips/{tripId}/expenses/{expenseId}            # Expense records
 ```
 
 Security rules scope all reads and writes to the authenticated `uid`. Trip-scoped data is readable by members of that trip.
+
+Before deploying rules that authorize via `memberUids`, run `pnpm migrate:member-uids` (or `pnpm migrate:member-uids -- --dry-run` first) to backfill `memberUids` on existing `trips/{tripId}`, `members`, `stops`, and `legs` documents.
 
 ### Serialization layer
 
