@@ -7,6 +7,14 @@ function toDate(value: Timestamp | null | undefined): Date {
   return value?.toDate() ?? new Date();
 }
 
+function toMemberUids(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === "string");
+}
+
 export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
   return {
     tripId,
@@ -15,6 +23,7 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
     endDate: toDate(data["endDate"] as Timestamp | null | undefined),
     createdAt: toDate(data["createdAt"] as Timestamp | null | undefined),
     createdBy: (data["createdBy"] as string | undefined) ?? "",
+    memberUids: toMemberUids(data["memberUids"]),
   };
 }
 
@@ -24,6 +33,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
   endDate: Timestamp;
   createdAt: Timestamp;
   createdBy: string;
+  memberUids: string[];
 } {
   return {
     name: trip.name,
@@ -31,6 +41,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
     endDate: Timestamp.fromDate(trip.endDate),
     createdAt: Timestamp.fromDate(trip.createdAt),
     createdBy: trip.createdBy,
+    memberUids: trip.memberUids,
   };
 }
 
@@ -44,6 +55,7 @@ export function firebaseToTripMember(
     tripId,
     role: (data["role"] as TripRole | undefined) ?? TripRole.Guest,
     joinedAt: toDate(data["joinedAt"] as Timestamp | null | undefined),
+    memberUids: toMemberUids(data["memberUids"]),
   };
 }
 
@@ -51,11 +63,13 @@ export function tripMemberToFirebase(member: Omit<TripMember, "tripId">): {
   uid: string;
   role: TripRole;
   joinedAt: Timestamp;
+  memberUids: string[];
 } {
   return {
     uid: member.uid,
     role: member.role,
     joinedAt: Timestamp.fromDate(member.joinedAt),
+    memberUids: member.memberUids,
   };
 }
 
@@ -71,6 +85,7 @@ export function firebaseToStop(
     startDate: toDate(data["startDate"] as Timestamp | null | undefined),
     endDate: toDate(data["endDate"] as Timestamp | null | undefined),
     order: (data["order"] as number | undefined) ?? 0,
+    memberUids: toMemberUids(data["memberUids"]),
   };
 }
 
@@ -79,12 +94,14 @@ export function stopToFirebase(stop: Omit<Stop, "stopId" | "tripId">): {
   startDate: Timestamp;
   endDate: Timestamp;
   order: number;
+  memberUids: string[];
 } {
   return {
     name: stop.name,
     startDate: Timestamp.fromDate(stop.startDate),
     endDate: Timestamp.fromDate(stop.endDate),
     order: stop.order,
+    memberUids: stop.memberUids,
   };
 }
 
@@ -99,6 +116,7 @@ export function firebaseToLeg(
     fromStopId: (data["fromStopId"] as string | undefined) ?? "",
     toStopId: (data["toStopId"] as string | undefined) ?? "",
     order: (data["order"] as number | undefined) ?? 0,
+    memberUids: toMemberUids(data["memberUids"]),
   };
 }
 
@@ -106,10 +124,12 @@ export function legToFirebase(leg: Omit<Leg, "legId" | "tripId">): {
   fromStopId: string;
   toStopId: string;
   order: number;
+  memberUids: string[];
 } {
   return {
     fromStopId: leg.fromStopId,
     toStopId: leg.toStopId,
     order: leg.order,
+    memberUids: leg.memberUids,
   };
 }
