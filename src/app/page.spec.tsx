@@ -2,18 +2,16 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "./page";
-import { HOME_PAGE_COPY } from "./copy";
+import { TRIP_DASHBOARD_COPY } from "@/components/trips/TripDashboardView.copy";
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
 
-vi.mock("next/navigation");
-vi.mock("@/components/auth/AuthProvider");
+vi.mock("@/hooks/use-trips");
 
-import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/components/auth/AuthProvider";
+import { useTrips } from "@/hooks/use-trips";
 
 function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
@@ -25,22 +23,27 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 describe("Home", () => {
-  it("renders the page heading", () => {
-    vi.mocked(useRouter).mockReturnValue({
-      push: vi.fn(),
-      back: vi.fn(),
-    } as unknown as ReturnType<typeof useRouter>);
+  it("renders the Quick Access section", () => {
+    vi.mocked(useTrips).mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: [],
+    } as unknown as ReturnType<typeof useTrips>);
 
-    vi.mocked(useAuthContext).mockReturnValue({
-      user: null,
-      profile: undefined,
-      loading: false,
-    });
-
-    vi.spyOn(global, "fetch").mockResolvedValue(
-      new Response(JSON.stringify([]), { status: 200 }),
-    );
     renderWithProviders(<Home />);
-    expect(screen.getByText(HOME_PAGE_COPY.title)).toBeDefined();
+    expect(
+      screen.getByText(TRIP_DASHBOARD_COPY.quickAccessHeading),
+    ).toBeDefined();
+  });
+
+  it("renders the app title in the header", () => {
+    vi.mocked(useTrips).mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: [],
+    } as unknown as ReturnType<typeof useTrips>);
+
+    renderWithProviders(<Home />);
+    expect(screen.getByText(TRIP_DASHBOARD_COPY.appTitle)).toBeDefined();
   });
 });
