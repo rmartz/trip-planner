@@ -18,6 +18,7 @@ export interface Trip {
   createdAt: Date;
   createdBy: string;
   memberUids: string[];
+  gapCount?: number;
 }
 
 export interface TripMember {
