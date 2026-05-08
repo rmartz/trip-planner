@@ -6,6 +6,7 @@ export const SCREEN_ACTIVITIES_COPY = {
   nameLabel: "Name",
   namePlaceholder: "Activity name",
   nameRequired: "Name is required",
+  durationRequired: "Duration must be at least 1 minute",
   descriptionLabel: "Description",
   descriptionPlaceholder: "Optional description",
   durationLabel: "Estimated duration (minutes)",

@@ -75,6 +75,7 @@ export function ProposeActivityFormView({
   const [costPerPerson, setCostPerPerson] = useState("");
   const [transport, setTransport] = useState<TransportationMode | "">("");
   const [nameError, setNameError] = useState<string | undefined>();
+  const [durationError, setDurationError] = useState<string | undefined>();
 
   function handleSlotToggle(slot: TimeOfDaySlot) {
     setSelectedSlots((prev) =>
@@ -85,9 +86,22 @@ export function ProposeActivityFormView({
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setNameError(undefined);
+    setDurationError(undefined);
+
+    let hasError = false;
 
     if (!name.trim()) {
       setNameError(SCREEN_ACTIVITIES_COPY.nameRequired);
+      hasError = true;
+    }
+
+    const durationNum = durationMinutes !== "" ? Number(durationMinutes) : 0;
+    if (durationNum < 1) {
+      setDurationError(SCREEN_ACTIVITIES_COPY.durationRequired);
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -108,8 +122,7 @@ export function ProposeActivityFormView({
     onSubmit({
       name: name.trim(),
       ...(description.trim() !== "" ? { description: description.trim() } : {}),
-      estimatedDurationMinutes:
-        durationMinutes !== "" ? Number(durationMinutes) : 0,
+      estimatedDurationMinutes: durationNum,
       ...(timeOfDaySlot !== undefined ? { timeOfDaySlot } : {}),
       ...(groupSize !== undefined ? { groupSize } : {}),
       ...(costNum !== undefined ? { costPerPerson: costNum } : {}),
@@ -165,6 +178,9 @@ export function ProposeActivityFormView({
             setDurationMinutes(e.target.value);
           }}
         />
+        {durationError && (
+          <p className="text-sm text-destructive">{durationError}</p>
+        )}
       </div>
 
       <fieldset className="flex flex-col gap-1.5">

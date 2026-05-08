@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { SCREEN_ACTIVITIES_COPY } from "./ScreenActivities.copy";
 import type { Activity } from "@/lib/types/activity";
 
@@ -19,13 +20,9 @@ export function ScreenActivitiesView({
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{SCREEN_ACTIVITIES_COPY.heading}</h2>
         {canPropose && (
-          <button
-            type="button"
-            onClick={onPropose}
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-          >
+          <Button type="button" size="sm" onClick={onPropose}>
             {SCREEN_ACTIVITIES_COPY.proposeButton}
-          </button>
+          </Button>
         )}
       </div>
       {activities.length === 0 ? (
