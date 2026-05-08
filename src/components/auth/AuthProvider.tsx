@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
+import * as Sentry from "@sentry/nextjs";
 import { getClientAuth } from "@/lib/firebase/client";
 import { getOrCreateUserProfile } from "@/services/user-profile";
 import type { UserProfile } from "@/lib/types/user-profile";
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       currentId: number,
     ) => {
       setUser(firebaseUser);
+      Sentry.setUser(firebaseUser !== null ? { id: firebaseUser.uid } : null);
       if (firebaseUser !== null) {
         try {
           const userProfile = await getOrCreateUserProfile(firebaseUser);
