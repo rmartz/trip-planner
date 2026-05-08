@@ -12,16 +12,16 @@ import { getTripsForUser, createTripForUser } from "@/services/trips";
 import { GET, POST } from "./route";
 import { proxy } from "@/proxy";
 
-const START = "2025-06-01T00:00:00.000Z";
-const END = "2025-06-08T00:00:00.000Z";
+const START_DATE = "2025-06-01";
+const END_DATE = "2025-06-08";
 const CREATED_AT = "2025-01-15T12:00:00.000Z";
 
 function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return {
     tripId: "trip-1",
     name: "Paris Trip",
-    startDate: new Date(START),
-    endDate: new Date(END),
+    startDate: new Date(2025, 5, 1),
+    endDate: new Date(2025, 5, 8),
     createdAt: new Date(CREATED_AT),
     createdBy: "uid-abc",
     memberUids: ["uid-abc"],
@@ -64,7 +64,7 @@ describe("GET /api/trips", () => {
     expect(response.status).toBe(401);
   });
 
-  it("returns trips serialized with ISO date strings for the verified uid", async () => {
+  it("serializes startDate and endDate as YYYY-MM-DD date strings to avoid timezone drift", async () => {
     const trip = makeTrip();
     vi.mocked(getTripsForUser).mockResolvedValue([trip]);
 
@@ -75,8 +75,19 @@ describe("GET /api/trips", () => {
     const data = (await response.json()) as unknown[];
     expect(data).toHaveLength(1);
     const item = data[0] as Record<string, unknown>;
-    expect(item["startDate"]).toBe(START);
-    expect(item["endDate"]).toBe(END);
+    expect(item["startDate"]).toBe(START_DATE);
+    expect(item["endDate"]).toBe(END_DATE);
+  });
+
+  it("serializes createdAt as a full ISO timestamp", async () => {
+    const trip = makeTrip();
+    vi.mocked(getTripsForUser).mockResolvedValue([trip]);
+
+    const request = makeGetRequest("uid-abc");
+    const response = await GET(request);
+
+    const data = (await response.json()) as unknown[];
+    const item = data[0] as Record<string, unknown>;
     expect(item["createdAt"]).toBe(CREATED_AT);
   });
 
@@ -181,8 +192,8 @@ describe("POST /api/trips", () => {
     expect(vi.mocked(createTripForUser)).toHaveBeenCalledWith(
       "user-abc",
       "Road Trip",
-      new Date("2025-06-01"),
-      new Date("2025-06-08"),
+      new Date(2025, 5, 1),
+      new Date(2025, 5, 8),
     );
   });
 });
