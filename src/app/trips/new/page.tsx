@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCreateTrip } from "@/hooks/use-create-trip";
+import { AppShell } from "@/components/nav/AppShell";
 import { CreateTripPageView } from "./CreateTripPageView";
 
 export default function CreateTripPage() {
@@ -9,15 +10,25 @@ export default function CreateTripPage() {
   const { mutate, isPending } = useCreateTrip();
 
   return (
-    <CreateTripPageView
-      onSubmit={(input) => {
-        mutate(input, {
-          onSuccess: (tripId) => {
-            router.push(`/trips/${tripId}`);
-          },
-        });
+    <AppShell
+      header={{
+        variant: "drilled",
+        title: "New trip",
+        onBack: () => {
+          router.back();
+        },
       }}
-      isSubmitting={isPending}
-    />
+    >
+      <CreateTripPageView
+        onSubmit={(input) => {
+          mutate(input, {
+            onSuccess: (tripId) => {
+              router.push(`/trips/${tripId}`);
+            },
+          });
+        }}
+        isSubmitting={isPending}
+      />
+    </AppShell>
   );
 }
