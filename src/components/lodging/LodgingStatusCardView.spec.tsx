@@ -172,7 +172,7 @@ describe("LodgingStatusCardView — tap to edit compact card", () => {
     expect(screen.getAllByRole("radio").length).toBe(4);
   });
 
-  it("returns to compact pill when currentStatus becomes defined", () => {
+  it("returns to compact pill when currentStatus transitions from undefined to defined", () => {
     const { rerender } = render(
       <LodgingStatusCardView
         stop={makeStop()}
@@ -183,6 +183,14 @@ describe("LodgingStatusCardView — tap to edit compact card", () => {
 
     fireEvent.click(screen.getByText(LODGING_STATUS_CARD_COPY.tapToEditLabel));
     expect(screen.getAllByRole("radio").length).toBe(4);
+
+    rerender(
+      <LodgingStatusCardView
+        stop={makeStop()}
+        currentStatus={undefined}
+        onStatusChange={vi.fn()}
+      />,
+    );
 
     rerender(
       <LodgingStatusCardView

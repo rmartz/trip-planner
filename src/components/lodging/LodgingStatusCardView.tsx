@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LodgingStatus } from "@/lib/types/lodging";
 import type { Stop } from "@/lib/types/trip";
 import { LODGING_STATUS_CARD_COPY } from "./LodgingStatusCardView.copy";
@@ -32,11 +32,17 @@ export function LodgingStatusCardView({
   onStatusChange,
 }: LodgingStatusCardViewProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const previousStatusRef = useRef<LodgingStatus | undefined>(currentStatus);
 
   useEffect(() => {
-    if (currentStatus !== undefined) {
+    if (
+      previousStatusRef.current === undefined &&
+      currentStatus !== undefined
+    ) {
       setIsEditing(false);
     }
+
+    previousStatusRef.current = currentStatus;
   }, [currentStatus]);
 
   const showRadios = currentStatus === undefined || isEditing;
