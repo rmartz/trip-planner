@@ -19,6 +19,7 @@ function DestinationImagePlaceholder({
 
 interface DestinationCardProps {
   destination: Destination;
+  onView: (destination: Destination) => void;
   onEdit: (destination: Destination) => void;
   onShare: (destination: Destination) => void;
   onAttach: (destination: Destination) => void;
@@ -26,6 +27,7 @@ interface DestinationCardProps {
 
 function DestinationCard({
   destination,
+  onView,
   onEdit,
   onShare,
   onAttach,
@@ -36,7 +38,15 @@ function DestinationCard({
         label={DESTINATION_CATALOG_COPY.imagePlaceholderLabel}
       />
       <div className="flex flex-1 flex-col gap-1">
-        <p className="font-semibold">{destination.name}</p>
+        <button
+          type="button"
+          onClick={() => {
+            onView(destination);
+          }}
+          className="self-start text-left font-semibold hover:underline"
+        >
+          {destination.name}
+        </button>
         {destination.seasonality && (
           <p className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
             {destination.seasonality}
@@ -64,6 +74,15 @@ function DestinationCard({
           <button
             type="button"
             onClick={() => {
+              onView(destination);
+            }}
+            className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            {DESTINATION_CATALOG_COPY.viewButton}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
               onEdit(destination);
             }}
             className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
@@ -83,6 +102,7 @@ export interface DestinationCatalogViewProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onAdd: () => void;
+  onView: (destination: Destination) => void;
   onEdit: (destination: Destination) => void;
   onShare: (destination: Destination) => void;
   onAttach: (destination: Destination) => void;
@@ -95,6 +115,7 @@ export function DestinationCatalogView({
   searchQuery,
   onSearchChange,
   onAdd,
+  onView,
   onEdit,
   onShare,
   onAttach,
@@ -162,6 +183,7 @@ export function DestinationCatalogView({
               <DestinationCard
                 key={destination.destinationId}
                 destination={destination}
+                onView={onView}
                 onEdit={onEdit}
                 onShare={onShare}
                 onAttach={onAttach}

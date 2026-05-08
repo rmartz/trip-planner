@@ -35,6 +35,7 @@ const meta: Meta<typeof DestinationCatalogView> = {
     searchQuery: "",
     onSearchChange: fn(),
     onAdd: fn(),
+    onView: fn(),
     onEdit: fn(),
     onShare: fn(),
     onAttach: fn(),

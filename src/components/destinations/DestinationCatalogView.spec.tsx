@@ -31,6 +31,7 @@ describe("Criterion 1 — page shows list of user's saved destinations with name
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -52,6 +53,7 @@ describe("Criterion 1 — page shows list of user's saved destinations with name
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -72,6 +74,7 @@ describe("Criterion 1 — page shows list of user's saved destinations with name
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -92,6 +95,7 @@ describe("Criterion 1 — page shows list of user's saved destinations with name
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -110,6 +114,7 @@ describe("Criterion 1 — page shows list of user's saved destinations with name
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -134,6 +139,7 @@ describe("Criterion 2 — each destination card shows name, location/activity su
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -156,6 +162,7 @@ describe("Criterion 2 — each destination card shows name, location/activity su
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -176,6 +183,7 @@ describe("Criterion 3 — search input filters the destination list by name", ()
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -197,6 +205,7 @@ describe("Criterion 3 — search input filters the destination list by name", ()
         searchQuery=""
         onSearchChange={onSearchChange}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -222,6 +231,7 @@ describe("Criterion 4 — '+ Add' button triggers create destination flow", () =
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -241,6 +251,7 @@ describe("Criterion 4 — '+ Add' button triggers create destination flow", () =
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={onAdd}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -265,6 +276,7 @@ describe("Criterion 5 — each card has an edit action", () => {
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -285,6 +297,7 @@ describe("Criterion 5 — each card has an edit action", () => {
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={onEdit}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -307,6 +320,7 @@ describe("Criterion 6 — each card has Share and Attach… action pills", () =>
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -327,6 +341,7 @@ describe("Criterion 6 — each card has Share and Attach… action pills", () =>
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={vi.fn()}
@@ -349,6 +364,7 @@ describe("Criterion 6 — each card has Share and Attach… action pills", () =>
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={onShare}
         onAttach={vi.fn()}
@@ -371,6 +387,7 @@ describe("Criterion 6 — each card has Share and Attach… action pills", () =>
         searchQuery=""
         onSearchChange={vi.fn()}
         onAdd={vi.fn()}
+        onView={vi.fn()}
         onEdit={vi.fn()}
         onShare={vi.fn()}
         onAttach={onAttach}
@@ -380,5 +397,49 @@ describe("Criterion 6 — each card has Share and Attach… action pills", () =>
     fireEvent.click(screen.getByText(DESTINATION_CATALOG_COPY.attachButton));
 
     expect(onAttach).toHaveBeenCalledWith(dest);
+  });
+});
+
+describe("Criterion 7 — each card has a view action", () => {
+  it("renders a view button for each destination card", () => {
+    render(
+      <DestinationCatalogView
+        destinations={[makeDestination({ name: "Lisbon" })]}
+        isLoading={false}
+        isError={false}
+        searchQuery=""
+        onSearchChange={vi.fn()}
+        onAdd={vi.fn()}
+        onView={vi.fn()}
+        onEdit={vi.fn()}
+        onShare={vi.fn()}
+        onAttach={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(DESTINATION_CATALOG_COPY.viewButton)).toBeDefined();
+  });
+
+  it("calls onView with the destination when view is clicked", () => {
+    const onView = vi.fn();
+    const dest = makeDestination({ name: "Lisbon" });
+    render(
+      <DestinationCatalogView
+        destinations={[dest]}
+        isLoading={false}
+        isError={false}
+        searchQuery=""
+        onSearchChange={vi.fn()}
+        onAdd={vi.fn()}
+        onView={onView}
+        onEdit={vi.fn()}
+        onShare={vi.fn()}
+        onAttach={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByText(DESTINATION_CATALOG_COPY.viewButton));
+
+    expect(onView).toHaveBeenCalledWith(dest);
   });
 });
