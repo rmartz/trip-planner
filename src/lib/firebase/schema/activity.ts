@@ -57,10 +57,10 @@ export function firebaseToActivity(
       : {}),
     estimatedDurationMinutes:
       (data["estimatedDurationMinutes"] as number | undefined) ?? 0,
-    ...(data["timeOfDaySlot"] !== undefined
+    ...(toTimeOfDaySlot(data["timeOfDaySlot"]) !== undefined
       ? { timeOfDaySlot: toTimeOfDaySlot(data["timeOfDaySlot"]) }
       : {}),
-    ...(data["groupSize"] !== undefined
+    ...(toGroupSize(data["groupSize"]) !== undefined
       ? { groupSize: toGroupSize(data["groupSize"]) }
       : {}),
     ...(data["costPerPerson"] !== undefined

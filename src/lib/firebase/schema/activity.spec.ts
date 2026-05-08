@@ -349,3 +349,51 @@ describe("transportationRequired field", () => {
     expect("transportationRequired" in data).toBe(false);
   });
 });
+
+// Criterion 7: firebaseToActivity omits optional fields when helper returns undefined from malformed input
+describe("malformed optional field handling", () => {
+  it("omits timeOfDaySlot when field is present but not an object", () => {
+    const activity = firebaseToActivity("act-1", "stop-1", "trip-1", {
+      name: "x",
+      estimatedDurationMinutes: 60,
+      timeOfDaySlot: "not-an-object",
+    });
+    expect("timeOfDaySlot" in activity).toBe(false);
+  });
+
+  it("omits timeOfDaySlot when field is present but missing required keys", () => {
+    const activity = firebaseToActivity("act-1", "stop-1", "trip-1", {
+      name: "x",
+      estimatedDurationMinutes: 60,
+      timeOfDaySlot: { type: "must-occur-in" },
+    });
+    expect("timeOfDaySlot" in activity).toBe(false);
+  });
+
+  it("omits timeOfDaySlot when field is null", () => {
+    const activity = firebaseToActivity("act-1", "stop-1", "trip-1", {
+      name: "x",
+      estimatedDurationMinutes: 60,
+      timeOfDaySlot: null,
+    });
+    expect("timeOfDaySlot" in activity).toBe(false);
+  });
+
+  it("omits groupSize when field is present but not an object", () => {
+    const activity = firebaseToActivity("act-1", "stop-1", "trip-1", {
+      name: "x",
+      estimatedDurationMinutes: 60,
+      groupSize: "not-an-object",
+    });
+    expect("groupSize" in activity).toBe(false);
+  });
+
+  it("omits groupSize when field is null", () => {
+    const activity = firebaseToActivity("act-1", "stop-1", "trip-1", {
+      name: "x",
+      estimatedDurationMinutes: 60,
+      groupSize: null,
+    });
+    expect("groupSize" in activity).toBe(false);
+  });
+});
