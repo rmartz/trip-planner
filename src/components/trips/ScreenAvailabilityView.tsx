@@ -87,15 +87,15 @@ function getBestWindows(
   dates: Date[],
   freeCountByDate: Record<string, number>,
   memberCount: number,
-): Array<{ start: Date; end: Date }> {
-  const windows: Array<{ start: Date; end: Date }> = [];
+): { start: Date; end: Date }[] {
+  const windows: { start: Date; end: Date }[] = [];
   let runStart: Date | undefined;
 
   for (const date of dates) {
     const key = toDateKey(date);
     const free = freeCountByDate[key] ?? 0;
     if (free === memberCount && memberCount > 0) {
-      if (runStart === undefined) runStart = date;
+      runStart ??= date;
     } else {
       if (runStart !== undefined) {
         const prev = dates[dates.indexOf(date) - 1];
@@ -106,8 +106,9 @@ function getBestWindows(
   }
 
   // Close an open run at the end
-  if (runStart !== undefined && dates.length > 0) {
-    windows.push({ start: runStart, end: dates[dates.length - 1]! });
+  const lastDate = dates[dates.length - 1];
+  if (runStart !== undefined && lastDate !== undefined) {
+    windows.push({ start: runStart, end: lastDate });
   }
 
   return windows;
@@ -182,14 +183,11 @@ export function ScreenAvailabilityView({
   isLoading,
   isError,
 }: ScreenAvailabilityViewProps) {
+  const firstDate = dates[0];
+  const lastDate = dates[dates.length - 1];
   const conflictKeys =
-    dates.length > 0
-      ? getConflictDateKeys(
-          dates[0]!,
-          dates[dates.length - 1]!,
-          currentUserTrips,
-          currentUserRanges,
-        )
+    firstDate !== undefined && lastDate !== undefined
+      ? getConflictDateKeys(firstDate, lastDate, currentUserTrips, currentUserRanges)
       : new Set<string>();
 
   const bestWindows = getBestWindows(dates, freeCountByDate, memberCount);
