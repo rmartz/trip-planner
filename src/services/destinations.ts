@@ -43,12 +43,16 @@ export async function updateDestinationForUser(
   if (!name.trim()) throw new Error("name is required");
 
   const db = getAdminFirestore();
+  const update: { name: string; seasonality?: string } = {
+    name: name.trim(),
+  };
+  if (seasonality !== undefined) {
+    update.seasonality = seasonality;
+  }
   await db
     .collection("users")
     .doc(uid)
     .collection("destinations")
     .doc(destinationId)
-    .update(
-      destinationToFirebase({ name: name.trim(), seasonality, tripIds: [] }),
-    );
+    .update(update);
 }

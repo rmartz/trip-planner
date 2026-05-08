@@ -19,6 +19,7 @@ export default function DestinationsPage() {
   const [viewState, setViewState] = useState<ViewState>({ mode: "catalog" });
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitError, setIsSubmitError] = useState(false);
 
   const filteredDestinations = (destinations ?? []).filter((d) =>
     d.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -26,14 +27,18 @@ export default function DestinationsPage() {
 
   async function handleCreate(input: DestinationFormInput) {
     setIsSubmitting(true);
+    setIsSubmitError(false);
     try {
-      await fetch("/api/destinations", {
+      const response = await fetch("/api/destinations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
       });
+      if (!response.ok) throw new Error("Failed to create destination");
       await refetch();
       setViewState({ mode: "catalog" });
+    } catch {
+      setIsSubmitError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -44,25 +49,31 @@ export default function DestinationsPage() {
     input: DestinationFormInput,
   ) {
     setIsSubmitting(true);
+    setIsSubmitError(false);
     try {
-      await fetch(`/api/destinations/${destination.destinationId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
-      });
+      const response = await fetch(
+        `/api/destinations/${destination.destinationId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        },
+      );
+      if (!response.ok) throw new Error("Failed to update destination");
       await refetch();
       setViewState({ mode: "catalog" });
+    } catch {
+      setIsSubmitError(true);
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  if (viewState.mode === "detail") {
-    const { destination } = viewState;
-    return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-8">
+  return (
+    <main className="mx-auto w-full max-w-2xl px-4 py-8">
+      {viewState.mode === "detail" ? (
         <DestinationDetailView
-          destination={destination}
+          destination={viewState.destination}
           onEdit={(dest) => {
             setViewState({ mode: "edit", destination: dest });
           }}
@@ -70,16 +81,11 @@ export default function DestinationsPage() {
             setViewState({ mode: "catalog" });
           }}
         />
-      </main>
-    );
-  }
-
-  if (viewState.mode === "create") {
-    return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-8">
+      ) : viewState.mode === "create" ? (
         <DestinationFormView
           mode="create"
           isSubmitting={isSubmitting}
+          isError={isSubmitError}
           onSubmit={(input) => {
             void handleCreate(input);
           }}
@@ -87,54 +93,44 @@ export default function DestinationsPage() {
             setViewState({ mode: "catalog" });
           }}
         />
-      </main>
-    );
-  }
-
-  if (viewState.mode === "edit") {
-    const { destination } = viewState;
-    return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-8">
+      ) : viewState.mode === "edit" ? (
         <DestinationFormView
           mode="edit"
-          initialName={destination.name}
-          initialSeasonality={destination.seasonality}
+          initialName={viewState.destination.name}
+          initialSeasonality={viewState.destination.seasonality}
           isSubmitting={isSubmitting}
+          isError={isSubmitError}
           onSubmit={(input) => {
-            void handleEdit(destination, input);
+            void handleEdit(viewState.destination, input);
           }}
           onCancel={() => {
             setViewState({ mode: "catalog" });
           }}
         />
-      </main>
-    );
-  }
-
-  return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-8">
-      <DestinationCatalogView
-        destinations={filteredDestinations}
-        isLoading={isLoading}
-        isError={isError}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onAdd={() => {
-          setViewState({ mode: "create" });
-        }}
-        onView={(dest) => {
-          setViewState({ mode: "detail", destination: dest });
-        }}
-        onEdit={(dest) => {
-          setViewState({ mode: "edit", destination: dest });
-        }}
-        onShare={() => {
-          // Share flow: follow-up
-        }}
-        onAttach={() => {
-          // Attach flow: follow-up
-        }}
-      />
+      ) : (
+        <DestinationCatalogView
+          destinations={filteredDestinations}
+          isLoading={isLoading}
+          isError={isError}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onAdd={() => {
+            setViewState({ mode: "create" });
+          }}
+          onView={(dest) => {
+            setViewState({ mode: "detail", destination: dest });
+          }}
+          onEdit={(dest) => {
+            setViewState({ mode: "edit", destination: dest });
+          }}
+          onShare={() => {
+            // Share flow: follow-up
+          }}
+          onAttach={() => {
+            // Attach flow: follow-up
+          }}
+        />
+      )}
     </main>
   );
 }

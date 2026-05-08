@@ -10,6 +10,7 @@ const meta: Meta<typeof DestinationFormView> = {
     onSubmit: fn(),
     onCancel: fn(),
     isSubmitting: false,
+    isError: false,
   },
 };
 
@@ -50,5 +51,20 @@ export const EditSubmitting: Story = {
     initialName: "Paris",
     initialSeasonality: "best in spring",
     isSubmitting: true,
+  },
+};
+
+export const CreateSubmitError: Story = {
+  args: {
+    isError: true,
+  },
+};
+
+export const EditSubmitError: Story = {
+  args: {
+    mode: "edit",
+    initialName: "Paris",
+    initialSeasonality: "best in spring",
+    isError: true,
   },
 };

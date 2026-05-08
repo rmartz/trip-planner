@@ -18,6 +18,7 @@ interface DestinationFormViewCreateProps {
   onSubmit: (input: DestinationFormInput) => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  isError: boolean;
 }
 
 interface DestinationFormViewEditProps {
@@ -27,6 +28,7 @@ interface DestinationFormViewEditProps {
   onSubmit: (input: DestinationFormInput) => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  isError: boolean;
 }
 
 export type DestinationFormViewProps =
@@ -40,6 +42,7 @@ export function DestinationFormView({
   onSubmit,
   onCancel,
   isSubmitting,
+  isError,
 }: DestinationFormViewProps) {
   const [name, setName] = useState(initialName ?? "");
   const [seasonality, setSeasonality] = useState(initialSeasonality ?? "");
@@ -100,6 +103,12 @@ export function DestinationFormView({
           placeholder={DESTINATION_FORM_COPY.seasonalityPlaceholder}
         />
       </div>
+
+      {isError && (
+        <p className="text-sm text-destructive">
+          {DESTINATION_FORM_COPY.errorSubmitFailed}
+        </p>
+      )}
 
       <div className="flex gap-2">
         <Button type="submit" disabled={isSubmitting}>

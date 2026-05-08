@@ -9,4 +9,5 @@ export const DESTINATION_FORM_COPY = {
   submitEditButton: "Save changes",
   cancelButton: "Cancel",
   errorNameRequired: "Name is required",
+  errorSubmitFailed: "Something went wrong. Please try again.",
 } as const;

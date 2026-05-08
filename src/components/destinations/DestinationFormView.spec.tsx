@@ -17,6 +17,7 @@ describe("DestinationFormView — create mode: renders form fields", () => {
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -34,6 +35,7 @@ describe("DestinationFormView — create mode: renders form fields", () => {
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -52,6 +54,7 @@ describe("DestinationFormView — create mode: renders form fields", () => {
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -69,6 +72,7 @@ describe("DestinationFormView — create mode: renders form fields", () => {
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -86,6 +90,7 @@ describe("DestinationFormView — create mode: form validation", () => {
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -108,6 +113,7 @@ describe("DestinationFormView — create mode: form validation", () => {
         onSubmit={onSubmit}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -128,6 +134,7 @@ describe("DestinationFormView — create mode: form validation", () => {
         onSubmit={onSubmit}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -154,6 +161,7 @@ describe("DestinationFormView — create mode: form validation", () => {
         onSubmit={onSubmit}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -184,6 +192,7 @@ describe("DestinationFormView — create mode: form validation", () => {
         onSubmit={vi.fn()}
         onCancel={onCancel}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -192,6 +201,40 @@ describe("DestinationFormView — create mode: form validation", () => {
     );
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("DestinationFormView — submit error state", () => {
+  it("shows the submit error message when isError is true", () => {
+    render(
+      <DestinationFormView
+        mode="create"
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+        isError={true}
+      />,
+    );
+
+    expect(
+      screen.getByText(DESTINATION_FORM_COPY.errorSubmitFailed),
+    ).toBeDefined();
+  });
+
+  it("does not show the submit error message when isError is false", () => {
+    render(
+      <DestinationFormView
+        mode="create"
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+        isError={false}
+      />,
+    );
+
+    expect(
+      screen.queryByText(DESTINATION_FORM_COPY.errorSubmitFailed),
+    ).toBeNull();
   });
 });
 
@@ -205,6 +248,7 @@ describe("DestinationFormView — edit mode: pre-fills form with existing values
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -220,6 +264,7 @@ describe("DestinationFormView — edit mode: pre-fills form with existing values
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -239,6 +284,7 @@ describe("DestinationFormView — edit mode: pre-fills form with existing values
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
@@ -258,6 +304,7 @@ describe("DestinationFormView — edit mode: pre-fills form with existing values
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
         isSubmitting={false}
+        isError={false}
       />,
     );
 
