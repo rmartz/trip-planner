@@ -1,4 +1,6 @@
 export type { Destination } from "./destination";
+export { TransportationStatus } from "./transportation";
+export type { TransportationEntry } from "./transportation";
 export type { UnavailableRange } from "./unavailable-range";
 export type { UserProfile } from "./user-profile";
 export { TripRole } from "./trip";
