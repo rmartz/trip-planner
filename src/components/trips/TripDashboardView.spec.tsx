@@ -2,7 +2,9 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { TripDashboardView } from "./TripDashboardView";
 import { TRIP_DASHBOARD_COPY } from "./TripDashboardView.copy";
+import { PHASE_PILL_COPY } from "./PhasePill.copy";
 import type { Trip } from "@/lib/types/trip";
+import { TripPhase } from "@/lib/types/trip";
 
 afterEach(cleanup);
 
@@ -95,7 +97,7 @@ describe("Trip cards surface phase pill, date range with countdown, and avatar s
       memberUids: ["uid-x"],
     });
     render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
-    expect(screen.getByText(TRIP_DASHBOARD_COPY.phasePlanning)).toBeDefined();
+    expect(screen.getByText(PHASE_PILL_COPY[TripPhase.Planning])).toBeDefined();
   });
 
   it("renders date range for a trip card", () => {

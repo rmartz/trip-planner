@@ -5,17 +5,9 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useTrips } from "@/hooks/use-trips";
 import type { Trip } from "@/lib/types/trip";
 import { getTripPhase } from "@/lib/trips/phase";
+import { formatDateRange } from "@/lib/trips/format";
 import { PhasePill } from "@/components/trips/PhasePill";
 import { TRIPS_PAGE_COPY } from "./copy";
-
-function formatDateRange(startDate: Date, endDate: Date): string {
-  const opts: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  };
-  return `${startDate.toLocaleDateString(undefined, opts)} – ${endDate.toLocaleDateString(undefined, opts)}`;
-}
 
 interface TripRowProps {
   trip: Trip;

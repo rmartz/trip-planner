@@ -4,17 +4,9 @@ import Link from "next/link";
 import { BellIcon, MenuIcon } from "lucide-react";
 import type { Trip } from "@/lib/types/trip";
 import { getTripPhase } from "@/lib/trips/phase";
+import { formatDateRange } from "@/lib/trips/format";
 import { PhasePill } from "./PhasePill";
 import { TRIP_DASHBOARD_COPY } from "./TripDashboardView.copy";
-
-function formatDateRange(startDate: Date, endDate: Date): string {
-  const opts: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  };
-  return `${startDate.toLocaleDateString(undefined, opts)} – ${endDate.toLocaleDateString(undefined, opts)}`;
-}
 
 function formatCountdown(startDate: Date, today: Date): string {
   const msPerDay = 1000 * 60 * 60 * 24;

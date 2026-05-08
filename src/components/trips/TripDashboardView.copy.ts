@@ -9,8 +9,4 @@ export const TRIP_DASHBOARD_COPY = {
   quickAccessTrips: "Trips",
   activeTripsHeading: "Active",
   pastTripsHeading: "Past",
-  phasePlanning: "Planning",
-  phaseCoordination: "Coordination",
-  phaseSettlingUp: "Settling Up",
-  phaseSettled: "Settled",
 } as const;

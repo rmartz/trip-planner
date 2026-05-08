@@ -1,6 +1,7 @@
 "use client";
 
 import { useTrips } from "@/hooks/use-trips";
+import { HOME_DASHBOARD_COPY } from "./HomeDashboard.copy";
 import { TripDashboardView } from "./TripDashboardView";
 
 export function HomeDashboard() {
@@ -9,7 +10,7 @@ export function HomeDashboard() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p className="text-zinc-500">Loading…</p>
+        <p className="text-zinc-500">{HOME_DASHBOARD_COPY.loadingText}</p>
       </div>
     );
   }
@@ -17,7 +18,7 @@ export function HomeDashboard() {
   if (isError) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p className="text-red-500">Failed to load trips.</p>
+        <p className="text-red-500">{HOME_DASHBOARD_COPY.errorText}</p>
       </div>
     );
   }
