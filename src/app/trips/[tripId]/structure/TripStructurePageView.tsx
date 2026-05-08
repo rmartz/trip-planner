@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { Stop } from "@/lib/types/trip";
+import type { Stop, Leg } from "@/lib/types/trip";
 import { TRIP_STRUCTURE_COPY } from "./copy";
 
 function formatDateRange(startDate: Date, endDate: Date): string {
@@ -13,18 +13,22 @@ function formatDateRange(startDate: Date, endDate: Date): string {
 
 export interface TripStructurePageViewProps {
   stops: Stop[];
+  legs: Leg[];
   isPlanner: boolean;
   onAddStop: () => void;
   onEditStop: (stop: Stop) => void;
   onReorder: (stopIds: string[]) => void;
+  onRemoveLeg: (leg: Leg) => void;
 }
 
 export function TripStructurePageView({
   stops,
+  legs,
   isPlanner,
   onAddStop,
   onEditStop,
   onReorder,
+  onRemoveLeg,
 }: TripStructurePageViewProps) {
   const [draggedId, setDraggedId] = useState<string | undefined>();
 
@@ -106,6 +110,31 @@ export function TripStructurePageView({
                 }}
               >
                 {TRIP_STRUCTURE_COPY.editStop}
+              </Button>
+            )}
+          </div>
+        ))}
+
+        {legs.map((leg) => (
+          <div
+            key={leg.legId}
+            className="flex items-center gap-3 p-3 border rounded-lg bg-card"
+          >
+            <div className="flex flex-col flex-1 gap-0.5">
+              <span className="font-mono text-xs text-muted-foreground">
+                {TRIP_STRUCTURE_COPY.legLabel}
+              </span>
+              <span className="font-bold text-base">{leg.name}</span>
+            </div>
+            {isPlanner && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  onRemoveLeg(leg);
+                }}
+              >
+                {TRIP_STRUCTURE_COPY.removeLeg}
               </Button>
             )}
           </div>

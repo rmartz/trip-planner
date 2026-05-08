@@ -18,6 +18,7 @@ function makeLeg(overrides: Partial<Leg> = {}): Leg {
     name: "London to Paris",
     order: 0,
     memberUids: ["uid-planner"],
+    isActive: true,
     ...overrides,
   };
 }

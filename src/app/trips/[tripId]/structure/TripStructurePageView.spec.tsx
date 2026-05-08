@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import type { Stop } from "@/lib/types/trip";
+import type { Stop, Leg } from "@/lib/types/trip";
 import { TRIP_STRUCTURE_COPY } from "./copy";
 import { TripStructurePageView } from "./TripStructurePageView";
 
@@ -19,15 +19,31 @@ function makeStop(overrides: Partial<Stop> = {}): Stop {
   };
 }
 
+function makeLeg(overrides: Partial<Leg> = {}): Leg {
+  return {
+    legId: "leg-1",
+    tripId: "trip-1",
+    fromStopId: "stop-1",
+    toStopId: "stop-2",
+    name: "London → Paris",
+    order: 0,
+    memberUids: ["uid-1"],
+    isActive: true,
+    ...overrides,
+  };
+}
+
 describe("TripStructurePageView — renders page heading", () => {
   it("renders the heading and subtext", () => {
     render(
       <TripStructurePageView
         stops={[]}
+        legs={[]}
         isPlanner={false}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -41,10 +57,12 @@ describe("TripStructurePageView — Planner-only controls", () => {
     render(
       <TripStructurePageView
         stops={[]}
+        legs={[]}
         isPlanner={true}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -57,10 +75,12 @@ describe("TripStructurePageView — Planner-only controls", () => {
     render(
       <TripStructurePageView
         stops={[]}
+        legs={[]}
         isPlanner={false}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -73,10 +93,12 @@ describe("TripStructurePageView — Planner-only controls", () => {
     render(
       <TripStructurePageView
         stops={[]}
+        legs={[]}
         isPlanner={true}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -87,10 +109,12 @@ describe("TripStructurePageView — Planner-only controls", () => {
     render(
       <TripStructurePageView
         stops={[]}
+        legs={[]}
         isPlanner={false}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -108,10 +132,12 @@ describe("TripStructurePageView — stop cards", () => {
     render(
       <TripStructurePageView
         stops={stops}
+        legs={[]}
         isPlanner={false}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -128,10 +154,12 @@ describe("TripStructurePageView — stop cards", () => {
     render(
       <TripStructurePageView
         stops={stops}
+        legs={[]}
         isPlanner={false}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -145,10 +173,12 @@ describe("TripStructurePageView — stop cards", () => {
     render(
       <TripStructurePageView
         stops={stops}
+        legs={[]}
         isPlanner={true}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -161,10 +191,12 @@ describe("TripStructurePageView — stop cards", () => {
     render(
       <TripStructurePageView
         stops={stops}
+        legs={[]}
         isPlanner={false}
         onAddStop={vi.fn()}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
@@ -177,15 +209,98 @@ describe("TripStructurePageView — stop cards", () => {
     render(
       <TripStructurePageView
         stops={[]}
+        legs={[]}
         isPlanner={true}
         onAddStop={onAddStop}
         onEditStop={vi.fn()}
         onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
       />,
     );
 
     screen.getByRole("button", { name: TRIP_STRUCTURE_COPY.addStop }).click();
 
     expect(onAddStop).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("TripStructurePageView — leg cards", () => {
+  it("renders leg name", () => {
+    const legs = [makeLeg({ name: "London → Paris" })];
+
+    render(
+      <TripStructurePageView
+        stops={[]}
+        legs={legs}
+        isPlanner={false}
+        onAddStop={vi.fn()}
+        onEditStop={vi.fn()}
+        onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("London → Paris")).toBeDefined();
+  });
+
+  it("shows Remove button for Planner", () => {
+    const legs = [makeLeg()];
+
+    render(
+      <TripStructurePageView
+        stops={[]}
+        legs={legs}
+        isPlanner={true}
+        onAddStop={vi.fn()}
+        onEditStop={vi.fn()}
+        onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: TRIP_STRUCTURE_COPY.removeLeg }),
+    ).toBeDefined();
+  });
+
+  it("hides Remove button for Guest", () => {
+    const legs = [makeLeg()];
+
+    render(
+      <TripStructurePageView
+        stops={[]}
+        legs={legs}
+        isPlanner={false}
+        onAddStop={vi.fn()}
+        onEditStop={vi.fn()}
+        onReorder={vi.fn()}
+        onRemoveLeg={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: TRIP_STRUCTURE_COPY.removeLeg }),
+    ).toBeNull();
+  });
+
+  it("calls onRemoveLeg when Remove is clicked", () => {
+    const onRemoveLeg = vi.fn();
+    const leg = makeLeg();
+
+    render(
+      <TripStructurePageView
+        stops={[]}
+        legs={[leg]}
+        isPlanner={true}
+        onAddStop={vi.fn()}
+        onEditStop={vi.fn()}
+        onReorder={vi.fn()}
+        onRemoveLeg={onRemoveLeg}
+      />,
+    );
+
+    screen.getByRole("button", { name: TRIP_STRUCTURE_COPY.removeLeg }).click();
+
+    expect(onRemoveLeg).toHaveBeenCalledWith(leg);
   });
 });
