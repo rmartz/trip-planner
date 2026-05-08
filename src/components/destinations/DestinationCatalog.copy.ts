@@ -1,0 +1,16 @@
+export const DESTINATION_CATALOG_COPY = {
+  heading: "My destinations",
+  subheading: "personal catalog",
+  addButton: "+ Add",
+  attachButton: "Attach…",
+  editButton: "Edit",
+  emptyStateDescription: "Add your first destination to get started.",
+  emptyStateHeading: "No destinations yet",
+  errorText: "Failed to load destinations.",
+  imagePlaceholderLabel: "img",
+  loadingText: "Loading destinations...",
+  savedCount: (n: number) => `${String(n)} saved`,
+  searchPlaceholder: "Search destinations",
+  shareButton: "Share",
+  viewButton: "View",
+} as const;
