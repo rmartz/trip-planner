@@ -51,3 +51,29 @@ describe("getTripPhase — SettlingUp phase", () => {
     expect(getTripPhase(trip)).toBe(TripPhase.SettlingUp);
   });
 });
+
+describe("getTripPhase — Settled phase", () => {
+  it("returns Settled when settledAt is set and end date is in the past", () => {
+    const past = new Date("2020-01-01T00:00:00Z");
+    const settledAt = new Date("2020-01-15T00:00:00Z");
+    const trip = makeTrip({ endDate: past, settledAt });
+    expect(getTripPhase(trip)).toBe(TripPhase.Settled);
+  });
+
+  it("returns Settled when settledAt is set with multiple members", () => {
+    const past = new Date("2020-01-01T00:00:00Z");
+    const settledAt = new Date("2020-01-15T00:00:00Z");
+    const trip = makeTrip({
+      endDate: past,
+      memberUids: ["uid-1", "uid-2"],
+      settledAt,
+    });
+    expect(getTripPhase(trip)).toBe(TripPhase.Settled);
+  });
+
+  it("does not return Settled when settledAt is absent", () => {
+    const past = new Date("2020-01-01T00:00:00Z");
+    const trip = makeTrip({ endDate: past });
+    expect(getTripPhase(trip)).toBe(TripPhase.SettlingUp);
+  });
+});
