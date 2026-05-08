@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(
     trips.map((trip) => ({
       ...trip,
-      startDate: trip.startDate.toISOString(),
-      endDate: trip.endDate.toISOString(),
+      startDate: trip.startDate.toISOString().slice(0, 10),
+      endDate: trip.endDate.toISOString().slice(0, 10),
       createdAt: trip.createdAt.toISOString(),
     })),
   );
