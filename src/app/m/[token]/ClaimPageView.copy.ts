@@ -2,6 +2,7 @@ export const CLAIM_PAGE_COPY = {
   addedAsLabel: "You were added as",
   contextPrefix: "on",
   contextMiddle: "has been answering for you. Take over?",
+  plannerFallbackName: "Your trip planner",
   inheritHeading: "What you'll inherit",
   claimButton: "Claim & sign up",
   notMeButton: "Not me",

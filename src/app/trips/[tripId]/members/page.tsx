@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MembersPageView } from "./MembersPageView";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
@@ -32,6 +32,10 @@ function useMembers(tripId: string) {
       setIsLoading(false);
     }
   }, [tripId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   return { data, isLoading, isError, load };
 }
@@ -85,7 +89,6 @@ export default function MembersPage() {
     <main className="mx-auto max-w-lg px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold">Members</h1>
       <MembersPageView
-        tripId={tripId}
         currentUserRole={currentUserRole}
         accountMembers={data?.accountMembers ?? []}
         nonAccountMembers={data?.nonAccountMembers ?? []}

@@ -41,7 +41,6 @@ describe("MembersPageView — loading state", () => {
   it("renders loading text when isLoading is true", () => {
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Guest}
         accountMembers={[]}
         nonAccountMembers={[]}
@@ -60,7 +59,6 @@ describe("MembersPageView — error state", () => {
   it("renders error text when isError is true", () => {
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Guest}
         accountMembers={[]}
         nonAccountMembers={[]}
@@ -80,7 +78,6 @@ describe("MembersPageView — account member display", () => {
     const member = makeTripMember({ uid: "uid-1", role: TripRole.Planner });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[member]}
         nonAccountMembers={[]}
@@ -102,7 +99,6 @@ describe("MembersPageView — account member display", () => {
     const guest = makeTripMember({ uid: "guest-uid", role: TripRole.Guest });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[planner, guest]}
         nonAccountMembers={[]}
@@ -121,7 +117,6 @@ describe("MembersPageView — account member display", () => {
     const member = makeTripMember({ uid: "uid-1", role: TripRole.Guest });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Guest}
         accountMembers={[member]}
         nonAccountMembers={[]}
@@ -145,7 +140,6 @@ describe("MembersPageView — account member display", () => {
     const guest = makeTripMember({ uid: "guest-uid", role: TripRole.Guest });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[planner, guest]}
         nonAccountMembers={[]}
@@ -169,7 +163,6 @@ describe("MembersPageView — account member display", () => {
     const guest = makeTripMember({ uid: "guest-uid", role: TripRole.Guest });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[planner, guest]}
         nonAccountMembers={[]}
@@ -190,7 +183,6 @@ describe("MembersPageView — non-account member display", () => {
     const nonAccount = makeNonAccountMember({ name: "Alex" });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Guest}
         accountMembers={[]}
         nonAccountMembers={[nonAccount]}
@@ -208,7 +200,6 @@ describe("MembersPageView — non-account member display", () => {
     const nonAccount = makeNonAccountMember({ claimedBy: undefined });
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Guest}
         accountMembers={[]}
         nonAccountMembers={[nonAccount]}
@@ -226,7 +217,6 @@ describe("MembersPageView — non-account member display", () => {
     const nonAccount = makeNonAccountMember();
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[]}
         nonAccountMembers={[nonAccount]}
@@ -245,7 +235,6 @@ describe("MembersPageView — add non-account member form", () => {
   it("renders add member button for Planner", () => {
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[]}
         nonAccountMembers={[]}
@@ -262,7 +251,6 @@ describe("MembersPageView — add non-account member form", () => {
   it("does not render add member button for Guest", () => {
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Guest}
         accountMembers={[]}
         nonAccountMembers={[]}
@@ -280,7 +268,6 @@ describe("MembersPageView — add non-account member form", () => {
     const onAdd = vi.fn();
     render(
       <MembersPageView
-        tripId="trip-1"
         currentUserRole={TripRole.Planner}
         accountMembers={[]}
         nonAccountMembers={[]}

@@ -139,7 +139,6 @@ function AddNonAccountMemberForm({ onSubmit }: AddNonAccountMemberFormProps) {
 }
 
 export interface MembersPageViewProps {
-  tripId: string;
   currentUserRole: TripRole;
   accountMembers: TripMember[];
   nonAccountMembers: NonAccountMember[];
