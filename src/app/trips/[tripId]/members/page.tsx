@@ -45,13 +45,17 @@ function useInviteToken(tripId: string) {
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   useEffect(() => {
-    void fetch(`/api/trips/${tripId}`)
-      .then(async (res) => {
+    async function load() {
+      try {
+        const res = await fetch(`/api/trips/${tripId}`);
         if (!res.ok) return;
         const json = (await res.json()) as { inviteToken?: string };
         setInviteToken(json.inviteToken ?? "");
-      })
-      .catch(() => undefined);
+      } catch {
+        // ignore — token stays empty
+      }
+    }
+    void load();
   }, [tripId]);
 
   const regenerate = useCallback(async () => {
@@ -122,7 +126,6 @@ export default function MembersPage() {
     <main className="mx-auto max-w-lg px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold">Members</h1>
       <MembersPageView
-        tripId={tripId}
         inviteToken={inviteToken}
         currentUserRole={currentUserRole}
         accountMembers={data?.accountMembers ?? []}

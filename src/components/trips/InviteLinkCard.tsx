@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { INVITE_LINK_CARD_COPY } from "./InviteLinkCard.copy";
 
 export interface InviteLinkCardProps {
-  tripId: string;
   inviteToken: string;
   onRegen: () => void;
   isRegenerating: boolean;

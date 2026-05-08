@@ -9,13 +9,11 @@ afterEach(() => {
 });
 
 const TOKEN = "x4kPq2abc";
-const TRIP_ID = "trip-1";
 
 describe("InviteLinkCard — renders invite link", () => {
   it("displays the invite URL containing the token", () => {
     render(
       <InviteLinkCard
-        tripId={TRIP_ID}
         inviteToken={TOKEN}
         onRegen={vi.fn()}
         isRegenerating={false}
@@ -28,7 +26,6 @@ describe("InviteLinkCard — renders invite link", () => {
   it("renders the Copy button", () => {
     render(
       <InviteLinkCard
-        tripId={TRIP_ID}
         inviteToken={TOKEN}
         onRegen={vi.fn()}
         isRegenerating={false}
@@ -40,7 +37,6 @@ describe("InviteLinkCard — renders invite link", () => {
   it("renders the Regen button", () => {
     render(
       <InviteLinkCard
-        tripId={TRIP_ID}
         inviteToken={TOKEN}
         onRegen={vi.fn()}
         isRegenerating={false}
@@ -55,7 +51,6 @@ describe("InviteLinkCard — regen action", () => {
     const onRegen = vi.fn();
     render(
       <InviteLinkCard
-        tripId={TRIP_ID}
         inviteToken={TOKEN}
         onRegen={onRegen}
         isRegenerating={false}
@@ -68,7 +63,6 @@ describe("InviteLinkCard — regen action", () => {
   it("disables the Regen button while regenerating", () => {
     render(
       <InviteLinkCard
-        tripId={TRIP_ID}
         inviteToken={TOKEN}
         onRegen={vi.fn()}
         isRegenerating={true}

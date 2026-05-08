@@ -141,7 +141,6 @@ function AddNonAccountMemberForm({ onSubmit }: AddNonAccountMemberFormProps) {
 }
 
 export interface MembersPageViewProps {
-  tripId: string;
   inviteToken: string;
   currentUserRole: TripRole;
   accountMembers: TripMember[];
@@ -156,7 +155,6 @@ export interface MembersPageViewProps {
 }
 
 export function MembersPageView({
-  tripId,
   inviteToken,
   currentUserRole,
   accountMembers,
@@ -181,7 +179,6 @@ export function MembersPageView({
     <div className="flex flex-col gap-6">
       {currentUserRole === TripRole.Planner && (
         <InviteLinkCard
-          tripId={tripId}
           inviteToken={inviteToken}
           onRegen={onRegenInvite}
           isRegenerating={isRegeneratingInvite}

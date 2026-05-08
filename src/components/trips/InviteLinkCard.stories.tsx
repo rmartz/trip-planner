@@ -11,7 +11,6 @@ type Story = StoryObj<typeof InviteLinkCard>;
 
 export const Normal: Story = {
   args: {
-    tripId: "trip-1",
     inviteToken: "x4kPq2abc",
     onRegen: () => undefined,
     isRegenerating: false,
@@ -20,7 +19,6 @@ export const Normal: Story = {
 
 export const Regenerating: Story = {
   args: {
-    tripId: "trip-1",
     inviteToken: "x4kPq2abc",
     onRegen: () => undefined,
     isRegenerating: true,
