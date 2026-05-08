@@ -1,10 +1,10 @@
 import type { DocumentData } from "firebase/firestore";
-import {
-  ExpenseCategory,
-  ExpenseSplitMethod,
+import { ExpenseCategory, ExpenseSplitMethod } from "@/lib/types/expense";
+import type {
+  Expense,
+  ExpenseLinkedEntity,
   ExpenseLinkedEntityType,
 } from "@/lib/types/expense";
-import type { Expense, ExpenseLinkedEntity } from "@/lib/types/expense";
 
 function toParticipantUids(value: unknown): string[] {
   if (!Array.isArray(value)) {
@@ -32,6 +32,7 @@ export function firebaseToExpense(
   tripId: string,
   data: DocumentData,
 ): Expense {
+  const linkedEntity = toLinkedEntity(data["linkedEntity"]);
   return {
     expenseId,
     tripId,
@@ -45,9 +46,7 @@ export function firebaseToExpense(
     splitMethod:
       (data["splitMethod"] as ExpenseSplitMethod | undefined) ??
       ExpenseSplitMethod.Even,
-    ...(toLinkedEntity(data["linkedEntity"]) !== undefined
-      ? { linkedEntity: toLinkedEntity(data["linkedEntity"]) }
-      : {}),
+    ...(linkedEntity !== undefined ? { linkedEntity } : {}),
   };
 }
 
