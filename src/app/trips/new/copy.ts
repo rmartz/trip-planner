@@ -1,5 +1,6 @@
 export const CREATE_TRIP_PAGE_COPY = {
   heading: "Create a trip",
+  pageTitle: "New trip",
   nameLabel: "Trip name",
   namePlaceholder: "e.g. Summer road trip",
   startDateLabel: "Start date",
