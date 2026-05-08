@@ -13,10 +13,13 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
-  const [stops, role] = await Promise.all([
-    getStopsForTrip(tripId),
-    getStopMemberRole(uid, tripId),
-  ]);
+  const role = await getStopMemberRole(uid, tripId);
+
+  if (role === null) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const stops = await getStopsForTrip(tripId);
 
   return NextResponse.json({
     stops: stops.map((stop) => ({
