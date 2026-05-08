@@ -1,0 +1,31 @@
+name: Sentry Release
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  create-release:
+    name: Create Sentry Release
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+        with:
+          environment: production
+          # Use the full commit SHA as the release version, matching the value
+          # injected at build time via NEXT_PUBLIC_SENTRY_RELEASE.
+          version: ${{ github.sha }}
+          set_commits: auto

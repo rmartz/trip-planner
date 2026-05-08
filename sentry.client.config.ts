@@ -6,6 +6,10 @@ Sentry.init({
 
   environment: process.env["NEXT_PUBLIC_VERCEL_ENV"] ?? process.env.NODE_ENV,
 
+  // Commit SHA injected at build time; tags client-side errors to the exact
+  // release so Sentry can distinguish regressions from pre-existing issues.
+  release: process.env["NEXT_PUBLIC_SENTRY_RELEASE"],
+
   // Sends IP addresses, cookies, and request headers. Off by default; opt in via
   // NEXT_PUBLIC_SENTRY_ENABLE_SENSITIVE_DATA=true (development only).
   sendDefaultPii:
