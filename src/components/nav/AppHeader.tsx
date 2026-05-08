@@ -30,41 +30,35 @@ export type AppHeaderProps = AppHeaderHomeProps | AppHeaderDrilledProps;
 export function AppHeader(props: AppHeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  if (props.variant === "drilled") {
-    const { title, subtitle, onBack, rightSlot } = props;
-    return (
-      <AppHeaderView
-        title={title}
-        subtitle={subtitle}
-        leftSlot={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onBack}
-            aria-label={APP_HEADER_COPY.ariaLabelGoBack}
-          >
-            <ArrowLeftIcon />
-          </Button>
-        }
-        rightSlot={rightSlot}
-      />
-    );
-  }
-
-  const { title, subtitle, unreadCount = 0, drawerProps } = props;
-  return (
+  return props.variant === "drilled" ? (
+    <AppHeaderView
+      title={props.title}
+      subtitle={props.subtitle}
+      leftSlot={
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={props.onBack}
+          aria-label={APP_HEADER_COPY.ariaLabelGoBack}
+        >
+          <ArrowLeftIcon />
+        </Button>
+      }
+      rightSlot={props.rightSlot}
+    />
+  ) : (
     <>
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="left" showCloseButton={false}>
           <SheetTitle className="sr-only">
             {APP_HEADER_COPY.navigationSheetTitle}
           </SheetTitle>
-          <AppDrawerView {...drawerProps} />
+          <AppDrawerView {...props.drawerProps} />
         </SheetContent>
       </Sheet>
       <AppHeaderView
-        title={title}
-        subtitle={subtitle}
+        title={props.title}
+        subtitle={props.subtitle}
         leftSlot={
           <Button
             variant="ghost"
@@ -77,7 +71,7 @@ export function AppHeader(props: AppHeaderProps) {
             <MenuIcon />
           </Button>
         }
-        rightSlot={<NotificationBell unreadCount={unreadCount} />}
+        rightSlot={<NotificationBell unreadCount={props.unreadCount ?? 0} />}
       />
     </>
   );

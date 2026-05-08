@@ -12,6 +12,7 @@ import { useReorderStops } from "@/hooks/use-reorder-stops";
 import { TripStructurePageView } from "./TripStructurePageView";
 import { AddStopFormView } from "./AddStopFormView";
 import { AppShell } from "@/components/nav/AppShell";
+import { TRIP_STRUCTURE_COPY } from "./copy";
 
 interface TripStructurePageProps {
   params: Promise<{ tripId: string }>;
@@ -35,7 +36,7 @@ export default function TripStructurePage({ params }: TripStructurePageProps) {
     <AppShell
       header={{
         variant: "drilled",
-        title: "Plan structure",
+        title: TRIP_STRUCTURE_COPY.pageTitle,
         onBack: () => {
           router.back();
         },

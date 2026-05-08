@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCreateTrip } from "@/hooks/use-create-trip";
 import { AppShell } from "@/components/nav/AppShell";
 import { CreateTripPageView } from "./CreateTripPageView";
+import { CREATE_TRIP_PAGE_COPY } from "./copy";
 
 export default function CreateTripPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function CreateTripPage() {
     <AppShell
       header={{
         variant: "drilled",
-        title: "New trip",
+        title: CREATE_TRIP_PAGE_COPY.pageTitle,
         onBack: () => {
           router.back();
         },

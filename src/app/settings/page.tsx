@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { UnavailableRangeManager } from "@/components/unavailability/UnavailableRangeManager";
 import { AppShell } from "@/components/nav/AppShell";
+import { SETTINGS_PAGE_COPY } from "./settings.copy";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function SettingsPage() {
     <AppShell
       header={{
         variant: "drilled",
-        title: "Settings",
+        title: SETTINGS_PAGE_COPY.title,
         onBack: () => {
           router.back();
         },
