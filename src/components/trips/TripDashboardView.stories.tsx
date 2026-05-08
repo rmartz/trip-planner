@@ -18,6 +18,7 @@ const activeTrip: Trip = {
   createdAt: new Date("2026-01-01T12:00:00Z"),
   createdBy: "uid-a",
   memberUids: ["uid-a", "uid-b", "uid-c"],
+  inviteToken: "tok-1",
 };
 
 const activeTrip2: Trip = {
@@ -29,6 +30,7 @@ const activeTrip2: Trip = {
   createdBy: "uid-a",
   memberUids: ["uid-a"],
   gapCount: 2,
+  inviteToken: "tok-2",
 };
 
 const pastTrip: Trip = {
@@ -39,6 +41,7 @@ const pastTrip: Trip = {
   createdAt: new Date("2025-01-01T12:00:00Z"),
   createdBy: "uid-a",
   memberUids: ["uid-a", "uid-b"],
+  inviteToken: "tok-3",
 };
 
 export const Empty: Story = {
