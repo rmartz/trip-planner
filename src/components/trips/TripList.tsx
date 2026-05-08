@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useTrips } from "@/hooks/use-trips";
 import type { Trip } from "@/lib/types/trip";
+import { getTripPhase } from "@/lib/trips/phase";
+import { PhasePill } from "./PhasePill";
 import { TRIP_LIST_COPY } from "./TripList.copy";
 
 function formatDateRange(startDate: Date, endDate: Date): string {
@@ -19,9 +21,13 @@ interface TripCardProps {
 }
 
 function TripCard({ trip }: TripCardProps) {
+  const phase = getTripPhase(trip);
   return (
     <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-      <h3 className="font-medium">{trip.name}</h3>
+      <div className="flex items-start justify-between">
+        <h3 className="font-medium">{trip.name}</h3>
+        <PhasePill phase={phase} />
+      </div>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         {formatDateRange(trip.startDate, trip.endDate)}
       </p>

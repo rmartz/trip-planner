@@ -1,3 +1,10 @@
+export enum TripPhase {
+  Coordination = "coordination",
+  Planning = "planning",
+  Settled = "settled",
+  SettlingUp = "settling_up",
+}
+
 export enum TripRole {
   Guest = "guest",
   Planner = "planner",
