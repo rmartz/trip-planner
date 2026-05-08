@@ -22,7 +22,7 @@ export async function getMembersForTrip(
     tripRef.collection("nonAccountMembers").get(),
   ]);
 
-  const accountMembers = membersSnapshot.docs.map((doc) =>
+  const rawAccountMembers = membersSnapshot.docs.map((doc) =>
     firebaseToTripMember(doc.id, tripId, doc.data()),
   );
 
@@ -30,7 +30,30 @@ export async function getMembersForTrip(
     firebaseToNonAccountMember(doc.id, tripId, doc.data()),
   );
 
+  const uids = rawAccountMembers.map((m) => m.uid);
+  const displayNameByUid = await resolveDisplayNames(db, uids);
+
+  const accountMembers = rawAccountMembers.map((m) => ({
+    ...m,
+    displayName: displayNameByUid[m.uid],
+  }));
+
   return { accountMembers, nonAccountMembers };
+}
+
+async function resolveDisplayNames(
+  db: ReturnType<typeof getAdminFirestore>,
+  uids: string[],
+): Promise<Record<string, string | undefined>> {
+  if (uids.length === 0) return {};
+  const snapshots = await Promise.all(
+    uids.map((uid) => db.collection("users").doc(uid).get()),
+  );
+  const result: Record<string, string | undefined> = {};
+  for (const snap of snapshots) {
+    result[snap.id] = snap.data()?.["displayName"] as string | undefined;
+  }
+  return result;
 }
 
 export async function addNonAccountMember(
@@ -54,9 +77,14 @@ export async function addNonAccountMember(
   const claimToken = generateClaimToken();
   const nonAccountRef = tripRef.collection("nonAccountMembers").doc();
 
+  const plannerProfileSnap = await db.collection("users").doc(uid).get();
+  const proxiedByName =
+    (plannerProfileSnap.data()?.["displayName"] as string | undefined) ?? uid;
+
   await nonAccountRef.set({
     name: name.trim(),
     proxiedBy: uid,
+    proxiedByName,
     claimToken,
     claimedBy: undefined,
   });
@@ -66,6 +94,7 @@ export async function addNonAccountMember(
     tripId,
     name: name.trim(),
     proxiedBy: uid,
+    proxiedByName,
     claimToken,
     claimedBy: undefined,
   };

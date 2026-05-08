@@ -3,6 +3,7 @@ export interface NonAccountMember {
   tripId: string;
   name: string;
   proxiedBy: string;
+  proxiedByName: string;
   claimToken: string;
   claimedBy: string | undefined;
 }

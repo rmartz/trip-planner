@@ -32,7 +32,12 @@ function makeMemberDoc(uid: string, role: TripRole) {
 function makeNonAccountDoc(id: string, name: string) {
   return {
     id,
-    data: () => ({ name, proxiedBy: "planner-uid", claimToken: "token-abc" }),
+    data: () => ({
+      name,
+      proxiedBy: "planner-uid",
+      proxiedByName: "Planner Name",
+      claimToken: "token-abc",
+    }),
   };
 }
 
@@ -45,6 +50,7 @@ function makeMockDb() {
   const memberDocDelete = vi.fn();
   const nonAccountDocSet = vi.fn();
   const nonAccountDocGet = vi.fn();
+  const userDocGet = vi.fn();
   const batchSet = vi.fn();
   const batchUpdate = vi.fn();
   const batchDelete = vi.fn();
@@ -70,6 +76,12 @@ function makeMockDb() {
     })),
   };
 
+  const usersCollection = {
+    doc: vi.fn(() => ({
+      get: userDocGet,
+    })),
+  };
+
   const tripDoc = {
     collection: vi.fn((name: string) => {
       if (name === "members") return membersCollection;
@@ -83,7 +95,10 @@ function makeMockDb() {
   };
 
   const mockDb = {
-    collection: vi.fn(() => tripsCollection),
+    collection: vi.fn((name: string) => {
+      if (name === "users") return usersCollection;
+      return tripsCollection;
+    }),
     batch: vi.fn(() => ({
       set: batchSet,
       update: batchUpdate,
@@ -102,8 +117,10 @@ function makeMockDb() {
     memberDocDelete,
     nonAccountDocSet,
     nonAccountDocGet,
+    userDocGet,
     membersCollection,
     nonAccountCollection,
+    usersCollection,
     batchSet,
     batchUpdate,
     batchDelete,
@@ -117,7 +134,7 @@ describe("getMembersForTrip", () => {
   });
 
   it("returns account members and non-account members for a trip", async () => {
-    const { mockDb, memberGet, nonAccountGet } = makeMockDb();
+    const { mockDb, memberGet, nonAccountGet, userDocGet } = makeMockDb();
     vi.mocked(getAdminFirestore).mockReturnValue(
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
@@ -128,20 +145,27 @@ describe("getMembersForTrip", () => {
     const nonAccountDocs = [makeNonAccountDoc("na-1", "Ben")];
     nonAccountGet.mockResolvedValue({ docs: nonAccountDocs });
 
-    const mappedMember: TripMember = {
+    userDocGet.mockResolvedValue({
+      id: "uid-1",
+      data: () => ({ displayName: "Alice" }),
+    });
+
+    const rawMember: TripMember = {
       uid: "uid-1",
       tripId: "trip-1",
       role: TripRole.Planner,
       joinedAt: new Date("2025-01-01"),
       memberUids: [],
+      displayName: undefined,
     };
-    vi.mocked(firebaseToTripMember).mockReturnValue(mappedMember);
+    vi.mocked(firebaseToTripMember).mockReturnValue(rawMember);
 
     const mappedNonAccount: NonAccountMember = {
       nonAccountMemberId: "na-1",
       tripId: "trip-1",
       name: "Ben",
       proxiedBy: "planner-uid",
+      proxiedByName: "Planner Name",
       claimToken: "token-abc",
       claimedBy: undefined,
     };
@@ -149,7 +173,7 @@ describe("getMembersForTrip", () => {
 
     const result = await getMembersForTrip("trip-1");
 
-    expect(result.accountMembers).toEqual([mappedMember]);
+    expect(result.accountMembers).toEqual([{ ...rawMember, displayName: "Alice" }]);
     expect(result.nonAccountMembers).toEqual([mappedNonAccount]);
   });
 });
@@ -176,7 +200,7 @@ describe("addNonAccountMember", () => {
   });
 
   it("creates a non-account member doc when requester is a Planner", async () => {
-    const { mockDb, memberDocGet, nonAccountDocSet } = makeMockDb();
+    const { mockDb, memberDocGet, nonAccountDocSet, userDocGet } = makeMockDb();
     vi.mocked(getAdminFirestore).mockReturnValue(
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
@@ -184,6 +208,9 @@ describe("addNonAccountMember", () => {
     memberDocGet.mockResolvedValue({
       exists: true,
       data: () => ({ role: TripRole.Planner }),
+    });
+    userDocGet.mockResolvedValue({
+      data: () => ({ displayName: "Alice Planner" }),
     });
     nonAccountDocSet.mockResolvedValue(undefined);
 
@@ -194,6 +221,7 @@ describe("addNonAccountMember", () => {
     expect(typeof result.claimToken).toBe("string");
     expect(result.name).toBe("Alex");
     expect(result.proxiedBy).toBe("planner-uid");
+    expect(result.proxiedByName).toBe("Alice Planner");
   });
 
   it("throws when name is empty", async () => {

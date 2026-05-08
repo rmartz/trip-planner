@@ -23,15 +23,16 @@ function AccountMemberRow({
     member.role === TripRole.Planner
       ? MEMBERS_PAGE_COPY.rolePlanner
       : MEMBERS_PAGE_COPY.roleGuest;
+  const displayLabel = member.displayName ?? member.uid;
 
   return (
     <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium dark:bg-zinc-700">
-          {member.uid.charAt(0).toUpperCase()}
+          {displayLabel.charAt(0).toUpperCase()}
         </div>
         <div>
-          <span className="text-sm font-medium">{member.uid}</span>
+          <span className="text-sm font-medium">{displayLabel}</span>
           <span className="ml-2 text-xs text-zinc-500">{roleLabel}</span>
         </div>
       </div>
@@ -83,7 +84,7 @@ function NonAccountMemberRow({
         <div>
           <span className="text-sm font-medium">{member.name}</span>
           <span className="ml-1 text-xs text-zinc-500">
-            ({MEMBERS_PAGE_COPY.proxiedBySuffix} {member.proxiedBy})
+            ({MEMBERS_PAGE_COPY.proxiedBySuffix} {member.proxiedByName})
           </span>
           <p className="text-xs text-zinc-400">
             {member.claimedBy
@@ -159,23 +160,15 @@ export function MembersPageView({
   onRemove,
   onAddNonAccountMember,
 }: MembersPageViewProps) {
-  if (isLoading) {
-    return (
-      <p className="text-zinc-500 dark:text-zinc-400">
-        {MEMBERS_PAGE_COPY.loadingText}
-      </p>
-    );
-  }
-
-  if (isError) {
-    return (
-      <p className="text-red-500 dark:text-red-400">
-        {MEMBERS_PAGE_COPY.errorText}
-      </p>
-    );
-  }
-
-  return (
+  return isLoading ? (
+    <p className="text-zinc-500 dark:text-zinc-400">
+      {MEMBERS_PAGE_COPY.loadingText}
+    </p>
+  ) : isError ? (
+    <p className="text-red-500 dark:text-red-400">
+      {MEMBERS_PAGE_COPY.errorText}
+    </p>
+  ) : (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">

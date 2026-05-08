@@ -104,4 +104,14 @@ describe("tripMemberToFirebase", () => {
     });
     expect(data.memberUids).toEqual(MEMBER_UIDS);
   });
+
+  it("does not include displayName in the Firebase document", () => {
+    const data = tripMemberToFirebase({
+      uid: "user-1",
+      role: TripRole.Guest,
+      joinedAt: new Date(JOINED_AT),
+      memberUids: MEMBER_UIDS,
+    });
+    expect("displayName" in data).toBe(false);
+  });
 });

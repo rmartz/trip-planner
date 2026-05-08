@@ -20,6 +20,7 @@ function makeTripMember(overrides: Partial<TripMember> = {}): TripMember {
     role: TripRole.Guest,
     joinedAt: new Date("2025-01-01T00:00:00.000Z"),
     memberUids: [],
+    displayName: "Test User",
     ...overrides,
   };
 }
@@ -32,6 +33,7 @@ function makeNonAccountMember(
     tripId: "trip-1",
     name: "Ben",
     proxiedBy: "planner-uid",
+    proxiedByName: "Test Planner",
     claimToken: "token-abc",
     claimedBy: undefined,
     ...overrides,
