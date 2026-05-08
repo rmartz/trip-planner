@@ -87,7 +87,7 @@ export default function DestinationsPage() {
     }
   }
 
-  async function handleOpenAttach(destination: Destination) {
+  function handleOpenAttach(destination: Destination) {
     setViewState({ mode: "attach", destination });
     for (const trip of trips ?? []) {
       void loadStopsForTrip(trip);
@@ -196,7 +196,7 @@ export default function DestinationsPage() {
             // Share flow: follow-up
           }}
           onAttach={(dest) => {
-            void handleOpenAttach(dest);
+            handleOpenAttach(dest);
           }}
         />
       )}
