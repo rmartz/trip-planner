@@ -185,3 +185,14 @@ export async function getArchivedLegsForTrip(tripId: string): Promise<Leg[]> {
     .get();
   return snapshot.docs.map((doc) => firebaseToLeg(doc.id, tripId, doc.data()));
 }
+
+export async function getAllLegsForTrip(tripId: string): Promise<Leg[]> {
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("legs")
+    .orderBy("order")
+    .get();
+  return snapshot.docs.map((doc) => firebaseToLeg(doc.id, tripId, doc.data()));
+}
