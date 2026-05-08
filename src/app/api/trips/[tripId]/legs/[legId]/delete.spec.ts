@@ -64,7 +64,9 @@ describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
   });
 
   it("returns 500 for unexpected errors", async () => {
-    vi.mocked(softDeleteLeg).mockRejectedValue(new Error("Database unavailable"));
+    vi.mocked(softDeleteLeg).mockRejectedValue(
+      new Error("Database unavailable"),
+    );
 
     const request = makeDeleteRequest("uid-1");
     const response = await DELETE(request, {

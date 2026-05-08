@@ -69,7 +69,11 @@ describe("getArchivedLegsForTrip", () => {
       {
         id: "leg-1",
         exists: true,
-        data: () => ({ fromStopId: "stop-1", toStopId: "stop-2", isActive: false }),
+        data: () => ({
+          fromStopId: "stop-1",
+          toStopId: "stop-2",
+          isActive: false,
+        }),
       },
     ];
     get.mockResolvedValue({ docs } satisfies MockQuerySnapshot);
@@ -88,7 +92,11 @@ describe("getArchivedLegsForTrip", () => {
 
     const result = await getArchivedLegsForTrip("trip-abc");
 
-    expect(firebaseToLeg).toHaveBeenCalledWith("leg-1", "trip-abc", docs[0]!.data());
+    expect(firebaseToLeg).toHaveBeenCalledWith(
+      "leg-1",
+      "trip-abc",
+      docs[0]!.data(),
+    );
     expect(result).toEqual([mappedLeg]);
   });
 });

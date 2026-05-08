@@ -34,9 +34,9 @@ describe("softDeleteLeg", () => {
       exists: true,
       data: () => ({ role: TripRole.Guest }),
     });
-    await expect(
-      softDeleteLeg("uid-guest", "trip-1", "leg-1"),
-    ).rejects.toThrow("Only Planners can remove legs");
+    await expect(softDeleteLeg("uid-guest", "trip-1", "leg-1")).rejects.toThrow(
+      "Only Planners can remove legs",
+    );
   });
 
   it("throws when member does not exist", async () => {

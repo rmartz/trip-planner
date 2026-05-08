@@ -125,7 +125,9 @@ describe("ArchivePageView — archived legs section", () => {
       />,
     );
     expect(
-      screen.getByRole("button", { name: ARCHIVE_PAGE_COPY.deleteForeverButton }),
+      screen.getByRole("button", {
+        name: ARCHIVE_PAGE_COPY.deleteForeverButton,
+      }),
     ).toBeDefined();
   });
 });

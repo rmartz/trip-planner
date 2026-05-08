@@ -109,7 +109,9 @@ describe("RemoveLegConfirmModalView — actions", () => {
       />,
     );
     screen
-      .getByRole("button", { name: REMOVE_LEG_CONFIRM_MODAL_COPY.confirmButton })
+      .getByRole("button", {
+        name: REMOVE_LEG_CONFIRM_MODAL_COPY.confirmButton,
+      })
       .click();
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
@@ -141,9 +143,9 @@ describe("RemoveLegConfirmModalView — actions", () => {
         onCancel={vi.fn()}
       />,
     );
-    const btn = screen.getByRole("button", {
+    const btn = screen.getByRole<HTMLButtonElement>("button", {
       name: REMOVE_LEG_CONFIRM_MODAL_COPY.confirmButton,
-    }) as HTMLButtonElement;
+    });
     expect(btn.disabled).toBe(true);
   });
 });

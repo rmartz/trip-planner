@@ -1,7 +1,7 @@
 export const ARCHIVE_PAGE_COPY = {
   heading: "Archive",
   subtext: "soft-deleted · planner only",
-  removedLegsHeading: (count: number) => `Removed legs · ${count}`,
+  removedLegsHeading: (count: number) => `Removed legs · ${String(count)}`,
   restoreButton: "Restore",
   deleteForeverButton: "Delete forever",
   emptyState: "No archived legs.",

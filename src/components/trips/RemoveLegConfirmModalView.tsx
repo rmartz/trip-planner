@@ -26,7 +26,9 @@ export function RemoveLegConfirmModalView({
 
       <p className="text-sm text-muted-foreground">
         {affectedGuestUids.length > 0
-          ? REMOVE_LEG_CONFIRM_MODAL_COPY.bodyWithGuests(affectedGuestUids.length)
+          ? REMOVE_LEG_CONFIRM_MODAL_COPY.bodyWithGuests(
+              affectedGuestUids.length,
+            )
           : REMOVE_LEG_CONFIRM_MODAL_COPY.bodyNoGuests}
       </p>
 
@@ -48,11 +50,7 @@ export function RemoveLegConfirmModalView({
       <p className="text-sm font-medium">{legName}</p>
 
       <div className="flex gap-2">
-        <Button
-          variant="destructive"
-          disabled={isRemoving}
-          onClick={onConfirm}
-        >
+        <Button variant="destructive" disabled={isRemoving} onClick={onConfirm}>
           {REMOVE_LEG_CONFIRM_MODAL_COPY.confirmButton}
         </Button>
         <Button variant="outline" onClick={onCancel}>
