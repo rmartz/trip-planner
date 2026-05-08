@@ -187,7 +187,12 @@ export function ScreenAvailabilityView({
   const lastDate = dates[dates.length - 1];
   const conflictKeys =
     firstDate !== undefined && lastDate !== undefined
-      ? getConflictDateKeys(firstDate, lastDate, currentUserTrips, currentUserRanges)
+      ? getConflictDateKeys(
+          firstDate,
+          lastDate,
+          currentUserTrips,
+          currentUserRanges,
+        )
       : new Set<string>();
 
   const bestWindows = getBestWindows(dates, freeCountByDate, memberCount);
