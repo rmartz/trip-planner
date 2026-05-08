@@ -20,8 +20,8 @@ function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return {
     tripId: "trip-1",
     name: "Paris Trip",
-    startDate: new Date(`${START_DATE}T00:00:00.000Z`),
-    endDate: new Date(`${END_DATE}T00:00:00.000Z`),
+    startDate: new Date(2025, 5, 1),
+    endDate: new Date(2025, 5, 8),
     createdAt: new Date(CREATED_AT),
     createdBy: "uid-abc",
     memberUids: ["uid-abc"],
@@ -192,8 +192,8 @@ describe("POST /api/trips", () => {
     expect(vi.mocked(createTripForUser)).toHaveBeenCalledWith(
       "user-abc",
       "Road Trip",
-      new Date("2025-06-01"),
-      new Date("2025-06-08"),
+      new Date(2025, 5, 1),
+      new Date(2025, 5, 8),
     );
   });
 });
