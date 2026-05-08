@@ -57,7 +57,7 @@ export function AppDrawerView(props: AppDrawerViewProps) {
     return (
       <nav className="flex h-full flex-col overflow-y-auto">
         <div className="border-b border-border p-4">
-          <p className="text-sm font-semibold">Trip Planner</p>
+          <p className="text-sm font-semibold">{APP_DRAWER_COPY.appName}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">{userEmail}</p>
         </div>
 
@@ -122,7 +122,7 @@ export function AppDrawerView(props: AppDrawerViewProps) {
   return (
     <nav className="flex h-full flex-col overflow-y-auto">
       <div className="border-b border-border p-4">
-        <p className="text-sm font-semibold">Trip Planner</p>
+        <p className="text-sm font-semibold">{APP_DRAWER_COPY.appName}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">{userEmail}</p>
       </div>
 
@@ -133,62 +133,62 @@ export function AppDrawerView(props: AppDrawerViewProps) {
       <div className="flex-1">
         <SectionHeading>{APP_DRAWER_COPY.tripSectionHeading}</SectionHeading>
         <NavItem
-          label="Trip overview"
+          label={APP_DRAWER_COPY.navTripOverview}
           href={`/trips/${activeTrip.tripId}`}
           route={`/trips/${activeTrip.tripId}`}
         />
         <NavItem
-          label="Members"
+          label={APP_DRAWER_COPY.navMembers}
           href={`/trips/${activeTrip.tripId}/members`}
           route={`/trips/${activeTrip.tripId}/members`}
         />
         <NavItem
-          label="Plan structure"
+          label={APP_DRAWER_COPY.navPlanStructure}
           href={`/trips/${activeTrip.tripId}/structure`}
           route={`/trips/${activeTrip.tripId}/structure`}
         />
         <NavItem
-          label="Candidate places"
+          label={APP_DRAWER_COPY.navCandidatePlaces}
           href={`/trips/${activeTrip.tripId}/places`}
           route={`/trips/${activeTrip.tripId}/places`}
         />
         <NavItem
-          label="Availability"
+          label={APP_DRAWER_COPY.navAvailability}
           href={`/trips/${activeTrip.tripId}/availability`}
           route={`/trips/${activeTrip.tripId}/availability`}
         />
         <NavItem
-          label="Lodging"
+          label={APP_DRAWER_COPY.navLodging}
           href={`/trips/${activeTrip.tripId}/lodging`}
           route={`/trips/${activeTrip.tripId}/lodging`}
         />
         <NavItem
-          label="Transportation"
+          label={APP_DRAWER_COPY.navTransportation}
           href={`/trips/${activeTrip.tripId}/transportation`}
           route={`/trips/${activeTrip.tripId}/transportation`}
         />
         <NavItem
-          label="Activities"
+          label={APP_DRAWER_COPY.navActivities}
           href={`/trips/${activeTrip.tripId}/activities`}
           route={`/trips/${activeTrip.tripId}/activities`}
         />
         <NavItem
-          label="Expenses"
+          label={APP_DRAWER_COPY.navExpenses}
           href={`/trips/${activeTrip.tripId}/expenses`}
           route={`/trips/${activeTrip.tripId}/expenses`}
         />
         <NavItem
-          label="Balances"
+          label={APP_DRAWER_COPY.navBalances}
           href={`/trips/${activeTrip.tripId}/balances`}
           route={`/trips/${activeTrip.tripId}/balances`}
         />
         <NavItem
-          label="Archive"
+          label={APP_DRAWER_COPY.navArchive}
           href={`/trips/${activeTrip.tripId}/archive`}
           route={`/trips/${activeTrip.tripId}/archive`}
         />
 
-        <SectionHeading>Switch</SectionHeading>
+        <SectionHeading>{APP_DRAWER_COPY.switchSectionHeading}</SectionHeading>
         <NavItem
           label={APP_DRAWER_COPY.allTrips}
           href="/trips"

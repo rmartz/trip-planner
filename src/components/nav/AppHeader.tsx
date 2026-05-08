@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AppHeaderView } from "./AppHeaderView";
 import { AppDrawerView, type AppDrawerViewProps } from "./AppDrawerView";
+import { APP_HEADER_COPY } from "./AppHeader.copy";
 import { NotificationBell } from "./NotificationBell";
 
 interface AppHeaderHomeProps {
@@ -40,7 +41,7 @@ export function AppHeader(props: AppHeaderProps) {
             variant="ghost"
             size="icon-sm"
             onClick={onBack}
-            aria-label="Go back"
+            aria-label={APP_HEADER_COPY.ariaLabelGoBack}
           >
             <ArrowLeftIcon />
           </Button>
@@ -55,7 +56,7 @@ export function AppHeader(props: AppHeaderProps) {
     <>
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="left" showCloseButton={false}>
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <SheetTitle className="sr-only">{APP_HEADER_COPY.navigationSheetTitle}</SheetTitle>
           <AppDrawerView {...drawerProps} />
         </SheetContent>
       </Sheet>
@@ -69,7 +70,7 @@ export function AppHeader(props: AppHeaderProps) {
             onClick={() => {
               setDrawerOpen(true);
             }}
-            aria-label="Open menu"
+            aria-label={APP_HEADER_COPY.ariaLabelOpenMenu}
           >
             <MenuIcon />
           </Button>
