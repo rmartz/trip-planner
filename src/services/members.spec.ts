@@ -173,7 +173,9 @@ describe("getMembersForTrip", () => {
 
     const result = await getMembersForTrip("trip-1");
 
-    expect(result.accountMembers).toEqual([{ ...rawMember, displayName: "Alice" }]);
+    expect(result.accountMembers).toEqual([
+      { ...rawMember, displayName: "Alice" },
+    ]);
     expect(result.nonAccountMembers).toEqual([mappedNonAccount]);
   });
 });
