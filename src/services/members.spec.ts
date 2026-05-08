@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TripRole } from "@/lib/types/trip";
+import { NotFoundError, PlannerOnlyError } from "./errors";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
 vi.mock("@/lib/firebase/schema/trip", () => ({
@@ -198,7 +199,7 @@ describe("addNonAccountMember", () => {
 
     await expect(
       addNonAccountMember("guest-uid", "trip-1", "Alex"),
-    ).rejects.toThrow("Only Planners can add members");
+    ).rejects.toThrow(PlannerOnlyError);
   });
 
   it("creates a non-account member doc when requester is a Planner", async () => {
@@ -261,7 +262,7 @@ describe("promoteGuestToPlanner", () => {
 
     await expect(
       promoteGuestToPlanner("guest-uid", "trip-1", "target-uid"),
-    ).rejects.toThrow("Only Planners can promote members");
+    ).rejects.toThrow(PlannerOnlyError);
   });
 
   it("updates the target member's role to Planner", async () => {
@@ -302,7 +303,7 @@ describe("promoteGuestToPlanner", () => {
 
     await expect(
       promoteGuestToPlanner("planner-uid", "trip-1", "target-uid"),
-    ).rejects.toThrow("Target member not found or is not a Guest");
+    ).rejects.toThrow(NotFoundError);
   });
 });
 
@@ -324,7 +325,7 @@ describe("removeGuest", () => {
 
     await expect(
       removeGuest("guest-uid", "trip-1", "target-uid"),
-    ).rejects.toThrow("Only Planners can remove members");
+    ).rejects.toThrow(PlannerOnlyError);
   });
 
   it("deletes the target guest member doc", async () => {
@@ -365,7 +366,7 @@ describe("removeGuest", () => {
 
     await expect(
       removeGuest("planner-uid", "trip-1", "target-uid"),
-    ).rejects.toThrow("Target member not found or is not a Guest");
+    ).rejects.toThrow(NotFoundError);
   });
 });
 
