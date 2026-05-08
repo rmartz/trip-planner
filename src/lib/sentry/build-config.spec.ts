@@ -46,3 +46,15 @@ describe("getSentryBuildOptions — widens source file coverage", () => {
     expect(getSentryBuildOptions().widenClientFileUpload).toBe(true);
   });
 });
+
+describe("getSentryBuildOptions — release version for commit tracking", () => {
+  it("passes SENTRY_RELEASE as the release name when set", () => {
+    process.env["SENTRY_RELEASE"] = "abc1234def5678";
+    expect(getSentryBuildOptions().release).toEqual({ name: "abc1234def5678" });
+  });
+
+  it("release is undefined when SENTRY_RELEASE is not set", () => {
+    delete process.env["SENTRY_RELEASE"];
+    expect(getSentryBuildOptions().release).toBeUndefined();
+  });
+});
