@@ -1,3 +1,13 @@
+export {
+  TimeOfDaySlot,
+  TimeOfDaySlotType,
+  TransportationMode,
+} from "./activity";
+export type {
+  Activity,
+  ActivityGroupSize,
+  ActivityTimeOfDaySlot,
+} from "./activity";
 export type { Destination } from "./destination";
 export { TransportationStatus } from "./transportation";
 export type { TransportationEntry } from "./transportation";
