@@ -11,6 +11,7 @@ export type {
 export type { Destination } from "./destination";
 export { LodgingStatus } from "./lodging";
 export type { LodgingRecord } from "./lodging";
+export type { NonAccountMember } from "./non-account-member";
 export { TransportationStatus } from "./transportation";
 export type { TransportationEntry } from "./transportation";
 export type { UnavailableRange } from "./unavailable-range";
