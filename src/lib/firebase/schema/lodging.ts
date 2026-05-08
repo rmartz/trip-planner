@@ -6,7 +6,7 @@ import type { LodgingRecord } from "@/lib/types/lodging";
 const LODGING_STATUS_VALUES = new Set(Object.values(LodgingStatus));
 
 function isLodgingStatus(value: unknown): value is LodgingStatus {
-  return typeof value === "string" && LODGING_STATUS_VALUES.has(value);
+  return LODGING_STATUS_VALUES.has(value as LodgingStatus);
 }
 
 export function firebaseToLodging(
