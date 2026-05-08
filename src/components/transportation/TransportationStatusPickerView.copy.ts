@@ -4,9 +4,9 @@ export const TRANSPORTATION_STATUS_PICKER_COPY = {
   legSubheading: "your status per leg",
   statusLabels: {
     [TransportationStatus.Driving]: "Driving",
-    [TransportationStatus.DrivingWithSeats]: "Have own car",
+    [TransportationStatus.DrivingWithSeats]: "Driving — have seats",
     [TransportationStatus.FlyingOrOther]: "Skipping this leg",
     [TransportationStatus.NeedTransportation]: "Need a ride",
-    [TransportationStatus.RidingWith]: "No reply",
+    [TransportationStatus.RidingWith]: "Getting a ride",
   } satisfies Record<TransportationStatus, string>,
 } as const;

@@ -63,7 +63,7 @@ describe("TransportationStatusPickerView — renders all five status options", (
     ).toBeDefined();
   });
 
-  it("renders Have own car option", () => {
+  it("renders Driving with seats option", () => {
     render(<TransportationStatusPickerView {...makeProps()} />);
 
     expect(
@@ -87,7 +87,7 @@ describe("TransportationStatusPickerView — renders all five status options", (
     ).toBeDefined();
   });
 
-  it("renders No reply option", () => {
+  it("renders Getting a ride option", () => {
     render(<TransportationStatusPickerView {...makeProps()} />);
 
     expect(

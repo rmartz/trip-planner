@@ -12,9 +12,11 @@ export function firebaseToTransportationEntry(
     entryId,
     legId,
     uid,
-    status:
-      (data["status"] as TransportationStatus | undefined) ??
-      TransportationStatus.NeedTransportation,
+    status: Object.values(TransportationStatus).includes(
+      data["status"] as TransportationStatus,
+    )
+      ? (data["status"] as TransportationStatus)
+      : TransportationStatus.NeedTransportation,
     routeName: (data["routeName"] as string | undefined) ?? "",
     ...(data["seatCount"] !== undefined
       ? { seatCount: data["seatCount"] as number }

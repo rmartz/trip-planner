@@ -97,6 +97,23 @@ describe("firebaseToTransportationEntry — maps status", () => {
   });
 });
 
+describe("firebaseToTransportationEntry — status validation fallback", () => {
+  it("falls back to NeedTransportation when status is absent", () => {
+    const entry = firebaseToTransportationEntry("e1", "l1", "u1", {
+      routeName: "test route",
+    });
+    expect(entry.status).toBe(TransportationStatus.NeedTransportation);
+  });
+
+  it("falls back to NeedTransportation when status is an unrecognized string", () => {
+    const entry = firebaseToTransportationEntry("e1", "l1", "u1", {
+      status: "unknown-value",
+      routeName: "test route",
+    });
+    expect(entry.status).toBe(TransportationStatus.NeedTransportation);
+  });
+});
+
 describe("firebaseToTransportationEntry — maps routeName", () => {
   it("maps routeName from data", () => {
     const entry = firebaseToTransportationEntry("e1", "l1", "u1", {
