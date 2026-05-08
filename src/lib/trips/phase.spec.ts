@@ -76,4 +76,11 @@ describe("getTripPhase — Settled phase", () => {
     const trip = makeTrip({ endDate: past });
     expect(getTripPhase(trip)).toBe(TripPhase.SettlingUp);
   });
+
+  it("does not return Settled when settledAt is set but end date is in the future", () => {
+    const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const settledAt = new Date();
+    const trip = makeTrip({ endDate: future, settledAt });
+    expect(getTripPhase(trip)).not.toBe(TripPhase.Settled);
+  });
 });
