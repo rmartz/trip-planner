@@ -9,6 +9,12 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+vi.mock("next/navigation");
+vi.mock("@/components/auth/AuthProvider");
+
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/components/auth/AuthProvider";
+
 function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -20,6 +26,17 @@ function renderWithProviders(ui: React.ReactElement) {
 
 describe("Home", () => {
   it("renders the page heading", () => {
+    vi.mocked(useRouter).mockReturnValue({
+      push: vi.fn(),
+      back: vi.fn(),
+    } as unknown as ReturnType<typeof useRouter>);
+
+    vi.mocked(useAuthContext).mockReturnValue({
+      user: null,
+      profile: undefined,
+      loading: false,
+    });
+
     vi.spyOn(global, "fetch").mockResolvedValue(
       new Response(JSON.stringify([]), { status: 200 }),
     );
