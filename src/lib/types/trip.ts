@@ -19,6 +19,7 @@ export interface Trip {
   createdBy: string;
   memberUids: string[];
   gapCount?: number;
+  inviteToken: string;
 }
 
 export interface TripMember {

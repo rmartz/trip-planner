@@ -32,6 +32,7 @@ export const UserScopeWithRecentTrips: Story = {
         createdAt: new Date("2025-01-01"),
         createdBy: "uid-1",
         memberUids: ["uid-1"],
+        inviteToken: "tok-1",
       },
       {
         tripId: "trip-2",
@@ -41,6 +42,7 @@ export const UserScopeWithRecentTrips: Story = {
         createdAt: new Date("2025-02-01"),
         createdBy: "uid-1",
         memberUids: ["uid-1", "uid-2"],
+        inviteToken: "tok-1",
       },
     ],
     onSignOut: fn(),
@@ -59,6 +61,7 @@ export const TripScopeNoOtherTrips: Story = {
       createdAt: new Date("2025-01-01"),
       createdBy: "uid-1",
       memberUids: ["uid-1"],
+      inviteToken: "tok-1",
     },
     otherTrips: [],
     onSignOut: fn(),
@@ -77,6 +80,7 @@ export const TripScopeWithOtherTrips: Story = {
       createdAt: new Date("2025-01-01"),
       createdBy: "uid-1",
       memberUids: ["uid-1"],
+      inviteToken: "tok-1",
     },
     otherTrips: [
       {
@@ -87,6 +91,7 @@ export const TripScopeWithOtherTrips: Story = {
         createdAt: new Date("2025-02-01"),
         createdBy: "uid-1",
         memberUids: ["uid-1", "uid-2"],
+        inviteToken: "tok-1",
       },
     ],
     onSignOut: fn(),

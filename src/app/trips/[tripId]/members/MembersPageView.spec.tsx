@@ -51,6 +51,9 @@ describe("MembersPageView — loading state", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.loadingText)).toBeDefined();
@@ -69,6 +72,9 @@ describe("MembersPageView — error state", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.errorText)).toBeDefined();
@@ -88,6 +94,9 @@ describe("MembersPageView — account member display", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.rolePlanner)).toBeDefined();
@@ -109,6 +118,9 @@ describe("MembersPageView — account member display", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.promoteTo)).toBeDefined();
@@ -127,6 +139,9 @@ describe("MembersPageView — account member display", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.queryByText(MEMBERS_PAGE_COPY.promoteTo)).toBeNull();
@@ -150,6 +165,9 @@ describe("MembersPageView — account member display", () => {
         onPromote={onPromote}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByText(MEMBERS_PAGE_COPY.promoteTo));
@@ -173,6 +191,9 @@ describe("MembersPageView — account member display", () => {
         onPromote={vi.fn()}
         onRemove={onRemove}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByText(MEMBERS_PAGE_COPY.removeGuest));
@@ -193,6 +214,9 @@ describe("MembersPageView — non-account member display", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText("Alex")).toBeDefined();
@@ -210,6 +234,9 @@ describe("MembersPageView — non-account member display", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.claimPending)).toBeDefined();
@@ -227,6 +254,9 @@ describe("MembersPageView — non-account member display", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.claimLinkLabel)).toBeDefined();
@@ -245,6 +275,9 @@ describe("MembersPageView — add non-account member form", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.getByText(MEMBERS_PAGE_COPY.addMemberButton)).toBeDefined();
@@ -261,6 +294,9 @@ describe("MembersPageView — add non-account member form", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={vi.fn()}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
     expect(screen.queryByText(MEMBERS_PAGE_COPY.addMemberButton)).toBeNull();
@@ -278,6 +314,9 @@ describe("MembersPageView — add non-account member form", () => {
         onPromote={vi.fn()}
         onRemove={vi.fn()}
         onAddNonAccountMember={onAdd}
+        inviteToken="tok-abc"
+        isRegeneratingInvite={false}
+        onRegenInvite={vi.fn()}
       />,
     );
 
