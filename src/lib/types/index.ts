@@ -9,6 +9,12 @@ export type {
   ActivityTimeOfDaySlot,
 } from "./activity";
 export type { Destination } from "./destination";
+export {
+  ExpenseCategory,
+  ExpenseLinkedEntityType,
+  ExpenseSplitMethod,
+} from "./expense";
+export type { Expense, ExpenseLinkedEntity } from "./expense";
 export type { NonAccountMember } from "./non-account-member";
 export { TransportationStatus } from "./transportation";
 export type { TransportationEntry } from "./transportation";
