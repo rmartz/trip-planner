@@ -60,6 +60,14 @@ describe("firebaseToLodging — maps status enum", () => {
     });
     expect(record.status).toBe(LodgingStatus.NeedLodging);
   });
+
+  it("defaults to NeedLodging when status is invalid", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: "not_a_real_status",
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.status).toBe(LodgingStatus.NeedLodging);
+  });
 });
 
 describe("firebaseToLodging — maps optional fields", () => {
@@ -95,6 +103,16 @@ describe("firebaseToLodging — maps optional fields", () => {
       updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
     });
     expect(record.sharingWithUid).toBeUndefined();
+  });
+});
+
+describe("firebaseToLodging — requires updatedAt", () => {
+  it("throws when updatedAt is missing", () => {
+    expect(() =>
+      firebaseToLodging("user-1", "stop-1", {
+        status: LodgingStatus.NeedLodging,
+      }),
+    ).toThrow("Lodging record is missing a valid updatedAt Timestamp.");
   });
 });
 

@@ -171,6 +171,32 @@ describe("LodgingStatusCardView — tap to edit compact card", () => {
 
     expect(screen.getAllByRole("radio").length).toBe(4);
   });
+
+  it("returns to compact pill when currentStatus becomes defined", () => {
+    const { rerender } = render(
+      <LodgingStatusCardView
+        stop={makeStop()}
+        currentStatus={LodgingStatus.SecuredPrivate}
+        onStatusChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByText(LODGING_STATUS_CARD_COPY.tapToEditLabel));
+    expect(screen.getAllByRole("radio").length).toBe(4);
+
+    rerender(
+      <LodgingStatusCardView
+        stop={makeStop()}
+        currentStatus={LodgingStatus.SecuredCapacity}
+        onStatusChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(
+      screen.getByText(LODGING_STATUS_CARD_COPY.securedCapacityLabel),
+    ).toBeDefined();
+  });
 });
 
 describe("LodgingStatusCardView — onStatusChange called on radio selection", () => {
