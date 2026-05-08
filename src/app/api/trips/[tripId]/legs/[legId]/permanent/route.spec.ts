@@ -4,11 +4,10 @@ import { X_USER_ID_HEADER } from "@/lib/constants";
 import { PlannerOnlyError } from "@/services/errors";
 
 vi.mock("@/services/legs", () => ({
-  softDeleteLeg: vi.fn(),
-  updateLeg: vi.fn(),
+  hardDeleteLeg: vi.fn(),
 }));
 
-import { softDeleteLeg } from "@/services/legs";
+import { hardDeleteLeg } from "@/services/legs";
 import { DELETE } from "./route";
 
 function makeDeleteRequest(
@@ -18,17 +17,17 @@ function makeDeleteRequest(
 ) {
   const headers = new Headers();
   if (uid !== undefined) headers.set(X_USER_ID_HEADER, uid);
-  return new NextRequest(`http://localhost/api/trips/${tripId}/legs/${legId}`, {
-    method: "DELETE",
-    headers,
-  });
+  return new NextRequest(
+    `http://localhost/api/trips/${tripId}/legs/${legId}/permanent`,
+    { method: "DELETE", headers },
+  );
 }
 
 afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
+describe("DELETE /api/trips/[tripId]/legs/[legId]/permanent", () => {
   it("returns 401 when x-user-id header is absent", async () => {
     const request = makeDeleteRequest(undefined);
     const response = await DELETE(request, {
@@ -37,15 +36,15 @@ describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
     expect(response.status).toBe(401);
   });
 
-  it("returns 200 and calls softDeleteLeg", async () => {
-    vi.mocked(softDeleteLeg).mockResolvedValue(undefined);
+  it("returns 200 and calls hardDeleteLeg", async () => {
+    vi.mocked(hardDeleteLeg).mockResolvedValue(undefined);
 
     const request = makeDeleteRequest("uid-planner");
     const response = await DELETE(request, {
       params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
     });
     expect(response.status).toBe(200);
-    expect(vi.mocked(softDeleteLeg)).toHaveBeenCalledWith(
+    expect(vi.mocked(hardDeleteLeg)).toHaveBeenCalledWith(
       "uid-planner",
       "trip-1",
       "leg-1",
@@ -53,8 +52,8 @@ describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
   });
 
   it("returns 403 when user is not a Planner", async () => {
-    vi.mocked(softDeleteLeg).mockRejectedValue(
-      new PlannerOnlyError("Only Planners can remove legs"),
+    vi.mocked(hardDeleteLeg).mockRejectedValue(
+      new PlannerOnlyError("Only Planners can permanently delete legs"),
     );
 
     const request = makeDeleteRequest("uid-guest");
@@ -65,7 +64,7 @@ describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
   });
 
   it("returns 500 for unexpected errors", async () => {
-    vi.mocked(softDeleteLeg).mockRejectedValue(
+    vi.mocked(hardDeleteLeg).mockRejectedValue(
       new Error("Database unavailable"),
     );
 

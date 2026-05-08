@@ -98,7 +98,7 @@ export async function updateLeg(
 
   const memberDoc = await tripRef.collection("members").doc(uid).get();
   if (!memberDoc.exists || memberDoc.data()?.["role"] !== TripRole.Planner) {
-    throw new Error("Only Planners can edit legs");
+    throw new PlannerOnlyError("Only Planners can edit legs");
   }
 
   const updates: Record<string, unknown> = {};
@@ -156,6 +156,22 @@ export async function getAffectedGuestsForLeg(
 
   const uids = snapshot.docs.map((doc) => doc.data()["uid"] as string);
   return [...new Set(uids)];
+}
+
+export async function hardDeleteLeg(
+  uid: string,
+  tripId: string,
+  legId: string,
+): Promise<void> {
+  const db = getAdminFirestore();
+  const tripRef = db.collection("trips").doc(tripId);
+
+  const memberDoc = await tripRef.collection("members").doc(uid).get();
+  if (!memberDoc.exists || memberDoc.data()?.["role"] !== TripRole.Planner) {
+    throw new PlannerOnlyError("Only Planners can permanently delete legs");
+  }
+
+  await tripRef.collection("legs").doc(legId).delete();
 }
 
 export async function getArchivedLegsForTrip(tripId: string): Promise<Leg[]> {

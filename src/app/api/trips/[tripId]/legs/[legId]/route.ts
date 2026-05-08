@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateLeg, softDeleteLeg } from "@/services/legs";
+import { PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -50,16 +51,15 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     await updateLeg(uid, tripId, legId, fields);
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.startsWith("Only Planners")) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-      if (
-        error.message.includes("is required") ||
-        error.message.includes("must be different")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
+    if (error instanceof PlannerOnlyError) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    if (
+      error instanceof Error &&
+      (error.message.includes("is required") ||
+        error.message.includes("must be different"))
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
     return NextResponse.json(
       { error: "Internal Server Error" },
@@ -80,10 +80,8 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     await softDeleteLeg(uid, tripId, legId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.startsWith("Only Planners")) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
+    if (error instanceof PlannerOnlyError) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     return NextResponse.json(
       { error: "Internal Server Error" },
