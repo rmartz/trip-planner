@@ -15,6 +15,8 @@ export {
   ExpenseSplitMethod,
 } from "./expense";
 export type { Expense, ExpenseLinkedEntity } from "./expense";
+export { LodgingStatus } from "./lodging";
+export type { LodgingRecord } from "./lodging";
 export type { NonAccountMember } from "./non-account-member";
 export { TransportationStatus } from "./transportation";
 export type { TransportationEntry } from "./transportation";
