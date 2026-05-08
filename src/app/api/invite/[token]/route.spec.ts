@@ -111,20 +111,49 @@ describe("POST /api/invite/[token] — invalid token", () => {
 });
 
 describe("POST /api/invite/[token] — authenticated, valid token", () => {
-  it("returns the tripId on success", async () => {
-    vi.mocked(acceptInvite).mockResolvedValue("trip-1");
+  it("returns tripId and alreadyMember:false for a new member", async () => {
+    vi.mocked(acceptInvite).mockResolvedValue({
+      tripId: "trip-1",
+      alreadyMember: false,
+    });
 
     const response = await POST(makePostRequest("uid-new"), {
       params: Promise.resolve({ token: "tok-abc" }),
     });
     expect(response.status).toBe(200);
 
-    const body = (await response.json()) as { tripId: string };
+    const body = (await response.json()) as {
+      tripId: string;
+      alreadyMember: boolean;
+    };
     expect(body.tripId).toBe("trip-1");
+    expect(body.alreadyMember).toBe(false);
+  });
+
+  it("returns tripId and alreadyMember:true for an existing member", async () => {
+    vi.mocked(acceptInvite).mockResolvedValue({
+      tripId: "trip-1",
+      alreadyMember: true,
+    });
+
+    const response = await POST(makePostRequest("uid-existing"), {
+      params: Promise.resolve({ token: "tok-abc" }),
+    });
+    expect(response.status).toBe(200);
+
+    const body = (await response.json()) as {
+      tripId: string;
+      alreadyMember: boolean;
+    };
+    expect(body.tripId).toBe("trip-1");
+    expect(body.alreadyMember).toBe(true);
   });
 
   it("calls acceptInvite with the token and uid", async () => {
-    vi.mocked(acceptInvite).mockResolvedValue("trip-1");
+    vi.mocked(acceptInvite).mockResolvedValue({
+      tripId: "trip-1",
+      alreadyMember: false,
+    });
 
     await POST(makePostRequest("uid-new"), {
       params: Promise.resolve({ token: "tok-abc" }),

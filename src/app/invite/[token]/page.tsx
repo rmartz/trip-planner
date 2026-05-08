@@ -24,11 +24,15 @@ async function fetchTripSummary(
   return (await response.json()) as TripSummary;
 }
 
-async function joinTrip(token: string): Promise<string | undefined> {
+interface JoinTripResult {
+  tripId: string;
+  alreadyMember: boolean;
+}
+
+async function joinTrip(token: string): Promise<JoinTripResult | undefined> {
   const response = await fetch(`/api/invite/${token}`, { method: "POST" });
   if (!response.ok) return undefined;
-  const data = (await response.json()) as { tripId: string };
-  return data.tripId;
+  return (await response.json()) as JoinTripResult;
 }
 
 export default function InvitePage({ params }: InvitePageProps) {
@@ -37,6 +41,7 @@ export default function InvitePage({ params }: InvitePageProps) {
   const [trip, setTrip] = useState<TripSummary | undefined>();
   const [isJoining, setIsJoining] = useState(false);
   const [isAlreadyMember, setIsAlreadyMember] = useState(false);
+  const [joinError, setJoinError] = useState(false);
   const [token, setToken] = useState<string | undefined>();
   const [loaded, setLoaded] = useState(false);
 
@@ -53,11 +58,13 @@ export default function InvitePage({ params }: InvitePageProps) {
     if (!token) return;
     setIsJoining(true);
     try {
-      const tripId = await joinTrip(token);
-      if (tripId) {
-        router.push(`/trips/${tripId}/structure`);
-      } else {
+      const result = await joinTrip(token);
+      if (!result) {
+        setJoinError(true);
+      } else if (result.alreadyMember) {
         setIsAlreadyMember(true);
+      } else {
+        router.push(`/trips/${result.tripId}/structure`);
       }
     } finally {
       setIsJoining(false);
@@ -77,6 +84,7 @@ export default function InvitePage({ params }: InvitePageProps) {
       trip={trip}
       isAuthenticated={user !== null}
       isAlreadyMember={isAlreadyMember}
+      joinError={joinError}
       onJoin={() => {
         void handleJoin();
       }}

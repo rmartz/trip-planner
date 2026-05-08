@@ -106,7 +106,7 @@ describe("acceptInvite — new member", () => {
     vi.mocked(firebaseToTrip).mockReturnValue(makeTrip({ tripId: "trip-1" }));
 
     const result = await acceptInvite("tok-abc", "uid-new");
-    expect(result).toBe("trip-1");
+    expect(result).toEqual({ tripId: "trip-1", alreadyMember: false });
     expect(memberSetFn).toHaveBeenCalledWith(
       expect.objectContaining({ uid: "uid-new", role: TripRole.Guest }),
     );
@@ -135,7 +135,7 @@ describe("acceptInvite — already a member", () => {
     vi.mocked(firebaseToTrip).mockReturnValue(makeTrip({ tripId: "trip-1" }));
 
     const result = await acceptInvite("tok-abc", "uid-existing");
-    expect(result).toBe("trip-1");
+    expect(result).toEqual({ tripId: "trip-1", alreadyMember: true });
     expect(memberSetFn).not.toHaveBeenCalled();
   });
 });

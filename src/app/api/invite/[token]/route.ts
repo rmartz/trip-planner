@@ -31,8 +31,8 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   const { token } = await params;
 
   try {
-    const tripId = await acceptInvite(token, uid);
-    return NextResponse.json({ tripId });
+    const { tripId, alreadyMember } = await acceptInvite(token, uid);
+    return NextResponse.json({ tripId, alreadyMember });
   } catch (err) {
     if (err instanceof Error && err.message === "Invalid invite token") {
       return NextResponse.json({ error: "Invite not found" }, { status: 404 });

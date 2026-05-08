@@ -16,6 +16,7 @@ export interface InvitePageViewProps {
   trip: TripSummary;
   isAuthenticated: boolean;
   isAlreadyMember: boolean;
+  joinError: boolean;
   onJoin: () => void;
   isJoining: boolean;
   signInHref: string;
@@ -26,6 +27,7 @@ export function InvitePageView({
   trip,
   isAuthenticated,
   isAlreadyMember,
+  joinError,
   onJoin,
   isJoining,
   signInHref,
@@ -52,6 +54,8 @@ export function InvitePageView({
         <p className="text-sm text-muted-foreground">
           {INVITE_PAGE_COPY.alreadyMember}
         </p>
+      ) : joinError ? (
+        <p className="text-sm text-destructive">{INVITE_PAGE_COPY.joinError}</p>
       ) : isAuthenticated ? (
         <Button
           onClick={onJoin}

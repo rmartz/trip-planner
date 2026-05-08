@@ -24,10 +24,15 @@ export async function getTripByInviteToken(
   return firebaseToTrip(doc.id, doc.data());
 }
 
+export interface AcceptInviteResult {
+  tripId: string;
+  alreadyMember: boolean;
+}
+
 export async function acceptInvite(
   token: string,
   uid: string,
-): Promise<string> {
+): Promise<AcceptInviteResult> {
   const db = getAdminFirestore();
   const snapshot = await db
     .collection("trips")
@@ -47,10 +52,10 @@ export async function acceptInvite(
     .doc(uid);
 
   const existing = await memberRef.get();
-  if (existing.exists) return tripId;
+  if (existing.exists) return { tripId, alreadyMember: true };
 
   await memberRef.set({ uid, role: TripRole.Guest, joinedAt: new Date() });
-  return tripId;
+  return { tripId, alreadyMember: false };
 }
 
 export async function regenerateInviteToken(tripId: string): Promise<string> {

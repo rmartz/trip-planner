@@ -22,6 +22,7 @@ describe("InvitePageView — unauthenticated", () => {
         trip={BASE_TRIP}
         isAuthenticated={false}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in?next=/invite/tok-abc"
@@ -37,6 +38,7 @@ describe("InvitePageView — unauthenticated", () => {
         trip={BASE_TRIP}
         isAuthenticated={false}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in?next=/invite/tok-abc"
@@ -52,6 +54,7 @@ describe("InvitePageView — unauthenticated", () => {
         trip={BASE_TRIP}
         isAuthenticated={false}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in?next=/invite/tok-abc"
@@ -67,6 +70,7 @@ describe("InvitePageView — unauthenticated", () => {
         trip={BASE_TRIP}
         isAuthenticated={false}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in?next=/invite/tok-abc"
@@ -84,6 +88,7 @@ describe("InvitePageView — authenticated, not yet a member", () => {
         trip={BASE_TRIP}
         isAuthenticated={true}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in"
@@ -100,6 +105,7 @@ describe("InvitePageView — authenticated, not yet a member", () => {
         trip={BASE_TRIP}
         isAuthenticated={true}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={onJoin}
         isJoining={false}
         signInHref="/sign-in"
@@ -116,6 +122,7 @@ describe("InvitePageView — authenticated, not yet a member", () => {
         trip={BASE_TRIP}
         isAuthenticated={true}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in"
@@ -134,6 +141,7 @@ describe("InvitePageView — already a member", () => {
         trip={BASE_TRIP}
         isAuthenticated={true}
         isAlreadyMember={true}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in"
@@ -149,6 +157,41 @@ describe("InvitePageView — already a member", () => {
         trip={BASE_TRIP}
         isAuthenticated={true}
         isAlreadyMember={true}
+        joinError={false}
+        onJoin={vi.fn()}
+        isJoining={false}
+        signInHref="/sign-in"
+        signUpHref="/sign-up"
+      />,
+    );
+    expect(screen.queryByText(INVITE_PAGE_COPY.joinButton)).toBeNull();
+  });
+});
+
+describe("InvitePageView — join error", () => {
+  it("renders the error message when joinError is true", () => {
+    render(
+      <InvitePageView
+        trip={BASE_TRIP}
+        isAuthenticated={true}
+        isAlreadyMember={false}
+        joinError={true}
+        onJoin={vi.fn()}
+        isJoining={false}
+        signInHref="/sign-in"
+        signUpHref="/sign-up"
+      />,
+    );
+    expect(screen.getByText(INVITE_PAGE_COPY.joinError)).toBeDefined();
+  });
+
+  it("does not render the join button when joinError is true", () => {
+    render(
+      <InvitePageView
+        trip={BASE_TRIP}
+        isAuthenticated={true}
+        isAlreadyMember={false}
+        joinError={true}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in"
@@ -166,6 +209,7 @@ describe("InvitePageView — member count", () => {
         trip={{ ...BASE_TRIP, memberCount: 5 }}
         isAuthenticated={true}
         isAlreadyMember={false}
+        joinError={false}
         onJoin={vi.fn()}
         isJoining={false}
         signInHref="/sign-in"
