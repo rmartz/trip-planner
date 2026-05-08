@@ -1,5 +1,6 @@
 export const TRIP_STRUCTURE_COPY = {
   heading: "Trip structure",
+  pageTitle: "Plan structure",
   headingSubtext: "stops & legs",
   addStop: "+ Stop",
   addLeg: "+ Add leg",
