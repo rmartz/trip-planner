@@ -13,7 +13,7 @@ export function firebaseToNonAccountMember(
     proxiedBy: (data["proxiedBy"] as string | undefined) ?? "",
     proxiedByName: (data["proxiedByName"] as string | undefined) ?? "",
     claimToken: (data["claimToken"] as string | undefined) ?? "",
-    claimedBy: (data["claimedBy"] as string | undefined) ?? undefined,
+    claimedBy: data["claimedBy"] as string | undefined,
   };
 }
 
