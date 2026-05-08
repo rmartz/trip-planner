@@ -26,6 +26,7 @@ export interface TripMember {
   role: TripRole;
   joinedAt: Date;
   memberUids: string[];
+  displayName: string | undefined;
 }
 
 export interface Stop {
