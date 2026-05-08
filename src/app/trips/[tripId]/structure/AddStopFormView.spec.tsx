@@ -186,6 +186,32 @@ describe("AddStopFormView — date validation", () => {
   });
 });
 
+describe("AddStopFormView — initial values", () => {
+  it("submits pre-populated values without user interaction when all fields are valid", () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddStopFormView
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+        isSubmitting={false}
+        initialName="Vienna"
+        initialStartDate="2025-07-01"
+        initialEndDate="2025-07-05"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: TRIP_STRUCTURE_COPY.submitAddStop }),
+    );
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      name: "Vienna",
+      startDate: new Date("2025-07-01T00:00:00"),
+      endDate: new Date("2025-07-05T00:00:00"),
+    });
+  });
+});
+
 describe("AddStopFormView — cancel", () => {
   it("calls onCancel when cancel button is clicked", () => {
     const onCancel = vi.fn();

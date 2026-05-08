@@ -68,6 +68,9 @@ export default function TripStructurePage({ params }: TripStructurePageProps) {
               setEditingStop(undefined);
             }}
             isSubmitting={updateStop.isPending}
+            initialName={editingStop.name}
+            initialStartDate={editingStop.startDate.toISOString().slice(0, 10)}
+            initialEndDate={editingStop.endDate.toISOString().slice(0, 10)}
           />
         </div>
       )}

@@ -10,16 +10,22 @@ export interface AddStopFormViewProps {
   onSubmit: (input: { name: string; startDate: Date; endDate: Date }) => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  initialName?: string;
+  initialStartDate?: string;
+  initialEndDate?: string;
 }
 
 export function AddStopFormView({
   onSubmit,
   onCancel,
   isSubmitting,
+  initialName = "",
+  initialStartDate = "",
+  initialEndDate = "",
 }: AddStopFormViewProps) {
-  const [name, setName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [name, setName] = useState(initialName);
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(initialEndDate);
   const [nameError, setNameError] = useState<string | undefined>();
   const [dateError, setDateError] = useState<string | undefined>();
 
