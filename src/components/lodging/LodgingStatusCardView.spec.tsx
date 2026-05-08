@@ -191,6 +191,7 @@ describe("LodgingStatusCardView — tap to edit compact card", () => {
         onStatusChange={vi.fn()}
       />,
     );
+    expect(screen.getAllByRole("radio").length).toBe(4);
 
     rerender(
       <LodgingStatusCardView

@@ -114,6 +114,15 @@ describe("firebaseToLodging — requires updatedAt", () => {
       }),
     ).toThrow("Lodging record is missing a valid updatedAt Timestamp.");
   });
+
+  it("throws when updatedAt is not a Timestamp", () => {
+    expect(() =>
+      firebaseToLodging("user-1", "stop-1", {
+        status: LodgingStatus.NeedLodging,
+        updatedAt: "2025-06-01T00:00:00Z",
+      }),
+    ).toThrow("Lodging record is missing a valid updatedAt Timestamp.");
+  });
 });
 
 describe("lodgingToFirebase — serializes status and optional fields", () => {
