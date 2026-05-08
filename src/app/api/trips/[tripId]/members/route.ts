@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getMembersForTrip, addNonAccountMember } from "@/services/members";
+import { PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -47,10 +48,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     const nonAccountMember = await addNonAccountMember(uid, tripId, body.name);
     return NextResponse.json(nonAccountMember, { status: 201 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    if (message.includes("Only Planners")) {
-      return NextResponse.json({ error: message }, { status: 403 });
+    if (err instanceof PlannerOnlyError) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
     }
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
