@@ -36,10 +36,14 @@ export default async function ClaimPage({ params }: PageProps) {
         plannerProfileDoc.data() ?? {},
       )
     : undefined;
+  const plannerDisplayName =
+    plannerProfile?.displayName?.trim() === ""
+      ? undefined
+      : plannerProfile?.displayName;
+  const plannerEmail =
+    plannerProfile?.email.trim() === "" ? undefined : plannerProfile?.email;
   const plannerName =
-    plannerProfile?.displayName ??
-    plannerProfile?.email ??
-    CLAIM_PAGE_COPY.plannerFallbackName;
+    plannerDisplayName ?? plannerEmail ?? CLAIM_PAGE_COPY.plannerFallbackName;
 
   const claimContext = trip
     ? {
