@@ -97,6 +97,7 @@ describe("tripToFirebase", () => {
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-x",
       memberUids: MEMBER_UIDS,
+      inviteToken: "tok-1",
     });
     expect(data.name).toBe("Road Trip");
   });
@@ -110,6 +111,7 @@ describe("tripToFirebase", () => {
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-x",
       memberUids: MEMBER_UIDS,
+      inviteToken: "tok-1",
     });
     expect(data.startDate.toDate().toISOString()).toBe(date.toISOString());
   });
@@ -122,6 +124,7 @@ describe("tripToFirebase", () => {
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-owner",
       memberUids: MEMBER_UIDS,
+      inviteToken: "tok-1",
     });
     expect(data.createdBy).toBe("uid-owner");
   });
@@ -134,7 +137,21 @@ describe("tripToFirebase", () => {
       createdAt: new Date(CREATED_AT),
       createdBy: "uid-owner",
       memberUids: MEMBER_UIDS,
+      inviteToken: "tok-1",
     });
     expect(data.memberUids).toEqual(MEMBER_UIDS);
+  });
+
+  it("maps inviteToken", () => {
+    const data = tripToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      createdAt: new Date(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+      inviteToken: "tok-xyz",
+    });
+    expect(data.inviteToken).toBe("tok-xyz");
   });
 });
