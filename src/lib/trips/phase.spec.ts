@@ -14,6 +14,7 @@ function makeTrip(overrides: Partial<Trip> = {}): Trip {
     createdAt: now,
     createdBy: "uid-1",
     memberUids: ["uid-1"],
+    inviteToken: "tok-1",
     ...overrides,
   };
 }

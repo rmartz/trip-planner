@@ -1,7 +1,31 @@
+import { randomBytes } from "crypto";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
+
+export async function getTripById(tripId: string): Promise<Trip | undefined> {
+  const db = getAdminFirestore();
+  const doc = await db.collection("trips").doc(tripId).get();
+  if (!doc.exists) return undefined;
+  return firebaseToTrip(doc.id, doc.data() ?? {});
+}
+
+export async function getTripMemberRole(
+  tripId: string,
+  uid: string,
+): Promise<TripRole | undefined> {
+  const db = getAdminFirestore();
+  const memberDoc = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members")
+    .doc(uid)
+    .get();
+
+  if (!memberDoc.exists) return undefined;
+  return (memberDoc.data()?.["role"] as TripRole | undefined) ?? TripRole.Guest;
+}
 
 export async function getTripsForUser(uid: string): Promise<Trip[]> {
   const db = getAdminFirestore();
@@ -41,6 +65,7 @@ export async function createTripForUser(
   const memberRef = tripRef.collection("members").doc(uid);
 
   const now = new Date();
+  const inviteToken = randomBytes(8).toString("base64url");
   const batch = db.batch();
   batch.set(tripRef, {
     name,
@@ -48,6 +73,7 @@ export async function createTripForUser(
     endDate,
     createdAt: now,
     createdBy: uid,
+    inviteToken,
   });
   batch.set(memberRef, { uid, role: TripRole.Planner, joinedAt: now });
   await batch.commit();
