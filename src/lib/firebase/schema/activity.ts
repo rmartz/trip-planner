@@ -47,6 +47,8 @@ export function firebaseToActivity(
   tripId: string,
   data: DocumentData,
 ): Activity {
+  const timeOfDaySlot = toTimeOfDaySlot(data["timeOfDaySlot"]);
+  const groupSize = toGroupSize(data["groupSize"]);
   return {
     activityId,
     stopId,
@@ -57,12 +59,8 @@ export function firebaseToActivity(
       : {}),
     estimatedDurationMinutes:
       (data["estimatedDurationMinutes"] as number | undefined) ?? 0,
-    ...(data["timeOfDaySlot"] !== undefined
-      ? { timeOfDaySlot: toTimeOfDaySlot(data["timeOfDaySlot"]) }
-      : {}),
-    ...(data["groupSize"] !== undefined
-      ? { groupSize: toGroupSize(data["groupSize"]) }
-      : {}),
+    ...(timeOfDaySlot !== undefined ? { timeOfDaySlot } : {}),
+    ...(groupSize !== undefined ? { groupSize } : {}),
     ...(data["costPerPerson"] !== undefined
       ? { costPerPerson: data["costPerPerson"] as number }
       : {}),
