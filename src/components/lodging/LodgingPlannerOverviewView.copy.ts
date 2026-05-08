@@ -1,0 +1,16 @@
+export const LODGING_PLANNER_OVERVIEW_COPY = {
+  heading: "Lodging",
+  headingSubtext: "both sides · capacity vs demand",
+  demandCardTitle: "Demand",
+  supplyCardTitle: "Supply",
+  bedsLabel: (n: number) => `${String(n)} bed${n === 1 ? "" : "s"}`,
+  hostsLabel: (n: number) => `${String(n)} host${n === 1 ? "" : "s"}`,
+  statusNeedLodging: "Need place",
+  statusHaveOwn: "Have own",
+  statusSharing: "Share",
+  statusNoReply: "No reply",
+  balancedPill: "balanced",
+  gapPill: (gap: number) => `gap: ${String(gap)} beds`,
+  publicVisibility: "public",
+  inviteOnlyVisibility: (count: number) => `invite only (${String(count)})`,
+} as const;
