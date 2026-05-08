@@ -68,6 +68,7 @@ describe("legToFirebase", () => {
       name: "London to Paris",
       order: 1,
       memberUids: MEMBER_UIDS,
+      isActive: true,
     });
     expect(data.fromStopId).toBe("stop-src");
   });
@@ -79,6 +80,7 @@ describe("legToFirebase", () => {
       name: "London to Paris",
       order: 1,
       memberUids: MEMBER_UIDS,
+      isActive: true,
     });
     expect(data.toStopId).toBe("stop-dst");
   });
@@ -90,6 +92,7 @@ describe("legToFirebase", () => {
       name: "London to Paris",
       order: 5,
       memberUids: MEMBER_UIDS,
+      isActive: true,
     });
     expect(data.order).toBe(5);
   });
@@ -101,6 +104,7 @@ describe("legToFirebase", () => {
       name: "London to Paris",
       order: 5,
       memberUids: MEMBER_UIDS,
+      isActive: true,
     });
     expect(data.memberUids).toEqual(MEMBER_UIDS);
   });

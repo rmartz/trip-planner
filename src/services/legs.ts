@@ -2,6 +2,7 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToLeg } from "@/lib/firebase/schema/trip";
 import { TripRole } from "@/lib/types/trip";
 import type { Leg } from "@/lib/types/trip";
+import { PlannerOnlyError } from "./errors";
 
 export async function getLegsForTrip(tripId: string): Promise<Leg[]> {
   const db = getAdminFirestore();
@@ -11,7 +12,9 @@ export async function getLegsForTrip(tripId: string): Promise<Leg[]> {
     .collection("legs")
     .orderBy("order")
     .get();
-  return snapshot.docs.map((doc) => firebaseToLeg(doc.id, tripId, doc.data()));
+  return snapshot.docs
+    .map((doc) => firebaseToLeg(doc.id, tripId, doc.data()))
+    .filter((leg) => leg.isActive);
 }
 
 export async function getLegMemberRole(
@@ -72,6 +75,7 @@ export async function addLeg(
     ...(notes !== undefined && { notes }),
     order: nextOrder,
     memberUids,
+    isActive: true,
   });
 
   return legRef.id;
@@ -86,6 +90,7 @@ export async function updateLeg(
     toStopId?: string;
     name?: string;
     notes?: string;
+    isActive?: boolean;
   },
 ): Promise<void> {
   const db = getAdminFirestore();
@@ -93,7 +98,7 @@ export async function updateLeg(
 
   const memberDoc = await tripRef.collection("members").doc(uid).get();
   if (!memberDoc.exists || memberDoc.data()?.["role"] !== TripRole.Planner) {
-    throw new Error("Only Planners can edit legs");
+    throw new PlannerOnlyError("Only Planners can edit legs");
   }
 
   const updates: Record<string, unknown> = {};
@@ -112,8 +117,71 @@ export async function updateLeg(
   if (fields.notes !== undefined) {
     updates["notes"] = fields.notes;
   }
+  if (fields.isActive !== undefined) {
+    updates["isActive"] = fields.isActive;
+  }
 
   if (Object.keys(updates).length === 0) return;
 
   await tripRef.collection("legs").doc(legId).update(updates);
+}
+
+export async function softDeleteLeg(
+  uid: string,
+  tripId: string,
+  legId: string,
+): Promise<void> {
+  const db = getAdminFirestore();
+  const tripRef = db.collection("trips").doc(tripId);
+
+  const memberDoc = await tripRef.collection("members").doc(uid).get();
+  if (!memberDoc.exists || memberDoc.data()?.["role"] !== TripRole.Planner) {
+    throw new PlannerOnlyError("Only Planners can remove legs");
+  }
+
+  await tripRef.collection("legs").doc(legId).update({ isActive: false });
+}
+
+export async function getAffectedGuestsForLeg(
+  tripId: string,
+  legId: string,
+): Promise<string[]> {
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("transportation")
+    .where("legId", "==", legId)
+    .get();
+
+  const uids = snapshot.docs.map((doc) => doc.data()["uid"] as string);
+  return [...new Set(uids)];
+}
+
+export async function hardDeleteLeg(
+  uid: string,
+  tripId: string,
+  legId: string,
+): Promise<void> {
+  const db = getAdminFirestore();
+  const tripRef = db.collection("trips").doc(tripId);
+
+  const memberDoc = await tripRef.collection("members").doc(uid).get();
+  if (!memberDoc.exists || memberDoc.data()?.["role"] !== TripRole.Planner) {
+    throw new PlannerOnlyError("Only Planners can permanently delete legs");
+  }
+
+  await tripRef.collection("legs").doc(legId).delete();
+}
+
+export async function getArchivedLegsForTrip(tripId: string): Promise<Leg[]> {
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("legs")
+    .where("isActive", "==", false)
+    .orderBy("order")
+    .get();
+  return snapshot.docs.map((doc) => firebaseToLeg(doc.id, tripId, doc.data()));
 }

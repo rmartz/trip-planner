@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
+import { PlannerOnlyError } from "@/services/errors";
 
 vi.mock("@/services/legs", () => ({
   updateLeg: vi.fn(),
@@ -86,7 +87,7 @@ describe("PATCH /api/trips/[tripId]/legs/[legId]", () => {
 
   it("returns 403 when user is not a Planner", async () => {
     vi.mocked(updateLeg).mockRejectedValue(
-      new Error("Only Planners can edit legs"),
+      new PlannerOnlyError("Only Planners can edit legs"),
     );
 
     const request = makePatchRequest("uid-guest", { fromStopId: "stop-3" });
