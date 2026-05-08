@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SyntheticEvent } from "react";
 import {
   Sheet,
@@ -22,30 +22,35 @@ export interface AddRangeModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function AddRangeModal({ open, onOpenChange }: AddRangeModalProps) {
+export interface AddRangeModalViewProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  isPending: boolean;
+  onSubmit: (startDate: string, endDate: string, note: string) => void;
+}
+
+export function AddRangeModalView({
+  open,
+  onOpenChange,
+  isPending,
+  onSubmit,
+}: AddRangeModalViewProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [note, setNote] = useState("");
-  const createMutation = useCreateUnavailableRange();
+
+  useEffect(() => {
+    if (!open) {
+      setStartDate("");
+      setEndDate("");
+      setNote("");
+    }
+  }, [open]);
 
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!startDate || !endDate) return;
-    createMutation.mutate(
-      {
-        startDate: new Date(startDate + "T00:00:00"),
-        endDate: new Date(endDate + "T00:00:00"),
-        note: note.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          setStartDate("");
-          setEndDate("");
-          setNote("");
-          onOpenChange(false);
-        },
-      },
-    );
+    onSubmit(startDate, endDate, note);
   };
 
   return (
@@ -97,7 +102,7 @@ export function AddRangeModal({ open, onOpenChange }: AddRangeModalProps) {
           <SheetFooter>
             <Button
               type="submit"
-              disabled={createMutation.isPending || !startDate || !endDate}
+              disabled={isPending || !startDate || !endDate}
             >
               {COPY.addButtonLabel}
             </Button>
@@ -105,5 +110,33 @@ export function AddRangeModal({ open, onOpenChange }: AddRangeModalProps) {
         </form>
       </SheetContent>
     </Sheet>
+  );
+}
+
+export function AddRangeModal({ open, onOpenChange }: AddRangeModalProps) {
+  const createMutation = useCreateUnavailableRange();
+
+  const handleSubmit = (startDate: string, endDate: string, note: string) => {
+    createMutation.mutate(
+      {
+        startDate: new Date(startDate + "T00:00:00"),
+        endDate: new Date(endDate + "T00:00:00"),
+        note: note.trim() || undefined,
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
+      },
+    );
+  };
+
+  return (
+    <AddRangeModalView
+      open={open}
+      onOpenChange={onOpenChange}
+      isPending={createMutation.isPending}
+      onSubmit={handleSubmit}
+    />
   );
 }
