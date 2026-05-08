@@ -20,6 +20,11 @@ export interface Trip {
   memberUids: string[];
   gapCount?: number;
   inviteToken: string;
+  /**
+   * When set, the trip has been manually marked as settled. When set, and the
+   * trip's `endDate` has passed, `getTripPhase` returns `TripPhase.Settled`.
+   */
+  settledAt?: Date;
 }
 
 export interface TripMember {

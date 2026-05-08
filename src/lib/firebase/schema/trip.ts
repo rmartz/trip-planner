@@ -16,6 +16,7 @@ function toMemberUids(value: unknown): string[] {
 }
 
 export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
+  const settledAtRaw = data["settledAt"] as Timestamp | null | undefined;
   return {
     tripId,
     name: (data["name"] as string | undefined) ?? "",
@@ -25,6 +26,7 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
     createdBy: (data["createdBy"] as string | undefined) ?? "",
     memberUids: toMemberUids(data["memberUids"]),
     inviteToken: (data["inviteToken"] as string | undefined) ?? "",
+    ...(settledAtRaw != null && { settledAt: settledAtRaw.toDate() }),
   };
 }
 
@@ -36,6 +38,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
   createdBy: string;
   memberUids: string[];
   inviteToken: string;
+  settledAt?: Timestamp;
 } {
   return {
     name: trip.name,
@@ -45,6 +48,9 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
     createdBy: trip.createdBy,
     memberUids: trip.memberUids,
     inviteToken: trip.inviteToken,
+    ...(trip.settledAt !== undefined && {
+      settledAt: Timestamp.fromDate(trip.settledAt),
+    }),
   };
 }
 
