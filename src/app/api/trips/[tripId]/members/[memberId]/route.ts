@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { promoteGuestToPlanner, removeGuest } from "@/services/members";
+import { NotFoundError, PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -32,13 +33,13 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     await promoteGuestToPlanner(uid, tripId, memberId);
     return NextResponse.json({ ok: true });
   } catch (err) {
+    if (err instanceof PlannerOnlyError) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
+    }
+    if (err instanceof NotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 404 });
+    }
     const message = err instanceof Error ? err.message : "Unknown error";
-    if (message.includes("Only Planners")) {
-      return NextResponse.json({ error: message }, { status: 403 });
-    }
-    if (message.includes("not found")) {
-      return NextResponse.json({ error: message }, { status: 404 });
-    }
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
@@ -55,13 +56,13 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     await removeGuest(uid, tripId, memberId);
     return NextResponse.json({ ok: true });
   } catch (err) {
+    if (err instanceof PlannerOnlyError) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
+    }
+    if (err instanceof NotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 404 });
+    }
     const message = err instanceof Error ? err.message : "Unknown error";
-    if (message.includes("Only Planners")) {
-      return NextResponse.json({ error: message }, { status: 403 });
-    }
-    if (message.includes("not found")) {
-      return NextResponse.json({ error: message }, { status: 404 });
-    }
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
