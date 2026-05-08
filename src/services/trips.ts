@@ -4,6 +4,13 @@ import { firebaseToTrip } from "@/lib/firebase/schema/trip";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 
+export async function getTripById(tripId: string): Promise<Trip | undefined> {
+  const db = getAdminFirestore();
+  const doc = await db.collection("trips").doc(tripId).get();
+  if (!doc.exists) return undefined;
+  return firebaseToTrip(doc.id, doc.data() ?? {});
+}
+
 export async function getTripMemberRole(
   tripId: string,
   uid: string,

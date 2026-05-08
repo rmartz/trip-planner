@@ -35,6 +35,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
   createdAt: Timestamp;
   createdBy: string;
   memberUids: string[];
+  inviteToken: string;
 } {
   return {
     name: trip.name,
@@ -43,6 +44,7 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
     createdAt: Timestamp.fromDate(trip.createdAt),
     createdBy: trip.createdBy,
     memberUids: trip.memberUids,
+    inviteToken: trip.inviteToken,
   };
 }
 

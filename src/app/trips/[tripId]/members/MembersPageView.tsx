@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TripRole } from "@/lib/types/trip";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
+import { InviteLinkCard } from "@/components/trips/InviteLinkCard";
 import { MEMBERS_PAGE_COPY } from "./MembersPageView.copy";
 
 interface AccountMemberRowProps {
@@ -140,25 +141,33 @@ function AddNonAccountMemberForm({ onSubmit }: AddNonAccountMemberFormProps) {
 }
 
 export interface MembersPageViewProps {
+  tripId: string;
+  inviteToken: string;
   currentUserRole: TripRole;
   accountMembers: TripMember[];
   nonAccountMembers: NonAccountMember[];
   isLoading: boolean;
   isError: boolean;
+  isRegeneratingInvite: boolean;
   onPromote: (uid: string) => void;
   onRemove: (uid: string) => void;
   onAddNonAccountMember: (name: string) => void;
+  onRegenInvite: () => void;
 }
 
 export function MembersPageView({
+  tripId,
+  inviteToken,
   currentUserRole,
   accountMembers,
   nonAccountMembers,
   isLoading,
   isError,
+  isRegeneratingInvite,
   onPromote,
   onRemove,
   onAddNonAccountMember,
+  onRegenInvite,
 }: MembersPageViewProps) {
   return isLoading ? (
     <p className="text-zinc-500 dark:text-zinc-400">
@@ -170,6 +179,14 @@ export function MembersPageView({
     </p>
   ) : (
     <div className="flex flex-col gap-6">
+      {currentUserRole === TripRole.Planner && (
+        <InviteLinkCard
+          tripId={tripId}
+          inviteToken={inviteToken}
+          onRegen={onRegenInvite}
+          isRegenerating={isRegeneratingInvite}
+        />
+      )}
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
           {MEMBERS_PAGE_COPY.accountMembersHeading} · {accountMembers.length}

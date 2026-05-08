@@ -40,12 +40,45 @@ function useMembers(tripId: string) {
   return { data, isLoading, isError, load };
 }
 
+function useInviteToken(tripId: string) {
+  const [inviteToken, setInviteToken] = useState("");
+  const [isRegenerating, setIsRegenerating] = useState(false);
+
+  useEffect(() => {
+    void fetch(`/api/trips/${tripId}`)
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = (await res.json()) as { inviteToken?: string };
+        setInviteToken(json.inviteToken ?? "");
+      })
+      .catch(() => undefined);
+  }, [tripId]);
+
+  const regenerate = useCallback(async () => {
+    setIsRegenerating(true);
+    try {
+      const res = await fetch(`/api/trips/${tripId}/invite`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const json = (await res.json()) as { inviteToken: string };
+        setInviteToken(json.inviteToken);
+      }
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [tripId]);
+
+  return { inviteToken, isRegenerating, regenerate };
+}
+
 export default function MembersPage() {
   const params = useParams<{ tripId: string }>();
   const tripId = params.tripId;
   const { user } = useAuth();
 
   const { data, isLoading, isError, load } = useMembers(tripId);
+  const { inviteToken, isRegenerating, regenerate } = useInviteToken(tripId);
 
   const currentUserRole =
     data?.accountMembers.find((m) => m.uid === user?.uid)?.role ??
@@ -89,14 +122,18 @@ export default function MembersPage() {
     <main className="mx-auto max-w-lg px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold">Members</h1>
       <MembersPageView
+        tripId={tripId}
+        inviteToken={inviteToken}
         currentUserRole={currentUserRole}
         accountMembers={data?.accountMembers ?? []}
         nonAccountMembers={data?.nonAccountMembers ?? []}
         isLoading={isLoading}
         isError={isError}
+        isRegeneratingInvite={isRegenerating}
         onPromote={(uid) => void handlePromote(uid)}
         onRemove={(uid) => void handleRemove(uid)}
         onAddNonAccountMember={(name) => void handleAddNonAccountMember(name)}
+        onRegenInvite={() => void regenerate()}
       />
     </main>
   );

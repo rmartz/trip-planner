@@ -15,15 +15,16 @@ export function InviteLinkCard({
   onRegen,
   isRegenerating,
 }: InviteLinkCardProps) {
-  const inviteUrl = `tripplnr.app/invite/${inviteToken}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const inviteUrl = `${origin}/invite/${inviteToken}`;
 
   function handleCopy() {
-    void navigator.clipboard.writeText(`https://${inviteUrl}`);
+    void navigator.clipboard.writeText(inviteUrl);
   }
 
   function handleShare() {
     if ("share" in navigator) {
-      void navigator.share({ url: `https://${inviteUrl}` });
+      void navigator.share({ url: inviteUrl });
     } else {
       handleCopy();
     }

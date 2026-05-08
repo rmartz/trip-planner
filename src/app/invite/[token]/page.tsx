@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { InvitePageView } from "./InvitePageView";
@@ -40,14 +40,14 @@ export default function InvitePage({ params }: InvitePageProps) {
   const [token, setToken] = useState<string | undefined>();
   const [loaded, setLoaded] = useState(false);
 
-  if (!loaded) {
+  useEffect(() => {
     void params.then(async ({ token: t }) => {
       setToken(t);
       const summary = await fetchTripSummary(t);
       setTrip(summary);
       setLoaded(true);
     });
-  }
+  }, [params]);
 
   async function handleJoin() {
     if (!token) return;

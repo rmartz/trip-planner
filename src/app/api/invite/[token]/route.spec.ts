@@ -89,13 +89,24 @@ describe("POST /api/invite/[token] — unauthenticated", () => {
 });
 
 describe("POST /api/invite/[token] — invalid token", () => {
-  it("returns 404 when acceptInvite throws", async () => {
-    vi.mocked(acceptInvite).mockRejectedValue(new Error("not found"));
+  it("returns 404 when acceptInvite throws Invalid invite token", async () => {
+    vi.mocked(acceptInvite).mockRejectedValue(
+      new Error("Invalid invite token"),
+    );
 
     const response = await POST(makePostRequest("uid-x"), {
       params: Promise.resolve({ token: "bad-token" }),
     });
     expect(response.status).toBe(404);
+  });
+
+  it("returns 500 when acceptInvite throws an unexpected error", async () => {
+    vi.mocked(acceptInvite).mockRejectedValue(new Error("Firestore timeout"));
+
+    const response = await POST(makePostRequest("uid-x"), {
+      params: Promise.resolve({ token: "tok-abc" }),
+    });
+    expect(response.status).toBe(500);
   });
 });
 

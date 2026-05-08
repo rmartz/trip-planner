@@ -59,7 +59,3 @@ export async function regenerateInviteToken(tripId: string): Promise<string> {
   await db.collection("trips").doc(tripId).update({ inviteToken: token });
   return token;
 }
-
-export async function ensureInviteToken(tripId: string): Promise<string> {
-  return regenerateInviteToken(tripId);
-}
