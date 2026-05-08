@@ -3,6 +3,7 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTripMember } from "@/lib/firebase/schema/trip";
 import { firebaseToNonAccountMember } from "@/lib/firebase/schema/non-account-member";
 import { TripRole } from "@/lib/types/trip";
+import { NotFoundError, PlannerOnlyError } from "./errors";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
 
@@ -71,7 +72,7 @@ export async function addNonAccountMember(
     !requesterDoc.exists ||
     requesterDoc.data()?.["role"] !== TripRole.Planner
   ) {
-    throw new Error("Only Planners can add members");
+    throw new PlannerOnlyError("Only Planners can add members");
   }
 
   const claimToken = generateClaimToken();
@@ -113,12 +114,12 @@ export async function promoteGuestToPlanner(
     !requesterDoc.exists ||
     requesterDoc.data()?.["role"] !== TripRole.Planner
   ) {
-    throw new Error("Only Planners can promote members");
+    throw new PlannerOnlyError("Only Planners can promote members");
   }
 
   const targetDoc = await tripRef.collection("members").doc(targetUid).get();
   if (!targetDoc.exists || targetDoc.data()?.["role"] !== TripRole.Guest) {
-    throw new Error("Target member not found or is not a Guest");
+    throw new NotFoundError("Target member not found or is not a Guest");
   }
 
   await tripRef
@@ -140,12 +141,12 @@ export async function removeGuest(
     !requesterDoc.exists ||
     requesterDoc.data()?.["role"] !== TripRole.Planner
   ) {
-    throw new Error("Only Planners can remove members");
+    throw new PlannerOnlyError("Only Planners can remove members");
   }
 
   const targetDoc = await tripRef.collection("members").doc(targetUid).get();
   if (!targetDoc.exists || targetDoc.data()?.["role"] !== TripRole.Guest) {
-    throw new Error("Target member not found or is not a Guest");
+    throw new NotFoundError("Target member not found or is not a Guest");
   }
 
   await tripRef.collection("members").doc(targetUid).delete();

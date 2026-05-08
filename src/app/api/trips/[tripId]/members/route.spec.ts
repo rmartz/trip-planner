@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { TripRole } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
+import { PlannerOnlyError } from "@/services/errors";
 
 vi.mock("@/services/members", () => ({
   getMembersForTrip: vi.fn(),
@@ -130,9 +131,21 @@ describe("POST /api/trips/[tripId]/members", () => {
     expect(response.status).toBe(400);
   });
 
-  it("returns 403 when addNonAccountMember throws planner-only error", async () => {
+  it("returns 403 when addNonAccountMember throws PlannerOnlyError", async () => {
     vi.mocked(addNonAccountMember).mockRejectedValue(
-      new Error("Only Planners can add members"),
+      new PlannerOnlyError("Only Planners can add members"),
+    );
+
+    const request = makePostRequest("guest-uid", { name: "Alex" });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(403);
+  });
+
+  it("returns 403 for PlannerOnlyError regardless of message wording", async () => {
+    vi.mocked(addNonAccountMember).mockRejectedValue(
+      new PlannerOnlyError("authorization failure"),
     );
 
     const request = makePostRequest("guest-uid", { name: "Alex" });
