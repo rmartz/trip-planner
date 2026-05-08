@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { TripPhase } from "@/lib/types/trip";
 import { PHASE_PILL_COPY } from "./PhasePill.copy";
