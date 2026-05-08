@@ -56,7 +56,9 @@ export function AppHeader(props: AppHeaderProps) {
     <>
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="left" showCloseButton={false}>
-          <SheetTitle className="sr-only">{APP_HEADER_COPY.navigationSheetTitle}</SheetTitle>
+          <SheetTitle className="sr-only">
+            {APP_HEADER_COPY.navigationSheetTitle}
+          </SheetTitle>
           <AppDrawerView {...drawerProps} />
         </SheetContent>
       </Sheet>
