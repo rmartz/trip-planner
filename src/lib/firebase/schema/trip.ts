@@ -56,10 +56,13 @@ export function firebaseToTripMember(
     role: (data["role"] as TripRole | undefined) ?? TripRole.Guest,
     joinedAt: toDate(data["joinedAt"] as Timestamp | null | undefined),
     memberUids: toMemberUids(data["memberUids"]),
+    displayName: undefined,
   };
 }
 
-export function tripMemberToFirebase(member: Omit<TripMember, "tripId">): {
+export function tripMemberToFirebase(
+  member: Omit<TripMember, "tripId" | "displayName">,
+): {
   uid: string;
   role: TripRole;
   joinedAt: Timestamp;
