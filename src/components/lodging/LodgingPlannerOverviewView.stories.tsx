@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { LodgingPlannerOverviewView } from "./LodgingPlannerOverviewView";
+import {
+  LodgingPlannerOverviewView,
+  LodgingVisibility,
+} from "./LodgingPlannerOverviewView";
 import type { LodgingStopSummary } from "./LodgingPlannerOverviewView";
 import type { Stop } from "@/lib/types/trip";
 
@@ -24,7 +27,7 @@ const balancedStop: LodgingStopSummary = {
       hostName: "Marco",
       offerLabel: "Marco's place",
       bedCount: 4,
-      visibility: "public",
+      visibility: LodgingVisibility.Public,
     },
   ],
 };
@@ -37,7 +40,7 @@ const gapStop: LodgingStopSummary = {
       hostName: "Tara",
       offerLabel: "Tara's couch",
       bedCount: 2,
-      visibility: "invite_only",
+      visibility: LodgingVisibility.InviteOnly,
       inviteeCount: 3,
     },
   ],
@@ -92,13 +95,13 @@ export const MultipleHosts: Story = {
             hostName: "Marco",
             offerLabel: "Marco's place",
             bedCount: 4,
-            visibility: "public",
+            visibility: LodgingVisibility.Public,
           },
           {
             hostName: "Tara",
             offerLabel: "Tara's couch",
             bedCount: 2,
-            visibility: "invite_only",
+            visibility: LodgingVisibility.InviteOnly,
             inviteeCount: 3,
           },
         ],

@@ -40,7 +40,7 @@ export default function LodgingPage({ params }: LodgingPageProps) {
         <LodgingPlannerOverviewView stops={stopSummaries} />
       ) : (
         <div className="p-4 text-sm text-muted-foreground">
-          Lodging overview is only available to Planners.
+          {LODGING_PAGE_COPY.plannerOnlyMessage}
         </div>
       )}
     </AppShell>

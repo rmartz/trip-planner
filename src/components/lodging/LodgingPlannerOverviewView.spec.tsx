@@ -1,6 +1,9 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { LodgingPlannerOverviewView } from "./LodgingPlannerOverviewView";
+import {
+  LodgingPlannerOverviewView,
+  LodgingVisibility,
+} from "./LodgingPlannerOverviewView";
 import { LODGING_PLANNER_OVERVIEW_COPY } from "./LodgingPlannerOverviewView.copy";
 import type { LodgingStopSummary } from "./LodgingPlannerOverviewView";
 import type { Stop } from "@/lib/types/trip";
@@ -38,7 +41,7 @@ function makeStopSummary(
         hostName: "Marco",
         offerLabel: "Marco's place",
         bedCount: 4,
-        visibility: "public",
+        visibility: LodgingVisibility.Public,
       },
     ],
     ...overrides,
@@ -99,7 +102,7 @@ describe("LodgingPlannerOverviewView — balanced status pill", () => {
                 hostName: "Marco",
                 offerLabel: "Marco's place",
                 bedCount: 3,
-                visibility: "public",
+                visibility: LodgingVisibility.Public,
               },
             ],
           }),
@@ -121,7 +124,7 @@ describe("LodgingPlannerOverviewView — balanced status pill", () => {
                 hostName: "Host",
                 offerLabel: "Host's place",
                 bedCount: 2,
-                visibility: "public",
+                visibility: LodgingVisibility.Public,
               },
             ],
           }),
@@ -145,7 +148,7 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
                 hostName: "Marco",
                 offerLabel: "Marco's place",
                 bedCount: 2,
-                visibility: "public",
+                visibility: LodgingVisibility.Public,
               },
             ],
           }),
@@ -227,7 +230,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
                 hostName: "Tara",
                 offerLabel: "Tara's couch",
                 bedCount: 2,
-                visibility: "public",
+                visibility: LodgingVisibility.Public,
               },
             ],
           }),
@@ -250,7 +253,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
                 hostName: "Tara",
                 offerLabel: "Tara's couch",
                 bedCount: 2,
-                visibility: "invite_only",
+                visibility: LodgingVisibility.InviteOnly,
                 inviteeCount: 3,
               },
             ],
@@ -272,13 +275,13 @@ describe("LodgingPlannerOverviewView — supply card", () => {
                 hostName: "Marco",
                 offerLabel: "Marco's place",
                 bedCount: 4,
-                visibility: "public",
+                visibility: LodgingVisibility.Public,
               },
               {
                 hostName: "Tara",
                 offerLabel: "Tara's couch",
                 bedCount: 2,
-                visibility: "public",
+                visibility: LodgingVisibility.Public,
               },
             ],
           }),

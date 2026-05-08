@@ -5,11 +5,16 @@ import { LODGING_PLANNER_OVERVIEW_COPY } from "./LodgingPlannerOverviewView.copy
 
 const COPY = LODGING_PLANNER_OVERVIEW_COPY;
 
+export enum LodgingVisibility {
+  InviteOnly = "invite_only",
+  Public = "public",
+}
+
 export interface LodgingHostOffer {
   hostName: string;
   offerLabel: string;
   bedCount: number;
-  visibility: "public" | "invite_only";
+  visibility: LodgingVisibility;
   inviteeCount?: number;
 }
 
@@ -97,14 +102,17 @@ function StopSection({ summary }: { summary: LodgingStopSummary }) {
             )}
           </div>
           <ul className="flex flex-col gap-1">
-            {supply.map((offer, i) => (
-              <li key={i} className="flex items-center gap-1 font-mono text-xs">
+            {supply.map((offer) => (
+              <li
+                key={offer.offerLabel}
+                className="flex items-center gap-1 font-mono text-xs"
+              >
                 <span className="flex-1 truncate">{offer.offerLabel}</span>
                 <span className="text-zinc-400">
                   {COPY.bedsLabel(offer.bedCount)}
                 </span>
                 <span className="text-zinc-400">
-                  {offer.visibility === "public"
+                  {offer.visibility === LodgingVisibility.Public
                     ? COPY.publicVisibility
                     : COPY.inviteOnlyVisibility(offer.inviteeCount ?? 0)}
                 </span>
