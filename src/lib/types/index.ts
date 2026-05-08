@@ -9,6 +9,7 @@ export type {
   ActivityTimeOfDaySlot,
 } from "./activity";
 export type { Destination } from "./destination";
+export type { NonAccountMember } from "./non-account-member";
 export { TransportationStatus } from "./transportation";
 export type { TransportationEntry } from "./transportation";
 export type { UnavailableRange } from "./unavailable-range";
