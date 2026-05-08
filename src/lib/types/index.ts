@@ -9,6 +9,8 @@ export type {
   ActivityTimeOfDaySlot,
 } from "./activity";
 export type { Destination } from "./destination";
+export { LodgingStatus } from "./lodging";
+export type { LodgingRecord } from "./lodging";
 export type { NonAccountMember } from "./non-account-member";
 export { NotificationType } from "./notification";
 export type { Notification } from "./notification";
