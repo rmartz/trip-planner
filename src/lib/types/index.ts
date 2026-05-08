@@ -9,6 +9,7 @@ export type {
   ActivityTimeOfDaySlot,
 } from "./activity";
 export type { Destination } from "./destination";
+export { InterestVote } from "./interest-vote";
 export {
   ExpenseCategory,
   ExpenseLinkedEntityType,
