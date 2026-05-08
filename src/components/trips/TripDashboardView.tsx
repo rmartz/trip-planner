@@ -30,9 +30,10 @@ function TripCard({ trip, faded = false }: TripCardProps) {
   const dateRange = formatDateRange(trip.startDate, trip.endDate);
 
   return (
-    <div
+    <Link
+      href={`/trips/${trip.tripId}`}
       data-slot="trip-card"
-      className={`rounded-lg border border-zinc-200 p-4 dark:border-zinc-800 ${faded ? "opacity-50" : ""}`}
+      className={`block rounded-lg border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900 ${faded ? "opacity-50" : ""}`}
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-medium">{trip.name}</h3>
@@ -50,7 +51,7 @@ function TripCard({ trip, faded = false }: TripCardProps) {
           </span>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 

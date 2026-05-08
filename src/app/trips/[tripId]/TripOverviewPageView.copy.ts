@@ -1,0 +1,18 @@
+export const TRIP_OVERVIEW_PAGE_COPY = {
+  errorText: "Couldn't load this trip. Please try again.",
+  loadingText: "Loading trip…",
+  notFoundText: "Trip not found.",
+  sectionActivities: "Activities",
+  sectionArchive: "Archive",
+  sectionAvailability: "Availability",
+  sectionBalances: "Balances",
+  sectionDestinations: "Destinations",
+  sectionExpenses: "Expenses",
+  sectionLodging: "Lodging",
+  sectionMembers: "Members",
+  sectionRsvp: "RSVP",
+  sectionSchedule: "Schedule",
+  sectionStructure: "Structure",
+  sectionTransport: "Transportation",
+  sectionsHeading: "Plan & coordinate",
+} as const;
