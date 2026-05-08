@@ -85,17 +85,25 @@ describe("GET /api/trips/[tripId]/stops", () => {
     expect(data.stops[0]!["endDate"]).toBe(END);
   });
 
-  it("returns null role when user is not a member", async () => {
+  it("returns 403 when user is not a member of the trip", async () => {
     vi.mocked(getStopMemberRole).mockResolvedValue(null);
-    vi.mocked(getStopsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-stranger");
     const response = await GET(request, {
       params: Promise.resolve({ tripId: "trip-1" }),
     });
-    expect(response.status).toBe(200);
-    const data = (await response.json()) as { role: null };
-    expect(data.role).toBeNull();
+    expect(response.status).toBe(403);
+  });
+
+  it("does not include stop data in the 403 response body", async () => {
+    vi.mocked(getStopMemberRole).mockResolvedValue(null);
+
+    const request = makeGetRequest("uid-stranger");
+    const response = await GET(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    const body = (await response.json()) as Record<string, unknown>;
+    expect(body["stops"]).toBeUndefined();
   });
 });
 
