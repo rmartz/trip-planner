@@ -13,6 +13,7 @@ interface LegJson {
   notes?: string;
   order: number;
   memberUids: string[];
+  isActive: boolean;
 }
 
 interface LegsResponse {

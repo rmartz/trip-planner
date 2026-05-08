@@ -122,6 +122,7 @@ export function firebaseToLeg(
     notes: data["notes"] as string | undefined,
     order: (data["order"] as number | undefined) ?? 0,
     memberUids: toMemberUids(data["memberUids"]),
+    isActive: (data["isActive"] as boolean | undefined) ?? true,
   };
 }
 
@@ -132,6 +133,7 @@ export function legToFirebase(leg: Omit<Leg, "legId" | "tripId">): {
   notes?: string;
   order: number;
   memberUids: string[];
+  isActive: boolean;
 } {
   return {
     fromStopId: leg.fromStopId,
@@ -140,5 +142,6 @@ export function legToFirebase(leg: Omit<Leg, "legId" | "tripId">): {
     ...(leg.notes !== undefined && { notes: leg.notes }),
     order: leg.order,
     memberUids: leg.memberUids,
+    isActive: leg.isActive,
   };
 }
