@@ -21,8 +21,8 @@ export interface Trip {
   gapCount?: number;
   inviteToken: string;
   /**
-   * When set, the trip has been manually marked as settled. getTripPhase returns
-   * TripPhase.Settled for any trip with a settledAt date.
+   * When set, the trip has been manually marked as settled. When set, and the
+   * trip's `endDate` has passed, `getTripPhase` returns `TripPhase.Settled`.
    */
   settledAt?: Date;
 }
