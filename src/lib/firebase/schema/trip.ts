@@ -115,6 +115,8 @@ export function firebaseToLeg(
     tripId,
     fromStopId: (data["fromStopId"] as string | undefined) ?? "",
     toStopId: (data["toStopId"] as string | undefined) ?? "",
+    name: (data["name"] as string | undefined) ?? "",
+    notes: data["notes"] as string | undefined,
     order: (data["order"] as number | undefined) ?? 0,
     memberUids: toMemberUids(data["memberUids"]),
   };
@@ -123,12 +125,16 @@ export function firebaseToLeg(
 export function legToFirebase(leg: Omit<Leg, "legId" | "tripId">): {
   fromStopId: string;
   toStopId: string;
+  name: string;
+  notes?: string;
   order: number;
   memberUids: string[];
 } {
   return {
     fromStopId: leg.fromStopId,
     toStopId: leg.toStopId,
+    name: leg.name,
+    ...(leg.notes !== undefined && { notes: leg.notes }),
     order: leg.order,
     memberUids: leg.memberUids,
   };
