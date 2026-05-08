@@ -24,7 +24,9 @@ function makeTrip(overrides: Partial<Trip> = {}): Trip {
   };
 }
 
-function makeRange(overrides: Partial<UnavailableRange> = {}): UnavailableRange {
+function makeRange(
+  overrides: Partial<UnavailableRange> = {},
+): UnavailableRange {
   return {
     rangeId: "range-1",
     uid: "uid-1",
@@ -87,8 +89,18 @@ describe("Criterion 1: conflict markers on dates that clash with user's trips or
         dates={JUN_10_TO_20}
         memberCount={2}
         freeCountByDate={{ "2025-06-05": 2 }}
-        currentUserTrips={[makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })]}
-        currentUserRanges={[makeRange({ startDate: new Date("2025-06-05T00:00:00"), endDate: new Date("2025-06-07T00:00:00") })]}
+        currentUserTrips={[
+          makeTrip({
+            startDate: new Date("2025-06-10T00:00:00"),
+            endDate: new Date("2025-06-20T00:00:00"),
+          }),
+        ]}
+        currentUserRanges={[
+          makeRange({
+            startDate: new Date("2025-06-05T00:00:00"),
+            endDate: new Date("2025-06-07T00:00:00"),
+          }),
+        ]}
         isLoading={false}
         isError={false}
       />,
@@ -123,7 +135,9 @@ describe("Criterion 2: Best windows callouts show conflict warning for overlappi
     );
 
     const section = screen.getByTestId("best-windows-section");
-    expect(section.textContent).toContain(SCREEN_AVAILABILITY_COPY.conflictWarningPrefix);
+    expect(section.textContent).toContain(
+      SCREEN_AVAILABILITY_COPY.conflictWarningPrefix,
+    );
   });
 
   it("does not show a conflict warning in a best-window that does not overlap any personal block", () => {
@@ -211,7 +225,9 @@ describe("ScreenAvailabilityView — loading and error states", () => {
       />,
     );
 
-    expect(screen.getByText(SCREEN_AVAILABILITY_COPY.loadingText)).toBeDefined();
+    expect(
+      screen.getByText(SCREEN_AVAILABILITY_COPY.loadingText),
+    ).toBeDefined();
   });
 
   it("renders error text when isError is true", () => {
@@ -265,8 +281,12 @@ describe("ScreenAvailabilityView — date grid renders", () => {
       />,
     );
 
-    expect(screen.getByText(SCREEN_AVAILABILITY_COPY.legendConflictsYou)).toBeDefined();
-    expect(screen.getByText(SCREEN_AVAILABILITY_COPY.legendAllFree)).toBeDefined();
+    expect(
+      screen.getByText(SCREEN_AVAILABILITY_COPY.legendConflictsYou),
+    ).toBeDefined();
+    expect(
+      screen.getByText(SCREEN_AVAILABILITY_COPY.legendAllFree),
+    ).toBeDefined();
   });
 
   it("renders the best windows section heading", () => {
@@ -282,6 +302,8 @@ describe("ScreenAvailabilityView — date grid renders", () => {
       />,
     );
 
-    expect(screen.getByText(SCREEN_AVAILABILITY_COPY.bestWindowsSectionTitle)).toBeDefined();
+    expect(
+      screen.getByText(SCREEN_AVAILABILITY_COPY.bestWindowsSectionTitle),
+    ).toBeDefined();
   });
 });

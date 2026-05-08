@@ -21,7 +21,9 @@ function makeTrip(overrides: Partial<Trip> = {}): Trip {
   };
 }
 
-function makeRange(overrides: Partial<UnavailableRange> = {}): UnavailableRange {
+function makeRange(
+  overrides: Partial<UnavailableRange> = {},
+): UnavailableRange {
   return {
     rangeId: "range-1",
     uid: "uid-1",
@@ -47,8 +49,18 @@ describe("getConflictSourcesForDate — no conflicts", () => {
     // Block: Jun 5–7. Trip: Jun 10–20. Date: Jun 6 (blocked, no trip overlap).
     const result = getConflictSourcesForDate(
       new Date("2025-06-06T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-05T00:00:00"), endDate: new Date("2025-06-07T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-05T00:00:00"),
+          endDate: new Date("2025-06-07T00:00:00"),
+        }),
+      ],
     );
     expect(result).toEqual([]);
   });
@@ -57,8 +69,18 @@ describe("getConflictSourcesForDate — no conflicts", () => {
     // Trip: Jun 10–20. Block: Jun 5–7 (doesn't overlap trip). Date: Jun 15.
     const result = getConflictSourcesForDate(
       new Date("2025-06-15T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-05T00:00:00"), endDate: new Date("2025-06-07T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-05T00:00:00"),
+          endDate: new Date("2025-06-07T00:00:00"),
+        }),
+      ],
     );
     expect(result).toEqual([]);
   });
@@ -78,8 +100,18 @@ describe("getConflictSourcesForDate — personal block overlapping trip", () => 
     // Block: Jun 12–14. Trip: Jun 10–20. Date: Jun 13.
     const result = getConflictSourcesForDate(
       new Date("2025-06-13T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-12T00:00:00"), endDate: new Date("2025-06-14T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-12T00:00:00"),
+          endDate: new Date("2025-06-14T00:00:00"),
+        }),
+      ],
     );
     expect(result.length).toBe(1);
     expect(result[0]!.kind).toBe("trip");
@@ -90,8 +122,18 @@ describe("getConflictSourcesForDate — personal block overlapping trip", () => 
     // Block: Jun 10–12. Trip: Jun 10–20. Date: Jun 10 (boundary day).
     const result = getConflictSourcesForDate(
       new Date("2025-06-10T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-12T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-12T00:00:00"),
+        }),
+      ],
     );
     expect(result.length).toBeGreaterThan(0);
     expect(result[0]!.kind).toBe("trip");
@@ -101,8 +143,18 @@ describe("getConflictSourcesForDate — personal block overlapping trip", () => 
     // Block: Jun 18–20. Trip: Jun 10–20. Date: Jun 20 (boundary day).
     const result = getConflictSourcesForDate(
       new Date("2025-06-20T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-18T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-18T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
     );
     expect(result.length).toBeGreaterThan(0);
     expect(result[0]!.kind).toBe("trip");
@@ -149,8 +201,18 @@ describe("getConflictDateKeys — date range enumeration", () => {
     const keys = getConflictDateKeys(
       new Date("2025-06-01T00:00:00"),
       new Date("2025-06-30T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-12T00:00:00"), endDate: new Date("2025-06-14T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-12T00:00:00"),
+          endDate: new Date("2025-06-14T00:00:00"),
+        }),
+      ],
     );
     expect(keys.has("2025-06-12")).toBe(true);
     expect(keys.has("2025-06-13")).toBe(true);
@@ -164,8 +226,18 @@ describe("getConflictDateKeys — date range enumeration", () => {
     const keys = getConflictDateKeys(
       new Date("2025-05-01T00:00:00"),
       new Date("2025-05-10T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-05-01T00:00:00"), endDate: new Date("2025-05-10T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-05-05T00:00:00"), endDate: new Date("2025-05-05T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-05-01T00:00:00"),
+          endDate: new Date("2025-05-10T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-05-05T00:00:00"),
+          endDate: new Date("2025-05-05T00:00:00"),
+        }),
+      ],
     );
     expect(keys.has("2025-05-05")).toBe(true);
   });
@@ -175,8 +247,18 @@ describe("getConflictDateKeys — date range enumeration", () => {
     const keys = getConflictDateKeys(
       new Date("2025-06-01T00:00:00"),
       new Date("2025-06-11T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-12T00:00:00"), endDate: new Date("2025-06-14T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-12T00:00:00"),
+          endDate: new Date("2025-06-14T00:00:00"),
+        }),
+      ],
     );
     expect(keys.size).toBe(0);
   });
@@ -190,7 +272,12 @@ describe("getFirstWindowConflict — Best windows callout", () => {
     const result = getFirstWindowConflict(
       new Date("2025-06-22T00:00:00"),
       new Date("2025-06-24T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
       [],
     );
     expect(result).toBeUndefined();
@@ -201,8 +288,19 @@ describe("getFirstWindowConflict — Best windows callout", () => {
     const result = getFirstWindowConflict(
       new Date("2025-06-22T00:00:00"),
       new Date("2025-06-24T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-22T00:00:00"), endDate: new Date("2025-06-28T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-21T00:00:00"), endDate: new Date("2025-06-23T00:00:00"), note: "family reunion" })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-22T00:00:00"),
+          endDate: new Date("2025-06-28T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-21T00:00:00"),
+          endDate: new Date("2025-06-23T00:00:00"),
+          note: "family reunion",
+        }),
+      ],
     );
     expect(result).toBeDefined();
     expect(result!.kind).toBe("personal-block");
@@ -214,8 +312,19 @@ describe("getFirstWindowConflict — Best windows callout", () => {
     const result = getFirstWindowConflict(
       new Date("2025-06-22T00:00:00"),
       new Date("2025-06-24T00:00:00"),
-      [makeTrip({ name: "Bach", startDate: new Date("2025-06-22T00:00:00"), endDate: new Date("2025-06-28T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-21T00:00:00"), endDate: new Date("2025-06-23T00:00:00") })],
+      [
+        makeTrip({
+          name: "Bach",
+          startDate: new Date("2025-06-22T00:00:00"),
+          endDate: new Date("2025-06-28T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-21T00:00:00"),
+          endDate: new Date("2025-06-23T00:00:00"),
+        }),
+      ],
     );
     expect(result).toBeDefined();
     expect(result!.name).toBe("Bach");
@@ -226,7 +335,12 @@ describe("getFirstWindowConflict — Best windows callout", () => {
     const result = getFirstWindowConflict(
       new Date("2025-06-15T00:00:00"),
       new Date("2025-06-17T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
       [],
     );
     expect(result).toBeDefined();
@@ -239,8 +353,18 @@ describe("getFirstWindowConflict — Best windows callout", () => {
     const result = getFirstWindowConflict(
       new Date("2025-07-01T00:00:00"),
       new Date("2025-07-05T00:00:00"),
-      [makeTrip({ startDate: new Date("2025-06-10T00:00:00"), endDate: new Date("2025-06-20T00:00:00") })],
-      [makeRange({ startDate: new Date("2025-06-12T00:00:00"), endDate: new Date("2025-06-14T00:00:00") })],
+      [
+        makeTrip({
+          startDate: new Date("2025-06-10T00:00:00"),
+          endDate: new Date("2025-06-20T00:00:00"),
+        }),
+      ],
+      [
+        makeRange({
+          startDate: new Date("2025-06-12T00:00:00"),
+          endDate: new Date("2025-06-14T00:00:00"),
+        }),
+      ],
     );
     expect(result).toBeUndefined();
   });

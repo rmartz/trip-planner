@@ -70,12 +70,7 @@ function AvailCell({ date, free, total, isConflict }: AvailCellProps) {
       <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">
         {label}
       </span>
-      <div
-        className={[
-          "h-10 w-10 rounded-sm",
-          heatClass,
-        ].join(" ")}
-      />
+      <div className={["h-10 w-10 rounded-sm", heatClass].join(" ")} />
       <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-500">
         {COPY.freeCountLabel(free, total)}
       </span>
@@ -135,7 +130,12 @@ function BestWindowCard({
   currentUserTrips,
   currentUserRanges,
 }: BestWindowCardProps) {
-  const conflict = getFirstWindowConflict(start, end, currentUserTrips, currentUserRanges);
+  const conflict = getFirstWindowConflict(
+    start,
+    end,
+    currentUserTrips,
+    currentUserRanges,
+  );
   const dateLabel = `${toShortLabel(start)}–${toShortLabel(end)}`;
   const freeLabel = COPY.freeCountLabel(free, total);
 
@@ -201,9 +201,7 @@ export function ScreenAvailabilityView({
         {isLoading && (
           <p className="text-sm text-zinc-500">{COPY.loadingText}</p>
         )}
-        {isError && (
-          <p className="text-sm text-red-500">{COPY.errorText}</p>
-        )}
+        {isError && <p className="text-sm text-red-500">{COPY.errorText}</p>}
         {!isLoading && !isError && dates.length === 0 && (
           <p className="text-sm text-zinc-500">{COPY.emptyDatesText}</p>
         )}
@@ -234,11 +232,15 @@ export function ScreenAvailabilityView({
             </div>
             <div className="flex items-center gap-1.5">
               <div className="h-3 w-3 rounded-sm bg-emerald-600 dark:bg-emerald-400" />
-              <span className="text-xs text-zinc-500">{COPY.legendAllFree}</span>
+              <span className="text-xs text-zinc-500">
+                {COPY.legendAllFree}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="h-3 w-3 rounded-sm bg-amber-300 dark:bg-amber-500" />
-              <span className="text-xs text-zinc-500">{COPY.legendConflictsYou}</span>
+              <span className="text-xs text-zinc-500">
+                {COPY.legendConflictsYou}
+              </span>
             </div>
           </div>
         )}

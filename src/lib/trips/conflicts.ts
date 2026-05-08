@@ -10,7 +10,12 @@ function toDay(date: Date): Date {
  * Returns true when two date ranges overlap (inclusive on both ends).
  * [aStart, aEnd] overlaps [bStart, bEnd] when aStart ≤ bEnd AND bStart ≤ aEnd.
  */
-function rangesOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+function rangesOverlap(
+  aStart: Date,
+  aEnd: Date,
+  bStart: Date,
+  bEnd: Date,
+): boolean {
   return (
     toDay(aStart).getTime() <= toDay(bEnd).getTime() &&
     toDay(bStart).getTime() <= toDay(aEnd).getTime()
@@ -53,7 +58,14 @@ export function getConflictSourcesForDate(
     if (!dateInRange(date, range.startDate, range.endDate)) continue;
     // Date is inside this personal block — report each trip it overlaps.
     for (const trip of userTrips) {
-      if (rangesOverlap(range.startDate, range.endDate, trip.startDate, trip.endDate)) {
+      if (
+        rangesOverlap(
+          range.startDate,
+          range.endDate,
+          trip.startDate,
+          trip.endDate,
+        )
+      ) {
         sources.push({ kind: "trip", name: trip.name });
       }
     }
@@ -113,7 +125,14 @@ export function getFirstWindowConflict(
   for (const range of userRanges) {
     if (rangesOverlap(windowStart, windowEnd, range.startDate, range.endDate)) {
       for (const trip of userTrips) {
-        if (rangesOverlap(range.startDate, range.endDate, trip.startDate, trip.endDate)) {
+        if (
+          rangesOverlap(
+            range.startDate,
+            range.endDate,
+            trip.startDate,
+            trip.endDate,
+          )
+        ) {
           return { kind: "personal-block", name: range.note ?? trip.name };
         }
       }

@@ -8,5 +8,6 @@ export const SCREEN_AVAILABILITY_COPY = {
   bestWindowsSectionTitle: "Best windows",
   noBestWindowsText: "No windows with full availability yet.",
   conflictWarningPrefix: "⚠ overlaps ",
-  freeCountLabel: (free: number, total: number) => `${String(free)}/${String(total)}`,
+  freeCountLabel: (free: number, total: number) =>
+    `${String(free)}/${String(total)}`,
 } as const;
