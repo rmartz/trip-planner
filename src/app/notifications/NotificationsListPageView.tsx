@@ -27,6 +27,7 @@ export interface NotificationsListPageViewProps {
   isError: boolean;
   isLoading: boolean;
   notifications: NotificationListItem[];
+  now?: Date;
   onMarkAllRead: () => void;
   onNotificationClick: (notificationId: string) => void;
 }
@@ -59,17 +60,13 @@ interface NotificationRowProps {
 
 function NotificationRow({ notification, now, onClick }: NotificationRowProps) {
   return (
-    <li
-      data-testid="notification-row"
-      data-read={String(notification.read)}
-      className={`flex flex-col gap-1 rounded-lg border p-4 ${notification.read ? "border-zinc-200 dark:border-zinc-800" : "border-blue-300 bg-blue-50/40 dark:border-blue-700 dark:bg-blue-950/20"}`}
-    >
+    <li data-testid="notification-row" data-read={String(notification.read)}>
       <button
         type="button"
         onClick={() => {
           onClick(notification.notificationId);
         }}
-        className="flex flex-col gap-1 text-left"
+        className={`flex w-full flex-col gap-1 rounded-lg border p-4 text-left ${notification.read ? "border-zinc-200 dark:border-zinc-800" : "border-blue-300 bg-blue-50/40 dark:border-blue-700 dark:bg-blue-950/20"}`}
       >
         <div className="flex items-start justify-between gap-2">
           <span className="flex items-center gap-2 text-sm font-medium">
@@ -97,13 +94,14 @@ export function NotificationsListPageView({
   isError,
   isLoading,
   notifications,
+  now,
   onMarkAllRead,
   onNotificationClick,
 }: NotificationsListPageViewProps) {
   const showList = !isLoading && !isError && notifications.length > 0;
   const showEmpty = !isLoading && !isError && notifications.length === 0;
   const hasUnread = notifications.some((n) => !n.read);
-  const now = new Date();
+  const effectiveNow = now ?? new Date();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -149,7 +147,7 @@ export function NotificationsListPageView({
               <NotificationRow
                 key={notification.notificationId}
                 notification={notification}
-                now={now}
+                now={effectiveNow}
                 onClick={onNotificationClick}
               />
             ))}

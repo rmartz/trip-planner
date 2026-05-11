@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { AppShell } from "@/components/nav/AppShell";
 import {
   NotificationsListPageView,
   NotificationType,
   type NotificationListItem,
 } from "./NotificationsListPageView";
+import { NOTIFICATIONS_LIST_PAGE_COPY } from "./NotificationsListPageView.copy";
 
 const STUB_NOTIFICATIONS: NotificationListItem[] = [
   {
@@ -43,23 +46,34 @@ const STUB_NOTIFICATIONS: NotificationListItem[] = [
 ];
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState(STUB_NOTIFICATIONS);
 
   return (
-    <NotificationsListPageView
-      notifications={notifications}
-      isLoading={false}
-      isError={false}
-      onMarkAllRead={() => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    <AppShell
+      header={{
+        variant: "drilled",
+        title: NOTIFICATIONS_LIST_PAGE_COPY.pageTitle,
+        onBack: () => {
+          router.push("/");
+        },
       }}
-      onNotificationClick={(notificationId) => {
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.notificationId === notificationId ? { ...n, read: true } : n,
-          ),
-        );
-      }}
-    />
+    >
+      <NotificationsListPageView
+        notifications={notifications}
+        isLoading={false}
+        isError={false}
+        onMarkAllRead={() => {
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        }}
+        onNotificationClick={(notificationId) => {
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.notificationId === notificationId ? { ...n, read: true } : n,
+            ),
+          );
+        }}
+      />
+    </AppShell>
   );
 }

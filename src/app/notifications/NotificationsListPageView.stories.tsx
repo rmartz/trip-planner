@@ -41,6 +41,7 @@ const meta: Meta<typeof NotificationsListPageView> = {
     notifications: NOTIFICATIONS,
     isLoading: false,
     isError: false,
+    now: NOW,
     onMarkAllRead: fn(),
     onNotificationClick: fn(),
   },

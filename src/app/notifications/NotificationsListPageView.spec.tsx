@@ -271,6 +271,27 @@ describe("NotificationsListPageView — mark all read", () => {
   });
 });
 
+describe("NotificationsListPageView — deterministic timestamps", () => {
+  it("formats relative timestamps against the provided now prop", () => {
+    render(
+      <NotificationsListPageView
+        notifications={[
+          makeNotification({
+            notificationId: "n-1",
+            occurredAt: new Date("2026-05-11T09:58:00Z"),
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        now={new Date("2026-05-11T10:00:00Z")}
+        onMarkAllRead={vi.fn()}
+        onNotificationClick={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("2m ago")).toBeDefined();
+  });
+});
+
 describe("NotificationsListPageView — notification click", () => {
   it("invokes onNotificationClick with the notification id when a row is clicked", () => {
     const onNotificationClick = vi.fn();
