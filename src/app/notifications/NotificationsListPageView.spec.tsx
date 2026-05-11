@@ -269,6 +269,40 @@ describe("NotificationsListPageView — mark all read", () => {
     );
     expect(onMarkAllRead).toHaveBeenCalledTimes(1);
   });
+
+  it("hides the mark-all-read button while loading even with unread notifications", () => {
+    render(
+      <NotificationsListPageView
+        notifications={[makeNotification({ read: false })]}
+        isLoading={true}
+        isError={false}
+        onMarkAllRead={vi.fn()}
+        onNotificationClick={vi.fn()}
+      />,
+    );
+    expect(
+      screen.queryByRole("button", {
+        name: NOTIFICATIONS_LIST_PAGE_COPY.markAllReadButton,
+      }),
+    ).toBeNull();
+  });
+
+  it("hides the mark-all-read button while in error state even with unread notifications", () => {
+    render(
+      <NotificationsListPageView
+        notifications={[makeNotification({ read: false })]}
+        isLoading={false}
+        isError={true}
+        onMarkAllRead={vi.fn()}
+        onNotificationClick={vi.fn()}
+      />,
+    );
+    expect(
+      screen.queryByRole("button", {
+        name: NOTIFICATIONS_LIST_PAGE_COPY.markAllReadButton,
+      }),
+    ).toBeNull();
+  });
 });
 
 describe("NotificationsListPageView — deterministic timestamps", () => {

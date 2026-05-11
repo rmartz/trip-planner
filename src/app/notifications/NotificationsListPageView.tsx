@@ -100,7 +100,8 @@ export function NotificationsListPageView({
 }: NotificationsListPageViewProps) {
   const showList = !isLoading && !isError && notifications.length > 0;
   const showEmpty = !isLoading && !isError && notifications.length === 0;
-  const hasUnread = notifications.some((n) => !n.read);
+  const hasUnread =
+    !isLoading && !isError && notifications.some((n) => !n.read);
   const effectiveNow = now ?? new Date();
 
   return (
