@@ -146,7 +146,7 @@ export function ExpenseEntryFormView({
           <Input
             id="expense-amount"
             type="number"
-            min={0}
+            min={0.01}
             step={0.01}
             value={amount}
             onChange={(e) => {
