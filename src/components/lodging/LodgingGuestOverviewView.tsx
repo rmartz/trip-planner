@@ -33,12 +33,24 @@ export interface LodgingGuestOverviewViewProps {
   stops: LodgingGuestStopSummary[];
 }
 
-function offerStatusLabel(status: LodgingGuestOfferStatus): string {
+function offerStatusPill(status: LodgingGuestOfferStatus): {
+  label: string;
+  tint: string;
+} {
   if (status === LodgingGuestOfferStatus.Accepted)
-    return COPY.offerStatusAccepted;
+    return {
+      label: COPY.offerStatusAccepted,
+      tint: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+    };
   if (status === LodgingGuestOfferStatus.Declined)
-    return COPY.offerStatusDeclined;
-  return COPY.offerStatusPending;
+    return {
+      label: COPY.offerStatusDeclined,
+      tint: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+    };
+  return {
+    label: COPY.offerStatusPending,
+    tint: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+  };
 }
 
 interface OfferRowProps {
@@ -48,6 +60,7 @@ interface OfferRowProps {
 }
 
 function OfferRow({ offer, onAccept, onDecline }: OfferRowProps) {
+  const pill = offerStatusPill(offer.status);
   return (
     <li
       data-testid="lodging-guest-offer-row"
@@ -55,8 +68,10 @@ function OfferRow({ offer, onAccept, onDecline }: OfferRowProps) {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium">{offer.hostName}</span>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
-          {offerStatusLabel(offer.status)}
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-medium ${pill.tint}`}
+        >
+          {pill.label}
         </span>
       </div>
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
