@@ -75,7 +75,7 @@ function OfferRow({ offer, onAccept, onDecline }: OfferRowProps) {
         </span>
       </div>
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        {offer.offerLabel} · {String(offer.bedCount)} {COPY.offerBedsLabel}
+        {offer.offerLabel} · {COPY.bedsLabel(offer.bedCount)}
       </p>
       <div className="flex gap-2">
         <Button
@@ -86,6 +86,7 @@ function OfferRow({ offer, onAccept, onDecline }: OfferRowProps) {
               ? "default"
               : "outline"
           }
+          aria-label={COPY.acceptOfferAriaLabel(offer.hostName)}
           onClick={onAccept}
         >
           {COPY.acceptOfferButton}
@@ -98,6 +99,7 @@ function OfferRow({ offer, onAccept, onDecline }: OfferRowProps) {
               ? "default"
               : "outline"
           }
+          aria-label={COPY.declineOfferAriaLabel(offer.hostName)}
           onClick={onDecline}
         >
           {COPY.declineOfferButton}

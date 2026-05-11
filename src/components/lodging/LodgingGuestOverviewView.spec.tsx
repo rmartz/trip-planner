@@ -192,7 +192,7 @@ describe("LodgingGuestOverviewView — offers", () => {
     );
     fireEvent.click(
       screen.getByRole("button", {
-        name: LODGING_GUEST_OVERVIEW_COPY.acceptOfferButton,
+        name: LODGING_GUEST_OVERVIEW_COPY.acceptOfferAriaLabel("Alice"),
       }),
     );
     expect(onAcceptOffer).toHaveBeenCalledWith("stop-42", "offer-99");
@@ -215,7 +215,7 @@ describe("LodgingGuestOverviewView — offers", () => {
     );
     fireEvent.click(
       screen.getByRole("button", {
-        name: LODGING_GUEST_OVERVIEW_COPY.declineOfferButton,
+        name: LODGING_GUEST_OVERVIEW_COPY.declineOfferAriaLabel("Alice"),
       }),
     );
     expect(onDeclineOffer).toHaveBeenCalledWith("stop-42", "offer-99");
