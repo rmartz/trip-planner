@@ -27,6 +27,9 @@ export default function DestinationsPage() {
   const [isSubmitError, setIsSubmitError] = useState(false);
   const [stopsForTrip, setStopsForTrip] = useState<Record<string, Stop[]>>({});
 
+  const now = new Date();
+  const activeTrips = (trips ?? []).filter((t) => t.endDate >= now);
+
   const filteredDestinations = (destinations ?? []).filter((d) =>
     d.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -89,7 +92,7 @@ export default function DestinationsPage() {
 
   function handleOpenAttach(destination: Destination) {
     setViewState({ mode: "attach", destination });
-    for (const trip of trips ?? []) {
+    for (const trip of activeTrips) {
       void loadStopsForTrip(trip);
     }
   }
@@ -164,7 +167,7 @@ export default function DestinationsPage() {
       ) : viewState.mode === "attach" ? (
         <AttachDestinationPickerView
           destination={viewState.destination}
-          trips={trips ?? []}
+          trips={activeTrips}
           stopsForTrip={stopsForTrip}
           isLoading={isTripsLoading}
           isSubmitting={isSubmitting}

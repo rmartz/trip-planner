@@ -1,6 +1,7 @@
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { TripRole } from "@/lib/types/trip";
 import type { TripDestination } from "@/lib/types/destination";
+import { NotFoundError, PlannerOnlyError } from "./errors";
 
 export async function attachDestinationToStop(
   uid: string,
@@ -15,13 +16,13 @@ export async function attachDestinationToStop(
 
   const memberDoc = await tripRef.collection("members").doc(uid).get();
   if (!memberDoc.exists || memberDoc.data()?.["role"] !== TripRole.Planner) {
-    throw new Error("Only Planners can attach destinations");
+    throw new PlannerOnlyError("Only Planners can attach destinations");
   }
 
   const stopRef = tripRef.collection("stops").doc(stopId);
   const stopDoc = await stopRef.get();
   if (!stopDoc.exists) {
-    throw new Error("Stop not found");
+    throw new NotFoundError("Stop not found");
   }
 
   const stopName = (stopDoc.data()?.["name"] as string | undefined) ?? "";

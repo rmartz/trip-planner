@@ -1,24 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import {
-  attachDestinationToStop,
-  getTripDestinations,
-} from "@/services/stop-destinations";
+import { attachDestinationToStop } from "@/services/stop-destinations";
+import { NotFoundError, PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
   params: Promise<{ tripId: string; stopId: string }>;
-}
-
-export async function GET(request: NextRequest, { params }: RouteContext) {
-  const uid = request.headers.get(X_USER_ID_HEADER);
-  if (!uid) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { tripId } = await params;
-
-  const destinations = await getTripDestinations(tripId);
-  return NextResponse.json(destinations);
 }
 
 export async function POST(request: NextRequest, { params }: RouteContext) {
@@ -78,10 +64,13 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       body.destinationName.trim(),
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    if (message.includes("Planners")) {
-      return NextResponse.json({ error: message }, { status: 403 });
+    if (err instanceof PlannerOnlyError) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
     }
+    if (err instanceof NotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 404 });
+    }
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
