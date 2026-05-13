@@ -1,0 +1,15 @@
+export const BALANCES_PAGE_COPY = {
+  balancesHeading: "Net balances",
+  emptyText: "No balances to show yet.",
+  errorText: "Couldn't load balances. Please try again.",
+  heading: "Balances",
+  headingSubtext: "Net per-member balances and recommended transfers",
+  loadingText: "Loading balances…",
+  netCreditedLabel: "is owed",
+  netOwedLabel: "owes",
+  netSettledLabel: "is settled",
+  pageTitle: "Balances",
+  transferConnector: "→",
+  transfersEmpty: "No transfers needed.",
+  transfersHeading: "Recommended transfers",
+} as const;

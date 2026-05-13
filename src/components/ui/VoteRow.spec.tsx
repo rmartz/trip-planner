@@ -194,7 +194,9 @@ describe("Criterion 4 — aggregate vote counts display above vote row as Y N ·
       />,
     );
 
-    expect(screen.getByText(VOTE_ROW_COPY.aggregateCounts(5, 2, 1))).toBeDefined();
+    expect(
+      screen.getByText(VOTE_ROW_COPY.aggregateCounts(5, 2, 1)),
+    ).toBeDefined();
   });
 
   it("displays zero counts correctly", () => {
@@ -206,6 +208,8 @@ describe("Criterion 4 — aggregate vote counts display above vote row as Y N ·
       />,
     );
 
-    expect(screen.getByText(VOTE_ROW_COPY.aggregateCounts(0, 0, 0))).toBeDefined();
+    expect(
+      screen.getByText(VOTE_ROW_COPY.aggregateCounts(0, 0, 0)),
+    ).toBeDefined();
   });
 });

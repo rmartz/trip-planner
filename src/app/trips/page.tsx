@@ -16,9 +16,10 @@ interface TripRowProps {
 function TripRow({ trip }: TripRowProps) {
   const phase = getTripPhase(trip);
   return (
-    <div
+    <Link
+      href={`/trips/${trip.tripId}`}
       data-slot="trip-row"
-      className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+      className="block rounded-lg border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-medium">{trip.name}</h3>
@@ -27,7 +28,7 @@ function TripRow({ trip }: TripRowProps) {
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         {formatDateRange(trip.startDate, trip.endDate)}
       </p>
-    </div>
+    </Link>
   );
 }
 
