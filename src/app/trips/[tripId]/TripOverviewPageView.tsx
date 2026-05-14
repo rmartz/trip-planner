@@ -144,10 +144,10 @@ export function TripOverviewPageView({
                   <span className="flex flex-col gap-0.5">
                     <span>{section.label}</span>
                     {section.id === "lodging" && lodgingSubline && (
-                        <span className="text-xs font-normal text-amber-600 dark:text-amber-400">
-                          {lodgingSubline}
-                        </span>
-                      )}
+                      <span className="text-xs font-normal text-amber-600 dark:text-amber-400">
+                        {lodgingSubline}
+                      </span>
+                    )}
                   </span>
                   <span aria-hidden="true" className="text-zinc-400">
                     →

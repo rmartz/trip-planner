@@ -9,7 +9,10 @@ vi.mock("@/services/trip-availability", () => ({
   setMyTripAvailability: vi.fn(),
 }));
 
-import { getTripAvailability, setMyTripAvailability } from "@/services/trip-availability";
+import {
+  getTripAvailability,
+  setMyTripAvailability,
+} from "@/services/trip-availability";
 import { GET, PUT } from "./route";
 
 afterEach(() => {
@@ -21,41 +24,36 @@ const ROUTE_CONTEXT = { params: Promise.resolve({ tripId: "trip-1" }) };
 function makeGetRequest(uid: string | undefined) {
   const headers = new Headers();
   if (uid !== undefined) headers.set(X_USER_ID_HEADER, uid);
-  return new NextRequest(
-    "http://localhost/api/trips/trip-1/availability",
-    { headers },
-  );
+  return new NextRequest("http://localhost/api/trips/trip-1/availability", {
+    headers,
+  });
 }
 
 function makePutRequest(uid: string | undefined, body: unknown) {
   const headers = new Headers();
   if (uid !== undefined) headers.set(X_USER_ID_HEADER, uid);
   headers.set("content-type", "application/json");
-  return new NextRequest(
-    "http://localhost/api/trips/trip-1/availability",
-    {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(body),
-    },
-  );
+  return new NextRequest("http://localhost/api/trips/trip-1/availability", {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body),
+  });
 }
 
 function makeMalformedPutRequest(uid: string | undefined) {
   const headers = new Headers();
   if (uid !== undefined) headers.set(X_USER_ID_HEADER, uid);
   headers.set("content-type", "application/json");
-  return new NextRequest(
-    "http://localhost/api/trips/trip-1/availability",
-    {
-      method: "PUT",
-      headers,
-      body: "not-json{{",
-    },
-  );
+  return new NextRequest("http://localhost/api/trips/trip-1/availability", {
+    method: "PUT",
+    headers,
+    body: "not-json{{",
+  });
 }
 
-function makeAvailability(overrides: Partial<TripAvailability> = {}): TripAvailability {
+function makeAvailability(
+  overrides: Partial<TripAvailability> = {},
+): TripAvailability {
   return {
     uid: "uid-1",
     tripId: "trip-1",
@@ -107,18 +105,12 @@ describe("PUT /api/trips/[tripId]/availability — unauthenticated", () => {
 
 describe("PUT /api/trips/[tripId]/availability — validation", () => {
   it("returns 400 when body is not valid JSON", async () => {
-    const response = await PUT(
-      makeMalformedPutRequest("uid-1"),
-      ROUTE_CONTEXT,
-    );
+    const response = await PUT(makeMalformedPutRequest("uid-1"), ROUTE_CONTEXT);
     expect(response.status).toBe(400);
   });
 
   it("returns 400 when availableDates is missing", async () => {
-    const response = await PUT(
-      makePutRequest("uid-1", {}),
-      ROUTE_CONTEXT,
-    );
+    const response = await PUT(makePutRequest("uid-1", {}), ROUTE_CONTEXT);
     expect(response.status).toBe(400);
   });
 
