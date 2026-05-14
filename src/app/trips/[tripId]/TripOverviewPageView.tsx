@@ -132,9 +132,7 @@ export function TripOverviewPageView({
                     <span>{section.label}</span>
                     {section.label === TRIP_OVERVIEW_PAGE_COPY.sectionLodging &&
                       lodgingSubline && (
-                        <span
-                          className="text-xs font-normal text-amber-600 dark:text-amber-400"
-                        >
+                        <span className="text-xs font-normal text-amber-600 dark:text-amber-400">
                           {lodgingSubline}
                         </span>
                       )}
