@@ -75,9 +75,7 @@ export async function shareDestinationToUser(
     | string
     | undefined;
   if (recipientRole !== TripRole.Planner) {
-    throw new PlannerOnlyError(
-      "Destinations can only be shared with Planners",
-    );
+    throw new PlannerOnlyError("Destinations can only be shared with Planners");
   }
 
   const sourceDoc = await db
