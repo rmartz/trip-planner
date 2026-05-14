@@ -258,7 +258,9 @@ describe("TripOverviewPageView — lodging gap sub-line", () => {
     const link = screen.getByRole("link", {
       name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
     });
-    expect(link.textContent).not.toContain("gap");
+    expect(link.textContent).not.toContain(
+      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(2),
+    );
   });
 
   it("does not show a gap sub-line when lodgingGapCount is undefined", () => {
@@ -272,6 +274,8 @@ describe("TripOverviewPageView — lodging gap sub-line", () => {
     const link = screen.getByRole("link", {
       name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
     });
-    expect(link.textContent).not.toContain("gap");
+    expect(link.textContent).not.toContain(
+      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(2),
+    );
   });
 });
