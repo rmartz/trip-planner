@@ -67,13 +67,19 @@ export interface TripOverviewPageViewProps {
   trip: Trip | undefined;
   isLoading: boolean;
   isError: boolean;
+  lodgingGapCount?: number;
 }
 
 export function TripOverviewPageView({
   trip,
   isLoading,
   isError,
+  lodgingGapCount,
 }: TripOverviewPageViewProps) {
+  const lodgingSubline =
+    lodgingGapCount != null && lodgingGapCount > 0
+      ? TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(lodgingGapCount)
+      : undefined;
   return (
     <div className="flex min-h-screen flex-col">
       {isLoading && (
@@ -122,7 +128,18 @@ export function TripOverviewPageView({
                   href={section.href(trip.tripId)}
                   className="flex items-center justify-between rounded-lg border border-zinc-200 px-4 py-4 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                 >
-                  <span>{section.label}</span>
+                  <span className="flex flex-col gap-0.5">
+                    <span>{section.label}</span>
+                    {section.label === TRIP_OVERVIEW_PAGE_COPY.sectionLodging &&
+                      lodgingSubline && (
+                        <span
+                          aria-hidden="true"
+                          className="text-xs font-normal text-amber-600 dark:text-amber-400"
+                        >
+                          {lodgingSubline}
+                        </span>
+                      )}
+                  </span>
                   <span aria-hidden="true" className="text-zinc-400">
                     →
                   </span>
