@@ -60,6 +60,61 @@ describe("DestinationDetailView — renders destination details", () => {
   });
 });
 
+describe("DestinationDetailView — share button visibility", () => {
+  it("renders the share button when canShare is true", () => {
+    render(
+      <DestinationDetailView
+        destination={makeDestination()}
+        onEdit={vi.fn()}
+        onBack={vi.fn()}
+        canShare={true}
+        onShare={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: DESTINATION_DETAIL_COPY.shareButton }),
+    ).toBeDefined();
+  });
+
+  it("does not render the share button when canShare is false", () => {
+    render(
+      <DestinationDetailView
+        destination={makeDestination()}
+        onEdit={vi.fn()}
+        onBack={vi.fn()}
+        canShare={false}
+        onShare={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", {
+        name: DESTINATION_DETAIL_COPY.shareButton,
+      }),
+    ).toBeNull();
+  });
+
+  it("calls onShare when Share is clicked", () => {
+    const onShare = vi.fn();
+    render(
+      <DestinationDetailView
+        destination={makeDestination()}
+        onEdit={vi.fn()}
+        onBack={vi.fn()}
+        canShare={true}
+        onShare={onShare}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: DESTINATION_DETAIL_COPY.shareButton }),
+    );
+
+    expect(onShare).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("DestinationDetailView — actions", () => {
   it("calls onEdit with the destination when Edit is clicked", () => {
     const onEdit = vi.fn();
