@@ -93,8 +93,8 @@ describe("getLodgingForStop", () => {
     } satisfies MockQuerySnapshot);
 
     vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
-      void stopId;
-      void data;
+      expect(stopId).toBe("stop-1");
+      expect(data).toBeDefined();
 
       const recordsByUid: Record<string, LodgingRecord> = {
         "uid-host-hidden": makeRecord({
