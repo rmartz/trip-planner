@@ -55,7 +55,8 @@ export async function setLodgingInvitees(
   const stopRef = tripRef.collection("stops").doc(stopId);
   await getInviteableHostData(hostUid, stopRef);
 
-  const uniqueInvitedUids = Array.from(new Set(invitedUids));
+  const uniqueInvitedUidSet = new Set(invitedUids);
+  const uniqueInvitedUids = Array.from(uniqueInvitedUidSet);
   const eligibleInviteeUids = await getEligibleInviteeUids(
     hostUid,
     tripRef,

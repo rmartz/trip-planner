@@ -17,7 +17,7 @@ import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
 import { tripMembersQueryOptions } from "@/hooks/use-trip-members";
 import { LodgingStatus } from "@/lib/types/lodging";
-import { TripRole, type Stop, type TripMember } from "@/lib/types/trip";
+import { TripRole, type Stop } from "@/lib/types/trip";
 import { LODGING_PAGE_COPY } from "./copy";
 
 interface LodgingPageProps {
@@ -50,17 +50,6 @@ function makeGuestSummary(
   };
 }
 
-function makeHostNamesByUid(
-  members: TripMember[] | undefined,
-): Record<string, string> {
-  return Object.fromEntries(
-    (members ?? []).map((member) => [
-      member.uid,
-      member.displayName ?? member.uid,
-    ]),
-  );
-}
-
 export default function LodgingPage({ params }: LodgingPageProps) {
   const { tripId } = use(params);
   const router = useRouter();
@@ -83,7 +72,12 @@ export default function LodgingPage({ params }: LodgingPageProps) {
     (stop, index) =>
       makeGuestSummary(
         stop,
-        makeHostNamesByUid(tripMembersQuery.data),
+        Object.fromEntries(
+          (tripMembersQuery.data ?? []).map((member) => [
+            member.uid,
+            member.displayName ?? member.uid,
+          ]),
+        ),
         user?.uid,
         stopLodgingQueries[index]?.data ?? [],
       ),
