@@ -3,7 +3,7 @@ import {
   firebaseToTripAvailability,
   tripAvailabilityToFirebase,
 } from "@/lib/firebase/schema/trip-availability";
-import { getLegMemberRole } from "@/services/legs";
+import { getTripMemberRole } from "@/services/trips";
 import { TripRole } from "@/lib/types/trip";
 import { PlannerOnlyError } from "./errors";
 import type { TripAvailability } from "@/lib/types/trip-availability";
@@ -27,7 +27,7 @@ export async function setMyTripAvailability(
   tripId: string,
   availableDates: string[],
 ): Promise<void> {
-  const role = await getLegMemberRole(uid, tripId);
+  const role = await getTripMemberRole(tripId, uid);
   if (role !== TripRole.Planner) {
     throw new PlannerOnlyError("Only Planners can set availability for a trip");
   }

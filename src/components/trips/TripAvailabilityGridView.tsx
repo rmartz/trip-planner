@@ -39,6 +39,7 @@ interface DateCellProps {
   onDragStart: (key: string) => void;
   onDragEnter: (key: string) => void;
   onDragEnd: () => void;
+  onDragCancel: () => void;
 }
 
 function DateCell({
@@ -48,6 +49,7 @@ function DateCell({
   onDragStart,
   onDragEnter,
   onDragEnd,
+  onDragCancel,
 }: DateCellProps) {
   const key = toDateKey(date);
   const label = toShortLabel(date);
@@ -71,6 +73,9 @@ function DateCell({
       }}
       onPointerUp={() => {
         onDragEnd();
+      }}
+      onPointerCancel={() => {
+        onDragCancel();
       }}
       onKeyDown={(e) => {
         if (e.key === " " || e.key === "Enter") {
@@ -141,11 +146,17 @@ export function TripAvailabilityGridView({
     }
   }
 
+  function handleDragCancel() {
+    isDragging.current = false;
+    draggedKeys.current = [];
+  }
+
   return (
     <div
       className="flex flex-col gap-4"
       onPointerUp={handleDragEnd}
       onPointerLeave={handleDragEnd}
+      onPointerCancel={handleDragCancel}
     >
       {isLoading && (
         <p className="text-sm text-zinc-500">
@@ -171,6 +182,7 @@ export function TripAvailabilityGridView({
                   onDragStart={handleDragStart}
                   onDragEnter={handleDragEnter}
                   onDragEnd={handleDragEnd}
+                  onDragCancel={handleDragCancel}
                 />
               );
             })}
