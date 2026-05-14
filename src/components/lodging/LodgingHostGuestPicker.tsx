@@ -117,7 +117,11 @@ export function LodgingHostGuestPicker({
       guests={guests}
       isSubmitting={saveMutation.isPending}
       onSave={() => {
-        void saveMutation.mutateAsync(Array.from(selectedUids));
+        saveMutation.mutate(Array.from(selectedUids), {
+          onError: (error) => {
+            console.error("Failed to save lodging invitees:", error);
+          },
+        });
       }}
       onToggleGuest={(uid) => {
         setSelectedUids((currentSelectedUids) => {

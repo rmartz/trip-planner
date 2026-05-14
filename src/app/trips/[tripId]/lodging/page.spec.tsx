@@ -4,7 +4,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LodgingGuestOfferStatus } from "@/components/lodging/LodgingGuestOverviewView";
 import { LodgingStatus } from "@/lib/types/lodging";
-import { TripRole, type Stop } from "@/lib/types/trip";
+import { type Stop, TripRole } from "@/lib/types/trip";
 
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");

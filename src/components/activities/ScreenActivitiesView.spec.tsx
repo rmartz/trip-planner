@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ScreenActivitiesView } from "./ScreenActivitiesView";
 import { SCREEN_ACTIVITIES_COPY } from "./ScreenActivities.copy";
 import type { Activity } from "@/lib/types/activity";

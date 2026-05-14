@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { firebaseToDestination, destinationToFirebase } from "./destination";
+import { describe, expect, it } from "vitest";
+import { destinationToFirebase, firebaseToDestination } from "./destination";
 
 describe("firebaseToDestination", () => {
   it("maps destinationId from argument", () => {

@@ -229,7 +229,10 @@ describe("setLodgingInvitees", () => {
   it("throws when any invited guest is not eligible for this stop", async () => {
     memberGet.mockResolvedValue({ exists: true });
     membersGet.mockResolvedValue({
-      docs: [{ id: "uid-guest" }, { id: "uid-host" }],
+      docs: [
+        { id: "uid-guest", data: () => ({}) },
+        { id: "uid-host", data: () => ({}) },
+      ],
     });
     hostGet.mockResolvedValue({
       exists: true,
@@ -258,7 +261,10 @@ describe("setLodgingInvitees", () => {
   it("updates invitees for a secured-capacity host", async () => {
     memberGet.mockResolvedValue({ exists: true });
     membersGet.mockResolvedValue({
-      docs: [{ id: "uid-guest" }, { id: "uid-host" }],
+      docs: [
+        { id: "uid-guest", data: () => ({}) },
+        { id: "uid-host", data: () => ({}) },
+      ],
     });
     hostGet.mockResolvedValue({
       exists: true,
@@ -336,7 +342,11 @@ describe("getLodgingInviteeCandidates", () => {
   it("returns eligible invitees and filters stale invitedUids", async () => {
     memberGet.mockResolvedValue({ exists: true });
     membersGet.mockResolvedValue({
-      docs: [{ id: "uid-guest" }, { id: "uid-host" }, { id: "uid-ineligible" }],
+      docs: [
+        { id: "uid-guest", data: () => ({}) },
+        { id: "uid-host", data: () => ({}) },
+        { id: "uid-ineligible", data: () => ({}) },
+      ],
     });
     hostGet.mockResolvedValue({
       exists: true,
@@ -363,6 +373,43 @@ describe("getLodgingInviteeCandidates", () => {
     ).resolves.toEqual({
       candidateUids: ["uid-guest"],
       invitedUids: ["uid-guest"],
+    });
+  });
+
+  it("excludes Planner-role members from the candidate set even when they need lodging", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    membersGet.mockResolvedValue({
+      docs: [
+        { id: "uid-guest", data: () => ({ role: "guest" }) },
+        { id: "uid-planner", data: () => ({ role: "planner" }) },
+        { id: "uid-host", data: () => ({ role: "planner" }) },
+      ],
+    });
+    hostGet.mockResolvedValue({
+      exists: true,
+      data: () => ({
+        invitedUids: [],
+        status: LodgingStatus.SecuredCapacity,
+      }),
+    });
+    lodgingGet.mockResolvedValue({
+      docs: [
+        {
+          id: "uid-guest",
+          data: () => ({ status: LodgingStatus.NeedLodging }),
+        },
+        {
+          id: "uid-planner",
+          data: () => ({ status: LodgingStatus.NeedLodging }),
+        },
+      ],
+    });
+
+    await expect(
+      getLodgingInviteeCandidates("uid-host", "trip-1", "stop-1"),
+    ).resolves.toEqual({
+      candidateUids: ["uid-guest"],
+      invitedUids: [],
     });
   });
 });

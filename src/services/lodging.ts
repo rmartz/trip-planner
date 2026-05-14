@@ -3,6 +3,7 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToLodging } from "@/lib/firebase/schema/lodging";
 import { LodgingStatus } from "@/lib/types/lodging";
 import type { LodgingRecord } from "@/lib/types/lodging";
+import { TripRole } from "@/lib/types/trip";
 import { NotFoundError } from "./errors";
 
 export interface LodgingInviteeCandidates {
@@ -121,11 +122,16 @@ async function getEligibleInviteeUids(
 
   return new Set(
     membersSnapshot.docs
-      .map((doc) => doc.id)
-      .filter((memberUid) => memberUid !== hostUid)
-      .filter((memberUid) => {
-        return lodgingStatusByUid.get(memberUid) === LodgingStatus.NeedLodging;
-      }),
+      .filter((doc) => doc.id !== hostUid)
+      .filter(
+        (doc) =>
+          (doc.data()["role"] as string | undefined) !== TripRole.Planner,
+      )
+      .filter(
+        (doc) =>
+          lodgingStatusByUid.get(doc.id) === LodgingStatus.NeedLodging,
+      )
+      .map((doc) => doc.id),
   );
 }
 

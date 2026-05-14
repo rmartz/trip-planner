@@ -1,9 +1,9 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   ExpenseCategory,
-  ExpensesListPageView,
   type ExpenseListItem,
+  ExpensesListPageView,
 } from "./ExpensesListPageView";
 import { EXPENSES_LIST_PAGE_COPY } from "./ExpensesListPageView.copy";
 

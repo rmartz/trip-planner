@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import { fireEvent } from "@testing-library/react";
 import { TripRole } from "@/lib/types/trip";
 import { MEMBERS_PAGE_COPY } from "./MembersPageView.copy";

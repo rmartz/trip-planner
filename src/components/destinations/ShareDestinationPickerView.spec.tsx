@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
-  ShareDestinationPickerView,
   type ShareablePlanner,
+  ShareDestinationPickerView,
 } from "./ShareDestinationPickerView";
 import { SHARE_DESTINATION_PICKER_COPY } from "./ShareDestinationPickerView.copy";
 import type { Destination } from "@/lib/types/destination";

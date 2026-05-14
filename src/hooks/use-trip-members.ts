@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { TripRole, type TripMember } from "@/lib/types/trip";
+import { type TripMember, TripRole } from "@/lib/types/trip";
 
 interface TripMemberJson {
   displayName?: string;

@@ -17,7 +17,7 @@ import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
 import { tripMembersQueryOptions } from "@/hooks/use-trip-members";
 import { LodgingStatus } from "@/lib/types/lodging";
-import { TripRole, type Stop } from "@/lib/types/trip";
+import { type Stop, TripRole } from "@/lib/types/trip";
 import { LODGING_PAGE_COPY } from "./copy";
 
 interface LodgingPageProps {
@@ -39,7 +39,7 @@ function makeGuestSummary(
       .filter((record) => record.uid !== currentUserUid)
       .filter((record) => record.status === LodgingStatus.SecuredCapacity)
       .map((record) => ({
-        bedCount: record.guestCount ?? 0,
+        bedCount: record.guestCount,
         hostName: hostNamesByUid[record.uid] ?? record.uid,
         offerId: `${stop.stopId}-${record.uid}`,
         offerLabel: stop.name,

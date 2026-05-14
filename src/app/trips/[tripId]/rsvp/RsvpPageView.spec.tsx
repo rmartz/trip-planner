@@ -1,10 +1,10 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { TripRole } from "@/lib/types/trip";
 import {
   RsvpPageView,
-  RsvpStatus,
   type RsvpScheduledActivity,
+  RsvpStatus,
 } from "./RsvpPageView";
 import { RSVP_PAGE_COPY } from "./RsvpPageView.copy";
 

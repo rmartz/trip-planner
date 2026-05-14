@@ -13,7 +13,7 @@ export enum LodgingGuestOfferStatus {
 }
 
 export interface LodgingGuestOffer {
-  bedCount: number;
+  bedCount?: number;
   hostName: string;
   offerId: string;
   offerLabel: string;
@@ -75,7 +75,8 @@ function OfferRow({ offer, onAccept, onDecline }: OfferRowProps) {
         </span>
       </div>
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        {offer.offerLabel} · {COPY.bedsLabel(offer.bedCount)}
+        {offer.offerLabel}
+        {offer.bedCount !== undefined && ` · ${COPY.bedsLabel(offer.bedCount)}`}
       </p>
       <div className="flex gap-2">
         <Button
