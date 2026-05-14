@@ -5,10 +5,14 @@ import { TripRole } from "@/lib/types/trip";
 
 vi.mock("@/services/legs", () => ({
   getAffectedGuestsForLeg: vi.fn(),
-  getLegMemberRole: vi.fn(),
 }));
 
-import { getAffectedGuestsForLeg, getLegMemberRole } from "@/services/legs";
+vi.mock("@/services/trips", () => ({
+  getTripMemberRole: vi.fn(),
+}));
+
+import { getAffectedGuestsForLeg } from "@/services/legs";
+import { getTripMemberRole } from "@/services/trips";
 import { GET } from "./route";
 
 function makeGetRequest(
@@ -38,7 +42,7 @@ describe("GET /api/trips/[tripId]/legs/[legId]/affected-guests", () => {
   });
 
   it("returns 403 when user is not a Planner", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
 
     const request = makeGetRequest("uid-guest");
     const response = await GET(request, {
@@ -48,7 +52,7 @@ describe("GET /api/trips/[tripId]/legs/[legId]/affected-guests", () => {
   });
 
   it("returns 200 with affected guest uids", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getAffectedGuestsForLeg).mockResolvedValue(["uid-a", "uid-b"]);
 
     const request = makeGetRequest("uid-planner");
@@ -61,7 +65,7 @@ describe("GET /api/trips/[tripId]/legs/[legId]/affected-guests", () => {
   });
 
   it("returns 200 with empty array when no guests are affected", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getAffectedGuestsForLeg).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-planner");
