@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import { AppDrawerView } from "./AppDrawerView";
 import { APP_DRAWER_COPY } from "./AppDrawer.copy";
 import type { Trip } from "@/lib/types/trip";

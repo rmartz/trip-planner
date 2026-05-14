@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import type { Leg } from "@/lib/types/trip";
 import { TripRole } from "@/lib/types/trip";
@@ -13,7 +13,7 @@ vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
 
-import { getLegsForTrip, addLeg } from "@/services/legs";
+import { addLeg, getLegsForTrip } from "@/services/legs";
 import { getTripMemberRole } from "@/services/trips";
 import { GET, POST } from "./route";
 

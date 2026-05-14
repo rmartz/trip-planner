@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import type { Trip } from "@/lib/types/trip";
@@ -8,7 +8,7 @@ vi.mock("@/services/invite", () => ({
   acceptInvite: vi.fn(),
 }));
 
-import { getTripByInviteToken, acceptInvite } from "@/services/invite";
+import { acceptInvite, getTripByInviteToken } from "@/services/invite";
 import { GET, POST } from "./route";
 
 afterEach(() => {

@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   ExpenseCategory,
-  ExpenseSplitMethod,
   ExpenseLinkedEntityType,
+  ExpenseSplitMethod,
 } from "@/lib/types/expense";
-import { firebaseToExpense, expenseToFirebase } from "./expense";
+import { expenseToFirebase, firebaseToExpense } from "./expense";
 
 // Fixtures
 function makeLinkedEntity() {

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { use } from "react";
 import { useRouter } from "next/navigation";
 import { TripRole } from "@/lib/types/trip";
-import type { Stop, Leg } from "@/lib/types/trip";
+import type { Leg, Stop } from "@/lib/types/trip";
 import { useStops } from "@/hooks/use-stops";
 import { useLegs } from "@/hooks/use-legs";
 import { useCreateStop } from "@/hooks/use-create-stop";

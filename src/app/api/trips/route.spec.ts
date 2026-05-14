@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import type { Trip } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
@@ -8,7 +8,7 @@ vi.mock("@/services/trips", () => ({
   createTripForUser: vi.fn(),
 }));
 
-import { getTripsForUser, createTripForUser } from "@/services/trips";
+import { createTripForUser, getTripsForUser } from "@/services/trips";
 import { GET, POST } from "./route";
 import { proxy } from "@/proxy";
 

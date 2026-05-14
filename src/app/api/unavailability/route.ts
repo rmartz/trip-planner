@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
-  getUnavailableRanges,
   createUnavailableRange,
+  getUnavailableRanges,
 } from "@/services/unavailable-ranges";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 

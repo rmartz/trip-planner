@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { TripRole } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
@@ -9,7 +9,7 @@ vi.mock("@/services/members", () => ({
   addNonAccountMember: vi.fn(),
 }));
 
-import { getMembersForTrip, addNonAccountMember } from "@/services/members";
+import { addNonAccountMember, getMembersForTrip } from "@/services/members";
 import { GET, POST } from "./route";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
