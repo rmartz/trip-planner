@@ -48,6 +48,8 @@ export default tseslint.config(
       // ignoreDeclarationSort: true — import statement order is not enforced (grouping
       // by framework/internal/relative carries semantic value and is left to the author).
       // ignoreMemberSort: false — named specifiers must be alphabetical within a statement.
+      // Aliased specifiers sort by their local binding name (e.g. `signOut as firebaseSignOut`
+      // sorts under "f", not "s").
       "sort-imports": [
         "error",
         {
