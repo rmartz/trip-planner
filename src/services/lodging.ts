@@ -128,8 +128,7 @@ async function getEligibleInviteeUids(
           (doc.data()["role"] as string | undefined) !== TripRole.Planner,
       )
       .filter(
-        (doc) =>
-          lodgingStatusByUid.get(doc.id) === LodgingStatus.NeedLodging,
+        (doc) => lodgingStatusByUid.get(doc.id) === LodgingStatus.NeedLodging,
       )
       .map((doc) => doc.id),
   );
