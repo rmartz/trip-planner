@@ -239,7 +239,7 @@ describe("TripOverviewPageView — lodging gap sub-line", () => {
       />,
     );
     const link = screen.getByRole("link", {
-      name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
+      name: new RegExp(TRIP_OVERVIEW_PAGE_COPY.sectionLodging),
     });
     expect(link.textContent).toContain(
       TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(2),

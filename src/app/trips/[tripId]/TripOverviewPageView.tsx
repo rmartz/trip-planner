@@ -133,7 +133,6 @@ export function TripOverviewPageView({
                     {section.label === TRIP_OVERVIEW_PAGE_COPY.sectionLodging &&
                       lodgingSubline && (
                         <span
-                          aria-hidden="true"
                           className="text-xs font-normal text-amber-600 dark:text-amber-400"
                         >
                           {lodgingSubline}
