@@ -1,6 +1,8 @@
 export const TRIP_OVERVIEW_PAGE_COPY = {
   errorText: "Couldn't load this trip. Please try again.",
   loadingText: "Loading trip…",
+  lodgingGapSubline: (count: number) =>
+    `${String(count)} ${count === 1 ? "gap" : "gaps"}`,
   notFoundText: "Trip not found.",
   sectionActivities: "Activities",
   sectionArchive: "Archive",

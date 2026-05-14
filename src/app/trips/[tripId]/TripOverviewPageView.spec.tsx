@@ -227,3 +227,51 @@ describe("TripOverviewPageView — section navigation", () => {
     ).toBeNull();
   });
 });
+
+describe("TripOverviewPageView — lodging gap sub-line", () => {
+  it("shows a gap sub-line on the lodging card when lodgingGapCount > 0", () => {
+    render(
+      <TripOverviewPageView
+        trip={makeTrip({ tripId: "trip-1" })}
+        isLoading={false}
+        isError={false}
+        lodgingGapCount={2}
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: new RegExp(TRIP_OVERVIEW_PAGE_COPY.sectionLodging),
+    });
+    expect(link.textContent).toContain(
+      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(2),
+    );
+  });
+
+  it("does not show a gap sub-line when lodgingGapCount is 0", () => {
+    render(
+      <TripOverviewPageView
+        trip={makeTrip({ tripId: "trip-1" })}
+        isLoading={false}
+        isError={false}
+        lodgingGapCount={0}
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
+    });
+    expect(link.textContent).not.toContain("gap");
+  });
+
+  it("does not show a gap sub-line when lodgingGapCount is undefined", () => {
+    render(
+      <TripOverviewPageView
+        trip={makeTrip({ tripId: "trip-1" })}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
+    });
+    expect(link.textContent).not.toContain("gap");
+  });
+});
