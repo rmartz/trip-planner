@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { TripAvailabilityGridView } from "./TripAvailabilityGridView";
 import { TRIP_AVAILABILITY_GRID_COPY } from "./TripAvailabilityGridView.copy";
 
