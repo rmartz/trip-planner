@@ -8,6 +8,7 @@ import {
   type TransportLegSummary,
 } from "@/components/transport/TransportPlannerOverviewView";
 import { useLegs } from "@/hooks/use-legs";
+import { TripRole } from "@/lib/types/trip";
 import { TRANSPORT_PAGE_COPY } from "./copy";
 
 interface TransportPageProps {
@@ -19,6 +20,7 @@ export default function TransportPage({ params }: TransportPageProps) {
   const router = useRouter();
   const { data } = useLegs(tripId);
   const legs = data?.legs ?? [];
+  const isPlanner = data?.role === TripRole.Planner;
 
   const legSummaries: TransportLegSummary[] = legs.map((leg) => ({
     leg,
@@ -36,7 +38,13 @@ export default function TransportPage({ params }: TransportPageProps) {
         },
       }}
     >
-      <TransportPlannerOverviewView legs={legSummaries} />
+      {isPlanner ? (
+        <TransportPlannerOverviewView legs={legSummaries} />
+      ) : (
+        <p className="p-4 text-sm text-muted-foreground">
+          {TRANSPORT_PAGE_COPY.plannerOnlyMessage}
+        </p>
+      )}
     </AppShell>
   );
 }
