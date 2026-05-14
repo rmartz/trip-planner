@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { InterestVote } from "@/lib/types/interest-vote";
 import { VOTE_ROW_COPY } from "./VoteRow.copy";
 
-interface VoteCounts {
+export interface VoteCounts {
   yes: number;
   maybe: number;
   no: number;
