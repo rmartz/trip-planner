@@ -10,8 +10,8 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
 import { randomBytes } from "crypto";
 import {
-  getTripByInviteToken,
   acceptInvite,
+  getTripByInviteToken,
   regenerateInviteToken,
 } from "./invite";
 

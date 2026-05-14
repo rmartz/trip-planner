@@ -5,8 +5,8 @@ import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
 import {
   ExpenseCategory,
-  ExpensesListPageView,
   type ExpenseListItem,
+  ExpensesListPageView,
 } from "./ExpensesListPageView";
 import { EXPENSES_LIST_PAGE_COPY } from "./ExpensesListPageView.copy";
 

@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import {
-  BalancesPageView,
   type BalanceRow,
+  BalancesPageView,
   type TransferRow,
 } from "./BalancesPageView";
 import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";

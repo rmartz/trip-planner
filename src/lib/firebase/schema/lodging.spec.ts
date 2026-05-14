@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
 import { firebaseToLodging, lodgingToFirebase } from "./lodging";
 import { LodgingStatus } from "@/lib/types/lodging";
@@ -67,6 +67,34 @@ describe("firebaseToLodging — maps status enum", () => {
       updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
     });
     expect(record.status).toBe(LodgingStatus.NeedLodging);
+  });
+});
+
+describe("firebaseToLodging — maps invitedUids", () => {
+  it("maps invitedUids when all elements are strings", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: LodgingStatus.SecuredCapacity,
+      invitedUids: ["uid-a", "uid-b"],
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.invitedUids).toEqual(["uid-a", "uid-b"]);
+  });
+
+  it("leaves invitedUids undefined when the array contains a non-string element", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: LodgingStatus.SecuredCapacity,
+      invitedUids: [1, "uid-b"],
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.invitedUids).toBeUndefined();
+  });
+
+  it("leaves invitedUids undefined when the field is absent", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: LodgingStatus.SecuredCapacity,
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.invitedUids).toBeUndefined();
   });
 });
 
@@ -176,6 +204,27 @@ describe("lodgingToFirebase — serializes status and optional fields", () => {
       updatedAt: new Date("2025-06-01T00:00:00Z"),
     });
     expect("sharingWithUid" in data).toBe(false);
+  });
+
+  it("includes invitedUids when defined", () => {
+    const data = lodgingToFirebase({
+      uid: "user-1",
+      stopId: "stop-1",
+      status: LodgingStatus.SecuredCapacity,
+      invitedUids: ["uid-guest-a", "uid-guest-b"],
+      updatedAt: new Date("2025-06-01T00:00:00Z"),
+    });
+    expect(data.invitedUids).toEqual(["uid-guest-a", "uid-guest-b"]);
+  });
+
+  it("omits invitedUids when undefined", () => {
+    const data = lodgingToFirebase({
+      uid: "user-1",
+      stopId: "stop-1",
+      status: LodgingStatus.SecuredCapacity,
+      updatedAt: new Date("2025-06-01T00:00:00Z"),
+    });
+    expect("invitedUids" in data).toBe(false);
   });
 
   it("serializes updatedAt as Timestamp", () => {

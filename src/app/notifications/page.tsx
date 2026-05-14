@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import {
+  type NotificationListItem,
   NotificationsListPageView,
   NotificationType,
-  type NotificationListItem,
 } from "./NotificationsListPageView";
 import { NOTIFICATIONS_LIST_PAGE_COPY } from "./NotificationsListPageView.copy";
 

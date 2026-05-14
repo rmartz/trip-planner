@@ -59,6 +59,7 @@ See [AGENTS.md](AGENTS.md) for the full list of code conventions, including:
 - Co-located test files (`Component.spec.tsx`) and stories (`Component.stories.tsx`)
 - User-facing strings in co-located copy files for i18n readiness
 - File size limits (~200 lines for source, ~300 lines for tests)
+- **Alphabetical ordering**: named import members within each `import` statement must be sorted alphabetically (enforced by ESLint, except `src/components/ui/` which is excluded as ShadCN-generated code); enum members and constant object keys must also be alphabetical (manual convention)
 
 ## Commit Messages
 

@@ -27,6 +27,16 @@ export interface ActivityGroupSize {
   max?: number;
 }
 
+export interface ActivityProposalInput {
+  name: string;
+  description?: string;
+  estimatedDurationMinutes: number;
+  timeOfDaySlot?: ActivityTimeOfDaySlot;
+  groupSize?: ActivityGroupSize;
+  costPerPerson?: number;
+  transportationRequired?: TransportationMode;
+}
+
 export interface Activity {
   activityId: string;
   stopId: string;

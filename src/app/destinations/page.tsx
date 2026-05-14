@@ -13,7 +13,7 @@ import type { DestinationFormInput } from "@/components/destinations/Destination
 import type { ShareablePlanner } from "@/components/destinations/ShareDestinationPickerView";
 import { TripRole } from "@/lib/types/trip";
 import type { Destination } from "@/lib/types/destination";
-import type { Trip, Stop } from "@/lib/types/trip";
+import type { Stop, Trip } from "@/lib/types/trip";
 
 interface StopWireFormat {
   stopId: string;

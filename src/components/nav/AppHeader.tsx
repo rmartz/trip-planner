@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MenuIcon, ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AppHeaderView } from "./AppHeaderView";

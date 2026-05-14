@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
 import { X_USER_ID_HEADER } from "@/lib/constants";
@@ -9,8 +9,8 @@ vi.mock("@/services/unavailable-ranges", () => ({
 }));
 
 import {
-  getUnavailableRanges,
   createUnavailableRange,
+  getUnavailableRanges,
 } from "@/services/unavailable-ranges";
 import { GET, POST } from "./route";
 import { proxy } from "@/proxy";

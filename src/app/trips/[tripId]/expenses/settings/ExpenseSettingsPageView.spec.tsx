@@ -1,11 +1,11 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   ExpenseSettingsCategory,
-  ExpenseSettingsPageView,
-  ExpenseUnitModel,
   type ExpenseSettingsCategoryConfig,
   type ExpenseSettingsMemberOption,
+  ExpenseSettingsPageView,
+  ExpenseUnitModel,
 } from "./ExpenseSettingsPageView";
 import { EXPENSE_SETTINGS_PAGE_COPY } from "./ExpenseSettingsPageView.copy";
 

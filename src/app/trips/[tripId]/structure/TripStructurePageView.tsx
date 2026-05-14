@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { Stop, Leg } from "@/lib/types/trip";
+import type { Leg, Stop } from "@/lib/types/trip";
 import { TRIP_STRUCTURE_COPY } from "./copy";
 
 function formatDateRange(startDate: Date, endDate: Date): string {

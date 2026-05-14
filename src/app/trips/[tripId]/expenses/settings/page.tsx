@@ -5,10 +5,10 @@ import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
 import {
   ExpenseSettingsCategory,
-  ExpenseSettingsPageView,
-  ExpenseUnitModel,
   type ExpenseSettingsCategoryConfig,
   type ExpenseSettingsMemberOption,
+  ExpenseSettingsPageView,
+  ExpenseUnitModel,
 } from "./ExpenseSettingsPageView";
 import { EXPENSE_SETTINGS_PAGE_COPY } from "./ExpenseSettingsPageView.copy";
 

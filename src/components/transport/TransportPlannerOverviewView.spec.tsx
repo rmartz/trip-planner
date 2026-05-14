@@ -1,8 +1,9 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import {
-  TransportPlannerOverviewView,
   type TransportLegSummary,
+  TransportOfferVisibility,
+  TransportPlannerOverviewView,
 } from "./TransportPlannerOverviewView";
 import { TRANSPORT_PLANNER_OVERVIEW_COPY } from "./TransportPlannerOverviewView.copy";
 import type { Leg } from "@/lib/types/trip";
@@ -30,8 +31,21 @@ function makeLegSummary(
 ): TransportLegSummary {
   return {
     leg: makeLeg(),
-    capacity: { driverCount: 1, seatCount: 4 },
-    demand: { ridersNeeded: 3 },
+    demand: {
+      driving: 1,
+      needRide: 3,
+      haveOwn: 0,
+      skipLeg: 0,
+      noReply: 0,
+    },
+    supply: [
+      {
+        driverName: "Marco",
+        routeName: "Marco's car",
+        seatCount: 4,
+        visibility: TransportOfferVisibility.Public,
+      },
+    ],
     ...overrides,
   };
 }
@@ -89,55 +103,27 @@ describe("TransportPlannerOverviewView — per-leg cards", () => {
   });
 });
 
-describe("TransportPlannerOverviewView — capacity callout", () => {
-  it("renders the capacity card title", () => {
-    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
-    expect(screen.getByText(COPY.capacityCardTitle)).toBeDefined();
-  });
-
-  it("renders the seat count via the capacity label", () => {
-    render(
-      <TransportPlannerOverviewView
-        legs={[makeLegSummary({ capacity: { driverCount: 2, seatCount: 7 } })]}
-      />,
-    );
-    expect(screen.getByText(COPY.capacityLabel(7))).toBeDefined();
-  });
-
-  it("renders the driver count via the driver label", () => {
-    render(
-      <TransportPlannerOverviewView
-        legs={[makeLegSummary({ capacity: { driverCount: 2, seatCount: 7 } })]}
-      />,
-    );
-    expect(screen.getByText(COPY.driverLabel(2))).toBeDefined();
-  });
-});
-
-describe("TransportPlannerOverviewView — demand callout", () => {
-  it("renders the demand card title", () => {
-    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
-    expect(screen.getByText(COPY.demandCardTitle)).toBeDefined();
-  });
-
-  it("renders the riders-needed count", () => {
-    render(
-      <TransportPlannerOverviewView
-        legs={[makeLegSummary({ demand: { ridersNeeded: 5 } })]}
-      />,
-    );
-    expect(screen.getByText(COPY.passengersLabel(5))).toBeDefined();
-  });
-});
-
 describe("TransportPlannerOverviewView — status pill", () => {
   it("shows the covered pill when seat count meets demand", () => {
     render(
       <TransportPlannerOverviewView
         legs={[
           makeLegSummary({
-            capacity: { driverCount: 1, seatCount: 4 },
-            demand: { ridersNeeded: 3 },
+            demand: {
+              driving: 1,
+              needRide: 2,
+              haveOwn: 0,
+              skipLeg: 0,
+              noReply: 0,
+            },
+            supply: [
+              {
+                driverName: "Marco",
+                routeName: "Marco's car",
+                seatCount: 3,
+                visibility: TransportOfferVisibility.Public,
+              },
+            ],
           }),
         ]}
       />,
@@ -150,12 +136,248 @@ describe("TransportPlannerOverviewView — status pill", () => {
       <TransportPlannerOverviewView
         legs={[
           makeLegSummary({
-            capacity: { driverCount: 1, seatCount: 2 },
-            demand: { ridersNeeded: 5 },
+            demand: {
+              driving: 0,
+              needRide: 5,
+              haveOwn: 0,
+              skipLeg: 0,
+              noReply: 0,
+            },
+            supply: [
+              {
+                driverName: "Marco",
+                routeName: "Marco's car",
+                seatCount: 2,
+                visibility: TransportOfferVisibility.Public,
+              },
+            ],
           }),
         ]}
       />,
     );
-    expect(screen.getByText(COPY.gapPill(-3))).toBeDefined();
+    expect(screen.getByText(COPY.gapPill(3))).toBeDefined();
+  });
+});
+
+describe("TransportPlannerOverviewView — demand breakdown", () => {
+  it("renders the demand card title", () => {
+    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
+    expect(screen.getByText(COPY.demandCardTitle)).toBeDefined();
+  });
+
+  it("renders the driving count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            demand: {
+              driving: 2,
+              needRide: 0,
+              haveOwn: 0,
+              skipLeg: 0,
+              noReply: 0,
+            },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.demandDriving)).toBeDefined();
+    expect(screen.getByText("2")).toBeDefined();
+  });
+
+  it("renders the need-ride count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            demand: {
+              driving: 0,
+              needRide: 4,
+              haveOwn: 0,
+              skipLeg: 0,
+              noReply: 0,
+            },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.demandNeedRide)).toBeDefined();
+    expect(screen.getByText("4")).toBeDefined();
+  });
+
+  it("renders the have-own count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            demand: {
+              driving: 0,
+              needRide: 0,
+              haveOwn: 3,
+              skipLeg: 0,
+              noReply: 0,
+            },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.demandHaveOwn)).toBeDefined();
+    expect(screen.getByText("3")).toBeDefined();
+  });
+
+  it("renders the no-reply count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            demand: {
+              driving: 0,
+              needRide: 0,
+              haveOwn: 0,
+              skipLeg: 0,
+              noReply: 5,
+            },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.demandNoReply)).toBeDefined();
+    expect(screen.getByText("5")).toBeDefined();
+  });
+
+  it("renders the skip-leg count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            demand: {
+              driving: 0,
+              needRide: 0,
+              haveOwn: 0,
+              skipLeg: 6,
+              noReply: 0,
+            },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.demandSkipLeg)).toBeDefined();
+    expect(screen.getByText("6")).toBeDefined();
+  });
+});
+
+describe("TransportPlannerOverviewView — supply card", () => {
+  it("renders the supply card title", () => {
+    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
+    expect(screen.getByText(COPY.supplyCardTitle)).toBeDefined();
+  });
+
+  it("renders the driver name, route name, and seat count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            supply: [
+              {
+                driverName: "Tara",
+                routeName: "Tara's SUV",
+                seatCount: 3,
+                visibility: TransportOfferVisibility.Public,
+              },
+            ],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText("Tara · Tara's SUV")).toBeDefined();
+    expect(screen.getByText(COPY.seatsLabel(3))).toBeDefined();
+  });
+
+  it("renders public visibility label", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            supply: [
+              {
+                driverName: "Marco",
+                routeName: "Marco's car",
+                seatCount: 4,
+                visibility: TransportOfferVisibility.Public,
+              },
+            ],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.publicVisibility)).toBeDefined();
+  });
+
+  it("renders invite-only visibility with count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            supply: [
+              {
+                driverName: "Tara",
+                routeName: "Tara's SUV",
+                seatCount: 3,
+                visibility: TransportOfferVisibility.InviteOnly,
+                inviteeCount: 4,
+              },
+            ],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.inviteOnlyVisibility(4))).toBeDefined();
+  });
+
+  it("renders invite-only label without count when inviteeCount is absent", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            supply: [
+              {
+                driverName: "Tara",
+                routeName: "Tara's SUV",
+                seatCount: 3,
+                visibility: TransportOfferVisibility.InviteOnly,
+              },
+            ],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.inviteOnlyLabel)).toBeDefined();
+  });
+
+  it("renders total seats and driver count when there are multiple drivers", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            supply: [
+              {
+                driverName: "Marco",
+                routeName: "Marco's car",
+                seatCount: 4,
+                visibility: TransportOfferVisibility.Public,
+              },
+              {
+                driverName: "Tara",
+                routeName: "Tara's SUV",
+                seatCount: 3,
+                visibility: TransportOfferVisibility.Public,
+              },
+            ],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.seatsLabel(7))).toBeDefined();
+    expect(screen.getByText(COPY.driversLabel(2))).toBeDefined();
   });
 });
