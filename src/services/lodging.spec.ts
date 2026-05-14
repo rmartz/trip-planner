@@ -183,6 +183,29 @@ describe("setLodgingInvitees", () => {
     expect(hostGet).not.toHaveBeenCalled();
   });
 
+  it("throws when the host lodging record does not exist", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    hostGet.mockResolvedValue({ exists: false });
+
+    await expect(
+      setLodgingInvitees("uid-host", "trip-1", "stop-1", ["uid-guest"]),
+    ).rejects.toBeInstanceOf(NotFoundError);
+    expect(hostUpdate).not.toHaveBeenCalled();
+  });
+
+  it("throws when the host status is not SecuredCapacity", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    hostGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ status: LodgingStatus.NeedLodging }),
+    });
+
+    await expect(
+      setLodgingInvitees("uid-host", "trip-1", "stop-1", ["uid-guest"]),
+    ).rejects.toThrow("Only hosts with secured capacity can invite guests.");
+    expect(hostUpdate).not.toHaveBeenCalled();
+  });
+
   it("updates invitees for a secured-capacity host", async () => {
     memberGet.mockResolvedValue({ exists: true });
     hostGet.mockResolvedValue({

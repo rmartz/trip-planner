@@ -14,6 +14,22 @@ function makeParams(tripId: string, stopId: string) {
   return { params: Promise.resolve({ tripId, stopId }) };
 }
 
+function makeRawRequest(uid: string, rawBody: string) {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    [X_USER_ID_HEADER]: uid,
+  });
+
+  return new NextRequest(
+    "http://localhost/api/trips/trip-1/stops/stop-1/lodging/invitees",
+    {
+      method: "PUT",
+      headers,
+      body: rawBody,
+    },
+  );
+}
+
 function makeRequest(uid: string | undefined, body: unknown) {
   const headers = new Headers({ "Content-Type": "application/json" });
   if (uid !== undefined) {
@@ -35,6 +51,16 @@ afterEach(() => {
 });
 
 describe("PUT /api/trips/[tripId]/stops/[stopId]/lodging/invitees", () => {
+  it("returns 400 when the body is a JSON null", async () => {
+    const response = await PUT(
+      makeRawRequest("uid-host", "null"),
+      makeParams("trip-1", "stop-1"),
+    );
+
+    expect(response.status).toBe(400);
+    expect(setLodgingInvitees).not.toHaveBeenCalled();
+  });
+
   it("returns 401 when uid header is absent", async () => {
     const response = await PUT(
       makeRequest(undefined, { invitedUids: ["uid-guest"] }),

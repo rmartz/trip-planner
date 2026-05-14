@@ -70,6 +70,34 @@ describe("firebaseToLodging — maps status enum", () => {
   });
 });
 
+describe("firebaseToLodging — maps invitedUids", () => {
+  it("maps invitedUids when all elements are strings", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: LodgingStatus.SecuredCapacity,
+      invitedUids: ["uid-a", "uid-b"],
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.invitedUids).toEqual(["uid-a", "uid-b"]);
+  });
+
+  it("leaves invitedUids undefined when the array contains a non-string element", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: LodgingStatus.SecuredCapacity,
+      invitedUids: [1, "uid-b"],
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.invitedUids).toBeUndefined();
+  });
+
+  it("leaves invitedUids undefined when the field is absent", () => {
+    const record = firebaseToLodging("user-1", "stop-1", {
+      status: LodgingStatus.SecuredCapacity,
+      updatedAt: Timestamp.fromDate(new Date("2025-06-01T00:00:00Z")),
+    });
+    expect(record.invitedUids).toBeUndefined();
+  });
+});
+
 describe("firebaseToLodging — maps optional fields", () => {
   it("maps guestCount when present", () => {
     const record = firebaseToLodging("user-1", "stop-1", {

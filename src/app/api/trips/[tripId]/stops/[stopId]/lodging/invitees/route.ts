@@ -15,7 +15,11 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
 
   let body: { invitedUids?: unknown };
   try {
-    body = (await request.json()) as { invitedUids?: unknown };
+    const parsed: unknown = await request.json();
+    if (parsed === null || typeof parsed !== "object") {
+      return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+    }
+    body = parsed;
   } catch {
     return NextResponse.json({ error: "Bad Request" }, { status: 400 });
   }
