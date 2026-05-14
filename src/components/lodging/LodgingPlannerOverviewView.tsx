@@ -25,7 +25,7 @@ export interface LodgingDemandBreakdown {
   noReply: number;
 }
 
-export interface NonAccountMember {
+export interface NonAccountMemberLodgingSummary {
   memberId: string;
   name: string;
   sortedOwnLodging: boolean;
@@ -35,12 +35,12 @@ export interface LodgingStopSummary {
   stop: Stop;
   demand: LodgingDemandBreakdown;
   supply: LodgingHostOffer[];
-  nonAccountMembers?: NonAccountMember[];
+  nonAccountMembers?: NonAccountMemberLodgingSummary[];
 }
 
 export interface LodgingPlannerOverviewViewProps {
   stops: LodgingStopSummary[];
-  onToggleMemberSortedOwn?: (
+  onToggleMemberSortedOwn: (
     stopId: string,
     memberId: string,
     sorted: boolean,
@@ -64,7 +64,7 @@ function getStatusPill(
 }
 
 interface StopSectionProps {
-  onToggleMemberSortedOwn?: (
+  onToggleMemberSortedOwn: (
     stopId: string,
     memberId: string,
     sorted: boolean,
@@ -148,7 +148,10 @@ function StopSection({ onToggleMemberSortedOwn, summary }: StopSectionProps) {
           <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
             {COPY.nonAccountMembersTitle}
           </p>
-          <ul className="flex flex-col gap-1">
+          <ul
+            aria-label={COPY.sortedOwnLodgingLabel}
+            className="flex flex-col gap-1"
+          >
             {nonAccountMembers.map((member) => (
               <li key={member.memberId}>
                 <label className="flex items-center gap-2 text-sm">
@@ -156,7 +159,7 @@ function StopSection({ onToggleMemberSortedOwn, summary }: StopSectionProps) {
                     type="checkbox"
                     checked={member.sortedOwnLodging}
                     onChange={(e) => {
-                      onToggleMemberSortedOwn?.(
+                      onToggleMemberSortedOwn(
                         stop.stopId,
                         member.memberId,
                         e.target.checked,

@@ -64,7 +64,15 @@ export default function LodgingPage({ params }: LodgingPageProps) {
       }}
     >
       {isPlanner ? (
-        <LodgingPlannerOverviewView stops={plannerStopSummaries} />
+        <LodgingPlannerOverviewView
+          stops={plannerStopSummaries}
+          onToggleMemberSortedOwn={(stopId, memberId, sorted) => {
+            // Non-account member sorted-own mutations are handled by #42.
+            void stopId;
+            void memberId;
+            void sorted;
+          }}
+        />
       ) : (
         <LodgingGuestOverviewView
           stops={guestStopSummaries}

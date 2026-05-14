@@ -7,7 +7,7 @@ import {
 import { LODGING_PLANNER_OVERVIEW_COPY } from "./LodgingPlannerOverviewView.copy";
 import type {
   LodgingStopSummary,
-  NonAccountMember,
+  NonAccountMemberLodgingSummary,
 } from "./LodgingPlannerOverviewView";
 import type { Stop } from "@/lib/types/trip";
 
@@ -53,13 +53,23 @@ function makeStopSummary(
 
 describe("LodgingPlannerOverviewView — renders page header", () => {
   it("renders the heading", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.heading)).toBeDefined();
   });
 
   it("renders the heading subtext", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.headingSubtext)).toBeDefined();
   });
@@ -70,6 +80,7 @@ describe("LodgingPlannerOverviewView — renders one section per stop", () => {
     render(
       <LodgingPlannerOverviewView
         stops={[makeStopSummary({ stop: makeStop({ name: "Wimberley" }) })]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -85,6 +96,7 @@ describe("LodgingPlannerOverviewView — renders one section per stop", () => {
             stop: makeStop({ stopId: "s2", name: "Wimberley" }),
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -110,6 +122,7 @@ describe("LodgingPlannerOverviewView — balanced status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -132,6 +145,7 @@ describe("LodgingPlannerOverviewView — balanced status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -156,6 +170,7 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -171,6 +186,7 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
             supply: [],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -180,7 +196,12 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
 
 describe("LodgingPlannerOverviewView — demand card", () => {
   it("renders the demand card title", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.demandCardTitle)).toBeDefined();
   });
@@ -193,6 +214,7 @@ describe("LodgingPlannerOverviewView — demand card", () => {
             demand: { needLodging: 3, haveOwn: 1, sharing: 2, noReply: 0 },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -208,6 +230,7 @@ describe("LodgingPlannerOverviewView — demand card", () => {
             demand: { needLodging: 0, haveOwn: 0, sharing: 0, noReply: 5 },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -218,7 +241,12 @@ describe("LodgingPlannerOverviewView — demand card", () => {
 
 describe("LodgingPlannerOverviewView — supply card", () => {
   it("renders the supply card title", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.supplyCardTitle)).toBeDefined();
   });
@@ -238,6 +266,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -262,6 +291,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -289,6 +319,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -298,8 +329,8 @@ describe("LodgingPlannerOverviewView — supply card", () => {
 });
 
 function makeNonAccountMember(
-  overrides: Partial<NonAccountMember> = {},
-): NonAccountMember {
+  overrides: Partial<NonAccountMemberLodgingSummary> = {},
+): NonAccountMemberLodgingSummary {
   return {
     memberId: "member-1",
     name: "Dana",
