@@ -18,9 +18,12 @@ interface TripMembersResponse {
 
 function parseTripMember(json: TripMemberJson): TripMember {
   return {
-    ...json,
     displayName: json.displayName,
     joinedAt: new Date(json.joinedAt),
+    memberUids: json.memberUids,
+    role: json.role,
+    tripId: json.tripId,
+    uid: json.uid,
   };
 }
 

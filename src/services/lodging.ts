@@ -42,9 +42,9 @@ export async function getLodgingInviteeCandidates(
     candidateUids: Array.from(candidateUids),
     invitedUids:
       Array.isArray(rawInvitedUids) &&
-      rawInvitedUids.every((inviteeUid): inviteeUid is string => {
-        return typeof inviteeUid === "string";
-      })
+      rawInvitedUids.every(
+        (inviteeUid): inviteeUid is string => typeof inviteeUid === "string",
+      )
         ? rawInvitedUids.filter((inviteeUid) => candidateUids.has(inviteeUid))
         : [],
   };

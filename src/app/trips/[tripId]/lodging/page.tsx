@@ -86,9 +86,9 @@ export default function LodgingPage({ params }: LodgingPageProps) {
   );
 
   const hostPickerStops = stops.filter((stop, index) => {
-    const ownRecord = stopLodgingQueries[index]?.data?.find((record) => {
-      return record.uid === user?.uid;
-    });
+    const ownRecord = stopLodgingQueries[index]?.data?.find(
+      (record) => record.uid === user?.uid,
+    );
 
     return ownRecord?.status === LodgingStatus.SecuredCapacity;
   });

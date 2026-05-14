@@ -54,7 +54,7 @@ export function LodgingHostGuestPicker({
 }: LodgingHostGuestPickerProps) {
   const queryClient = useQueryClient();
   const [selectedUids, setSelectedUids] = useState<ReadonlySet<string>>(
-    () => new Set<string>(),
+    () => new Set(),
   );
 
   const membersQuery = useQuery(tripMembersQueryOptions(tripId));
