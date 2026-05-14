@@ -206,6 +206,27 @@ describe("lodgingToFirebase — serializes status and optional fields", () => {
     expect("sharingWithUid" in data).toBe(false);
   });
 
+  it("includes invitedUids when defined", () => {
+    const data = lodgingToFirebase({
+      uid: "user-1",
+      stopId: "stop-1",
+      status: LodgingStatus.SecuredCapacity,
+      invitedUids: ["uid-guest-a", "uid-guest-b"],
+      updatedAt: new Date("2025-06-01T00:00:00Z"),
+    });
+    expect(data.invitedUids).toEqual(["uid-guest-a", "uid-guest-b"]);
+  });
+
+  it("omits invitedUids when undefined", () => {
+    const data = lodgingToFirebase({
+      uid: "user-1",
+      stopId: "stop-1",
+      status: LodgingStatus.SecuredCapacity,
+      updatedAt: new Date("2025-06-01T00:00:00Z"),
+    });
+    expect("invitedUids" in data).toBe(false);
+  });
+
   it("serializes updatedAt as Timestamp", () => {
     const date = new Date("2025-06-01T00:00:00Z");
     const data = lodgingToFirebase({

@@ -3,6 +3,14 @@ import type { DocumentData } from "firebase/firestore";
 import { LodgingStatus } from "@/lib/types/lodging";
 import type { LodgingRecord } from "@/lib/types/lodging";
 
+function isTimestampLike(value: unknown): value is { toDate: () => Date } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as Record<string, unknown>)["toDate"] === "function"
+  );
+}
+
 const LODGING_STATUS_VALUES = new Set(Object.values(LodgingStatus));
 
 function isLodgingStatus(value: unknown): value is LodgingStatus {
@@ -20,7 +28,7 @@ export function firebaseToLodging(
     : LodgingStatus.NeedLodging;
 
   const updatedAtValue = data["updatedAt"] as unknown;
-  if (!(updatedAtValue instanceof Timestamp)) {
+  if (!isTimestampLike(updatedAtValue)) {
     throw new Error("Lodging record is missing a valid updatedAt Timestamp.");
   }
 

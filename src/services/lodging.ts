@@ -16,11 +16,13 @@ export async function getLodgingForStop(
   stopId: string,
 ): Promise<LodgingRecord[]> {
   const tripRef = await getTripRefForMember(uid, tripId);
-  const snapshot = await tripRef
-    .collection("stops")
-    .doc(stopId)
-    .collection("lodging")
-    .get();
+  const stopRef = tripRef.collection("stops").doc(stopId);
+  const stopDoc = await stopRef.get();
+  if (!stopDoc.exists) {
+    throw new NotFoundError("Stop not found");
+  }
+
+  const snapshot = await stopRef.collection("lodging").get();
 
   return snapshot.docs
     .map((doc) => firebaseToLodging(doc.id, stopId, doc.data()))

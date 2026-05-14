@@ -103,6 +103,36 @@ describe("PUT /api/trips/[tripId]/stops/[stopId]/lodging/invitees", () => {
     expect(setLodgingInvitees).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when invitedUids is missing from the body", async () => {
+    const response = await PUT(
+      makeRequest("uid-host", {}),
+      makeParams("trip-1", "stop-1"),
+    );
+
+    expect(response.status).toBe(400);
+    expect(setLodgingInvitees).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when invitedUids is not an array", async () => {
+    const response = await PUT(
+      makeRequest("uid-host", { invitedUids: "uid-guest" }),
+      makeParams("trip-1", "stop-1"),
+    );
+
+    expect(response.status).toBe(400);
+    expect(setLodgingInvitees).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when invitedUids contains a non-string element", async () => {
+    const response = await PUT(
+      makeRequest("uid-host", { invitedUids: [1, "uid-guest"] }),
+      makeParams("trip-1", "stop-1"),
+    );
+
+    expect(response.status).toBe(400);
+    expect(setLodgingInvitees).not.toHaveBeenCalled();
+  });
+
   it("returns 401 when uid header is absent", async () => {
     const response = await PUT(
       makeRequest(undefined, { invitedUids: ["uid-guest"] }),

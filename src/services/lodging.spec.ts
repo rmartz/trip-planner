@@ -37,6 +37,7 @@ function makeRecord(overrides: Partial<LodgingRecord> = {}): LodgingRecord {
 
 describe("getLodgingForStop", () => {
   const memberGet = vi.fn();
+  const stopGet = vi.fn();
   const lodgingGet = vi.fn();
   const tripCollection = vi.fn();
   const tripDoc = vi.fn();
@@ -66,6 +67,7 @@ describe("getLodgingForStop", () => {
       },
     });
     stopDoc.mockReturnValue({
+      get: stopGet,
       collection: (name: string) => {
         if (name === "lodging") {
           return { get: lodgingGet };
@@ -85,8 +87,19 @@ describe("getLodgingForStop", () => {
     expect(lodgingGet).not.toHaveBeenCalled();
   });
 
+  it("throws when the stop does not exist", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    stopGet.mockResolvedValue({ exists: false });
+
+    await expect(
+      getLodgingForStop("uid-viewer", "trip-1", "stop-missing"),
+    ).rejects.toBeInstanceOf(NotFoundError);
+    expect(lodgingGet).not.toHaveBeenCalled();
+  });
+
   it("returns only records visible to the requester", async () => {
     memberGet.mockResolvedValue({ exists: true });
+    stopGet.mockResolvedValue({ exists: true });
     lodgingGet.mockResolvedValue({
       docs: [
         { id: "uid-viewer", data: () => ({ source: "self" }) },
