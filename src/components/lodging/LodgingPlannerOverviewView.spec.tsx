@@ -1,11 +1,14 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   LodgingPlannerOverviewView,
   LodgingVisibility,
 } from "./LodgingPlannerOverviewView";
 import { LODGING_PLANNER_OVERVIEW_COPY } from "./LodgingPlannerOverviewView.copy";
-import type { LodgingStopSummary } from "./LodgingPlannerOverviewView";
+import type {
+  LodgingStopSummary,
+  NonAccountMemberLodgingSummary,
+} from "./LodgingPlannerOverviewView";
 import { makeStop } from "./__fixtures__/makeStop";
 
 afterEach(cleanup);
@@ -37,13 +40,23 @@ function makeStopSummary(
 
 describe("LodgingPlannerOverviewView — renders page header", () => {
   it("renders the heading", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.heading)).toBeDefined();
   });
 
   it("renders the heading subtext", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.headingSubtext)).toBeDefined();
   });
@@ -54,6 +67,7 @@ describe("LodgingPlannerOverviewView — renders one section per stop", () => {
     render(
       <LodgingPlannerOverviewView
         stops={[makeStopSummary({ stop: makeStop({ name: "Wimberley" }) })]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -69,6 +83,7 @@ describe("LodgingPlannerOverviewView — renders one section per stop", () => {
             stop: makeStop({ stopId: "s2", name: "Wimberley" }),
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -94,6 +109,7 @@ describe("LodgingPlannerOverviewView — balanced status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -116,6 +132,7 @@ describe("LodgingPlannerOverviewView — balanced status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -140,6 +157,7 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -155,6 +173,7 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
             supply: [],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -164,7 +183,12 @@ describe("LodgingPlannerOverviewView — gap status pill", () => {
 
 describe("LodgingPlannerOverviewView — demand card", () => {
   it("renders the demand card title", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.demandCardTitle)).toBeDefined();
   });
@@ -177,6 +201,7 @@ describe("LodgingPlannerOverviewView — demand card", () => {
             demand: { needLodging: 3, haveOwn: 1, sharing: 2, noReply: 0 },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -192,6 +217,7 @@ describe("LodgingPlannerOverviewView — demand card", () => {
             demand: { needLodging: 0, haveOwn: 0, sharing: 0, noReply: 5 },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -202,7 +228,12 @@ describe("LodgingPlannerOverviewView — demand card", () => {
 
 describe("LodgingPlannerOverviewView — supply card", () => {
   it("renders the supply card title", () => {
-    render(<LodgingPlannerOverviewView stops={[makeStopSummary()]} />);
+    render(
+      <LodgingPlannerOverviewView
+        stops={[makeStopSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText(COPY.supplyCardTitle)).toBeDefined();
   });
@@ -222,6 +253,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -246,6 +278,7 @@ describe("LodgingPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
@@ -273,10 +306,150 @@ describe("LodgingPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
 
     expect(screen.getByText(COPY.bedsLabel(6))).toBeDefined();
     expect(screen.getByText(COPY.hostsLabel(2))).toBeDefined();
+  });
+});
+
+function makeNonAccountMember(
+  overrides: Partial<NonAccountMemberLodgingSummary> = {},
+): NonAccountMemberLodgingSummary {
+  return {
+    memberId: "member-1",
+    name: "Dana",
+    sortedOwnLodging: false,
+    ...overrides,
+  };
+}
+
+describe("LodgingPlannerOverviewView — non-account members are rendered per stop", () => {
+  it("renders each non-account member by name", () => {
+    render(
+      <LodgingPlannerOverviewView
+        stops={[
+          makeStopSummary({
+            nonAccountMembers: [
+              makeNonAccountMember({ memberId: "m-1", name: "Dana" }),
+              makeNonAccountMember({ memberId: "m-2", name: "Eli" }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Dana")).toBeDefined();
+    expect(screen.getByText("Eli")).toBeDefined();
+  });
+
+  it("renders the non-account members section title", () => {
+    render(
+      <LodgingPlannerOverviewView
+        stops={[
+          makeStopSummary({
+            nonAccountMembers: [makeNonAccountMember()],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(COPY.nonAccountMembersTitle)).toBeDefined();
+  });
+});
+
+describe("LodgingPlannerOverviewView — sorted-own checkbox reflects current state", () => {
+  it("renders member checkbox as checked when sortedOwnLodging is true", () => {
+    render(
+      <LodgingPlannerOverviewView
+        stops={[
+          makeStopSummary({
+            nonAccountMembers: [
+              makeNonAccountMember({
+                memberId: "m-1",
+                name: "Dana",
+                sortedOwnLodging: true,
+              }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    const checkedBox = screen.getByLabelText("Dana");
+    expect((checkedBox as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("renders member checkbox as unchecked when sortedOwnLodging is false", () => {
+    render(
+      <LodgingPlannerOverviewView
+        stops={[
+          makeStopSummary({
+            nonAccountMembers: [
+              makeNonAccountMember({
+                memberId: "m-1",
+                name: "Dana",
+                sortedOwnLodging: false,
+              }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    const uncheckedBox = screen.getByLabelText("Dana");
+    expect((uncheckedBox as HTMLInputElement).checked).toBe(false);
+  });
+});
+
+describe("LodgingPlannerOverviewView — toggling sorted-own fires onToggleMemberSortedOwn", () => {
+  it("calls onToggleMemberSortedOwn with stopId, memberId, and true when checking", () => {
+    const onToggle = vi.fn();
+    render(
+      <LodgingPlannerOverviewView
+        stops={[
+          makeStopSummary({
+            stop: makeStop({ stopId: "stop-99" }),
+            nonAccountMembers: [
+              makeNonAccountMember({ memberId: "m-42", name: "Dana" }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={onToggle}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("Dana"));
+    expect(onToggle).toHaveBeenCalledWith("stop-99", "m-42", true);
+  });
+
+  it("calls onToggleMemberSortedOwn with false when unchecking", () => {
+    const onToggle = vi.fn();
+    render(
+      <LodgingPlannerOverviewView
+        stops={[
+          makeStopSummary({
+            stop: makeStop({ stopId: "stop-99" }),
+            nonAccountMembers: [
+              makeNonAccountMember({
+                memberId: "m-42",
+                name: "Dana",
+                sortedOwnLodging: true,
+              }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={onToggle}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("Dana"));
+    expect(onToggle).toHaveBeenCalledWith("stop-99", "m-42", false);
   });
 });

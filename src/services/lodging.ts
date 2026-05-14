@@ -4,11 +4,52 @@ import { firebaseToLodging } from "@/lib/firebase/schema/lodging";
 import { LodgingStatus } from "@/lib/types/lodging";
 import type { LodgingRecord } from "@/lib/types/lodging";
 import { TripRole } from "@/lib/types/trip";
-import { NotFoundError } from "./errors";
+import { NotFoundError, PlannerOnlyError } from "./errors";
+import { getLegMemberRole } from "./legs";
 
 export interface LodgingInviteeCandidates {
   candidateUids: string[];
   invitedUids: string[];
+}
+
+export async function setMemberSortedOwnLodging(
+  plannerUid: string,
+  tripId: string,
+  stopId: string,
+  memberId: string,
+  sortedOwn: boolean,
+): Promise<void> {
+  const role = await getLegMemberRole(plannerUid, tripId);
+  if (role !== TripRole.Planner) {
+    throw new PlannerOnlyError();
+  }
+
+  const db = getAdminFirestore();
+  const lodgingRef = db
+    .collection("trips")
+    .doc(tripId)
+    .collection("stops")
+    .doc(stopId)
+    .collection("lodging")
+    .doc(memberId);
+
+  if (sortedOwn) {
+    await lodgingRef.set(
+      {
+        status: LodgingStatus.SecuredPrivate,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+  } else {
+    await lodgingRef.set(
+      {
+        status: LodgingStatus.NeedLodging,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
 }
 
 export async function getLodgingForStop(

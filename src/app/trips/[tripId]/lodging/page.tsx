@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useCallback, useState } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { stopLodgingQueryOptions } from "@/hooks/use-stop-lodging";
 import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
+import type { NonAccountMember } from "@/lib/types/non-account-member";
 import { tripMembersQueryOptions } from "@/hooks/use-trip-members";
 import { LodgingStatus } from "@/lib/types/lodging";
 import { type Stop, TripRole } from "@/lib/types/trip";
@@ -22,6 +23,19 @@ import { LODGING_PAGE_COPY } from "./copy";
 
 interface LodgingPageProps {
   params: Promise<{ tripId: string }>;
+}
+
+interface MembersResponse {
+  nonAccountMembers: NonAccountMember[];
+}
+
+async function fetchNonAccountMembers(
+  tripId: string,
+): Promise<NonAccountMember[]> {
+  const response = await fetch(`/api/trips/${tripId}/members`);
+  if (!response.ok) throw new Error("Failed to fetch members");
+  const data = (await response.json()) as MembersResponse;
+  return data.nonAccountMembers;
 }
 
 function makeGuestSummary(
@@ -62,10 +76,27 @@ export default function LodgingPage({ params }: LodgingPageProps) {
     queries: stops.map((stop) => stopLodgingQueryOptions(tripId, stop.stopId)),
   });
 
+  const { data: nonAccountMembers = [] } = useQuery({
+    queryKey: ["nonAccountMembers", tripId],
+    queryFn: () => fetchNonAccountMembers(tripId),
+    enabled: isPlanner,
+  });
+
+  const [sortedOwnOverrides, setSortedOwnOverrides] = useState<
+    Record<string, boolean>
+  >({});
+
   const plannerStopSummaries: LodgingStopSummary[] = stops.map((stop) => ({
     stop,
     demand: { needLodging: 0, haveOwn: 0, sharing: 0, noReply: 0 },
     supply: [],
+    nonAccountMembers: nonAccountMembers.map((member) => ({
+      memberId: member.nonAccountMemberId,
+      name: member.name,
+      sortedOwnLodging:
+        sortedOwnOverrides[`${stop.stopId}:${member.nonAccountMemberId}`] ??
+        false,
+    })),
   }));
 
   const guestStopSummaries: LodgingGuestStopSummary[] = stops.map(
@@ -90,6 +121,25 @@ export default function LodgingPage({ params }: LodgingPageProps) {
 
     return ownRecord?.status === LodgingStatus.SecuredCapacity;
   });
+
+  const handleToggleMemberSortedOwn = useCallback(
+    async (stopId: string, memberId: string, sorted: boolean) => {
+      const key = `${stopId}:${memberId}`;
+      setSortedOwnOverrides((prev) => ({ ...prev, [key]: sorted }));
+      const response = await fetch(
+        `/api/trips/${tripId}/stops/${stopId}/members/${memberId}/lodging-status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sortedOwn: sorted }),
+        },
+      );
+      if (!response.ok) {
+        setSortedOwnOverrides((prev) => ({ ...prev, [key]: !sorted }));
+      }
+    },
+    [tripId],
+  );
 
   return (
     <AppShell
@@ -117,7 +167,12 @@ export default function LodgingPage({ params }: LodgingPageProps) {
         </div>
       )}
       {isPlanner ? (
-        <LodgingPlannerOverviewView stops={plannerStopSummaries} />
+        <LodgingPlannerOverviewView
+          stops={plannerStopSummaries}
+          onToggleMemberSortedOwn={(stopId, memberId, sorted) => {
+            void handleToggleMemberSortedOwn(stopId, memberId, sorted);
+          }}
+        />
       ) : (
         <LodgingGuestOverviewView
           stops={guestStopSummaries}

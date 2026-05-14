@@ -17,6 +17,21 @@ export async function getLegsForTrip(tripId: string): Promise<Leg[]> {
     .filter((leg) => leg.isActive);
 }
 
+export async function getLegMemberRole(
+  uid: string,
+  tripId: string,
+): Promise<TripRole | null> {
+  const db = getAdminFirestore();
+  const memberDoc = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members")
+    .doc(uid)
+    .get();
+  if (!memberDoc.exists) return null;
+  return (memberDoc.data()?.["role"] as TripRole | undefined) ?? null;
+}
+
 export async function addLeg(
   uid: string,
   tripId: string,
