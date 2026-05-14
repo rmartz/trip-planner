@@ -244,6 +244,26 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
     expect(screen.getByText(COPY.demandNoReply)).toBeDefined();
     expect(screen.getByText("5")).toBeDefined();
   });
+
+  it("renders the skip-leg count", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            demand: {
+              driving: 0,
+              needRide: 0,
+              haveOwn: 0,
+              skipLeg: 6,
+              noReply: 0,
+            },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.demandSkipLeg)).toBeDefined();
+    expect(screen.getByText("6")).toBeDefined();
+  });
 });
 
 describe("TransportPlannerOverviewView — supply card", () => {

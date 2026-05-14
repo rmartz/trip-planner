@@ -10,7 +10,7 @@ export const TRANSPORT_PLANNER_OVERVIEW_COPY = {
   emptyLegsMessage: "No travel legs yet.",
   gapPill: (gap: number) => `${String(gap)} short`,
   heading: "Transportation",
-  headingSubtext: "Per-leg capacity and demand",
+  headingSubtext: "Per-leg supply and demand breakdown",
   inviteOnlyLabel: "invite-only",
   inviteOnlyVisibility: (count: number) => `invite-only (${String(count)})`,
   okPill: "Covered",
