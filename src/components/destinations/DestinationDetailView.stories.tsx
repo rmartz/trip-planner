@@ -17,6 +17,7 @@ const meta: Meta<typeof DestinationDetailView> = {
     destination: sampleDestination,
     onEdit: fn(),
     onBack: fn(),
+    onShare: fn(),
   },
 };
 
@@ -32,5 +33,17 @@ export const NoSeasonality: Story = {
       ...sampleDestination,
       seasonality: undefined,
     },
+  },
+};
+
+export const WithShareButton: Story = {
+  args: {
+    canShare: true,
+  },
+};
+
+export const WithoutShareButton: Story = {
+  args: {
+    canShare: false,
   },
 };

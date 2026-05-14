@@ -3,7 +3,9 @@ import {
   destinationToFirebase,
   firebaseToDestination,
 } from "@/lib/firebase/schema/destination";
+import { NotFoundError, PlannerOnlyError } from "./errors";
 import type { Destination } from "@/lib/types/destination";
+import { TripRole } from "@/lib/types/trip";
 
 export async function getDestinationsForUser(
   uid: string,
@@ -31,6 +33,82 @@ export async function createDestinationForUser(
   await ref.set(
     destinationToFirebase({ name: name.trim(), seasonality, tripIds: [] }),
   );
+  return ref.id;
+}
+
+export async function shareDestinationToUser(
+  senderUid: string,
+  recipientUid: string,
+  tripId: string,
+  destinationId: string,
+): Promise<string> {
+  const db = getAdminFirestore();
+
+  const memberDoc = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members")
+    .doc(senderUid)
+    .get();
+
+  if (!memberDoc.exists) {
+    throw new PlannerOnlyError("Only Planners can share destinations");
+  }
+
+  const role = memberDoc.data()?.["role"] as string | undefined;
+  if (role !== TripRole.Planner) {
+    throw new PlannerOnlyError("Only Planners can share destinations");
+  }
+
+  const recipientMemberDoc = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members")
+    .doc(recipientUid)
+    .get();
+
+  if (!recipientMemberDoc.exists) {
+    throw new NotFoundError("Recipient is not a member of this trip");
+  }
+
+  const recipientRole = recipientMemberDoc.data()?.["role"] as
+    | string
+    | undefined;
+  if (recipientRole !== TripRole.Planner) {
+    throw new PlannerOnlyError("Destinations can only be shared with Planners");
+  }
+
+  const sourceDoc = await db
+    .collection("users")
+    .doc(senderUid)
+    .collection("destinations")
+    .doc(destinationId)
+    .get();
+
+  if (!sourceDoc.exists || !sourceDoc.data()) {
+    throw new NotFoundError("Destination not found");
+  }
+
+  const source = firebaseToDestination(
+    destinationId,
+    senderUid,
+    sourceDoc.data() as Record<string, unknown>,
+  );
+
+  const ref = db
+    .collection("users")
+    .doc(recipientUid)
+    .collection("destinations")
+    .doc();
+
+  await ref.set(
+    destinationToFirebase({
+      name: source.name,
+      seasonality: source.seasonality,
+      tripIds: [],
+    }),
+  );
+
   return ref.id;
 }
 
