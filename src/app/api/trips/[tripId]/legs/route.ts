@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { addLeg, getLegsForTrip, getLegMemberRole } from "@/services/legs";
+import { addLeg, getLegsForTrip } from "@/services/legs";
+import { getTripMemberRole } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -15,10 +16,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   const { tripId } = await params;
   const [legs, role] = await Promise.all([
     getLegsForTrip(tripId),
-    getLegMemberRole(uid, tripId),
+    getTripMemberRole(tripId, uid),
   ]);
 
-  return NextResponse.json({ legs, role });
+  return NextResponse.json({ legs, role: role ?? null });
 }
 
 export async function POST(request: NextRequest, { params }: RouteContext) {
