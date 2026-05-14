@@ -10,6 +10,7 @@ export interface LodgingRecord {
   stopId: string;
   status: LodgingStatus;
   guestCount?: number;
+  invitedUids?: string[];
   sharingWithUid?: string;
   updatedAt: Date;
 }
