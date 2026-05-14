@@ -7,10 +7,14 @@ import { X_USER_ID_HEADER } from "@/lib/constants";
 vi.mock("@/services/legs", () => ({
   getLegsForTrip: vi.fn(),
   addLeg: vi.fn(),
+}));
+
+vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
 
-import { getLegsForTrip, addLeg, getTripMemberRole } from "@/services/legs";
+import { getLegsForTrip, addLeg } from "@/services/legs";
+import { getTripMemberRole } from "@/services/trips";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {
@@ -84,7 +88,7 @@ describe("GET /api/trips/[tripId]/legs", () => {
   });
 
   it("returns null role when user is not a member", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-stranger");
@@ -104,8 +108,8 @@ describe("GET /api/trips/[tripId]/legs", () => {
     await GET(request, { params: Promise.resolve({ tripId: "trip-abc" }) });
 
     expect(vi.mocked(getTripMemberRole)).toHaveBeenCalledWith(
-      "uid-1",
       "trip-abc",
+      "uid-1",
     );
     expect(vi.mocked(getLegsForTrip)).toHaveBeenCalledWith("trip-abc");
   });

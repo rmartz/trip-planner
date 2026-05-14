@@ -7,12 +7,14 @@ vi.mock("@/services/stop-destinations", () => ({
   getTripDestinations: vi.fn(),
 }));
 
-vi.mock("@/services/legs", () => ({
+vi.mock("@/services/legs", () => ({}));
+
+vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
 
 import { getTripDestinations } from "@/services/stop-destinations";
-import { getTripMemberRole } from "@/services/legs";
+import { getTripMemberRole } from "@/services/trips";
 import { GET } from "./route";
 
 function makeParams(tripId: string) {
@@ -39,7 +41,7 @@ describe("GET /api/trips/[tripId]/destinations", () => {
   });
 
   it("returns 403 when caller is not a trip member", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
     const req = makeGetRequest("user-1");
     const resp = await GET(req, makeParams("trip-1"));
     expect(resp.status).toBe(403);

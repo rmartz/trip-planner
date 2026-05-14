@@ -5,10 +5,14 @@ import { TripRole } from "@/lib/types/trip";
 
 vi.mock("@/services/legs", () => ({
   getAffectedGuestsForLeg: vi.fn(),
+}));
+
+vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
 
-import { getAffectedGuestsForLeg, getTripMemberRole } from "@/services/legs";
+import { getAffectedGuestsForLeg } from "@/services/legs";
+import { getTripMemberRole } from "@/services/trips";
 import { GET } from "./route";
 
 function makeGetRequest(
