@@ -8,7 +8,7 @@ export type {
   ActivityGroupSize,
   ActivityTimeOfDaySlot,
 } from "./activity";
-export type { Destination } from "./destination";
+export type { Destination, TripDestination } from "./destination";
 export { InterestVote } from "./interest-vote";
 export {
   ExpenseCategory,
