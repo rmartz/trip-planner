@@ -6,24 +6,11 @@ import {
 } from "./LodgingPlannerOverviewView";
 import { LODGING_PLANNER_OVERVIEW_COPY } from "./LodgingPlannerOverviewView.copy";
 import type { LodgingStopSummary } from "./LodgingPlannerOverviewView";
-import type { Stop } from "@/lib/types/trip";
+import { makeStop } from "./__fixtures__/makeStop";
 
 afterEach(cleanup);
 
 const COPY = LODGING_PLANNER_OVERVIEW_COPY;
-
-function makeStop(overrides: Partial<Stop> = {}): Stop {
-  return {
-    stopId: "stop-1",
-    tripId: "trip-1",
-    name: "Austin",
-    startDate: new Date("2025-06-01T00:00:00Z"),
-    endDate: new Date("2025-06-03T00:00:00Z"),
-    order: 0,
-    memberUids: ["uid-1"],
-    ...overrides,
-  };
-}
 
 function makeStopSummary(
   overrides: Partial<LodgingStopSummary> = {},
