@@ -27,6 +27,10 @@ export async function attachDestinationToStop(
 
   const stopName = (stopDoc.data()?.["name"] as string | undefined) ?? "";
 
+  const tripDoc = await tripRef.get();
+  const memberUids =
+    (tripDoc.data()?.["memberUids"] as string[] | undefined) ?? [];
+
   await stopRef.collection("destinations").doc(destinationId).set({
     destinationId,
     catalogUid,
@@ -34,6 +38,7 @@ export async function attachDestinationToStop(
     stopId,
     stopName,
     tripId,
+    memberUids,
   });
 }
 

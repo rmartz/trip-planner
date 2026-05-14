@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useDestinations } from "@/hooks/use-destinations";
 import { useTrips } from "@/hooks/use-trips";
 import { DestinationCatalogView } from "@/components/destinations/DestinationCatalogView";
@@ -10,6 +10,16 @@ import { AttachDestinationPickerView } from "@/components/destinations/AttachDes
 import type { DestinationFormInput } from "@/components/destinations/DestinationFormView";
 import type { Destination } from "@/lib/types/destination";
 import type { Trip, Stop } from "@/lib/types/trip";
+
+interface StopWireFormat {
+  stopId: string;
+  tripId: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  order: number;
+  memberUids: string[];
+}
 
 type ViewState =
   | { mode: "catalog" }
@@ -26,6 +36,7 @@ export default function DestinationsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitError, setIsSubmitError] = useState(false);
   const [stopsForTrip, setStopsForTrip] = useState<Record<string, Stop[]>>({});
+  const inFlightTripIds = useRef<Set<string>>(new Set());
 
   const now = new Date();
   const activeTrips = (trips ?? []).filter((t) => t.endDate >= now);
@@ -79,14 +90,26 @@ export default function DestinationsPage() {
   }
 
   async function loadStopsForTrip(trip: Trip) {
-    if (stopsForTrip[trip.tripId] !== undefined) return;
+    if (
+      stopsForTrip[trip.tripId] !== undefined ||
+      inFlightTripIds.current.has(trip.tripId)
+    )
+      return;
+    inFlightTripIds.current.add(trip.tripId);
     try {
       const response = await fetch(`/api/trips/${trip.tripId}/stops`);
       if (!response.ok) return;
-      const data = (await response.json()) as { stops: Stop[] };
-      setStopsForTrip((prev) => ({ ...prev, [trip.tripId]: data.stops }));
+      const data = (await response.json()) as { stops: StopWireFormat[] };
+      const stops: Stop[] = data.stops.map((s) => ({
+        ...s,
+        startDate: new Date(s.startDate),
+        endDate: new Date(s.endDate),
+      }));
+      setStopsForTrip((prev) => ({ ...prev, [trip.tripId]: stops }));
     } catch {
       // stops remain unloaded; user sees empty list
+    } finally {
+      inFlightTripIds.current.delete(trip.tripId);
     }
   }
 
