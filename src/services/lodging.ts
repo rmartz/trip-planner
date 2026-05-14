@@ -41,15 +41,7 @@ export async function getLodgingInviteeCandidates(
 
   return {
     candidateUids: Array.from(candidateUids),
-    invitedUids:
-      Array.isArray(hostData["invitedUids"]) &&
-      hostData["invitedUids"].every(
-        (inviteeUid): inviteeUid is string => typeof inviteeUid === "string",
-      )
-        ? hostData["invitedUids"].filter((inviteeUid) =>
-            candidateUids.has(inviteeUid),
-          )
-        : [],
+    invitedUids: getFilteredInvitedUids(hostData, candidateUids),
   };
 }
 
@@ -152,4 +144,22 @@ async function getInviteableHostData(
   }
 
   return hostData;
+}
+
+function getFilteredInvitedUids(
+  hostData: Record<string, unknown>,
+  candidateUids: Set<string>,
+): string[] {
+  const invitedUids = hostData["invitedUids"];
+
+  if (
+    !Array.isArray(invitedUids) ||
+    !invitedUids.every((inviteeUid): inviteeUid is string => {
+      return typeof inviteeUid === "string";
+    })
+  ) {
+    return [];
+  }
+
+  return invitedUids.filter((inviteeUid) => candidateUids.has(inviteeUid));
 }

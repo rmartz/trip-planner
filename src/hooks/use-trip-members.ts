@@ -30,7 +30,9 @@ function parseTripMember(json: TripMemberJson): TripMember {
 async function fetchTripMembers(tripId: string): Promise<TripMember[]> {
   const response = await fetch(`/api/trips/${tripId}/members`);
   if (!response.ok) {
-    throw new Error("Failed to fetch trip members");
+    throw new Error(
+      `Failed to fetch trip members (${String(response.status)})`,
+    );
   }
 
   const data = (await response.json()) as TripMembersResponse;

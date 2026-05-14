@@ -23,7 +23,9 @@ async function fetchLodgingInvitees(
     `/api/trips/${tripId}/stops/${stopId}/lodging/invitees`,
   );
   if (!response.ok) {
-    throw new Error("Failed to fetch lodging invitees");
+    throw new Error(
+      `Failed to fetch lodging invitees (${String(response.status)})`,
+    );
   }
 
   return (await response.json()) as LodgingInviteesResponse;
@@ -44,7 +46,9 @@ async function saveLodgingInvitees(
   );
 
   if (!response.ok) {
-    throw new Error("Failed to save lodging invitees");
+    throw new Error(
+      `Failed to save lodging invitees (${String(response.status)})`,
+    );
   }
 }
 

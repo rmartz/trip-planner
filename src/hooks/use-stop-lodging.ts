@@ -30,7 +30,7 @@ export async function fetchStopLodging(
 ): Promise<LodgingRecord[]> {
   const response = await fetch(`/api/trips/${tripId}/stops/${stopId}/lodging`);
   if (!response.ok) {
-    throw new Error("Failed to fetch lodging");
+    throw new Error(`Failed to fetch lodging (${String(response.status)})`);
   }
 
   const data = (await response.json()) as StopLodgingResponse;
