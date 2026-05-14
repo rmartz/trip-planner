@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback } from "react";
+import { use, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -65,25 +65,31 @@ export default function LodgingPage({ params }: LodgingPageProps) {
     enabled: isPlanner,
   });
 
-  const nonAccountMemberSummaries = nonAccountMembers.map((member) => ({
-    memberId: member.nonAccountMemberId,
-    name: member.name,
-    sortedOwnLodging: false,
-  }));
+  const [sortedOwnOverrides, setSortedOwnOverrides] = useState<
+    Record<string, boolean>
+  >({});
 
   const plannerStopSummaries: LodgingStopSummary[] = stops.map((stop) => ({
     stop,
     demand: { needLodging: 0, haveOwn: 0, sharing: 0, noReply: 0 },
     supply: [],
-    nonAccountMembers: nonAccountMemberSummaries,
+    nonAccountMembers: nonAccountMembers.map((member) => ({
+      memberId: member.nonAccountMemberId,
+      name: member.name,
+      sortedOwnLodging:
+        sortedOwnOverrides[`${stop.stopId}:${member.nonAccountMemberId}`] ??
+        false,
+    })),
   }));
 
   const guestStopSummaries: LodgingGuestStopSummary[] =
     stops.map(makeGuestSummary);
 
   const handleToggleMemberSortedOwn = useCallback(
-    (stopId: string, memberId: string, sorted: boolean) => {
-      void fetch(
+    async (stopId: string, memberId: string, sorted: boolean) => {
+      const key = `${stopId}:${memberId}`;
+      setSortedOwnOverrides((prev) => ({ ...prev, [key]: sorted }));
+      const response = await fetch(
         `/api/trips/${tripId}/stops/${stopId}/members/${memberId}/lodging-status`,
         {
           method: "PUT",
@@ -91,6 +97,9 @@ export default function LodgingPage({ params }: LodgingPageProps) {
           body: JSON.stringify({ sortedOwn: sorted }),
         },
       );
+      if (!response.ok) {
+        setSortedOwnOverrides((prev) => ({ ...prev, [key]: !sorted }));
+      }
     },
     [tripId],
   );
