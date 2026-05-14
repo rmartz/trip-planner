@@ -101,9 +101,9 @@ function LegSection({ summary }: LegSectionProps) {
             )}
           </div>
           <ul className="flex flex-col gap-1">
-            {supply.map((offer) => (
+            {supply.map((offer, index) => (
               <li
-                key={`${offer.driverName}-${offer.routeName}`}
+                key={`${offer.driverName}-${offer.routeName}-${String(index)}`}
                 className="flex items-center gap-1 font-mono text-xs"
               >
                 <span className="flex-1 truncate">
