@@ -26,6 +26,7 @@ export default function TripOverviewPage() {
         trip={trip}
         isLoading={isLoading}
         isError={isError}
+        lodgingGapCount={trip?.gapCount}
       />
     </AppShell>
   );
