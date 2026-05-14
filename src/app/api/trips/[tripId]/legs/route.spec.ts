@@ -7,10 +7,10 @@ import { X_USER_ID_HEADER } from "@/lib/constants";
 vi.mock("@/services/legs", () => ({
   getLegsForTrip: vi.fn(),
   addLeg: vi.fn(),
-  getLegMemberRole: vi.fn(),
+  getTripMemberRole: vi.fn(),
 }));
 
-import { getLegsForTrip, addLeg, getLegMemberRole } from "@/services/legs";
+import { getLegsForTrip, addLeg, getTripMemberRole } from "@/services/legs";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {
@@ -64,7 +64,7 @@ describe("GET /api/trips/[tripId]/legs", () => {
   });
 
   it("returns legs and user role", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getLegsForTrip).mockResolvedValue([makeLeg()]);
 
     const request = makeGetRequest("uid-planner");
@@ -84,7 +84,7 @@ describe("GET /api/trips/[tripId]/legs", () => {
   });
 
   it("returns null role when user is not a member", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(null);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-stranger");
@@ -96,14 +96,14 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(data.role).toBeNull();
   });
 
-  it("calls getLegMemberRole and getLegsForTrip with correct tripId", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+  it("calls getTripMemberRole and getLegsForTrip with correct tripId", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-1", "trip-abc");
     await GET(request, { params: Promise.resolve({ tripId: "trip-abc" }) });
 
-    expect(vi.mocked(getLegMemberRole)).toHaveBeenCalledWith(
+    expect(vi.mocked(getTripMemberRole)).toHaveBeenCalledWith(
       "uid-1",
       "trip-abc",
     );

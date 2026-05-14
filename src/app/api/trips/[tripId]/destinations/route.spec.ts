@@ -8,11 +8,11 @@ vi.mock("@/services/stop-destinations", () => ({
 }));
 
 vi.mock("@/services/legs", () => ({
-  getLegMemberRole: vi.fn(),
+  getTripMemberRole: vi.fn(),
 }));
 
 import { getTripDestinations } from "@/services/stop-destinations";
-import { getLegMemberRole } from "@/services/legs";
+import { getTripMemberRole } from "@/services/legs";
 import { GET } from "./route";
 
 function makeParams(tripId: string) {
@@ -39,7 +39,7 @@ describe("GET /api/trips/[tripId]/destinations", () => {
   });
 
   it("returns 403 when caller is not a trip member", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(null);
     const req = makeGetRequest("user-1");
     const resp = await GET(req, makeParams("trip-1"));
     expect(resp.status).toBe(403);
@@ -47,7 +47,7 @@ describe("GET /api/trips/[tripId]/destinations", () => {
   });
 
   it("returns trip destinations when caller is a Guest member", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(getTripDestinations).mockResolvedValue([
       {
         destinationId: "dest-1",
@@ -66,7 +66,7 @@ describe("GET /api/trips/[tripId]/destinations", () => {
   });
 
   it("returns trip destinations when caller is a Planner member", async () => {
-    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getTripDestinations).mockResolvedValue([]);
     const req = makeGetRequest("user-1");
     const resp = await GET(req, makeParams("trip-1"));

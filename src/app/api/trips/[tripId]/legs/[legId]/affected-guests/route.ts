@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getAffectedGuestsForLeg, getLegMemberRole } from "@/services/legs";
+import { getAffectedGuestsForLeg, getTripMemberRole } from "@/services/legs";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import { TripRole } from "@/lib/types/trip";
 
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
   const { tripId, legId } = await params;
 
-  const role = await getLegMemberRole(uid, tripId);
+  const role = await getTripMemberRole(uid, tripId);
   if (role !== TripRole.Planner) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

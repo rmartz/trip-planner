@@ -17,7 +17,7 @@ export async function getLegsForTrip(tripId: string): Promise<Leg[]> {
     .filter((leg) => leg.isActive);
 }
 
-export async function getLegMemberRole(
+export async function getTripMemberRole(
   uid: string,
   tripId: string,
 ): Promise<TripRole | null> {
