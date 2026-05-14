@@ -57,6 +57,7 @@ function DateCell({
       role="button"
       tabIndex={0}
       aria-label={`Toggle availability for ${label}`}
+      aria-pressed={isMine}
       data-testid={`avail-input-cell-${key}`}
       data-mine={isMine ? "true" : "false"}
       data-heat={heat}

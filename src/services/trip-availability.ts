@@ -38,5 +38,5 @@ export async function setMyTripAvailability(
     .doc(tripId)
     .collection("availability")
     .doc(uid)
-    .set(tripAvailabilityToFirebase(availableDates));
+    .set(tripAvailabilityToFirebase(Array.from(new Set(availableDates))));
 }

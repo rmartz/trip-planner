@@ -8,56 +8,69 @@ import { PhasePill } from "@/components/trips/PhasePill";
 import { TRIP_OVERVIEW_PAGE_COPY } from "./TripOverviewPageView.copy";
 
 interface SectionLink {
+  id: string;
   href: (tripId: string) => string;
   label: string;
 }
 
 const SECTION_LINKS: SectionLink[] = [
   {
+    id: "structure",
     href: (tripId) => `/trips/${tripId}/structure`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionStructure,
   },
   {
+    id: "destinations",
     href: (tripId) => `/trips/${tripId}/destinations`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionDestinations,
   },
   {
+    id: "availability",
     href: (tripId) => `/trips/${tripId}/availability`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionAvailability,
   },
   {
+    id: "lodging",
     href: (tripId) => `/trips/${tripId}/lodging`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
   },
   {
+    id: "transport",
     href: (tripId) => `/trips/${tripId}/transport`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionTransport,
   },
   {
+    id: "activities",
     href: (tripId) => `/trips/${tripId}/activities`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionActivities,
   },
   {
+    id: "schedule",
     href: (tripId) => `/trips/${tripId}/schedule`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionSchedule,
   },
   {
+    id: "rsvp",
     href: (tripId) => `/trips/${tripId}/rsvp`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionRsvp,
   },
   {
+    id: "expenses",
     href: (tripId) => `/trips/${tripId}/expenses`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionExpenses,
   },
   {
+    id: "balances",
     href: (tripId) => `/trips/${tripId}/balances`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionBalances,
   },
   {
+    id: "members",
     href: (tripId) => `/trips/${tripId}/members`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionMembers,
   },
   {
+    id: "archive",
     href: (tripId) => `/trips/${tripId}/archive`,
     label: TRIP_OVERVIEW_PAGE_COPY.sectionArchive,
   },
@@ -124,14 +137,13 @@ export function TripOverviewPageView({
             >
               {SECTION_LINKS.map((section) => (
                 <Link
-                  key={section.label}
+                  key={section.id}
                   href={section.href(trip.tripId)}
                   className="flex items-center justify-between rounded-lg border border-zinc-200 px-4 py-4 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                 >
                   <span className="flex flex-col gap-0.5">
                     <span>{section.label}</span>
-                    {section.label === TRIP_OVERVIEW_PAGE_COPY.sectionLodging &&
-                      lodgingSubline && (
+                    {section.id === "lodging" && lodgingSubline && (
                         <span className="text-xs font-normal text-amber-600 dark:text-amber-400">
                           {lodgingSubline}
                         </span>
