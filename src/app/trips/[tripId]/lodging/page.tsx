@@ -1,7 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   LodgingGuestOfferStatus,
   LodgingGuestOverviewView,
@@ -11,11 +12,25 @@ import { LodgingPlannerOverviewView } from "@/components/lodging/LodgingPlannerO
 import type { LodgingStopSummary } from "@/components/lodging/LodgingPlannerOverviewView";
 import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
+import type { NonAccountMember } from "@/lib/types/non-account-member";
 import { TripRole, type Stop } from "@/lib/types/trip";
 import { LODGING_PAGE_COPY } from "./copy";
 
 interface LodgingPageProps {
   params: Promise<{ tripId: string }>;
+}
+
+interface MembersResponse {
+  nonAccountMembers: NonAccountMember[];
+}
+
+async function fetchNonAccountMembers(
+  tripId: string,
+): Promise<NonAccountMember[]> {
+  const response = await fetch(`/api/trips/${tripId}/members`);
+  if (!response.ok) throw new Error("Failed to fetch members");
+  const data = (await response.json()) as MembersResponse;
+  return data.nonAccountMembers;
 }
 
 function makeGuestSummary(stop: Stop): LodgingGuestStopSummary {
@@ -44,14 +59,41 @@ export default function LodgingPage({ params }: LodgingPageProps) {
   const stops = data?.stops ?? [];
   const isPlanner = data?.role === TripRole.Planner;
 
+  const { data: nonAccountMembers = [] } = useQuery({
+    queryKey: ["nonAccountMembers", tripId],
+    queryFn: () => fetchNonAccountMembers(tripId),
+    enabled: isPlanner,
+  });
+
+  const nonAccountMemberSummaries = nonAccountMembers.map((member) => ({
+    memberId: member.nonAccountMemberId,
+    name: member.name,
+    sortedOwnLodging: false,
+  }));
+
   const plannerStopSummaries: LodgingStopSummary[] = stops.map((stop) => ({
     stop,
     demand: { needLodging: 0, haveOwn: 0, sharing: 0, noReply: 0 },
     supply: [],
+    nonAccountMembers: nonAccountMemberSummaries,
   }));
 
   const guestStopSummaries: LodgingGuestStopSummary[] =
     stops.map(makeGuestSummary);
+
+  const handleToggleMemberSortedOwn = useCallback(
+    (stopId: string, memberId: string, sorted: boolean) => {
+      void fetch(
+        `/api/trips/${tripId}/stops/${stopId}/members/${memberId}/lodging-status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sortedOwn: sorted }),
+        },
+      );
+    },
+    [tripId],
+  );
 
   return (
     <AppShell
@@ -66,12 +108,7 @@ export default function LodgingPage({ params }: LodgingPageProps) {
       {isPlanner ? (
         <LodgingPlannerOverviewView
           stops={plannerStopSummaries}
-          onToggleMemberSortedOwn={(stopId, memberId, sorted) => {
-            // Non-account member sorted-own mutations are handled by #42.
-            void stopId;
-            void memberId;
-            void sorted;
-          }}
+          onToggleMemberSortedOwn={handleToggleMemberSortedOwn}
         />
       ) : (
         <LodgingGuestOverviewView
