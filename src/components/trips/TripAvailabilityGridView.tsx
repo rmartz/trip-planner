@@ -54,6 +54,9 @@ function DateCell({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Toggle availability for ${label}`}
       data-testid={`avail-input-cell-${key}`}
       data-mine={isMine ? "true" : "false"}
       data-heat={heat}
@@ -67,6 +70,13 @@ function DateCell({
       }}
       onPointerUp={() => {
         onDragEnd();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          onDragStart(key);
+          onDragEnd();
+        }
       }}
     >
       <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">

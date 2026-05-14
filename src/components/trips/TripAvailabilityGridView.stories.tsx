@@ -41,12 +41,18 @@ export const NoSelections: Story = {
   },
 };
 
+function toDateKey(date: Date): string {
+  return [
+    String(date.getFullYear()),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 export const AllAvailable: Story = {
   args: {
-    myAvailableDates: new Set(DATES.map((d) => d.toISOString().slice(0, 10))),
-    memberCountByDate: Object.fromEntries(
-      DATES.map((d) => [d.toISOString().slice(0, 10), 3]),
-    ),
+    myAvailableDates: new Set(DATES.map(toDateKey)),
+    memberCountByDate: Object.fromEntries(DATES.map((d) => [toDateKey(d), 3])),
   },
 };
 
