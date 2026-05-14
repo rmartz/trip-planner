@@ -3,8 +3,8 @@ import { fn } from "storybook/test";
 import { TripRole } from "@/lib/types/trip";
 import {
   RsvpPageView,
-  RsvpStatus,
   type RsvpScheduledActivity,
+  RsvpStatus,
 } from "./RsvpPageView";
 
 function makeActivity(

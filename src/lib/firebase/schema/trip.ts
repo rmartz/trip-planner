@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { TripRole } from "@/lib/types/trip";
-import type { Trip, TripMember, Stop, Leg } from "@/lib/types/trip";
+import type { Leg, Stop, Trip, TripMember } from "@/lib/types/trip";
 
 function toDate(value: Timestamp | null | undefined): Date {
   return value?.toDate() ?? new Date();

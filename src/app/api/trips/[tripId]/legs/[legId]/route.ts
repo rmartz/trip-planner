@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { updateLeg, softDeleteLeg } from "@/services/legs";
+import { softDeleteLeg, updateLeg } from "@/services/legs";
 import { PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
