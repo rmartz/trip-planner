@@ -36,16 +36,17 @@ export async function getLodgingInviteeCandidates(
   const stopRef = tripRef.collection("stops").doc(stopId);
   const hostData = await getInviteableHostData(hostUid, stopRef);
   const candidateUids = await getEligibleInviteeUids(hostUid, tripRef, stopRef);
-  const rawInvitedUids = hostData["invitedUids"] as unknown;
 
   return {
     candidateUids: Array.from(candidateUids),
     invitedUids:
-      Array.isArray(rawInvitedUids) &&
-      rawInvitedUids.every(
+      Array.isArray(hostData["invitedUids"]) &&
+      hostData["invitedUids"].every(
         (inviteeUid): inviteeUid is string => typeof inviteeUid === "string",
       )
-        ? rawInvitedUids.filter((inviteeUid) => candidateUids.has(inviteeUid))
+        ? hostData["invitedUids"].filter((inviteeUid) =>
+            candidateUids.has(inviteeUid),
+          )
         : [],
   };
 }
