@@ -5,6 +5,11 @@ import { LodgingStatus } from "@/lib/types/lodging";
 import type { LodgingRecord } from "@/lib/types/lodging";
 import { NotFoundError } from "./errors";
 
+export interface LodgingInviteeCandidates {
+  candidateUids: string[];
+  invitedUids: string[];
+}
+
 export async function getLodgingForStop(
   uid: string,
   tripId: string,
@@ -22,6 +27,29 @@ export async function getLodgingForStop(
     .filter((record) => canViewLodgingRecord(record, uid));
 }
 
+export async function getLodgingInviteeCandidates(
+  hostUid: string,
+  tripId: string,
+  stopId: string,
+): Promise<LodgingInviteeCandidates> {
+  const tripRef = await getTripRefForMember(hostUid, tripId);
+  const stopRef = tripRef.collection("stops").doc(stopId);
+  const hostData = await getInviteableHostData(hostUid, stopRef);
+  const candidateUids = await getEligibleInviteeUids(hostUid, tripRef, stopRef);
+  const rawInvitedUids = hostData["invitedUids"] as unknown;
+
+  return {
+    candidateUids: Array.from(candidateUids),
+    invitedUids:
+      Array.isArray(rawInvitedUids) &&
+      rawInvitedUids.every((inviteeUid): inviteeUid is string => {
+        return typeof inviteeUid === "string";
+      })
+        ? rawInvitedUids.filter((inviteeUid) => candidateUids.has(inviteeUid))
+        : [],
+  };
+}
+
 export async function setLodgingInvitees(
   hostUid: string,
   tripId: string,
@@ -30,20 +58,27 @@ export async function setLodgingInvitees(
 ): Promise<void> {
   const tripRef = await getTripRefForMember(hostUid, tripId);
   const stopRef = tripRef.collection("stops").doc(stopId);
+  await getInviteableHostData(hostUid, stopRef);
 
-  const hostDoc = await stopRef.collection("lodging").doc(hostUid).get();
-  if (!hostDoc.exists) {
-    throw new NotFoundError("Lodging record not found for this host.");
-  }
+  const uniqueInvitedUids = Array.from(new Set(invitedUids));
+  const eligibleInviteeUids = await getEligibleInviteeUids(
+    hostUid,
+    tripRef,
+    stopRef,
+  );
 
-  const hostData = hostDoc.data() ?? {};
-  const hostStatus = hostData["status"] as string | undefined;
-  if (hostStatus !== LodgingStatus.SecuredCapacity) {
-    throw new Error("Only hosts with secured capacity can invite guests.");
+  if (
+    !uniqueInvitedUids.every((inviteeUid) =>
+      eligibleInviteeUids.has(inviteeUid),
+    )
+  ) {
+    throw new Error(
+      "All invited guests must be trip members who need lodging for this stop.",
+    );
   }
 
   await stopRef.collection("lodging").doc(hostUid).update({
-    invitedUids,
+    invitedUids: uniqueInvitedUids,
     updatedAt: FieldValue.serverTimestamp(),
   });
 }
@@ -69,4 +104,49 @@ async function getTripRefForMember(uid: string, tripId: string) {
   }
 
   return tripRef;
+}
+
+async function getEligibleInviteeUids(
+  hostUid: string,
+  tripRef: FirebaseFirestore.DocumentReference,
+  stopRef: FirebaseFirestore.DocumentReference,
+): Promise<Set<string>> {
+  const [membersSnapshot, lodgingSnapshot] = await Promise.all([
+    tripRef.collection("members").get(),
+    stopRef.collection("lodging").get(),
+  ]);
+
+  const lodgingStatusByUid = new Map(
+    lodgingSnapshot.docs.map((doc) => [
+      doc.id,
+      doc.data()["status"] as string | undefined,
+    ]),
+  );
+
+  return new Set(
+    membersSnapshot.docs
+      .map((doc) => doc.id)
+      .filter((memberUid) => memberUid !== hostUid)
+      .filter((memberUid) => {
+        return lodgingStatusByUid.get(memberUid) === LodgingStatus.NeedLodging;
+      }),
+  );
+}
+
+async function getInviteableHostData(
+  hostUid: string,
+  stopRef: FirebaseFirestore.DocumentReference,
+) {
+  const hostDoc = await stopRef.collection("lodging").doc(hostUid).get();
+  if (!hostDoc.exists) {
+    throw new NotFoundError("Lodging record not found for this host.");
+  }
+
+  const hostData = hostDoc.data() ?? {};
+  const hostStatus = hostData["status"] as string | undefined;
+  if (hostStatus !== LodgingStatus.SecuredCapacity) {
+    throw new Error("Only hosts with secured capacity can invite guests.");
+  }
+
+  return hostData;
 }

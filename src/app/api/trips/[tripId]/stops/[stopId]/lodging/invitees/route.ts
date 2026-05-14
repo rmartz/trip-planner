@@ -1,10 +1,34 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { setLodgingInvitees } from "@/services/lodging";
+import {
+  getLodgingInviteeCandidates,
+  setLodgingInvitees,
+} from "@/services/lodging";
 import { NotFoundError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
   params: Promise<{ tripId: string; stopId: string }>;
+}
+
+export async function GET(request: NextRequest, { params }: RouteContext) {
+  const uid = request.headers.get(X_USER_ID_HEADER);
+  if (!uid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { tripId, stopId } = await params;
+
+  try {
+    const invitees = await getLodgingInviteeCandidates(uid, tripId, stopId);
+    return NextResponse.json(invitees);
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 404 });
+    }
+
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 }
 
 export async function PUT(request: NextRequest, { params }: RouteContext) {

@@ -10,7 +10,11 @@ vi.mock("@/lib/firebase/schema/lodging", () => ({
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToLodging } from "@/lib/firebase/schema/lodging";
-import { getLodgingForStop, setLodgingInvitees } from "./lodging";
+import {
+  getLodgingForStop,
+  getLodgingInviteeCandidates,
+  setLodgingInvitees,
+} from "./lodging";
 
 interface MockDocSnapshot {
   id: string;
@@ -129,7 +133,9 @@ describe("getLodgingForStop", () => {
 
 describe("setLodgingInvitees", () => {
   const memberGet = vi.fn();
+  const membersGet = vi.fn();
   const hostGet = vi.fn();
+  const lodgingGet = vi.fn();
   const hostUpdate = vi.fn();
   const tripCollection = vi.fn();
   const tripDoc = vi.fn();
@@ -149,6 +155,7 @@ describe("setLodgingInvitees", () => {
         if (name === "members") {
           return {
             doc: () => ({ get: memberGet }),
+            get: membersGet,
           };
         }
 
@@ -162,7 +169,7 @@ describe("setLodgingInvitees", () => {
     stopDoc.mockReturnValue({
       collection: (name: string) => {
         if (name === "lodging") {
-          return { doc: lodgingDoc };
+          return { doc: lodgingDoc, get: lodgingGet };
         }
 
         return undefined;
@@ -206,11 +213,51 @@ describe("setLodgingInvitees", () => {
     expect(hostUpdate).not.toHaveBeenCalled();
   });
 
-  it("updates invitees for a secured-capacity host", async () => {
+  it("throws when any invited guest is not eligible for this stop", async () => {
     memberGet.mockResolvedValue({ exists: true });
+    membersGet.mockResolvedValue({
+      docs: [{ id: "uid-guest" }, { id: "uid-host" }],
+    });
     hostGet.mockResolvedValue({
       exists: true,
-      data: () => ({ status: LodgingStatus.SecuredCapacity }),
+      data: () => ({
+        invitedUids: [],
+        status: LodgingStatus.SecuredCapacity,
+      }),
+    });
+    lodgingGet.mockResolvedValue({
+      docs: [
+        {
+          id: "uid-guest",
+          data: () => ({ status: LodgingStatus.SecuredPrivate }),
+        },
+      ],
+    });
+
+    await expect(
+      setLodgingInvitees("uid-host", "trip-1", "stop-1", ["uid-guest"]),
+    ).rejects.toThrow(
+      "All invited guests must be trip members who need lodging for this stop.",
+    );
+    expect(hostUpdate).not.toHaveBeenCalled();
+  });
+
+  it("updates invitees for a secured-capacity host", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    membersGet.mockResolvedValue({
+      docs: [{ id: "uid-guest" }, { id: "uid-host" }],
+    });
+    hostGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ invitedUids: [], status: LodgingStatus.SecuredCapacity }),
+    });
+    lodgingGet.mockResolvedValue({
+      docs: [
+        {
+          id: "uid-guest",
+          data: () => ({ status: LodgingStatus.NeedLodging }),
+        },
+      ],
     });
     hostUpdate.mockResolvedValue(undefined);
 
@@ -222,5 +269,87 @@ describe("setLodgingInvitees", () => {
         updatedAt: expect.anything(),
       }),
     );
+  });
+});
+
+describe("getLodgingInviteeCandidates", () => {
+  const memberGet = vi.fn();
+  const membersGet = vi.fn();
+  const hostGet = vi.fn();
+  const tripCollection = vi.fn();
+  const tripDoc = vi.fn();
+  const stopDoc = vi.fn();
+  const lodgingDoc = vi.fn();
+  const lodgingGet = vi.fn();
+  const mockDb = { collection: tripCollection };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    tripCollection.mockReturnValue({ doc: tripDoc });
+    tripDoc.mockReturnValue({
+      collection: (name: string) => {
+        if (name === "members") {
+          return {
+            doc: () => ({ get: memberGet }),
+            get: membersGet,
+          };
+        }
+
+        if (name === "stops") {
+          return { doc: stopDoc };
+        }
+
+        return undefined;
+      },
+    });
+    stopDoc.mockReturnValue({
+      collection: (name: string) => {
+        if (name === "lodging") {
+          return { doc: lodgingDoc, get: lodgingGet };
+        }
+
+        return undefined;
+      },
+    });
+    lodgingDoc.mockReturnValue({
+      get: hostGet,
+    });
+  });
+
+  it("returns eligible invitees and filters stale invitedUids", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    membersGet.mockResolvedValue({
+      docs: [{ id: "uid-guest" }, { id: "uid-host" }, { id: "uid-ineligible" }],
+    });
+    hostGet.mockResolvedValue({
+      exists: true,
+      data: () => ({
+        invitedUids: ["uid-guest", "uid-missing"],
+        status: LodgingStatus.SecuredCapacity,
+      }),
+    });
+    lodgingGet.mockResolvedValue({
+      docs: [
+        {
+          id: "uid-guest",
+          data: () => ({ status: LodgingStatus.NeedLodging }),
+        },
+        {
+          id: "uid-ineligible",
+          data: () => ({ status: LodgingStatus.SecuredPrivate }),
+        },
+      ],
+    });
+
+    await expect(
+      getLodgingInviteeCandidates("uid-host", "trip-1", "stop-1"),
+    ).resolves.toEqual({
+      candidateUids: ["uid-guest"],
+      invitedUids: ["uid-guest"],
+    });
   });
 });

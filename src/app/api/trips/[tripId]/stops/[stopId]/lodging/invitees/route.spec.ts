@@ -4,11 +4,15 @@ import { X_USER_ID_HEADER } from "@/lib/constants";
 import { NotFoundError } from "@/services/errors";
 
 vi.mock("@/services/lodging", () => ({
+  getLodgingInviteeCandidates: vi.fn(),
   setLodgingInvitees: vi.fn(),
 }));
 
-import { setLodgingInvitees } from "@/services/lodging";
-import { PUT } from "./route";
+import {
+  getLodgingInviteeCandidates,
+  setLodgingInvitees,
+} from "@/services/lodging";
+import { GET, PUT } from "./route";
 
 function makeParams(tripId: string, stopId: string) {
   return { params: Promise.resolve({ tripId, stopId }) };
@@ -48,6 +52,44 @@ function makeRequest(uid: string | undefined, body: unknown) {
 
 afterEach(() => {
   vi.clearAllMocks();
+});
+
+describe("GET /api/trips/[tripId]/stops/[stopId]/lodging/invitees", () => {
+  it("returns 401 when uid header is absent", async () => {
+    const response = await GET(
+      makeRequest(undefined, { invitedUids: ["uid-guest"] }),
+      makeParams("trip-1", "stop-1"),
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  it("returns invitee candidates for the requesting host", async () => {
+    vi.mocked(getLodgingInviteeCandidates).mockResolvedValue({
+      candidateUids: ["uid-guest"],
+      invitedUids: ["uid-guest"],
+    });
+
+    const response = await GET(
+      makeRequest("uid-host", { invitedUids: ["uid-guest"] }),
+      makeParams("trip-1", "stop-1"),
+    );
+    const body = (await response.json()) as {
+      candidateUids: string[];
+      invitedUids: string[];
+    };
+
+    expect(response.status).toBe(200);
+    expect(getLodgingInviteeCandidates).toHaveBeenCalledWith(
+      "uid-host",
+      "trip-1",
+      "stop-1",
+    );
+    expect(body).toEqual({
+      candidateUids: ["uid-guest"],
+      invitedUids: ["uid-guest"],
+    });
+  });
 });
 
 describe("PUT /api/trips/[tripId]/stops/[stopId]/lodging/invitees", () => {

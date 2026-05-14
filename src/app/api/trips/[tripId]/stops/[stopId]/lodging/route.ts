@@ -17,7 +17,15 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
     const records = await getLodgingForStop(uid, tripId, stopId);
 
-    return NextResponse.json({ records });
+    return NextResponse.json({
+      records: records.map((record) => {
+        if (record.uid === uid) {
+          return record;
+        }
+
+        return { ...record, invitedUids: undefined };
+      }),
+    });
   } catch (err) {
     if (err instanceof NotFoundError) {
       return NextResponse.json({ error: err.message }, { status: 404 });

@@ -41,8 +41,14 @@ describe("GET /api/trips/[tripId]/stops/[stopId]/lodging", () => {
     expect(response.status).toBe(401);
   });
 
-  it("passes uid through to the lodging service and serializes dates", async () => {
+  it("passes uid through to the lodging service, redacts foreign invitedUids, and serializes dates", async () => {
     vi.mocked(getLodgingForStop).mockResolvedValue([
+      {
+        uid: "uid-guest",
+        stopId: "stop-1",
+        status: LodgingStatus.NeedLodging,
+        updatedAt: new Date("2025-06-03T00:00:00.000Z"),
+      },
       {
         uid: "uid-host",
         stopId: "stop-1",
@@ -67,6 +73,7 @@ describe("GET /api/trips/[tripId]/stops/[stopId]/lodging", () => {
       "stop-1",
     );
     expect(body.records[0]?.["updatedAt"]).toBe("2025-06-03T00:00:00.000Z");
+    expect(body.records[1]?.["invitedUids"]).toBeUndefined();
   });
 
   it("returns 404 when the requester is not a trip member", async () => {
