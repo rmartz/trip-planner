@@ -71,6 +71,15 @@ export async function shareDestinationToUser(
     throw new NotFoundError("Recipient is not a member of this trip");
   }
 
+  const recipientRole = recipientMemberDoc.data()?.["role"] as
+    | string
+    | undefined;
+  if (recipientRole !== TripRole.Planner) {
+    throw new PlannerOnlyError(
+      "Destinations can only be shared with Planners",
+    );
+  }
+
   const sourceDoc = await db
     .collection("users")
     .doc(senderUid)
