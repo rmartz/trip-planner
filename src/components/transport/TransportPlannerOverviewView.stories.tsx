@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { Leg } from "@/lib/types/trip";
 import {
+  type TransportLegSummary,
   TransportOfferVisibility,
   TransportPlannerOverviewView,
-  type TransportLegSummary,
 } from "./TransportPlannerOverviewView";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {

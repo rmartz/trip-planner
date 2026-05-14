@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getTripByInviteToken, acceptInvite } from "@/services/invite";
+import { acceptInvite, getTripByInviteToken } from "@/services/invite";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {

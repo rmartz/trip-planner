@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import { ScreenAvailabilityView } from "./ScreenAvailabilityView";
 import { SCREEN_AVAILABILITY_COPY } from "./ScreenAvailabilityView.copy";
 import type { Trip } from "@/lib/types/trip";

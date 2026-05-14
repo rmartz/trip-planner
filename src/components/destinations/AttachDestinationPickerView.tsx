@@ -2,7 +2,7 @@
 
 import { ATTACH_DESTINATION_PICKER_COPY } from "./AttachDestinationPickerView.copy";
 import type { Destination } from "@/lib/types/destination";
-import type { Trip, Stop } from "@/lib/types/trip";
+import type { Stop, Trip } from "@/lib/types/trip";
 
 interface StopRowProps {
   stop: Stop;

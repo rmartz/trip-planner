@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
 import { TripRole } from "@/lib/types/trip";
 import {
+  firebaseToLeg,
+  firebaseToStop,
   firebaseToTrip,
   firebaseToTripMember,
-  firebaseToStop,
-  firebaseToLeg,
 } from "../trip";
 
 // Minimal valid base data for each deserializer so we can focus assertions

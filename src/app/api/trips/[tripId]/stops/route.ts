@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { addStop, getStopsForTrip, getStopMemberRole } from "@/services/stops";
+import { addStop, getStopMemberRole, getStopsForTrip } from "@/services/stops";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {

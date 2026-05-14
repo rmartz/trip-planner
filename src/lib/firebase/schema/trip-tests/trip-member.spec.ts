@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
 import { TripRole } from "@/lib/types/trip";
 import { firebaseToTripMember, tripMemberToFirebase } from "../trip";

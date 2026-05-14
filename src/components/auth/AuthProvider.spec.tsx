@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi, type Mock } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it, type Mock, vi } from "vitest";
+import { cleanup, render } from "@testing-library/react";
 import type { User } from "firebase/auth";
 
 afterEach(() => {

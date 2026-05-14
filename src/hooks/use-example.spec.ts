@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("hooks project smoke test", () => {
   it("runs in happy-dom environment", () => {

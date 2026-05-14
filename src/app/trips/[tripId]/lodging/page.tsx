@@ -11,7 +11,7 @@ import { LodgingPlannerOverviewView } from "@/components/lodging/LodgingPlannerO
 import type { LodgingStopSummary } from "@/components/lodging/LodgingPlannerOverviewView";
 import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
-import { TripRole, type Stop } from "@/lib/types/trip";
+import { type Stop, TripRole } from "@/lib/types/trip";
 import { LODGING_PAGE_COPY } from "./copy";
 
 interface LodgingPageProps {

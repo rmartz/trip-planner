@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
-  BalancesPageView,
   type BalanceRow,
+  BalancesPageView,
   type TransferRow,
 } from "./BalancesPageView";
 

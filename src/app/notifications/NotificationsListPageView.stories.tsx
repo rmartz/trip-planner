@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import {
+  type NotificationListItem,
   NotificationsListPageView,
   NotificationType,
-  type NotificationListItem,
 } from "./NotificationsListPageView";
 
 const NOW = new Date("2026-05-11T10:00:00Z");

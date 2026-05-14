@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { AvailabilityPageView } from "./AvailabilityPageView";
 import { AVAILABILITY_PAGE_COPY } from "./AvailabilityPageView.copy";

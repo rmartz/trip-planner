@@ -1,9 +1,9 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import {
-  TransportPlannerOverviewView,
-  TransportOfferVisibility,
   type TransportLegSummary,
+  TransportOfferVisibility,
+  TransportPlannerOverviewView,
 } from "./TransportPlannerOverviewView";
 import { TRANSPORT_PLANNER_OVERVIEW_COPY } from "./TransportPlannerOverviewView.copy";
 import type { Leg } from "@/lib/types/trip";
