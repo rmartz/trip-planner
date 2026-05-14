@@ -24,7 +24,6 @@ describe("Criterion 1 — grid renders a cell for each date in the trip range", 
         memberCountByDate={{}}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );
@@ -42,7 +41,6 @@ describe("Criterion 1 — grid renders a cell for each date in the trip range", 
         memberCountByDate={{}}
         plannerCount={2}
         isLoading={true}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );
@@ -63,12 +61,13 @@ describe("Criterion 2 — tap a cell to toggle availability", () => {
         memberCountByDate={{}}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={onToggleDates}
       />,
     );
 
-    fireEvent.click(screen.getByTestId("avail-input-cell-2025-06-10"));
+    const cell = screen.getByTestId("avail-input-cell-2025-06-10");
+    fireEvent.pointerDown(cell);
+    fireEvent.pointerUp(cell);
 
     expect(onToggleDates).toHaveBeenCalledWith(["2025-06-10"]);
   });
@@ -82,7 +81,6 @@ describe("Criterion 2 — tap a cell to toggle availability", () => {
         memberCountByDate={{}}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={onToggleDates}
       />,
     );
@@ -109,7 +107,6 @@ describe("Criterion 3 — cell heat reflects aggregate member counts", () => {
         memberCountByDate={{ "2025-06-10": 2 }}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );
@@ -126,7 +123,6 @@ describe("Criterion 3 — cell heat reflects aggregate member counts", () => {
         memberCountByDate={{ "2025-06-10": 0 }}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );
@@ -143,7 +139,6 @@ describe("Criterion 3 — cell heat reflects aggregate member counts", () => {
         memberCountByDate={{ "2025-06-10": 1 }}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );
@@ -162,7 +157,6 @@ describe("Criterion 4 — my own availability is reflected in cell state", () =>
         memberCountByDate={{}}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );
@@ -179,7 +173,6 @@ describe("Criterion 4 — my own availability is reflected in cell state", () =>
         memberCountByDate={{}}
         plannerCount={2}
         isLoading={false}
-        isSubmitting={false}
         onToggleDates={vi.fn()}
       />,
     );

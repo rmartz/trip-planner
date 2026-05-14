@@ -36,7 +36,6 @@ interface DateCellProps {
   date: Date;
   isMine: boolean;
   heat: "all" | "some" | "none";
-  onTap: (key: string) => void;
   onDragStart: (key: string) => void;
   onDragEnter: (key: string) => void;
   onDragEnd: () => void;
@@ -46,7 +45,6 @@ function DateCell({
   date,
   isMine,
   heat,
-  onTap,
   onDragStart,
   onDragEnter,
   onDragEnd,
@@ -60,9 +58,6 @@ function DateCell({
       data-mine={isMine ? "true" : "false"}
       data-heat={heat}
       className="flex select-none flex-col items-center gap-0.5"
-      onClick={() => {
-        onTap(key);
-      }}
       onPointerDown={(e) => {
         e.preventDefault();
         onDragStart(key);
@@ -98,7 +93,6 @@ export interface TripAvailabilityGridViewProps {
   /** Total number of planners on the trip. */
   plannerCount: number;
   isLoading: boolean;
-  isSubmitting: boolean;
   /** Called with the array of date keys that were toggled. */
   onToggleDates: (dateKeys: string[]) => void;
 }
@@ -113,11 +107,6 @@ export function TripAvailabilityGridView({
 }: TripAvailabilityGridViewProps) {
   const isDragging = useRef(false);
   const draggedKeys = useRef<string[]>([]);
-
-  function handleTap(key: string) {
-    if (isDragging.current) return;
-    onToggleDates([key]);
-  }
 
   function handleDragStart(key: string) {
     isDragging.current = true;
@@ -168,7 +157,6 @@ export function TripAvailabilityGridView({
                   date={date}
                   isMine={myAvailableDates.has(key)}
                   heat={heatLabel(count, plannerCount)}
-                  onTap={handleTap}
                   onDragStart={handleDragStart}
                   onDragEnter={handleDragEnter}
                   onDragEnd={handleDragEnd}

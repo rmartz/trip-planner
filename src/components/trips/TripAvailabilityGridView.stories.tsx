@@ -24,7 +24,6 @@ const meta: Meta<typeof TripAvailabilityGridView> = {
     },
     plannerCount: 3,
     isLoading: false,
-    isSubmitting: false,
     onToggleDates: fn(),
   },
 };
