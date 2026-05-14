@@ -155,7 +155,7 @@ describe("TransportPlannerOverviewView — status pill", () => {
         ]}
       />,
     );
-    expect(screen.getByText(COPY.gapPill(-3))).toBeDefined();
+    expect(screen.getByText(COPY.gapPill(3))).toBeDefined();
   });
 });
 
@@ -252,7 +252,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
     expect(screen.getByText(COPY.supplyCardTitle)).toBeDefined();
   });
 
-  it("renders the driver route name and seat count", () => {
+  it("renders the driver name, route name, and seat count", () => {
     render(
       <TransportPlannerOverviewView
         legs={[
@@ -269,7 +269,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
         ]}
       />,
     );
-    expect(screen.getByText("Tara's SUV")).toBeDefined();
+    expect(screen.getByText("Tara · Tara's SUV")).toBeDefined();
     expect(screen.getByText(COPY.seatsLabel(3))).toBeDefined();
   });
 
@@ -312,6 +312,26 @@ describe("TransportPlannerOverviewView — supply card", () => {
       />,
     );
     expect(screen.getByText(COPY.inviteOnlyVisibility(4))).toBeDefined();
+  });
+
+  it("renders invite-only label without count when inviteeCount is absent", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            supply: [
+              {
+                driverName: "Tara",
+                routeName: "Tara's SUV",
+                seatCount: 3,
+                visibility: TransportOfferVisibility.InviteOnly,
+              },
+            ],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(COPY.inviteOnlyLabel)).toBeDefined();
   });
 
   it("renders total seats and driver count when there are multiple drivers", () => {

@@ -64,7 +64,7 @@ function LegSection({ summary }: LegSectionProps) {
               : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
           }`}
         >
-          {isGap ? COPY.gapPill(gap) : COPY.okPill}
+          {isGap ? COPY.gapPill(Math.abs(gap)) : COPY.okPill}
         </span>
       </div>
 
@@ -103,17 +103,21 @@ function LegSection({ summary }: LegSectionProps) {
           <ul className="flex flex-col gap-1">
             {supply.map((offer) => (
               <li
-                key={offer.routeName}
+                key={`${offer.driverName}-${offer.routeName}`}
                 className="flex items-center gap-1 font-mono text-xs"
               >
-                <span className="flex-1 truncate">{offer.routeName}</span>
+                <span className="flex-1 truncate">
+                  {offer.driverName} · {offer.routeName}
+                </span>
                 <span className="text-zinc-400">
                   {COPY.seatsLabel(offer.seatCount)}
                 </span>
                 <span className="text-zinc-400">
                   {offer.visibility === TransportOfferVisibility.Public
                     ? COPY.publicVisibility
-                    : COPY.inviteOnlyVisibility(offer.inviteeCount ?? 0)}
+                    : offer.inviteeCount != null
+                      ? COPY.inviteOnlyVisibility(offer.inviteeCount)
+                      : COPY.inviteOnlyLabel}
                 </span>
               </li>
             ))}

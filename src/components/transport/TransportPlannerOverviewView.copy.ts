@@ -11,6 +11,7 @@ export const TRANSPORT_PLANNER_OVERVIEW_COPY = {
   gapPill: (gap: number) => `${String(gap)} short`,
   heading: "Transportation",
   headingSubtext: "Per-leg capacity and demand",
+  inviteOnlyLabel: "invite-only",
   inviteOnlyVisibility: (count: number) => `invite-only (${String(count)})`,
   okPill: "Covered",
   publicVisibility: "public",
