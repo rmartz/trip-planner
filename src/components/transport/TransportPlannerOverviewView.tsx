@@ -5,23 +5,39 @@ import { TRANSPORT_PLANNER_OVERVIEW_COPY } from "./TransportPlannerOverviewView.
 
 const COPY = TRANSPORT_PLANNER_OVERVIEW_COPY;
 
-export interface TransportLegCapacity {
-  driverCount: number;
+export enum TransportOfferVisibility {
+  InviteOnly = "invite_only",
+  Public = "public",
+}
+
+export interface TransportCarOffer {
+  driverName: string;
+  inviteeCount?: number;
+  routeName: string;
   seatCount: number;
+  visibility: TransportOfferVisibility;
 }
 
 export interface TransportLegDemand {
-  ridersNeeded: number;
+  driving: number;
+  haveOwn: number;
+  needRide: number;
+  noReply: number;
+  skipLeg: number;
 }
 
 export interface TransportLegSummary {
   leg: Leg;
-  capacity: TransportLegCapacity;
   demand: TransportLegDemand;
+  supply: TransportCarOffer[];
 }
 
 export interface TransportPlannerOverviewViewProps {
   legs: TransportLegSummary[];
+}
+
+function totalSeats(supply: TransportCarOffer[]): number {
+  return supply.reduce((acc, offer) => acc + offer.seatCount, 0);
 }
 
 interface LegSectionProps {
@@ -29,8 +45,9 @@ interface LegSectionProps {
 }
 
 function LegSection({ summary }: LegSectionProps) {
-  const { leg, capacity, demand } = summary;
-  const gap = capacity.seatCount - demand.ridersNeeded;
+  const { leg, demand, supply } = summary;
+  const seats = totalSeats(supply);
+  const gap = seats - demand.needRide;
   const isGap = gap < 0;
 
   return (
@@ -54,26 +71,53 @@ function LegSection({ summary }: LegSectionProps) {
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
           <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            {COPY.capacityCardTitle}
+            {COPY.demandCardTitle}
           </p>
           <dl className="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-xs">
-            <dt>{COPY.driverLabel(capacity.driverCount)}</dt>
-            <dd className="text-right font-medium">
-              {COPY.capacityLabel(capacity.seatCount)}
-            </dd>
+            <dt>{COPY.demandDriving}</dt>
+            <dd className="text-right font-medium">{demand.driving}</dd>
+            <dt>{COPY.demandNeedRide}</dt>
+            <dd className="text-right font-medium">{demand.needRide}</dd>
+            <dt>{COPY.demandHaveOwn}</dt>
+            <dd className="text-right font-medium">{demand.haveOwn}</dd>
+            <dt>{COPY.demandSkipLeg}</dt>
+            <dd className="text-right font-medium">{demand.skipLeg}</dd>
+            <dt>{COPY.demandNoReply}</dt>
+            <dd className="text-right font-medium">{demand.noReply}</dd>
           </dl>
         </div>
 
         <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-          <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            {COPY.demandCardTitle}
-          </p>
-          <dl className="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-xs">
-            <dt>{COPY.demandRiders}</dt>
-            <dd className="text-right font-medium">
-              {COPY.passengersLabel(demand.ridersNeeded)}
-            </dd>
-          </dl>
+          <div className="mb-2 flex items-baseline gap-1">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              {COPY.supplyCardTitle}
+            </p>
+            {supply.length > 1 && (
+              <span className="ml-auto flex items-center gap-1 font-mono text-xs text-zinc-400">
+                <span>{COPY.seatsLabel(seats)}</span>
+                <span>·</span>
+                <span>{COPY.driversLabel(supply.length)}</span>
+              </span>
+            )}
+          </div>
+          <ul className="flex flex-col gap-1">
+            {supply.map((offer) => (
+              <li
+                key={offer.routeName}
+                className="flex items-center gap-1 font-mono text-xs"
+              >
+                <span className="flex-1 truncate">{offer.routeName}</span>
+                <span className="text-zinc-400">
+                  {COPY.seatsLabel(offer.seatCount)}
+                </span>
+                <span className="text-zinc-400">
+                  {offer.visibility === TransportOfferVisibility.Public
+                    ? COPY.publicVisibility
+                    : COPY.inviteOnlyVisibility(offer.inviteeCount ?? 0)}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

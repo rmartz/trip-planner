@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { Leg } from "@/lib/types/trip";
 import {
+  TransportOfferVisibility,
   TransportPlannerOverviewView,
   type TransportLegSummary,
 } from "./TransportPlannerOverviewView";
@@ -24,8 +25,15 @@ function makeLegSummary(
 ): TransportLegSummary {
   return {
     leg: makeLeg(),
-    capacity: { driverCount: 1, seatCount: 4 },
-    demand: { ridersNeeded: 3 },
+    demand: { driving: 1, needRide: 3, haveOwn: 0, skipLeg: 0, noReply: 0 },
+    supply: [
+      {
+        driverName: "Marco",
+        routeName: "Marco's car",
+        seatCount: 4,
+        visibility: TransportOfferVisibility.Public,
+      },
+    ],
     ...overrides,
   };
 }
@@ -47,8 +55,15 @@ export const WithGap: Story = {
   args: {
     legs: [
       makeLegSummary({
-        capacity: { driverCount: 1, seatCount: 2 },
-        demand: { ridersNeeded: 5 },
+        demand: { driving: 0, needRide: 5, haveOwn: 0, skipLeg: 0, noReply: 0 },
+        supply: [
+          {
+            driverName: "Marco",
+            routeName: "Marco's car",
+            seatCount: 2,
+            visibility: TransportOfferVisibility.Public,
+          },
+        ],
       }),
     ],
   },
@@ -65,8 +80,33 @@ export const MultipleLegs: Story = {
           legId: "l2",
           name: "Wimberley → San Antonio",
         }),
-        capacity: { driverCount: 0, seatCount: 0 },
-        demand: { ridersNeeded: 4 },
+        demand: { driving: 0, needRide: 4, haveOwn: 0, skipLeg: 0, noReply: 0 },
+        supply: [],
+      }),
+    ],
+  },
+};
+
+export const MultipleDrivers: Story = {
+  args: {
+    legs: [
+      makeLegSummary({
+        demand: { driving: 2, needRide: 5, haveOwn: 1, skipLeg: 0, noReply: 2 },
+        supply: [
+          {
+            driverName: "Marco",
+            routeName: "Marco's car",
+            seatCount: 4,
+            visibility: TransportOfferVisibility.Public,
+          },
+          {
+            driverName: "Tara",
+            routeName: "Tara's SUV",
+            seatCount: 6,
+            visibility: TransportOfferVisibility.InviteOnly,
+            inviteeCount: 3,
+          },
+        ],
       }),
     ],
   },

@@ -22,8 +22,8 @@ export default function TransportPage({ params }: TransportPageProps) {
 
   const legSummaries: TransportLegSummary[] = legs.map((leg) => ({
     leg,
-    capacity: { driverCount: 0, seatCount: 0 },
-    demand: { ridersNeeded: 0 },
+    demand: { driving: 0, needRide: 0, haveOwn: 0, skipLeg: 0, noReply: 0 },
+    supply: [],
   }));
 
   return (
