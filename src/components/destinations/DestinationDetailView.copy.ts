@@ -1,6 +1,7 @@
 export const DESTINATION_DETAIL_COPY = {
-  seasonalityLabel: "Seasonality",
-  noSeasonality: "Not specified",
-  editButton: "Edit",
   backButton: "Back",
+  editButton: "Edit",
+  noSeasonality: "Not specified",
+  seasonalityLabel: "Seasonality",
+  shareButton: "Share",
 } as const;
