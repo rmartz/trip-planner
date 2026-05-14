@@ -7,8 +7,6 @@ vi.mock("@/services/stop-destinations", () => ({
   getTripDestinations: vi.fn(),
 }));
 
-vi.mock("@/services/legs", () => ({}));
-
 vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
