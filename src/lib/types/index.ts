@@ -25,5 +25,6 @@ export { TransportationStatus } from "./transportation";
 export type { TransportationEntry } from "./transportation";
 export { TripPhase, TripRole } from "./trip";
 export type { Trip, TripMember, Stop, Leg } from "./trip";
+export type { TripAvailability } from "./trip-availability";
 export type { UnavailableRange } from "./unavailable-range";
 export type { UserProfile } from "./user-profile";
