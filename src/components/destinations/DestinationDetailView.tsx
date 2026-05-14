@@ -8,12 +8,16 @@ export interface DestinationDetailViewProps {
   destination: Destination;
   onEdit: (destination: Destination) => void;
   onBack: () => void;
+  canShare?: boolean;
+  onShare?: () => void;
 }
 
 export function DestinationDetailView({
   destination,
   onEdit,
   onBack,
+  canShare = false,
+  onShare,
 }: DestinationDetailViewProps) {
   return (
     <div className="flex flex-col gap-4 max-w-md p-6">
@@ -33,13 +37,20 @@ export function DestinationDetailView({
         </p>
       </div>
 
-      <Button
-        onClick={() => {
-          onEdit(destination);
-        }}
-      >
-        {DESTINATION_DETAIL_COPY.editButton}
-      </Button>
+      <div className="flex gap-2">
+        {canShare && (
+          <Button variant="outline" onClick={onShare}>
+            {DESTINATION_DETAIL_COPY.shareButton}
+          </Button>
+        )}
+        <Button
+          onClick={() => {
+            onEdit(destination);
+          }}
+        >
+          {DESTINATION_DETAIL_COPY.editButton}
+        </Button>
+      </div>
     </div>
   );
 }
