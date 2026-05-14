@@ -68,7 +68,9 @@ export function ShareDestinationPickerView({
       )}
 
       {isError && (
-        <p className="text-sm text-red-500">Failed to share destination.</p>
+        <p className="text-sm text-red-500">
+          {SHARE_DESTINATION_PICKER_COPY.errorText}
+        </p>
       )}
 
       <div className="flex justify-end pt-2">

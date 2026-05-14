@@ -5,6 +5,7 @@ import {
 } from "@/lib/firebase/schema/destination";
 import { NotFoundError, PlannerOnlyError } from "./errors";
 import type { Destination } from "@/lib/types/destination";
+import { TripRole } from "@/lib/types/trip";
 
 export async function getDestinationsForUser(
   uid: string,
@@ -55,7 +56,7 @@ export async function shareDestinationToUser(
   }
 
   const role = memberDoc.data()?.["role"] as string | undefined;
-  if (role !== "planner") {
+  if (role !== TripRole.Planner) {
     throw new PlannerOnlyError("Only Planners can share destinations");
   }
 
