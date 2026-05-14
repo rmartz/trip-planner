@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { fn } from "storybook/test";
 import {
   LodgingPlannerOverviewView,
   LodgingVisibility,
@@ -54,6 +55,9 @@ const noHostsStop: LodgingStopSummary = {
 
 const meta: Meta<typeof LodgingPlannerOverviewView> = {
   component: LodgingPlannerOverviewView,
+  args: {
+    onToggleMemberSortedOwn: fn(),
+  },
 };
 
 export default meta;
@@ -81,6 +85,20 @@ export const NoHosts: Story = {
 export const MultipleStops: Story = {
   args: {
     stops: [balancedStop, gapStop, noHostsStop],
+  },
+};
+
+export const WithNonAccountMembers: Story = {
+  args: {
+    stops: [
+      {
+        ...balancedStop,
+        nonAccountMembers: [
+          { memberId: "m-1", name: "Dana", sortedOwnLodging: false },
+          { memberId: "m-2", name: "Eli", sortedOwnLodging: true },
+        ],
+      },
+    ],
   },
 };
 

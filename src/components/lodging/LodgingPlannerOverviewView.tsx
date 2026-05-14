@@ -25,14 +25,26 @@ export interface LodgingDemandBreakdown {
   noReply: number;
 }
 
+export interface NonAccountMember {
+  memberId: string;
+  name: string;
+  sortedOwnLodging: boolean;
+}
+
 export interface LodgingStopSummary {
   stop: Stop;
   demand: LodgingDemandBreakdown;
   supply: LodgingHostOffer[];
+  nonAccountMembers?: NonAccountMember[];
 }
 
 export interface LodgingPlannerOverviewViewProps {
   stops: LodgingStopSummary[];
+  onToggleMemberSortedOwn?: (
+    stopId: string,
+    memberId: string,
+    sorted: boolean,
+  ) => void;
 }
 
 function totalBeds(supply: LodgingHostOffer[]): number {
@@ -51,8 +63,17 @@ function getStatusPill(
   return { label: COPY.gapPill(gap), isGap: true };
 }
 
-function StopSection({ summary }: { summary: LodgingStopSummary }) {
-  const { stop, demand, supply } = summary;
+interface StopSectionProps {
+  onToggleMemberSortedOwn?: (
+    stopId: string,
+    memberId: string,
+    sorted: boolean,
+  ) => void;
+  summary: LodgingStopSummary;
+}
+
+function StopSection({ onToggleMemberSortedOwn, summary }: StopSectionProps) {
+  const { stop, demand, supply, nonAccountMembers } = summary;
   const pill = getStatusPill(demand, supply);
   const beds = totalBeds(supply);
 
@@ -121,11 +142,40 @@ function StopSection({ summary }: { summary: LodgingStopSummary }) {
           </ul>
         </div>
       </div>
+
+      {nonAccountMembers !== undefined && nonAccountMembers.length > 0 && (
+        <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+          <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            {COPY.nonAccountMembersTitle}
+          </p>
+          <ul className="flex flex-col gap-1">
+            {nonAccountMembers.map((member) => (
+              <li key={member.memberId}>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={member.sortedOwnLodging}
+                    onChange={(e) => {
+                      onToggleMemberSortedOwn?.(
+                        stop.stopId,
+                        member.memberId,
+                        e.target.checked,
+                      );
+                    }}
+                  />
+                  {member.name}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
 
 export function LodgingPlannerOverviewView({
+  onToggleMemberSortedOwn,
   stops,
 }: LodgingPlannerOverviewViewProps) {
   return (
@@ -137,7 +187,11 @@ export function LodgingPlannerOverviewView({
 
       <main className="flex flex-col gap-6 p-4">
         {stops.map((summary) => (
-          <StopSection key={summary.stop.stopId} summary={summary} />
+          <StopSection
+            key={summary.stop.stopId}
+            summary={summary}
+            onToggleMemberSortedOwn={onToggleMemberSortedOwn}
+          />
         ))}
       </main>
     </div>
