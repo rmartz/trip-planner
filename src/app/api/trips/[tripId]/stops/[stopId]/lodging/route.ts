@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getLodgingForStop } from "@/services/lodging";
+import { NotFoundError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -13,7 +14,15 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId, stopId } = await params;
-  const records = await getLodgingForStop(tripId, stopId);
+  try {
+    const records = await getLodgingForStop(uid, tripId, stopId);
 
-  return NextResponse.json({ records });
+    return NextResponse.json({ records });
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 404 });
+    }
+
+    throw err;
+  }
 }
