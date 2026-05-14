@@ -64,3 +64,9 @@ export const PastTrip: Story = {
     }),
   },
 };
+
+export const WithLodgingGap: Story = {
+  args: {
+    lodgingGapCount: 2,
+  },
+};

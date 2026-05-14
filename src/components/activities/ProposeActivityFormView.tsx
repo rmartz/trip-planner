@@ -10,20 +10,9 @@ import {
   TimeOfDaySlotType,
   TransportationMode,
 } from "@/lib/types/activity";
-import type {
-  ActivityGroupSize,
-  ActivityTimeOfDaySlot,
-} from "@/lib/types/activity";
+import type { ActivityProposalInput } from "@/lib/types/activity";
 
-export interface ActivityProposalInput {
-  name: string;
-  description?: string;
-  estimatedDurationMinutes: number;
-  timeOfDaySlot?: ActivityTimeOfDaySlot;
-  groupSize?: ActivityGroupSize;
-  costPerPerson?: number;
-  transportationRequired?: TransportationMode;
-}
+export type { ActivityProposalInput };
 
 export interface ProposeActivityFormViewProps {
   onSubmit: (input: ActivityProposalInput) => void;
