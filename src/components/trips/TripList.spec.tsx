@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import { TripList } from "./TripList";
 import { TRIP_LIST_COPY } from "./TripList.copy";
 import { PHASE_PILL_COPY } from "./PhasePill.copy";

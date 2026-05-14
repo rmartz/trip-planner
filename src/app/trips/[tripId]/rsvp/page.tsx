@@ -7,8 +7,8 @@ import { useTrip } from "@/hooks/use-trip";
 import { TripRole } from "@/lib/types/trip";
 import {
   RsvpPageView,
-  RsvpStatus,
   type RsvpScheduledActivity,
+  RsvpStatus,
 } from "./RsvpPageView";
 import { RSVP_PAGE_COPY } from "./RsvpPageView.copy";
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import { NotFoundError, PlannerOnlyError } from "@/services/errors";

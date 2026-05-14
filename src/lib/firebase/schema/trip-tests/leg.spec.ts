@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { firebaseToLeg, legToFirebase } from "../trip";
 
 const MEMBER_UIDS = ["uid-1", "uid-2"];

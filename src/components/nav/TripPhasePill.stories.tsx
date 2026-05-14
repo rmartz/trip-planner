@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { TripPhasePill, TripPhase } from "./TripPhasePill";
+import { TripPhase, TripPhasePill } from "./TripPhasePill";
 
 const meta: Meta<typeof TripPhasePill> = {
   component: TripPhasePill,

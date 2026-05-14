@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import type { Leg } from "@/lib/types/trip";
 import { TripRole } from "@/lib/types/trip";
@@ -10,7 +10,7 @@ vi.mock("@/services/legs", () => ({
   getLegMemberRole: vi.fn(),
 }));
 
-import { getLegsForTrip, addLeg, getLegMemberRole } from "@/services/legs";
+import { addLeg, getLegMemberRole, getLegsForTrip } from "@/services/legs";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {

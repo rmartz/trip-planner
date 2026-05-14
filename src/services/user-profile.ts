@@ -1,8 +1,8 @@
 import {
   doc,
   getDoc,
-  serverTimestamp,
   runTransaction,
+  serverTimestamp,
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { getClientFirestore } from "@/lib/firebase/client";

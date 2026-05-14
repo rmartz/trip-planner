@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { DestinationDetailView } from "./DestinationDetailView";
 import { DESTINATION_DETAIL_COPY } from "./DestinationDetailView.copy";
 import type { Destination } from "@/lib/types/destination";

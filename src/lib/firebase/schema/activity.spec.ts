@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   TimeOfDaySlot,
   TimeOfDaySlotType,
   TransportationMode,
 } from "@/lib/types/activity";
-import { firebaseToActivity, activityToFirebase } from "./activity";
+import { activityToFirebase, firebaseToActivity } from "./activity";
 
 // Criterion 1: Activity has name (required) and optional description fields
 describe("name and description fields", () => {

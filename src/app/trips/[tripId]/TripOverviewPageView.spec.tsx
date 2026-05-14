@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import type { Trip } from "@/lib/types/trip";
 import { TripOverviewPageView } from "./TripOverviewPageView";
 import { TRIP_OVERVIEW_PAGE_COPY } from "./TripOverviewPageView.copy";

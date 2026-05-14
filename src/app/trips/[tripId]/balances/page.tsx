@@ -4,8 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
 import {
-  BalancesPageView,
   type BalanceRow,
+  BalancesPageView,
   type TransferRow,
 } from "./BalancesPageView";
 import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";

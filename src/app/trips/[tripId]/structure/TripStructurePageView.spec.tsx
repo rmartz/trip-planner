@@ -1,6 +1,6 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
-import type { Stop, Leg } from "@/lib/types/trip";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import type { Leg, Stop } from "@/lib/types/trip";
 import { TRIP_STRUCTURE_COPY } from "./copy";
 import { TripStructurePageView } from "./TripStructurePageView";
 

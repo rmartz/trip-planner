@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { addLeg, getLegsForTrip, getLegMemberRole } from "@/services/legs";
+import { addLeg, getLegMemberRole, getLegsForTrip } from "@/services/legs";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {

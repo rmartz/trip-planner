@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import type { Stop } from "@/lib/types/trip";
 import { TripRole } from "@/lib/types/trip";
@@ -10,7 +10,7 @@ vi.mock("@/services/stops", () => ({
   getStopMemberRole: vi.fn(),
 }));
 
-import { getStopsForTrip, addStop, getStopMemberRole } from "@/services/stops";
+import { addStop, getStopMemberRole, getStopsForTrip } from "@/services/stops";
 import { GET, POST } from "./route";
 
 const START = "2025-06-01T00:00:00.000Z";
