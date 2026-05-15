@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import { PlannerOnlyError } from "@/services/errors";
+import { TripRole } from "@/lib/types/trip";
 import type { TripAvailability } from "@/lib/types/trip-availability";
 
 vi.mock("@/services/trip-availability", () => ({
@@ -9,10 +10,15 @@ vi.mock("@/services/trip-availability", () => ({
   setMyTripAvailability: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  getTripMemberRole: vi.fn(),
+}));
+
 import {
   getTripAvailability,
   setMyTripAvailability,
 } from "@/services/trip-availability";
+import { getTripMemberRole } from "@/services/trips";
 import { GET, PUT } from "./route";
 
 afterEach(() => {
@@ -71,9 +77,30 @@ describe("GET /api/trips/[tripId]/availability — unauthenticated", () => {
   });
 });
 
+describe("GET /api/trips/[tripId]/availability — authorization", () => {
+  it("returns 403 when user is not a trip member", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+
+    const response = await GET(makeGetRequest("uid-non-member"), ROUTE_CONTEXT);
+    expect(response.status).toBe(403);
+  });
+
+  it("calls getTripMemberRole with the tripId and uid", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripAvailability).mockResolvedValue([]);
+
+    await GET(makeGetRequest("uid-1"), ROUTE_CONTEXT);
+    expect(vi.mocked(getTripMemberRole)).toHaveBeenCalledWith(
+      "trip-1",
+      "uid-1",
+    );
+  });
+});
+
 describe("GET /api/trips/[tripId]/availability — success", () => {
   it("returns 200 with availability array", async () => {
     const availability = [makeAvailability()];
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getTripAvailability).mockResolvedValue(availability);
 
     const response = await GET(makeGetRequest("uid-1"), ROUTE_CONTEXT);
@@ -84,6 +111,7 @@ describe("GET /api/trips/[tripId]/availability — success", () => {
   });
 
   it("calls getTripAvailability with the tripId", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(getTripAvailability).mockResolvedValue([]);
 
     await GET(makeGetRequest("uid-1"), ROUTE_CONTEXT);
