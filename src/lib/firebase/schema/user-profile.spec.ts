@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
+import { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
 import { firebaseToUserProfile, userProfileToFirebase } from "./user-profile";
 
 describe("firebaseToUserProfile", () => {
@@ -103,5 +104,16 @@ describe("userProfileToFirebase", () => {
     };
     const data = userProfileToFirebase(profile);
     expect(data.createdAt.toDate().toISOString()).toBe(date.toISOString());
+  });
+});
+
+describe("userProfileToFirebase — createdAt is a firebase-admin Timestamp", () => {
+  it("returns a firebase-admin Timestamp for createdAt", () => {
+    const data = userProfileToFirebase({
+      displayName: undefined,
+      email: "a@b.com",
+      createdAt: new Date("2025-07-04T12:00:00Z"),
+    });
+    expect(data.createdAt instanceof AdminTimestamp).toBe(true);
   });
 });
