@@ -1,30 +1,17 @@
 "use client";
 
 import type { Leg } from "@/lib/types/trip";
+import {
+  type TransportCarOffer,
+  type TransportLegDemand,
+  TransportOfferVisibility,
+} from "@/lib/types/transportation";
 import { TRANSPORT_PLANNER_OVERVIEW_COPY } from "./TransportPlannerOverviewView.copy";
 
+export { TransportOfferVisibility };
+export type { TransportCarOffer, TransportLegDemand };
+
 const COPY = TRANSPORT_PLANNER_OVERVIEW_COPY;
-
-export enum TransportOfferVisibility {
-  InviteOnly = "invite_only",
-  Public = "public",
-}
-
-export interface TransportCarOffer {
-  driverName: string;
-  inviteeCount?: number;
-  routeName: string;
-  seatCount: number;
-  visibility: TransportOfferVisibility;
-}
-
-export interface TransportLegDemand {
-  driving: number;
-  haveOwn: number;
-  needRide: number;
-  noReply: number;
-  skipLeg: number;
-}
 
 export interface TransportLegSummary {
   leg: Leg;

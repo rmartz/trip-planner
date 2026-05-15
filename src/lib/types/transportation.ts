@@ -15,3 +15,24 @@ export interface TransportationEntry {
   seatCount?: number;
   ridingWithUid?: string;
 }
+
+export enum TransportOfferVisibility {
+  InviteOnly = "invite_only",
+  Public = "public",
+}
+
+export interface TransportCarOffer {
+  driverName: string;
+  inviteeCount?: number;
+  routeName: string;
+  seatCount: number;
+  visibility: TransportOfferVisibility;
+}
+
+export interface TransportLegDemand {
+  driving: number;
+  haveOwn: number;
+  needRide: number;
+  noReply: number;
+  skipLeg: number;
+}
