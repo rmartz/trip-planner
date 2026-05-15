@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
+import { toDateKey } from "@/lib/dates";
 import { TripAvailabilityGridView } from "./TripAvailabilityGridView";
 
 const DATES = Array.from({ length: 7 }, (_, i) => {
@@ -40,14 +41,6 @@ export const NoSelections: Story = {
     memberCountByDate: {},
   },
 };
-
-function toDateKey(date: Date): string {
-  return [
-    String(date.getFullYear()),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
 
 export const AllAvailable: Story = {
   args: {
