@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
+import { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
 import { NotificationType } from "@/lib/types/notification";
 import type { Notification } from "@/lib/types/notification";
 import { firebaseToNotification, notificationToFirebase } from "./notification";
@@ -254,5 +255,14 @@ describe("notificationToFirebase — maps triggerType", () => {
       makeNotification({ triggerType: NotificationType.VoteReceived }),
     );
     expect(data.triggerType).toBe(NotificationType.VoteReceived);
+  });
+});
+
+describe("notificationToFirebase — createdAt is a firebase-admin Timestamp", () => {
+  it("returns a firebase-admin Timestamp for createdAt", () => {
+    const data = notificationToFirebase(
+      makeNotification({ createdAt: new Date(CREATED_AT) }),
+    );
+    expect(data.createdAt instanceof AdminTimestamp).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
+import { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
 import { firebaseToLodging, lodgingToFirebase } from "./lodging";
 import { LodgingStatus } from "@/lib/types/lodging";
 
@@ -236,5 +237,17 @@ describe("lodgingToFirebase — serializes status and optional fields", () => {
       updatedAt: date,
     });
     expect(data.updatedAt.toDate().toISOString()).toBe(date.toISOString());
+  });
+});
+
+describe("lodgingToFirebase — updatedAt is a firebase-admin Timestamp", () => {
+  it("returns a firebase-admin Timestamp for updatedAt", () => {
+    const data = lodgingToFirebase({
+      uid: "user-1",
+      stopId: "stop-1",
+      status: LodgingStatus.NeedLodging,
+      updatedAt: new Date("2025-06-01T00:00:00Z"),
+    });
+    expect(data.updatedAt instanceof AdminTimestamp).toBe(true);
   });
 });
