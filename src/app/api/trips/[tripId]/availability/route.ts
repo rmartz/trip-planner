@@ -46,6 +46,29 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     );
   }
 
+  const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  if (
+    !rawDates.every((d) => {
+      if (!DATE_KEY_RE.test(d)) return false;
+      const [year, month, day] = d.split("-").map(Number) as [
+        number,
+        number,
+        number,
+      ];
+      const date = new Date(Date.UTC(year, month - 1, day));
+      return (
+        date.getUTCFullYear() === year &&
+        date.getUTCMonth() === month - 1 &&
+        date.getUTCDate() === day
+      );
+    })
+  ) {
+    return NextResponse.json(
+      { error: "availableDates entries must be in YYYY-MM-DD format" },
+      { status: 400 },
+    );
+  }
+
   const { tripId } = await params;
 
   try {
