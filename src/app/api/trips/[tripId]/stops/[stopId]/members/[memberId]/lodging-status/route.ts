@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { setMemberSortedOwnLodging } from "@/services/lodging";
-import { PlannerOnlyError } from "@/services/errors";
+import { NotFoundError, PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -38,6 +38,9 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
       body.sortedOwn,
     );
   } catch (err) {
+    if (err instanceof NotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 404 });
+    }
     if (err instanceof PlannerOnlyError) {
       return NextResponse.json({ error: err.message }, { status: 403 });
     }
