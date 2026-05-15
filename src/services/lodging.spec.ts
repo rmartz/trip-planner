@@ -58,8 +58,17 @@ function makeMockDb() {
     doc: vi.fn(() => stopDoc),
   };
 
+  // Non-account member doc always exists in the happy-path mock
+  const nonAccountDocGet = vi.fn().mockResolvedValue({ exists: true });
+  const nonAccountCollection = {
+    doc: vi.fn(() => ({ get: nonAccountDocGet })),
+  };
+
   const tripDoc = {
-    collection: vi.fn(() => stopsCollection),
+    collection: vi.fn((name: string) => {
+      if (name === "nonAccountMembers") return nonAccountCollection;
+      return stopsCollection;
+    }),
   };
 
   const tripsCollection = {
@@ -399,6 +408,113 @@ describe("setLodgingInvitees", () => {
         updatedAt: expect.anything(),
       }),
     );
+  });
+});
+
+describe("setMemberSortedOwnLodging — non-account member validation", () => {
+  function makeValidationMockDb({
+    nonAccountMemberExists,
+  }: {
+    nonAccountMemberExists: boolean;
+  }) {
+    const nonAccountDocGet = vi.fn().mockResolvedValue({
+      exists: nonAccountMemberExists,
+    });
+    const lodgingDocSet = vi.fn().mockResolvedValue(undefined);
+
+    const nonAccountCollection = {
+      doc: vi.fn(() => ({ get: nonAccountDocGet })),
+    };
+
+    const lodgingCollection = {
+      doc: vi.fn(() => ({ set: lodgingDocSet })),
+    };
+
+    const stopDoc = {
+      collection: vi.fn(() => lodgingCollection),
+    };
+
+    const stopsCollection = {
+      doc: vi.fn(() => stopDoc),
+    };
+
+    const tripDoc = {
+      collection: vi.fn((name: string) => {
+        if (name === "nonAccountMembers") return nonAccountCollection;
+        if (name === "stops") return stopsCollection;
+        return {};
+      }),
+    };
+
+    const mockDb = {
+      collection: vi.fn(() => ({ doc: vi.fn(() => tripDoc) })),
+    };
+
+    return { mockDb, nonAccountDocGet, lodgingDocSet };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+  });
+
+  it("throws NotFoundError when memberId is not in nonAccountMembers", async () => {
+    const { mockDb } = makeValidationMockDb({ nonAccountMemberExists: false });
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(
+      setMemberSortedOwnLodging(
+        "planner-uid",
+        "trip-1",
+        "stop-1",
+        "uid-account",
+        true,
+      ),
+    ).rejects.toThrow(NotFoundError);
+  });
+
+  it("does not write to Firestore when memberId is not a non-account member", async () => {
+    const { mockDb, lodgingDocSet } = makeValidationMockDb({
+      nonAccountMemberExists: false,
+    });
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(
+      setMemberSortedOwnLodging(
+        "planner-uid",
+        "trip-1",
+        "stop-1",
+        "uid-account",
+        true,
+      ),
+    ).rejects.toThrow(NotFoundError);
+
+    expect(lodgingDocSet).not.toHaveBeenCalled();
+  });
+
+  it("succeeds and writes when memberId is a valid non-account member", async () => {
+    const { mockDb, lodgingDocSet } = makeValidationMockDb({
+      nonAccountMemberExists: true,
+    });
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(
+      setMemberSortedOwnLodging(
+        "planner-uid",
+        "trip-1",
+        "stop-1",
+        "member-na-1",
+        true,
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(lodgingDocSet).toHaveBeenCalledOnce();
   });
 });
 
