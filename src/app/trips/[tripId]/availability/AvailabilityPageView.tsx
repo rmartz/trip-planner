@@ -1,18 +1,10 @@
 "use client";
 
 import { ScreenAvailabilityView } from "@/components/trips/ScreenAvailabilityView";
+import { toDateKey } from "@/lib/dates";
 import type { Trip } from "@/lib/types/trip";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
 import { AVAILABILITY_PAGE_COPY } from "./AvailabilityPageView.copy";
-
-/** Returns a "YYYY-MM-DD" key for a Date, using local time. */
-function toDateKey(date: Date): string {
-  return [
-    String(date.getFullYear()),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
 
 /** Returns a Date stripped to midnight local time. */
 function toDay(date: Date): Date {

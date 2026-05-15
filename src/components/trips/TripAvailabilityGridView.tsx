@@ -1,16 +1,8 @@
 "use client";
 
 import { useRef } from "react";
+import { toDateKey } from "@/lib/dates";
 import { TRIP_AVAILABILITY_GRID_COPY } from "./TripAvailabilityGridView.copy";
-
-/** Formats a Date to "YYYY-MM-DD" in local time for use as a map key. */
-function toDateKey(date: Date): string {
-  return [
-    String(date.getFullYear()),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
 
 /** Short day label: "Jun 10". */
 function toShortLabel(date: Date): string {

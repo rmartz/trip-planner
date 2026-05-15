@@ -2,6 +2,7 @@
 
 import type { Trip } from "@/lib/types/trip";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
+import { toDateKey } from "@/lib/dates";
 import {
   getConflictDateKeys,
   getFirstWindowConflict,
@@ -9,15 +10,6 @@ import {
 import { SCREEN_AVAILABILITY_COPY } from "./ScreenAvailabilityView.copy";
 
 const COPY = SCREEN_AVAILABILITY_COPY;
-
-/** Formats a Date to "YYYY-MM-DD" using local time for use as a map key. */
-function toDateKey(date: Date): string {
-  return [
-    String(date.getFullYear()),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
 
 /** Formats a Date to a short label: "Jun 10". */
 function toShortLabel(date: Date): string {
