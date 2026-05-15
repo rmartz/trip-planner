@@ -259,7 +259,7 @@ describe("TripOverviewPageView — lodging gap sub-line", () => {
       name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
     });
     expect(link.textContent).not.toContain(
-      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(2),
+      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(0),
     );
   });
 
@@ -275,7 +275,7 @@ describe("TripOverviewPageView — lodging gap sub-line", () => {
       name: TRIP_OVERVIEW_PAGE_COPY.sectionLodging,
     });
     expect(link.textContent).not.toContain(
-      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(2),
+      TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(1),
     );
   });
 });
