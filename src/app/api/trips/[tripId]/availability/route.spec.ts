@@ -85,6 +85,14 @@ describe("GET /api/trips/[tripId]/availability — authorization", () => {
     expect(response.status).toBe(403);
   });
 
+  it("returns 200 when user is a Guest member", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getTripAvailability).mockResolvedValue([]);
+
+    const response = await GET(makeGetRequest("uid-guest"), ROUTE_CONTEXT);
+    expect(response.status).toBe(200);
+  });
+
   it("calls getTripMemberRole with the tripId and uid", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getTripAvailability).mockResolvedValue([]);
