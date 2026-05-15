@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
 
