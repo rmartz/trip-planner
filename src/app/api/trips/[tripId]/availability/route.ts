@@ -10,6 +10,23 @@ interface RouteContext {
   params: Promise<{ tripId: string }>;
 }
 
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function isValidDateKey(dateKey: string) {
+  const year = Number(dateKey.slice(0, 4));
+  const month = Number(dateKey.slice(5, 7));
+  const day = Number(dateKey.slice(8, 10));
+  const date = new Date(0);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(year, month - 1, day);
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
 export async function GET(request: NextRequest, { params }: RouteContext) {
   const uid = request.headers.get(X_USER_ID_HEADER);
   if (!uid) {
@@ -46,25 +63,16 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
-  if (
-    !rawDates.every((d) => {
-      if (!DATE_KEY_RE.test(d)) return false;
-      const [year, month, day] = d.split("-").map(Number) as [
-        number,
-        number,
-        number,
-      ];
-      const date = new Date(Date.UTC(year, month - 1, day));
-      return (
-        date.getUTCFullYear() === year &&
-        date.getUTCMonth() === month - 1 &&
-        date.getUTCDate() === day
-      );
-    })
-  ) {
+  if (!rawDates.every((d) => DATE_KEY_RE.test(d))) {
     return NextResponse.json(
       { error: "availableDates entries must be in YYYY-MM-DD format" },
+      { status: 400 },
+    );
+  }
+
+  if (!rawDates.every(isValidDateKey)) {
+    return NextResponse.json(
+      { error: "availableDates entries must be valid YYYY-MM-DD dates" },
       { status: 400 },
     );
   }

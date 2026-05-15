@@ -152,6 +152,11 @@ describe("PUT /api/trips/[tripId]/availability — validation", () => {
       ROUTE_CONTEXT,
     );
     expect(response.status).toBe(400);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    expect(body["error"]).toBe(
+      "availableDates entries must be valid YYYY-MM-DD dates",
+    );
   });
 
   it("returns 400 when a date entry has an impossible day for the month", async () => {
@@ -199,6 +204,16 @@ describe("PUT /api/trips/[tripId]/availability — success", () => {
 
     const body = (await response.json()) as Record<string, unknown>;
     expect(body["ok"]).toBe(true);
+  });
+
+  it("returns 200 for calendar-valid dates in years 0000 through 0099", async () => {
+    vi.mocked(setMyTripAvailability).mockResolvedValue(undefined);
+
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["0099-12-31"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(200);
   });
 
   it("calls setMyTripAvailability with uid, tripId, and dates", async () => {
