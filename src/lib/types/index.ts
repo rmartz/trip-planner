@@ -21,7 +21,10 @@ export type { LodgingRecord } from "./lodging";
 export type { NonAccountMember } from "./non-account-member";
 export { NotificationType } from "./notification";
 export type { Notification } from "./notification";
-export { TransportationStatus, TransportOfferVisibility } from "./transportation";
+export {
+  TransportationStatus,
+  TransportOfferVisibility,
+} from "./transportation";
 export type {
   TransportationEntry,
   TransportCarOffer,
