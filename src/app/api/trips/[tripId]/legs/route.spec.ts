@@ -100,7 +100,7 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(data.legs[0]!["toStopId"]).toBe("stop-2");
   });
 
-  it("returns null role when user is not a member", async () => {
+  it("returns null role and null legSummaries when user is not a member", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
@@ -109,8 +109,19 @@ describe("GET /api/trips/[tripId]/legs", () => {
       params: Promise.resolve({ tripId: "trip-1" }),
     });
     expect(response.status).toBe(200);
-    const data = (await response.json()) as { role: null };
+    const data = (await response.json()) as { role: null; legSummaries: null };
     expect(data.role).toBeNull();
+    expect(data.legSummaries).toBeNull();
+  });
+
+  it("does not fetch transportation data for non-members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-stranger");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
   });
 
   it("calls getTripMemberRole and getLegsForTrip with correct tripId", async () => {

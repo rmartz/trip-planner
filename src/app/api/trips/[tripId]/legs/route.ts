@@ -20,11 +20,16 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
-  const [legs, role, entries] = await Promise.all([
+  const [legs, role] = await Promise.all([
     getLegsForTrip(tripId),
     getTripMemberRole(tripId, uid),
-    getTransportationEntriesForTrip(tripId),
   ]);
+
+  if (!role) {
+    return NextResponse.json({ legs, legSummaries: null, role: null });
+  }
+
+  const entries = await getTransportationEntriesForTrip(tripId);
 
   const driverUids = [
     ...new Set(
@@ -45,7 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  return NextResponse.json({ legs, legSummaries, role: role ?? null });
+  return NextResponse.json({ legs, legSummaries, role });
 }
 
 export async function POST(request: NextRequest, { params }: RouteContext) {

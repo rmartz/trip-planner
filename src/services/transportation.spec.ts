@@ -184,13 +184,14 @@ describe("computeLegSummary — demand", () => {
     expect(demand.driving).toBe(0);
   });
 
-  it("counts FlyingOrOther entries in demand.haveOwn", () => {
+  it("counts FlyingOrOther entries in demand.skipLeg", () => {
     const entries = [
       makeEntry({ uid: "uid-1", status: TransportationStatus.FlyingOrOther }),
     ];
     const { demand } = computeLegSummary(["uid-1"], entries, {});
 
-    expect(demand.haveOwn).toBe(1);
+    expect(demand.skipLeg).toBe(1);
+    expect(demand.haveOwn).toBe(0);
     expect(demand.driving).toBe(0);
   });
 
@@ -223,7 +224,7 @@ describe("computeLegSummary — demand", () => {
     expect(demand.noReply).toBe(0);
   });
 
-  it("always produces zero skipLeg", () => {
+  it("produces zero skipLeg when no FlyingOrOther entries are present", () => {
     const { demand } = computeLegSummary([], [], {});
 
     expect(demand.skipLeg).toBe(0);

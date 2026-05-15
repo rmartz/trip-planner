@@ -67,7 +67,7 @@ export function computeLegSummary(
     } else if (entry.status === TransportationStatus.NeedTransportation) {
       demand.needRide++;
     } else if (entry.status === TransportationStatus.FlyingOrOther) {
-      demand.haveOwn++;
+      demand.skipLeg++;
     }
   }
 
