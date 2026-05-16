@@ -25,9 +25,17 @@ export async function setMemberSortedOwnLodging(
   }
 
   const db = getAdminFirestore();
-  const lodgingRef = db
-    .collection("trips")
-    .doc(tripId)
+  const tripRef = db.collection("trips").doc(tripId);
+
+  const nonAccountMemberDoc = await tripRef
+    .collection("nonAccountMembers")
+    .doc(memberId)
+    .get();
+  if (!nonAccountMemberDoc.exists) {
+    throw new NotFoundError("Member not found in non-account members");
+  }
+
+  const lodgingRef = tripRef
     .collection("stops")
     .doc(stopId)
     .collection("lodging")
