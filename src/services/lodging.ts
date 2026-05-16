@@ -73,10 +73,14 @@ export async function getLodgingForStop(
   }
 
   const snapshot = await stopRef.collection("lodging").get();
+  const records = snapshot.docs.map((doc) =>
+    firebaseToLodging(doc.id, stopId, doc.data()),
+  );
+  const viewerStatus = records.find((r) => r.uid === uid)?.status;
 
-  return snapshot.docs
-    .map((doc) => firebaseToLodging(doc.id, stopId, doc.data()))
-    .filter((record) => canViewLodgingRecord(record, uid));
+  return records.filter((record) =>
+    canViewLodgingRecord(record, uid, viewerStatus),
+  );
 }
 
 export async function getLodgingInviteeCandidates(
@@ -129,14 +133,19 @@ export async function setLodgingInvitees(
   });
 }
 
-function canViewLodgingRecord(record: LodgingRecord, uid: string): boolean {
+function canViewLodgingRecord(
+  record: LodgingRecord,
+  uid: string,
+  viewerStatus: LodgingStatus | undefined,
+): boolean {
   if (record.uid === uid) {
     return true;
   }
 
   return (
     record.status === LodgingStatus.SecuredCapacity &&
-    record.invitedUids?.includes(uid) === true
+    record.invitedUids?.includes(uid) === true &&
+    viewerStatus === LodgingStatus.NeedLodging
   );
 }
 
