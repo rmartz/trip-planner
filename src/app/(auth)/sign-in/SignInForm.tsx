@@ -10,6 +10,9 @@ import {
   signInWithApple,
   signInWithGoogle,
 } from "@/services/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { SIGN_IN_COPY } from "./copy";
 
 export default function SignInForm() {
@@ -76,22 +79,22 @@ export default function SignInForm() {
     <div className="w-full max-w-sm space-y-6">
       <h1 className="text-2xl font-semibold">{SIGN_IN_COPY.title}</h1>
       <div className="space-y-3">
-        <button
-          type="button"
+        <Button
+          variant="outline"
           disabled={loading}
           onClick={() => void handleGoogleSignIn()}
-          className="w-full rounded border px-4 py-2 text-sm font-medium disabled:opacity-50"
+          className="w-full"
         >
           {SIGN_IN_COPY.googleButton}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="outline"
           disabled={loading}
           onClick={() => void handleAppleSignIn()}
-          className="w-full rounded border px-4 py-2 text-sm font-medium disabled:opacity-50"
+          className="w-full"
         >
           {SIGN_IN_COPY.appleButton}
-        </button>
+        </Button>
       </div>
       <div className="flex items-center gap-3 text-sm text-gray-400">
         <hr className="flex-1" />
@@ -105,10 +108,8 @@ export default function SignInForm() {
         className="space-y-4"
       >
         <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium">
-            {SIGN_IN_COPY.emailLabel}
-          </label>
-          <input
+          <Label htmlFor="email">{SIGN_IN_COPY.emailLabel}</Label>
+          <Input
             id="email"
             type="email"
             autoComplete="email"
@@ -118,14 +119,12 @@ export default function SignInForm() {
               setEmail(e.target.value);
             }}
             placeholder={SIGN_IN_COPY.emailPlaceholder}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="w-full"
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="password" className="text-sm font-medium">
-            {SIGN_IN_COPY.passwordLabel}
-          </label>
-          <input
+          <Label htmlFor="password">{SIGN_IN_COPY.passwordLabel}</Label>
+          <Input
             id="password"
             type="password"
             autoComplete="current-password"
@@ -134,17 +133,13 @@ export default function SignInForm() {
             onChange={(e) => {
               setPassword(e.target.value);
             }}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="w-full"
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {SIGN_IN_COPY.submitButton}
-        </button>
+        </Button>
       </form>
       <div className="flex items-center justify-between text-sm">
         <Link href="/forgot-password" className="underline">
