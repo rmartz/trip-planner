@@ -52,7 +52,6 @@ export function computeLegSummary(
 
   const demand: TransportLegDemand = {
     driving: 0,
-    haveOwn: 0,
     needRide: 0,
     noReply: memberUids.filter((uid) => !entryUids.has(uid)).length,
     skipLeg: 0,

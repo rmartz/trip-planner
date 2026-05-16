@@ -25,7 +25,7 @@ function makeLegSummary(
 ): TransportLegSummary {
   return {
     leg: makeLeg(),
-    demand: { driving: 1, needRide: 3, haveOwn: 0, skipLeg: 0, noReply: 0 },
+    demand: { driving: 1, needRide: 3, skipLeg: 0, noReply: 0 },
     supply: [
       {
         driverName: "Marco",
@@ -55,7 +55,7 @@ export const WithGap: Story = {
   args: {
     legs: [
       makeLegSummary({
-        demand: { driving: 0, needRide: 5, haveOwn: 0, skipLeg: 0, noReply: 0 },
+        demand: { driving: 0, needRide: 5, skipLeg: 0, noReply: 0 },
         supply: [
           {
             driverName: "Marco",
@@ -80,7 +80,7 @@ export const MultipleLegs: Story = {
           legId: "l2",
           name: "Wimberley → San Antonio",
         }),
-        demand: { driving: 0, needRide: 4, haveOwn: 0, skipLeg: 0, noReply: 0 },
+        demand: { driving: 0, needRide: 4, skipLeg: 0, noReply: 0 },
         supply: [],
       }),
     ],
@@ -91,7 +91,7 @@ export const MultipleDrivers: Story = {
   args: {
     legs: [
       makeLegSummary({
-        demand: { driving: 2, needRide: 5, haveOwn: 1, skipLeg: 0, noReply: 2 },
+        demand: { driving: 2, needRide: 5, skipLeg: 0, noReply: 2 },
         supply: [
           {
             driverName: "Marco",

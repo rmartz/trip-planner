@@ -27,13 +27,13 @@ interface LegSummaryJson {
 
 interface LegsResponse {
   legs: LegJson[];
-  legSummaries: Record<string, LegSummaryJson>;
+  legSummaries: Record<string, LegSummaryJson> | null;
   role: TripRole | null;
 }
 
 async function fetchLegs(tripId: string): Promise<{
   legs: Leg[];
-  legSummaries: Record<string, LegSummaryJson>;
+  legSummaries: Record<string, LegSummaryJson> | null;
   role: TripRole | null;
 }> {
   const response = await fetch(`/api/trips/${tripId}/legs`);

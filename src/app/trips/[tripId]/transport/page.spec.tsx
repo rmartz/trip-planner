@@ -51,7 +51,6 @@ function makeDemand(
 ): TransportLegDemand {
   return {
     driving: 1,
-    haveOwn: 0,
     needRide: 2,
     noReply: 1,
     skipLeg: 0,
@@ -102,7 +101,7 @@ describe("TransportPage — role gating", () => {
       data: {
         legs: [],
         role: TripRole.Guest,
-        legSummaries: {},
+        legSummaries: null,
       },
     } as never);
 
@@ -119,7 +118,7 @@ describe("TransportPage — role gating", () => {
       data: {
         legs: [],
         role: null,
-        legSummaries: {},
+        legSummaries: null,
       },
     } as never);
 
@@ -133,7 +132,7 @@ describe("TransportPage — role gating", () => {
 
 describe("TransportPage — demand and supply wiring", () => {
   it("passes real demand from legSummaries to the planner overview", () => {
-    const demand = makeDemand({ driving: 2, needRide: 3, haveOwn: 1 });
+    const demand = makeDemand({ driving: 2, needRide: 3 });
     vi.mocked(useLegs).mockReturnValue({
       data: {
         legs: [
@@ -164,7 +163,6 @@ describe("TransportPage — demand and supply wiring", () => {
             demand: expect.objectContaining({
               driving: 2,
               needRide: 3,
-              haveOwn: 1,
             }),
           }),
         ],
@@ -238,7 +236,6 @@ describe("TransportPage — demand and supply wiring", () => {
           expect.objectContaining({
             demand: {
               driving: 0,
-              haveOwn: 0,
               needRide: 0,
               noReply: 0,
               skipLeg: 0,

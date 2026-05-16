@@ -7,6 +7,7 @@ import {
 } from "@/services/transportation";
 import { getTripMemberRole } from "@/services/trips";
 import { TransportationStatus } from "@/lib/types/transportation";
+import { TripRole } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -25,8 +26,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     getTripMemberRole(tripId, uid),
   ]);
 
-  if (!role) {
-    return NextResponse.json({ legs, legSummaries: null, role: null });
+  if (role !== TripRole.Planner) {
+    return NextResponse.json({ legs, legSummaries: null, role: role ?? null });
   }
 
   const entries = await getTransportationEntriesForTrip(tripId);

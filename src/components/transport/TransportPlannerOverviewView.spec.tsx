@@ -34,7 +34,6 @@ function makeLegSummary(
     demand: {
       driving: 1,
       needRide: 3,
-      haveOwn: 0,
       skipLeg: 0,
       noReply: 0,
     },
@@ -112,7 +111,6 @@ describe("TransportPlannerOverviewView — status pill", () => {
             demand: {
               driving: 1,
               needRide: 2,
-              haveOwn: 0,
               skipLeg: 0,
               noReply: 0,
             },
@@ -139,7 +137,6 @@ describe("TransportPlannerOverviewView — status pill", () => {
             demand: {
               driving: 0,
               needRide: 5,
-              haveOwn: 0,
               skipLeg: 0,
               noReply: 0,
             },
@@ -173,7 +170,6 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             demand: {
               driving: 2,
               needRide: 0,
-              haveOwn: 0,
               skipLeg: 0,
               noReply: 0,
             },
@@ -193,7 +189,6 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             demand: {
               driving: 0,
               needRide: 4,
-              haveOwn: 0,
               skipLeg: 0,
               noReply: 0,
             },
@@ -205,26 +200,6 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
     expect(screen.getByText("4")).toBeDefined();
   });
 
-  it("renders the have-own count", () => {
-    render(
-      <TransportPlannerOverviewView
-        legs={[
-          makeLegSummary({
-            demand: {
-              driving: 0,
-              needRide: 0,
-              haveOwn: 3,
-              skipLeg: 0,
-              noReply: 0,
-            },
-          }),
-        ]}
-      />,
-    );
-    expect(screen.getByText(COPY.demandHaveOwn)).toBeDefined();
-    expect(screen.getByText("3")).toBeDefined();
-  });
-
   it("renders the no-reply count", () => {
     render(
       <TransportPlannerOverviewView
@@ -233,7 +208,6 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             demand: {
               driving: 0,
               needRide: 0,
-              haveOwn: 0,
               skipLeg: 0,
               noReply: 5,
             },
@@ -253,7 +227,6 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             demand: {
               driving: 0,
               needRide: 0,
-              haveOwn: 0,
               skipLeg: 6,
               noReply: 0,
             },

@@ -65,8 +65,6 @@ function LegSection({ summary }: LegSectionProps) {
             <dd className="text-right font-medium">{demand.driving}</dd>
             <dt>{COPY.demandNeedRide}</dt>
             <dd className="text-right font-medium">{demand.needRide}</dd>
-            <dt>{COPY.demandHaveOwn}</dt>
-            <dd className="text-right font-medium">{demand.haveOwn}</dd>
             <dt>{COPY.demandSkipLeg}</dt>
             <dd className="text-right font-medium">{demand.skipLeg}</dd>
             <dt>{COPY.demandNoReply}</dt>

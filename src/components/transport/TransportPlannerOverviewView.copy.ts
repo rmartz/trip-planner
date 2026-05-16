@@ -1,7 +1,6 @@
 export const TRANSPORT_PLANNER_OVERVIEW_COPY = {
   demandCardTitle: "Demand",
   demandDriving: "Driving",
-  demandHaveOwn: "Have own",
   demandNeedRide: "Need ride",
   demandNoReply: "No reply",
   demandSkipLeg: "Skip leg",

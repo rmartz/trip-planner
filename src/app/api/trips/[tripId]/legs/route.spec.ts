@@ -15,7 +15,7 @@ vi.mock("@/services/trips", () => ({
 
 vi.mock("@/services/transportation", () => ({
   computeLegSummary: vi.fn(() => ({
-    demand: { driving: 0, haveOwn: 0, needRide: 0, noReply: 0, skipLeg: 0 },
+    demand: { driving: 0, needRide: 0, noReply: 0, skipLeg: 0 },
     supply: [],
   })),
   getTransportationEntriesForTrip: vi.fn(() => Promise.resolve([])),
@@ -114,11 +114,38 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(data.legSummaries).toBeNull();
   });
 
+  it("returns null legSummaries and the guest role when user is a Guest", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-guest");
+    const response = await GET(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(200);
+    const data = (await response.json()) as {
+      role: string;
+      legSummaries: null;
+    };
+    expect(data.role).toBe(TripRole.Guest);
+    expect(data.legSummaries).toBeNull();
+  });
+
   it("does not fetch transportation data for non-members", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-stranger");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
+  });
+
+  it("does not fetch transportation data for Guest members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-guest");
     await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
 
     expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
@@ -143,7 +170,7 @@ describe("GET /api/trips/[tripId]/legs", () => {
     vi.mocked(getLegsForTrip).mockResolvedValue([makeLeg({ legId: "leg-1" })]);
     vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
     vi.mocked(computeLegSummary).mockReturnValue({
-      demand: { driving: 2, haveOwn: 1, needRide: 3, noReply: 1, skipLeg: 0 },
+      demand: { driving: 2, needRide: 3, noReply: 1, skipLeg: 0 },
       supply: [],
     });
 

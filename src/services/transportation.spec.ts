@@ -191,7 +191,6 @@ describe("computeLegSummary — demand", () => {
     const { demand } = computeLegSummary(["uid-1"], entries, {});
 
     expect(demand.skipLeg).toBe(1);
-    expect(demand.haveOwn).toBe(0);
     expect(demand.driving).toBe(0);
   });
 
@@ -220,7 +219,6 @@ describe("computeLegSummary — demand", () => {
 
     expect(demand.driving).toBe(0);
     expect(demand.needRide).toBe(0);
-    expect(demand.haveOwn).toBe(0);
     expect(demand.noReply).toBe(0);
   });
 

@@ -13,7 +13,6 @@ import { TRANSPORT_PAGE_COPY } from "./copy";
 
 const EMPTY_DEMAND = {
   driving: 0,
-  haveOwn: 0,
   needRide: 0,
   noReply: 0,
   skipLeg: 0,
@@ -32,8 +31,8 @@ export default function TransportPage({ params }: TransportPageProps) {
 
   const legSummaries: TransportLegSummary[] = legs.map((leg) => ({
     leg,
-    demand: data?.legSummaries[leg.legId]?.demand ?? EMPTY_DEMAND,
-    supply: data?.legSummaries[leg.legId]?.supply ?? [],
+    demand: data?.legSummaries?.[leg.legId]?.demand ?? EMPTY_DEMAND,
+    supply: data?.legSummaries?.[leg.legId]?.supply ?? [],
   }));
 
   return (

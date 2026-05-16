@@ -31,7 +31,6 @@ export interface TransportCarOffer {
 
 export interface TransportLegDemand {
   driving: number;
-  haveOwn: number;
   needRide: number;
   noReply: number;
   skipLeg: number;
