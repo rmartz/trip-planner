@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
-import { PlannerOnlyError } from "@/services/errors";
+import { NotFoundError, PlannerOnlyError } from "@/services/errors";
 
 vi.mock("@/services/lodging", () => ({
   setMemberSortedOwnLodging: vi.fn(),
@@ -52,6 +52,15 @@ describe("PUT /api/trips/[tripId]/stops/[stopId]/members/[memberId]/lodging-stat
     const req = makePutRequest("planner-uid", {});
     const resp = await PUT(req, makeParams("trip-1", "stop-1", "member-1"));
     expect(resp.status).toBe(400);
+  });
+
+  it("returns 404 when service throws NotFoundError", async () => {
+    vi.mocked(setMemberSortedOwnLodging).mockRejectedValue(
+      new NotFoundError("Member not found in non-account members"),
+    );
+    const req = makePutRequest("planner-uid", { sortedOwn: true });
+    const resp = await PUT(req, makeParams("trip-1", "stop-1", "uid-account"));
+    expect(resp.status).toBe(404);
   });
 
   it("returns 403 when service throws PlannerOnlyError", async () => {

@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { TripRole } from "@/lib/types/trip";
 import type { Leg, Stop, Trip, TripMember } from "@/lib/types/trip";
