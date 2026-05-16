@@ -262,6 +262,68 @@ describe("getLodgingForStop", () => {
       "uid-host-invited",
     ]);
   });
+
+  it("hides SecuredCapacity offer from invited viewer whose own status is no longer NeedLodging", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    stopGet.mockResolvedValue({ exists: true });
+    lodgingGet.mockResolvedValue({
+      docs: [
+        { id: "uid-viewer", data: () => ({}) },
+        { id: "uid-host", data: () => ({}) },
+      ],
+    } satisfies MockQuerySnapshot);
+
+    vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
+      expect(stopId).toBe("stop-1");
+      expect(data).toBeDefined();
+      const records: Record<string, LodgingRecord> = {
+        "uid-host": makeRecord({
+          uid: "uid-host",
+          status: LodgingStatus.SecuredCapacity,
+          invitedUids: ["uid-viewer"],
+        }),
+        "uid-viewer": makeRecord({
+          uid: "uid-viewer",
+          status: LodgingStatus.SecuredPrivate,
+        }),
+      };
+      return records[uid] ?? makeRecord({ uid });
+    });
+
+    const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
+    expect(records.map((r) => r.uid)).toEqual(["uid-viewer"]);
+  });
+
+  it("shows SecuredCapacity offer to invited viewer who still has NeedLodging status", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    stopGet.mockResolvedValue({ exists: true });
+    lodgingGet.mockResolvedValue({
+      docs: [
+        { id: "uid-viewer", data: () => ({}) },
+        { id: "uid-host", data: () => ({}) },
+      ],
+    } satisfies MockQuerySnapshot);
+
+    vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
+      expect(stopId).toBe("stop-1");
+      expect(data).toBeDefined();
+      const records: Record<string, LodgingRecord> = {
+        "uid-host": makeRecord({
+          uid: "uid-host",
+          status: LodgingStatus.SecuredCapacity,
+          invitedUids: ["uid-viewer"],
+        }),
+        "uid-viewer": makeRecord({
+          uid: "uid-viewer",
+          status: LodgingStatus.NeedLodging,
+        }),
+      };
+      return records[uid] ?? makeRecord({ uid });
+    });
+
+    const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
+    expect(records.map((r) => r.uid)).toEqual(["uid-viewer", "uid-host"]);
+  });
 });
 
 describe("setLodgingInvitees", () => {
