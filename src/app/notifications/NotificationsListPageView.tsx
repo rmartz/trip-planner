@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  CalendarIcon,
+  CarIcon,
+  DollarSignIcon,
+  HomeIcon,
+  MailIcon,
+  PlaneIcon,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NOTIFICATIONS_LIST_PAGE_COPY } from "./NotificationsListPageView.copy";
 
@@ -43,14 +52,14 @@ function formatRelativeTime(occurredAt: Date, now: Date): string {
   return `${String(diffDays)}d ago`;
 }
 
-function typeIcon(type: NotificationType): string {
-  if (type === NotificationType.ActivityScheduled) return "📅";
-  if (type === NotificationType.ExpenseAdded) return "💰";
-  if (type === NotificationType.LegRemoved) return "✈️";
-  if (type === NotificationType.LodgingOffer) return "🏠";
-  if (type === NotificationType.TransportOffer) return "🚗";
-  return "✉️";
-}
+const NOTIFICATION_TYPE_ICON: Record<NotificationType, LucideIcon> = {
+  [NotificationType.ActivityScheduled]: CalendarIcon,
+  [NotificationType.ExpenseAdded]: DollarSignIcon,
+  [NotificationType.LegRemoved]: PlaneIcon,
+  [NotificationType.LodgingOffer]: HomeIcon,
+  [NotificationType.TransportOffer]: CarIcon,
+  [NotificationType.TripInvitation]: MailIcon,
+};
 
 interface NotificationRowProps {
   notification: NotificationListItem;
@@ -59,6 +68,7 @@ interface NotificationRowProps {
 }
 
 function NotificationRow({ notification, now, onClick }: NotificationRowProps) {
+  const Icon = NOTIFICATION_TYPE_ICON[notification.type];
   return (
     <li data-testid="notification-row" data-read={String(notification.read)}>
       <button
@@ -70,7 +80,9 @@ function NotificationRow({ notification, now, onClick }: NotificationRowProps) {
       >
         <div className="flex items-start justify-between gap-2">
           <span className="flex items-center gap-2 text-sm font-medium">
-            <span aria-hidden>{typeIcon(notification.type)}</span>
+            <span aria-hidden>
+              <Icon className="h-4 w-4" />
+            </span>
             {notification.title}
             {!notification.read && (
               <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-xs font-medium text-white">
