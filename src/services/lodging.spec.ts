@@ -158,7 +158,10 @@ describe("setMemberSortedOwnLodging", () => {
 describe("getLodgingForStop", () => {
   const memberGet = vi.fn();
   const stopGet = vi.fn();
-  const lodgingGet = vi.fn();
+  const ownDocGet = vi.fn();
+  const invitedQueryGet = vi.fn();
+  const firstWhere = vi.fn();
+  const secondWhere = vi.fn();
   const tripCollection = vi.fn();
   const tripDoc = vi.fn();
   const stopDoc = vi.fn();
@@ -170,29 +173,30 @@ describe("getLodgingForStop", () => {
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
 
+    firstWhere.mockReturnValue({ where: secondWhere });
+    secondWhere.mockReturnValue({ get: invitedQueryGet });
+
+    const lodgingCollection = {
+      doc: () => ({ get: ownDocGet }),
+      where: firstWhere,
+    };
+
     tripCollection.mockReturnValue({ doc: tripDoc });
     tripDoc.mockReturnValue({
       collection: (name: string) => {
         if (name === "members") {
-          return {
-            doc: () => ({ get: memberGet }),
-          };
+          return { doc: () => ({ get: memberGet }) };
         }
-
         if (name === "stops") {
           return { doc: stopDoc };
         }
-
         return undefined;
       },
     });
     stopDoc.mockReturnValue({
       get: stopGet,
       collection: (name: string) => {
-        if (name === "lodging") {
-          return { get: lodgingGet };
-        }
-
+        if (name === "lodging") return lodgingCollection;
         return undefined;
       },
     });
@@ -204,7 +208,7 @@ describe("getLodgingForStop", () => {
     await expect(
       getLodgingForStop("uid-viewer", "trip-1", "stop-1"),
     ).rejects.toBeInstanceOf(NotFoundError);
-    expect(lodgingGet).not.toHaveBeenCalled();
+    expect(ownDocGet).not.toHaveBeenCalled();
   });
 
   it("throws when the stop does not exist", async () => {
@@ -214,116 +218,64 @@ describe("getLodgingForStop", () => {
     await expect(
       getLodgingForStop("uid-viewer", "trip-1", "stop-missing"),
     ).rejects.toBeInstanceOf(NotFoundError);
-    expect(lodgingGet).not.toHaveBeenCalled();
+    expect(ownDocGet).not.toHaveBeenCalled();
   });
 
-  it("returns only records visible to the requester", async () => {
+  it("returns empty array when viewer has no lodging record", async () => {
     memberGet.mockResolvedValue({ exists: true });
     stopGet.mockResolvedValue({ exists: true });
-    lodgingGet.mockResolvedValue({
-      docs: [
-        { id: "uid-viewer", data: () => ({ source: "self" }) },
-        { id: "uid-host-invited", data: () => ({ source: "invited" }) },
-        { id: "uid-host-hidden", data: () => ({ source: "hidden" }) },
-        { id: "uid-host-private", data: () => ({ source: "private" }) },
-      ],
-    } satisfies MockQuerySnapshot);
-
-    vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
-      expect(stopId).toBe("stop-1");
-      expect(data).toBeDefined();
-
-      const recordsByUid: Record<string, LodgingRecord> = {
-        "uid-host-hidden": makeRecord({
-          uid: "uid-host-hidden",
-          status: LodgingStatus.SecuredCapacity,
-          invitedUids: ["uid-other"],
-        }),
-        "uid-host-invited": makeRecord({
-          uid: "uid-host-invited",
-          status: LodgingStatus.SecuredCapacity,
-          invitedUids: ["uid-viewer"],
-        }),
-        "uid-host-private": makeRecord({
-          uid: "uid-host-private",
-          status: LodgingStatus.SecuredPrivate,
-          invitedUids: ["uid-viewer"],
-        }),
-        "uid-viewer": makeRecord(),
-      };
-
-      return recordsByUid[uid] ?? makeRecord({ uid });
-    });
+    ownDocGet.mockResolvedValue({ exists: false });
 
     const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
 
-    expect(records.map((record) => record.uid)).toEqual([
-      "uid-viewer",
-      "uid-host-invited",
-    ]);
+    expect(records).toEqual([]);
+    expect(firstWhere).not.toHaveBeenCalled();
   });
 
-  it("hides SecuredCapacity offer from invited viewer whose own status is no longer NeedLodging", async () => {
+  it("returns only own record when viewer status is not NeedLodging", async () => {
     memberGet.mockResolvedValue({ exists: true });
     stopGet.mockResolvedValue({ exists: true });
-    lodgingGet.mockResolvedValue({
-      docs: [
-        { id: "uid-viewer", data: () => ({}) },
-        { id: "uid-host", data: () => ({}) },
-      ],
-    } satisfies MockQuerySnapshot);
-
-    vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
-      expect(stopId).toBe("stop-1");
-      expect(data).toBeDefined();
-      const records: Record<string, LodgingRecord> = {
-        "uid-host": makeRecord({
-          uid: "uid-host",
-          status: LodgingStatus.SecuredCapacity,
-          invitedUids: ["uid-viewer"],
-        }),
-        "uid-viewer": makeRecord({
-          uid: "uid-viewer",
-          status: LodgingStatus.SecuredPrivate,
-        }),
-      };
-      return records[uid] ?? makeRecord({ uid });
-    });
+    ownDocGet.mockResolvedValue({ exists: true, data: () => ({}) });
+    vi.mocked(firebaseToLodging).mockReturnValue(
+      makeRecord({ uid: "uid-viewer", status: LodgingStatus.SecuredPrivate }),
+    );
 
     const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
+
     expect(records.map((r) => r.uid)).toEqual(["uid-viewer"]);
+    expect(firstWhere).not.toHaveBeenCalled();
   });
 
-  it("shows SecuredCapacity offer to invited viewer who still has NeedLodging status", async () => {
+  it("returns own record and invited SecuredCapacity records when viewer needs lodging", async () => {
     memberGet.mockResolvedValue({ exists: true });
     stopGet.mockResolvedValue({ exists: true });
-    lodgingGet.mockResolvedValue({
-      docs: [
-        { id: "uid-viewer", data: () => ({}) },
-        { id: "uid-host", data: () => ({}) },
-      ],
+    ownDocGet.mockResolvedValue({ exists: true, data: () => ({}) });
+    vi.mocked(firebaseToLodging)
+      .mockReturnValueOnce(
+        makeRecord({ uid: "uid-viewer", status: LodgingStatus.NeedLodging }),
+      )
+      .mockReturnValueOnce(
+        makeRecord({ uid: "uid-host", status: LodgingStatus.SecuredCapacity }),
+      );
+    invitedQueryGet.mockResolvedValue({
+      docs: [{ id: "uid-host", data: () => ({}) }],
     } satisfies MockQuerySnapshot);
 
-    vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
-      expect(stopId).toBe("stop-1");
-      expect(data).toBeDefined();
-      const records: Record<string, LodgingRecord> = {
-        "uid-host": makeRecord({
-          uid: "uid-host",
-          status: LodgingStatus.SecuredCapacity,
-          invitedUids: ["uid-viewer"],
-        }),
-        "uid-viewer": makeRecord({
-          uid: "uid-viewer",
-          status: LodgingStatus.NeedLodging,
-        }),
-      };
-      return records[uid] ?? makeRecord({ uid });
-    });
-
     const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
+
     expect(records.map((r) => r.uid)).toEqual(["uid-viewer", "uid-host"]);
+    expect(firstWhere).toHaveBeenCalledWith(
+      "status",
+      "==",
+      LodgingStatus.SecuredCapacity,
+    );
+    expect(secondWhere).toHaveBeenCalledWith(
+      "invitedUids",
+      "array-contains",
+      "uid-viewer",
+    );
   });
+
 });
 
 describe("setLodgingInvitees", () => {
