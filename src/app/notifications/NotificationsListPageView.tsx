@@ -33,7 +33,7 @@ export interface NotificationsListPageViewProps {
 }
 
 function formatRelativeTime(occurredAt: Date, now: Date): string {
-  const diffMs = now.getTime() - occurredAt.getTime();
+  const diffMs = Math.max(0, now.getTime() - occurredAt.getTime());
   const diffMinutes = Math.floor(diffMs / 60000);
   if (diffMinutes < 1) return "just now";
   if (diffMinutes < 60) return `${String(diffMinutes)}m ago`;

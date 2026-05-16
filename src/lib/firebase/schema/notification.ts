@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { NotificationType } from "@/lib/types/notification";
 import type { Notification } from "@/lib/types/notification";
