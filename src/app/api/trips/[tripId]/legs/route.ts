@@ -41,9 +41,16 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   ];
   const displayNameByUid = await resolveDriverDisplayNames(driverUids);
 
+  const entriesByLegId = new Map<string, typeof entries>();
+  for (const entry of entries) {
+    const bucket = entriesByLegId.get(entry.legId) ?? [];
+    bucket.push(entry);
+    entriesByLegId.set(entry.legId, bucket);
+  }
+
   const legSummaries: Record<string, ReturnType<typeof computeLegSummary>> = {};
   for (const leg of legs) {
-    const legEntries = entries.filter((e) => e.legId === leg.legId);
+    const legEntries = entriesByLegId.get(leg.legId) ?? [];
     legSummaries[leg.legId] = computeLegSummary(
       leg.memberUids,
       legEntries,

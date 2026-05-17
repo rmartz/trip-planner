@@ -332,6 +332,63 @@ describe("computeLegSummary — supply", () => {
     expect(supply[0]!.inviteeCount).toBe(1);
   });
 
+  it("counts invitees independently for each driver when multiple drivers exist", () => {
+    const entries = [
+      makeEntry({
+        entryId: "driver-1-entry",
+        uid: "uid-driver-1",
+        status: TransportationStatus.DrivingWithSeats,
+        seatCount: 3,
+      }),
+      makeEntry({
+        entryId: "driver-2-entry",
+        uid: "uid-driver-2",
+        status: TransportationStatus.DrivingWithSeats,
+        seatCount: 4,
+      }),
+      makeEntry({
+        entryId: "rider-a",
+        uid: "uid-rider-a",
+        status: TransportationStatus.RidingWith,
+        ridingWithUid: "uid-driver-1",
+      }),
+      makeEntry({
+        entryId: "rider-b",
+        uid: "uid-rider-b",
+        status: TransportationStatus.RidingWith,
+        ridingWithUid: "uid-driver-2",
+      }),
+      makeEntry({
+        entryId: "rider-c",
+        uid: "uid-rider-c",
+        status: TransportationStatus.RidingWith,
+        ridingWithUid: "uid-driver-2",
+      }),
+    ];
+    const { supply } = computeLegSummary(
+      [
+        "uid-driver-1",
+        "uid-driver-2",
+        "uid-rider-a",
+        "uid-rider-b",
+        "uid-rider-c",
+      ],
+      entries,
+      { "uid-driver-1": "Alice", "uid-driver-2": "Bob" },
+    );
+
+    const alice = supply.find((o) => o.driverName === "Alice");
+    const bob = supply.find((o) => o.driverName === "Bob");
+
+    expect(alice).toBeDefined();
+    expect(alice!.inviteeCount).toBe(1);
+    expect(alice!.seatCount).toBe(2);
+
+    expect(bob).toBeDefined();
+    expect(bob!.inviteeCount).toBe(2);
+    expect(bob!.seatCount).toBe(2);
+  });
+
   it("deducts RidingWith passengers from driver seatCount", () => {
     const entries = [
       makeEntry({
