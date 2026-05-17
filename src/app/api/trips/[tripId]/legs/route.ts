@@ -21,13 +21,16 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
-  const [legs, role] = await Promise.all([
-    getLegsForTrip(tripId),
-    getTripMemberRole(tripId, uid),
-  ]);
+  const role = await getTripMemberRole(tripId, uid);
+
+  if (!role) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const legs = await getLegsForTrip(tripId);
 
   if (role !== TripRole.Planner) {
-    return NextResponse.json({ legs, legSummaries: null, role: role ?? null });
+    return NextResponse.json({ legs, legSummaries: null, role });
   }
 
   const entries = await getTransportationEntriesForTrip(tripId);

@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { DESTINATION_CATALOG_COPY } from "./DestinationCatalog.copy";
 import type { Destination } from "@/lib/types/destination";
 
@@ -38,57 +40,62 @@ function DestinationCard({
         label={DESTINATION_CATALOG_COPY.imagePlaceholderLabel}
       />
       <div className="flex flex-1 flex-col gap-1">
-        <button
-          type="button"
+        <Button
+          variant="link"
+          size="sm"
           onClick={() => {
             onView(destination);
           }}
-          className="self-start text-left font-semibold hover:underline"
+          className="h-auto self-start whitespace-normal p-0 text-left font-semibold"
         >
           {destination.name}
-        </button>
+        </Button>
         {destination.seasonality && (
           <p className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
             {destination.seasonality}
           </p>
         )}
         <div className="mt-1 flex gap-2">
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => {
               onShare(destination);
             }}
-            className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="rounded-full"
           >
             {DESTINATION_CATALOG_COPY.shareButton}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => {
               onAttach(destination);
             }}
-            className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="rounded-full"
           >
             {DESTINATION_CATALOG_COPY.attachButton}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => {
               onView(destination);
             }}
-            className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="rounded-full"
           >
             {DESTINATION_CATALOG_COPY.viewButton}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => {
               onEdit(destination);
             }}
-            className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="rounded-full"
           >
             {DESTINATION_CATALOG_COPY.editButton}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -131,23 +138,17 @@ export function DestinationCatalogView({
             {DESTINATION_CATALOG_COPY.subheading}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onAdd}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
-          {DESTINATION_CATALOG_COPY.addButton}
-        </button>
+        <Button onClick={onAdd}>{DESTINATION_CATALOG_COPY.addButton}</Button>
       </div>
 
-      <input
+      <Input
         type="search"
         placeholder={DESTINATION_CATALOG_COPY.searchPlaceholder}
         value={searchQuery}
         onChange={(e) => {
           onSearchChange(e.target.value);
         }}
-        className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900"
+        className="w-full"
       />
 
       {isLoading && (
