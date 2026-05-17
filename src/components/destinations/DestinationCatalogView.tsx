@@ -46,7 +46,7 @@ function DestinationCard({
           onClick={() => {
             onView(destination);
           }}
-          className="h-auto self-start p-0 text-left font-semibold"
+          className="h-auto self-start whitespace-normal p-0 text-left font-semibold"
         >
           {destination.name}
         </Button>

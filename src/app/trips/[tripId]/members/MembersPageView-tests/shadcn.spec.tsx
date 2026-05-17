@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
 import { MembersPageView } from "../MembersPageView";
+import { MEMBERS_PAGE_COPY } from "../MembersPageView.copy";
 import { TripRole } from "@/lib/types/trip";
 
 afterEach(cleanup);
@@ -36,7 +37,7 @@ function makeNonAccountMember(
 
 describe("MembersPageView — member action buttons use ShadCN Button", () => {
   it("promote and remove buttons render with data-slot='button'", () => {
-    const { container } = render(
+    render(
       <MembersPageView
         currentUserRole={TripRole.Planner}
         accountMembers={[
@@ -53,11 +54,14 @@ describe("MembersPageView — member action buttons use ShadCN Button", () => {
         onRegenInvite={vi.fn()}
       />,
     );
-    expect(container.querySelector('[data-slot="button"]')).not.toBeNull();
+    const promoteButton = screen.getByRole("button", {
+      name: MEMBERS_PAGE_COPY.promoteTo,
+    });
+    expect(promoteButton.getAttribute("data-slot")).toBe("button");
   });
 
   it("add non-account member button renders with data-slot='button'", () => {
-    const { container } = render(
+    render(
       <MembersPageView
         currentUserRole={TripRole.Planner}
         accountMembers={[]}
@@ -72,6 +76,9 @@ describe("MembersPageView — member action buttons use ShadCN Button", () => {
         onRegenInvite={vi.fn()}
       />,
     );
-    expect(container.querySelector('[data-slot="button"]')).not.toBeNull();
+    const addMemberButton = screen.getByRole("button", {
+      name: MEMBERS_PAGE_COPY.addMemberButton,
+    });
+    expect(addMemberButton.getAttribute("data-slot")).toBe("button");
   });
 });
