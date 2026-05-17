@@ -16,7 +16,7 @@ import { chromium } from "playwright";
 import { createServer } from "http";
 import { execSync } from "child_process";
 import { extname, join } from "path";
-import { mkdirSync, readFileSync, writeFileSync } from "fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN ?? "";
 const REPO = process.env.REPO ?? "";
@@ -82,7 +82,7 @@ function startStaticServer() {
       const urlPath = req.url.split("?")[0];
       const filePath = join(
         "storybook-static",
-        urlPath === "/" ? "index.html" : urlPath,
+        urlPath === "/" ? "index.html" : urlPath.replace(/^\//, ""),
       );
       const mime = MIME_TYPES[extname(filePath)] ?? "application/octet-stream";
       try {
@@ -168,6 +168,8 @@ function pushScreenshots(screenshots) {
   }
 
   const prDir = `${tmpDir}/pr-${PR_NUMBER}`;
+  // Clear stale screenshots from previous runs before writing the new set
+  rmSync(prDir, { recursive: true, force: true });
   mkdirSync(prDir, { recursive: true });
 
   const fileNames = screenshots.map(({ story, buffer }) => {
@@ -242,6 +244,10 @@ async function postPrComment(fileNames) {
       `${apiBase}/issues/${PR_NUMBER}/comments?per_page=100&page=${page}`,
       { headers },
     );
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`GitHub API list-comments ${res.status}: ${body}`);
+    }
     const comments = await res.json();
     if (!Array.isArray(comments) || comments.length === 0) break;
 
@@ -256,18 +262,29 @@ async function postPrComment(fileNames) {
   }
 
   if (existingCommentId !== null) {
-    await fetch(`${apiBase}/issues/comments/${existingCommentId}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({ body: commentBody }),
-    });
+    const patchRes = await fetch(
+      `${apiBase}/issues/comments/${existingCommentId}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ body: commentBody }),
+      },
+    );
+    if (!patchRes.ok) {
+      const body = await patchRes.text();
+      throw new Error(`GitHub API update-comment ${patchRes.status}: ${body}`);
+    }
     console.log("Updated existing PR comment.");
   } else {
-    await fetch(`${apiBase}/issues/${PR_NUMBER}/comments`, {
+    const postRes = await fetch(`${apiBase}/issues/${PR_NUMBER}/comments`, {
       method: "POST",
       headers,
       body: JSON.stringify({ body: commentBody }),
     });
+    if (!postRes.ok) {
+      const body = await postRes.text();
+      throw new Error(`GitHub API post-comment ${postRes.status}: ${body}`);
+    }
     console.log("Posted new PR comment.");
   }
 }

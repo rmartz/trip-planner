@@ -4,23 +4,36 @@ on:
   pull_request:
     branches: [main]
 
+# Requires contents:write to push to gh-screenshots branch.
+# Forks get a read-only token regardless of this block, so the job is skipped
+# for forked PRs (see the `if:` condition on the job below).
 permissions:
   contents: write
   pull-requests: write
+
+concurrency:
+  group: screenshots-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   screenshots:
     name: Storybook screenshots
     runs-on: ubuntu-latest
+    # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot push to
+    # gh-screenshots regardless of the permissions block above.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }}
+
       - name: Detect changed story files
         id: stories
         run: |
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.stories.tsx' 2>/dev/null || true)
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.stories.tsx')
           if [ -z "$CHANGED" ]; then
             echo "found=false" >> "$GITHUB_OUTPUT"
           else
