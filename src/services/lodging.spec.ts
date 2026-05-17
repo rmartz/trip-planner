@@ -58,8 +58,17 @@ function makeMockDb() {
     doc: vi.fn(() => stopDoc),
   };
 
+  // Non-account member doc always exists in the happy-path mock
+  const nonAccountDocGet = vi.fn().mockResolvedValue({ exists: true });
+  const nonAccountCollection = {
+    doc: vi.fn(() => ({ get: nonAccountDocGet })),
+  };
+
   const tripDoc = {
-    collection: vi.fn(() => stopsCollection),
+    collection: vi.fn((name: string) => {
+      if (name === "nonAccountMembers") return nonAccountCollection;
+      return stopsCollection;
+    }),
   };
 
   const tripsCollection = {
@@ -149,7 +158,10 @@ describe("setMemberSortedOwnLodging", () => {
 describe("getLodgingForStop", () => {
   const memberGet = vi.fn();
   const stopGet = vi.fn();
-  const lodgingGet = vi.fn();
+  const ownDocGet = vi.fn();
+  const invitedQueryGet = vi.fn();
+  const firstWhere = vi.fn();
+  const secondWhere = vi.fn();
   const tripCollection = vi.fn();
   const tripDoc = vi.fn();
   const stopDoc = vi.fn();
@@ -161,29 +173,30 @@ describe("getLodgingForStop", () => {
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
 
+    firstWhere.mockReturnValue({ where: secondWhere });
+    secondWhere.mockReturnValue({ get: invitedQueryGet });
+
+    const lodgingCollection = {
+      doc: () => ({ get: ownDocGet }),
+      where: firstWhere,
+    };
+
     tripCollection.mockReturnValue({ doc: tripDoc });
     tripDoc.mockReturnValue({
       collection: (name: string) => {
         if (name === "members") {
-          return {
-            doc: () => ({ get: memberGet }),
-          };
+          return { doc: () => ({ get: memberGet }) };
         }
-
         if (name === "stops") {
           return { doc: stopDoc };
         }
-
         return undefined;
       },
     });
     stopDoc.mockReturnValue({
       get: stopGet,
       collection: (name: string) => {
-        if (name === "lodging") {
-          return { get: lodgingGet };
-        }
-
+        if (name === "lodging") return lodgingCollection;
         return undefined;
       },
     });
@@ -195,7 +208,7 @@ describe("getLodgingForStop", () => {
     await expect(
       getLodgingForStop("uid-viewer", "trip-1", "stop-1"),
     ).rejects.toBeInstanceOf(NotFoundError);
-    expect(lodgingGet).not.toHaveBeenCalled();
+    expect(ownDocGet).not.toHaveBeenCalled();
   });
 
   it("throws when the stop does not exist", async () => {
@@ -205,53 +218,62 @@ describe("getLodgingForStop", () => {
     await expect(
       getLodgingForStop("uid-viewer", "trip-1", "stop-missing"),
     ).rejects.toBeInstanceOf(NotFoundError);
-    expect(lodgingGet).not.toHaveBeenCalled();
+    expect(ownDocGet).not.toHaveBeenCalled();
   });
 
-  it("returns only records visible to the requester", async () => {
+  it("returns empty array when viewer has no lodging record", async () => {
     memberGet.mockResolvedValue({ exists: true });
     stopGet.mockResolvedValue({ exists: true });
-    lodgingGet.mockResolvedValue({
-      docs: [
-        { id: "uid-viewer", data: () => ({ source: "self" }) },
-        { id: "uid-host-invited", data: () => ({ source: "invited" }) },
-        { id: "uid-host-hidden", data: () => ({ source: "hidden" }) },
-        { id: "uid-host-private", data: () => ({ source: "private" }) },
-      ],
-    } satisfies MockQuerySnapshot);
-
-    vi.mocked(firebaseToLodging).mockImplementation((uid, stopId, data) => {
-      expect(stopId).toBe("stop-1");
-      expect(data).toBeDefined();
-
-      const recordsByUid: Record<string, LodgingRecord> = {
-        "uid-host-hidden": makeRecord({
-          uid: "uid-host-hidden",
-          status: LodgingStatus.SecuredCapacity,
-          invitedUids: ["uid-other"],
-        }),
-        "uid-host-invited": makeRecord({
-          uid: "uid-host-invited",
-          status: LodgingStatus.SecuredCapacity,
-          invitedUids: ["uid-viewer"],
-        }),
-        "uid-host-private": makeRecord({
-          uid: "uid-host-private",
-          status: LodgingStatus.SecuredPrivate,
-          invitedUids: ["uid-viewer"],
-        }),
-        "uid-viewer": makeRecord(),
-      };
-
-      return recordsByUid[uid] ?? makeRecord({ uid });
-    });
+    ownDocGet.mockResolvedValue({ exists: false });
 
     const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
 
-    expect(records.map((record) => record.uid)).toEqual([
+    expect(records).toEqual([]);
+    expect(firstWhere).not.toHaveBeenCalled();
+  });
+
+  it("returns only own record when viewer status is not NeedLodging", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    stopGet.mockResolvedValue({ exists: true });
+    ownDocGet.mockResolvedValue({ exists: true, data: () => ({}) });
+    vi.mocked(firebaseToLodging).mockReturnValue(
+      makeRecord({ uid: "uid-viewer", status: LodgingStatus.SecuredPrivate }),
+    );
+
+    const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
+
+    expect(records.map((r) => r.uid)).toEqual(["uid-viewer"]);
+    expect(firstWhere).not.toHaveBeenCalled();
+  });
+
+  it("returns own record and invited SecuredCapacity records when viewer needs lodging", async () => {
+    memberGet.mockResolvedValue({ exists: true });
+    stopGet.mockResolvedValue({ exists: true });
+    ownDocGet.mockResolvedValue({ exists: true, data: () => ({}) });
+    vi.mocked(firebaseToLodging)
+      .mockReturnValueOnce(
+        makeRecord({ uid: "uid-viewer", status: LodgingStatus.NeedLodging }),
+      )
+      .mockReturnValueOnce(
+        makeRecord({ uid: "uid-host", status: LodgingStatus.SecuredCapacity }),
+      );
+    invitedQueryGet.mockResolvedValue({
+      docs: [{ id: "uid-host", data: () => ({}) }],
+    } satisfies MockQuerySnapshot);
+
+    const records = await getLodgingForStop("uid-viewer", "trip-1", "stop-1");
+
+    expect(records.map((r) => r.uid)).toEqual(["uid-viewer", "uid-host"]);
+    expect(firstWhere).toHaveBeenCalledWith(
+      "status",
+      "==",
+      LodgingStatus.SecuredCapacity,
+    );
+    expect(secondWhere).toHaveBeenCalledWith(
+      "invitedUids",
+      "array-contains",
       "uid-viewer",
-      "uid-host-invited",
-    ]);
+    );
   });
 });
 
@@ -399,6 +421,113 @@ describe("setLodgingInvitees", () => {
         updatedAt: expect.anything(),
       }),
     );
+  });
+});
+
+describe("setMemberSortedOwnLodging — non-account member validation", () => {
+  function makeValidationMockDb({
+    nonAccountMemberExists,
+  }: {
+    nonAccountMemberExists: boolean;
+  }) {
+    const nonAccountDocGet = vi.fn().mockResolvedValue({
+      exists: nonAccountMemberExists,
+    });
+    const lodgingDocSet = vi.fn().mockResolvedValue(undefined);
+
+    const nonAccountCollection = {
+      doc: vi.fn(() => ({ get: nonAccountDocGet })),
+    };
+
+    const lodgingCollection = {
+      doc: vi.fn(() => ({ set: lodgingDocSet })),
+    };
+
+    const stopDoc = {
+      collection: vi.fn(() => lodgingCollection),
+    };
+
+    const stopsCollection = {
+      doc: vi.fn(() => stopDoc),
+    };
+
+    const tripDoc = {
+      collection: vi.fn((name: string) => {
+        if (name === "nonAccountMembers") return nonAccountCollection;
+        if (name === "stops") return stopsCollection;
+        return {};
+      }),
+    };
+
+    const mockDb = {
+      collection: vi.fn(() => ({ doc: vi.fn(() => tripDoc) })),
+    };
+
+    return { mockDb, nonAccountDocGet, lodgingDocSet };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getLegMemberRole).mockResolvedValue(TripRole.Planner);
+  });
+
+  it("throws NotFoundError when memberId is not in nonAccountMembers", async () => {
+    const { mockDb } = makeValidationMockDb({ nonAccountMemberExists: false });
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(
+      setMemberSortedOwnLodging(
+        "planner-uid",
+        "trip-1",
+        "stop-1",
+        "uid-account",
+        true,
+      ),
+    ).rejects.toThrow(NotFoundError);
+  });
+
+  it("does not write to Firestore when memberId is not a non-account member", async () => {
+    const { mockDb, lodgingDocSet } = makeValidationMockDb({
+      nonAccountMemberExists: false,
+    });
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(
+      setMemberSortedOwnLodging(
+        "planner-uid",
+        "trip-1",
+        "stop-1",
+        "uid-account",
+        true,
+      ),
+    ).rejects.toThrow(NotFoundError);
+
+    expect(lodgingDocSet).not.toHaveBeenCalled();
+  });
+
+  it("succeeds and writes when memberId is a valid non-account member", async () => {
+    const { mockDb, lodgingDocSet } = makeValidationMockDb({
+      nonAccountMemberExists: true,
+    });
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(
+      setMemberSortedOwnLodging(
+        "planner-uid",
+        "trip-1",
+        "stop-1",
+        "member-na-1",
+        true,
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(lodgingDocSet).toHaveBeenCalledOnce();
   });
 });
 

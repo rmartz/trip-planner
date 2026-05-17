@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import { PlannerOnlyError } from "@/services/errors";
+import { TripRole } from "@/lib/types/trip";
 import type { TripAvailability } from "@/lib/types/trip-availability";
 
 vi.mock("@/services/trip-availability", () => ({
@@ -9,10 +10,15 @@ vi.mock("@/services/trip-availability", () => ({
   setMyTripAvailability: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  getTripMemberRole: vi.fn(),
+}));
+
 import {
   getTripAvailability,
   setMyTripAvailability,
 } from "@/services/trip-availability";
+import { getTripMemberRole } from "@/services/trips";
 import { GET, PUT } from "./route";
 
 afterEach(() => {
@@ -71,9 +77,38 @@ describe("GET /api/trips/[tripId]/availability — unauthenticated", () => {
   });
 });
 
+describe("GET /api/trips/[tripId]/availability — authorization", () => {
+  it("returns 403 when user is not a trip member", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+
+    const response = await GET(makeGetRequest("uid-non-member"), ROUTE_CONTEXT);
+    expect(response.status).toBe(403);
+  });
+
+  it("returns 200 when user is a Guest member", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getTripAvailability).mockResolvedValue([]);
+
+    const response = await GET(makeGetRequest("uid-guest"), ROUTE_CONTEXT);
+    expect(response.status).toBe(200);
+  });
+
+  it("calls getTripMemberRole with the tripId and uid", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripAvailability).mockResolvedValue([]);
+
+    await GET(makeGetRequest("uid-1"), ROUTE_CONTEXT);
+    expect(vi.mocked(getTripMemberRole)).toHaveBeenCalledWith(
+      "trip-1",
+      "uid-1",
+    );
+  });
+});
+
 describe("GET /api/trips/[tripId]/availability — success", () => {
   it("returns 200 with availability array", async () => {
     const availability = [makeAvailability()];
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getTripAvailability).mockResolvedValue(availability);
 
     const response = await GET(makeGetRequest("uid-1"), ROUTE_CONTEXT);
@@ -84,6 +119,7 @@ describe("GET /api/trips/[tripId]/availability — success", () => {
   });
 
   it("calls getTripAvailability with the tripId", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(getTripAvailability).mockResolvedValue([]);
 
     await GET(makeGetRequest("uid-1"), ROUTE_CONTEXT);
@@ -129,6 +165,53 @@ describe("PUT /api/trips/[tripId]/availability — validation", () => {
     );
     expect(response.status).toBe(400);
   });
+
+  it("returns 400 when a date entry is not in YYYY-MM-DD format", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["06/10/2025"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when a date entry has unpadded month or day", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["2025-6-1"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when a date entry has an invalid calendar value", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["2025-13-01"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    expect(body["error"]).toBe(
+      "availableDates entries must be valid YYYY-MM-DD dates",
+    );
+  });
+
+  it("returns 400 when a date entry has an impossible day for the month", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["2025-02-30"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when one date in a mixed array is malformed", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", {
+        availableDates: ["2025-06-10", "bad-date", "2025-06-12"],
+      }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
 });
 
 describe("PUT /api/trips/[tripId]/availability — authorization", () => {
@@ -157,6 +240,16 @@ describe("PUT /api/trips/[tripId]/availability — success", () => {
 
     const body = (await response.json()) as Record<string, unknown>;
     expect(body["ok"]).toBe(true);
+  });
+
+  it("returns 200 for calendar-valid dates in years 0000 through 0099", async () => {
+    vi.mocked(setMyTripAvailability).mockResolvedValue(undefined);
+
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["0099-12-31"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(200);
   });
 
   it("calls setMyTripAvailability with uid, tripId, and dates", async () => {

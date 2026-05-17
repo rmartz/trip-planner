@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
+import { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
 import { firebaseToTrip, tripToFirebase } from "../trip";
 
 function makeTimestamp(iso: string) {
@@ -153,5 +154,20 @@ describe("tripToFirebase", () => {
       inviteToken: "tok-xyz",
     });
     expect(data.inviteToken).toBe("tok-xyz");
+  });
+});
+
+describe("tripToFirebase — date fields are firebase-admin Timestamps", () => {
+  it("returns a firebase-admin Timestamp for startDate", () => {
+    const data = tripToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      createdAt: new Date(CREATED_AT),
+      createdBy: "uid-x",
+      memberUids: MEMBER_UIDS,
+      inviteToken: "tok-1",
+    });
+    expect(data.startDate instanceof AdminTimestamp).toBe(true);
   });
 });

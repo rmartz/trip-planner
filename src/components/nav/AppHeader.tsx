@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -29,6 +30,7 @@ export type AppHeaderProps = AppHeaderHomeProps | AppHeaderDrilledProps;
 
 export function AppHeader(props: AppHeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const router = useRouter();
 
   return props.variant === "drilled" ? (
     <AppHeaderView
@@ -71,7 +73,14 @@ export function AppHeader(props: AppHeaderProps) {
             <MenuIcon />
           </Button>
         }
-        rightSlot={<NotificationBell unreadCount={props.unreadCount ?? 0} />}
+        rightSlot={
+          <NotificationBell
+            unreadCount={props.unreadCount ?? 0}
+            onClick={() => {
+              router.push("/notifications");
+            }}
+          />
+        }
       />
     </>
   );

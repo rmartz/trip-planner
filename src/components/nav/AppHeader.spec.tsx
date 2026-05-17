@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { AppHeaderView } from "./AppHeaderView";
+
+vi.mock("next/navigation");
+import { useRouter } from "next/navigation";
+import { AppHeader } from "./AppHeader";
+import { NOTIFICATION_BELL_COPY } from "./NotificationBell.copy";
 
 afterEach(() => {
   cleanup();
@@ -77,5 +82,33 @@ describe("AppHeader renders accessible landmark", () => {
       <AppHeaderView title="Home" leftSlot={undefined} rightSlot={undefined} />,
     );
     expect(document.querySelector("[data-testid='app-header']")).toBeDefined();
+  });
+});
+
+describe("AppHeader — notification bell navigation", () => {
+  it("navigates to /notifications when the bell is clicked", () => {
+    const mockPush = vi.fn();
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+    } as unknown as ReturnType<typeof useRouter>);
+
+    render(
+      <AppHeader
+        variant="home"
+        title="Trips"
+        unreadCount={2}
+        drawerProps={{
+          scope: "user",
+          userEmail: "user@example.com",
+          recentTrips: [],
+          onSignOut: vi.fn(),
+        }}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: NOTIFICATION_BELL_COPY.label }),
+    );
+    expect(mockPush).toHaveBeenCalledWith("/notifications");
   });
 });

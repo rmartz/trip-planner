@@ -25,9 +25,17 @@ export async function setMemberSortedOwnLodging(
   }
 
   const db = getAdminFirestore();
-  const lodgingRef = db
-    .collection("trips")
-    .doc(tripId)
+  const tripRef = db.collection("trips").doc(tripId);
+
+  const nonAccountMemberDoc = await tripRef
+    .collection("nonAccountMembers")
+    .doc(memberId)
+    .get();
+  if (!nonAccountMemberDoc.exists) {
+    throw new NotFoundError("Member not found in non-account members");
+  }
+
+  const lodgingRef = tripRef
     .collection("stops")
     .doc(stopId)
     .collection("lodging")
@@ -64,11 +72,29 @@ export async function getLodgingForStop(
     throw new NotFoundError("Stop not found");
   }
 
-  const snapshot = await stopRef.collection("lodging").get();
+  const lodgingRef = stopRef.collection("lodging");
+  const ownDoc = await lodgingRef.doc(uid).get();
 
-  return snapshot.docs
-    .map((doc) => firebaseToLodging(doc.id, stopId, doc.data()))
-    .filter((record) => canViewLodgingRecord(record, uid));
+  if (!ownDoc.exists) {
+    return [];
+  }
+
+  const ownRecord = firebaseToLodging(uid, stopId, ownDoc.data() ?? {});
+
+  if (ownRecord.status !== LodgingStatus.NeedLodging) {
+    return [ownRecord];
+  }
+
+  const invitedSnapshot = await lodgingRef
+    .where("status", "==", LodgingStatus.SecuredCapacity)
+    .where("invitedUids", "array-contains", uid)
+    .get();
+
+  const invitedRecords = invitedSnapshot.docs.map((doc) =>
+    firebaseToLodging(doc.id, stopId, doc.data()),
+  );
+
+  return [ownRecord, ...invitedRecords];
 }
 
 export async function getLodgingInviteeCandidates(
@@ -119,17 +145,6 @@ export async function setLodgingInvitees(
     invitedUids: uniqueInvitedUids,
     updatedAt: FieldValue.serverTimestamp(),
   });
-}
-
-function canViewLodgingRecord(record: LodgingRecord, uid: string): boolean {
-  if (record.uid === uid) {
-    return true;
-  }
-
-  return (
-    record.status === LodgingStatus.SecuredCapacity &&
-    record.invitedUids?.includes(uid) === true
-  );
 }
 
 async function getTripRefForMember(uid: string, tripId: string) {
