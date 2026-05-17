@@ -13,8 +13,21 @@ vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
 
+vi.mock("@/services/transportation", () => ({
+  computeLegSummary: vi.fn(() => ({
+    demand: { driving: 0, needRide: 0, noReply: 0, skipLeg: 0 },
+    supply: [],
+  })),
+  getTransportationEntriesForTrip: vi.fn(() => Promise.resolve([])),
+  resolveDriverDisplayNames: vi.fn(() => Promise.resolve({})),
+}));
+
 import { addLeg, getLegsForTrip } from "@/services/legs";
 import { getTripMemberRole } from "@/services/trips";
+import {
+  computeLegSummary,
+  getTransportationEntriesForTrip,
+} from "@/services/transportation";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {
@@ -87,7 +100,7 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(data.legs[0]!["toStopId"]).toBe("stop-2");
   });
 
-  it("returns null role when user is not a member", async () => {
+  it("returns null role and null legSummaries when user is not a member", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
@@ -96,8 +109,46 @@ describe("GET /api/trips/[tripId]/legs", () => {
       params: Promise.resolve({ tripId: "trip-1" }),
     });
     expect(response.status).toBe(200);
-    const data = (await response.json()) as { role: null };
+    const data = (await response.json()) as { role: null; legSummaries: null };
     expect(data.role).toBeNull();
+    expect(data.legSummaries).toBeNull();
+  });
+
+  it("returns null legSummaries and the guest role when user is a Guest", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-guest");
+    const response = await GET(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(200);
+    const data = (await response.json()) as {
+      role: string;
+      legSummaries: null;
+    };
+    expect(data.role).toBe(TripRole.Guest);
+    expect(data.legSummaries).toBeNull();
+  });
+
+  it("does not fetch transportation data for non-members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-stranger");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
+  });
+
+  it("does not fetch transportation data for Guest members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-guest");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
   });
 
   it("calls getTripMemberRole and getLegsForTrip with correct tripId", async () => {
@@ -112,6 +163,43 @@ describe("GET /api/trips/[tripId]/legs", () => {
       "uid-1",
     );
     expect(vi.mocked(getLegsForTrip)).toHaveBeenCalledWith("trip-abc");
+  });
+
+  it("includes legSummaries in the response keyed by legId", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getLegsForTrip).mockResolvedValue([makeLeg({ legId: "leg-1" })]);
+    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
+    vi.mocked(computeLegSummary).mockReturnValue({
+      demand: { driving: 2, needRide: 3, noReply: 1, skipLeg: 0 },
+      supply: [],
+    });
+
+    const request = makeGetRequest("uid-planner");
+    const response = await GET(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    const data = (await response.json()) as {
+      legSummaries: Record<
+        string,
+        { demand: { driving: number; needRide: number } }
+      >;
+    };
+
+    expect(data.legSummaries["leg-1"]).toBeDefined();
+    expect(data.legSummaries["leg-1"]!.demand.driving).toBe(2);
+    expect(data.legSummaries["leg-1"]!.demand.needRide).toBe(3);
+  });
+
+  it("fetches transportation entries for the trip", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+
+    const request = makeGetRequest("uid-1", "trip-xyz");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-xyz" }) });
+
+    expect(vi.mocked(getTransportationEntriesForTrip)).toHaveBeenCalledWith(
+      "trip-xyz",
+    );
   });
 });
 
