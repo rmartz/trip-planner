@@ -313,7 +313,7 @@ describe("computeLegSummary — supply", () => {
     expect(supply[0]!.inviteeCount).toBe(1);
   });
 
-  it("subtracts RidingWith passengers from available seatCount for coverage", () => {
+  it("deducts RidingWith passengers from driver seatCount", () => {
     const entries = [
       makeEntry({
         uid: "uid-driver",
