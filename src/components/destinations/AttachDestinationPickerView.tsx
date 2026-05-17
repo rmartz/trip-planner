@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { ATTACH_DESTINATION_PICKER_COPY } from "./AttachDestinationPickerView.copy";
 import type { Destination } from "@/lib/types/destination";
 import type { Stop, Trip } from "@/lib/types/trip";
@@ -12,15 +13,16 @@ interface StopRowProps {
 
 function StopRow({ stop, trip, onSelectStop }: StopRowProps) {
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      className="w-full justify-start"
       onClick={() => {
         onSelectStop(trip, stop);
       }}
-      className="w-full rounded-md border border-zinc-200 px-4 py-2 text-left text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
     >
       {stop.name}
-    </button>
+    </Button>
   );
 }
 
@@ -117,14 +119,14 @@ export function AttachDestinationPickerView({
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="rounded-md border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           {ATTACH_DESTINATION_PICKER_COPY.cancelButton}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { SHARE_DESTINATION_PICKER_COPY } from "./ShareDestinationPickerView.copy";
 import type { Destination } from "@/lib/types/destination";
 
@@ -52,17 +53,18 @@ export function ShareDestinationPickerView({
       {!isLoading && planners.length > 0 && (
         <div className="flex flex-col gap-2">
           {planners.map((planner) => (
-            <button
+            <Button
               key={planner.uid}
               type="button"
+              variant="outline"
+              className="w-full justify-start"
               onClick={() => {
                 onSelectPlanner(planner);
               }}
               disabled={isSubmitting}
-              className="w-full rounded-md border border-zinc-200 px-4 py-2 text-left text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
             >
               {planner.displayName}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -74,14 +76,14 @@ export function ShareDestinationPickerView({
       )}
 
       <div className="flex justify-end pt-2">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="rounded-md border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           {SHARE_DESTINATION_PICKER_COPY.cancelButton}
-        </button>
+        </Button>
       </div>
     </div>
   );

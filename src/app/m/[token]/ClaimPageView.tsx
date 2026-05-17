@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { CLAIM_PAGE_COPY } from "./ClaimPageView.copy";
 
 export interface ClaimContext {
@@ -57,18 +58,12 @@ export function ClaimPageView({
           </div>
 
           <div className="flex flex-col gap-3">
-            <button
-              className="rounded-md bg-zinc-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-              onClick={onClaim}
-            >
+            <Button type="button" onClick={onClaim}>
               {CLAIM_PAGE_COPY.claimButton}
-            </button>
-            <button
-              className="rounded-md border border-zinc-300 px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              onClick={onNotMe}
-            >
+            </Button>
+            <Button type="button" variant="outline" onClick={onNotMe}>
               {CLAIM_PAGE_COPY.notMeButton}
-            </button>
+            </Button>
           </div>
         </>
       )}
