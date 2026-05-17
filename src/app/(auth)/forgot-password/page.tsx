@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import type { FirebaseError } from "firebase/app";
 import { sendPasswordReset } from "@/services/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FORGOT_PASSWORD_COPY } from "./copy";
 
 export default function ForgotPasswordPage() {
@@ -45,10 +48,8 @@ export default function ForgotPasswordPage() {
             className="space-y-4"
           >
             <div className="space-y-1">
-              <label htmlFor="email" className="text-sm font-medium">
-                {FORGOT_PASSWORD_COPY.emailLabel}
-              </label>
-              <input
+              <Label htmlFor="email">{FORGOT_PASSWORD_COPY.emailLabel}</Label>
+              <Input
                 id="email"
                 type="email"
                 autoComplete="email"
@@ -58,17 +59,13 @@ export default function ForgotPasswordPage() {
                   setEmail(e.target.value);
                 }}
                 placeholder={FORGOT_PASSWORD_COPY.emailPlaceholder}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="w-full"
               />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            >
+            <Button type="submit" disabled={loading} className="w-full">
               {FORGOT_PASSWORD_COPY.submitButton}
-            </button>
+            </Button>
           </form>
         </>
       )}

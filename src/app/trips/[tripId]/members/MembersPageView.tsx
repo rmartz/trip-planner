@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { TripRole } from "@/lib/types/trip";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
@@ -40,22 +42,24 @@ function AccountMemberRow({
       {currentUserRole === TripRole.Planner &&
         member.role === TripRole.Guest && (
           <div className="flex gap-2">
-            <button
-              className="text-xs text-zinc-600 underline hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 onPromote(member.uid);
               }}
             >
               {MEMBERS_PAGE_COPY.promoteTo}
-            </button>
-            <button
-              className="text-xs text-red-600 underline hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={() => {
                 onRemove(member.uid);
               }}
             >
               {MEMBERS_PAGE_COPY.removeGuest}
-            </button>
+            </Button>
           </div>
         )}
     </div>
@@ -95,14 +99,15 @@ function NonAccountMemberRow({
         </div>
       </div>
       {currentUserRole === TripRole.Planner && (
-        <button
-          className="text-xs text-zinc-600 underline hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             void navigator.clipboard.writeText(claimUrl);
           }}
         >
           {MEMBERS_PAGE_COPY.claimLinkLabel}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -117,16 +122,15 @@ function AddNonAccountMemberForm({ onSubmit }: AddNonAccountMemberFormProps) {
 
   return (
     <div className="flex gap-2">
-      <input
-        className="flex-1 rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+      <Input
+        className="flex-1"
         placeholder={MEMBERS_PAGE_COPY.addMemberPlaceholder}
         value={name}
         onChange={(e) => {
           setName(e.target.value);
         }}
       />
-      <button
-        className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+      <Button
         onClick={() => {
           if (name.trim()) {
             onSubmit(name.trim());
@@ -135,7 +139,7 @@ function AddNonAccountMemberForm({ onSubmit }: AddNonAccountMemberFormProps) {
         }}
       >
         {MEMBERS_PAGE_COPY.addMemberSubmit}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -229,9 +233,9 @@ export function MembersPageView({
         )}
         {currentUserRole === TripRole.Planner && (
           <div className="mt-2 flex flex-col gap-2">
-            <button className="self-start text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <Button variant="ghost" size="sm" className="self-start">
               {MEMBERS_PAGE_COPY.addMemberButton}
-            </button>
+            </Button>
             <AddNonAccountMemberForm onSubmit={onAddNonAccountMember} />
           </div>
         )}

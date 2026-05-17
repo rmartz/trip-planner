@@ -8,6 +8,9 @@ import {
   useUnavailableRanges,
 } from "@/hooks/use-unavailable-ranges";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { UNAVAILABLE_RANGE_MANAGER_COPY } from "./UnavailableRangeManager.copy";
 
 const COPY = UNAVAILABLE_RANGE_MANAGER_COPY;
@@ -40,15 +43,17 @@ function RangeRow({ range, onDelete, isDeleting }: RangeRowProps) {
           </p>
         )}
       </div>
-      <button
+      <Button
+        variant="destructive"
+        size="sm"
         onClick={() => {
           onDelete(range.rangeId);
         }}
         disabled={isDeleting}
-        className="shrink-0 text-sm text-red-600 hover:text-red-800 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300"
+        className="shrink-0"
       >
         {COPY.deleteButtonLabel}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -80,13 +85,8 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label
-            htmlFor="start-date"
-            className="text-xs font-medium text-zinc-600 dark:text-zinc-400"
-          >
-            {COPY.startDateLabel}
-          </label>
-          <input
+          <Label htmlFor="start-date">{COPY.startDateLabel}</Label>
+          <Input
             id="start-date"
             type="date"
             value={startDate}
@@ -94,17 +94,11 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
               setStartDate(e.target.value);
             }}
             required
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label
-            htmlFor="end-date"
-            className="text-xs font-medium text-zinc-600 dark:text-zinc-400"
-          >
-            {COPY.endDateLabel}
-          </label>
-          <input
+          <Label htmlFor="end-date">{COPY.endDateLabel}</Label>
+          <Input
             id="end-date"
             type="date"
             value={endDate}
@@ -113,18 +107,12 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
               setEndDate(e.target.value);
             }}
             required
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <label
-          htmlFor="range-note"
-          className="text-xs font-medium text-zinc-600 dark:text-zinc-400"
-        >
-          {COPY.noteLabel}
-        </label>
-        <input
+        <Label htmlFor="range-note">{COPY.noteLabel}</Label>
+        <Input
           id="range-note"
           type="text"
           value={note}
@@ -132,16 +120,15 @@ function AddRangeForm({ onSubmit, isPending }: AddRangeFormProps) {
             setNote(e.target.value);
           }}
           placeholder={COPY.notePlaceholder}
-          className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         />
       </div>
-      <button
+      <Button
         type="submit"
         disabled={isPending || !startDate || !endDate}
-        className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        className="self-start"
       >
         {COPY.addButtonLabel}
-      </button>
+      </Button>
     </form>
   );
 }
