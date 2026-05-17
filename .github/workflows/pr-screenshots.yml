@@ -1,0 +1,50 @@
+name: PR Screenshots
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  screenshots:
+    name: Storybook screenshots
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed story files
+        id: stories
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.stories.tsx' 2>/dev/null || true)
+          if [ -z "$CHANGED" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            printf 'files<<EOF\n%s\nEOF\n' "$CHANGED" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: ./.github/actions/setup
+        if: steps.stories.outputs.found == 'true'
+
+      - name: Install Playwright chromium
+        if: steps.stories.outputs.found == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build Storybook
+        if: steps.stories.outputs.found == 'true'
+        run: pnpm build-storybook
+
+      - name: Capture screenshots and post PR comment
+        if: steps.stories.outputs.found == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHANGED_FILES: ${{ steps.stories.outputs.files }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/storybook-screenshots.mjs
