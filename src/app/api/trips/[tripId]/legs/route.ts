@@ -115,6 +115,12 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   const notes = typeof body.notes === "string" ? body.notes : undefined;
 
   const { tripId } = await params;
+  const role = await getTripMemberRole(tripId, uid);
+
+  if (!role) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const legId = await addLeg(
     uid,
     tripId,
