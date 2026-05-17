@@ -222,6 +222,25 @@ describe("computeLegSummary — demand", () => {
     expect(demand.noReply).toBe(0);
   });
 
+  it("ignores entries from removed members not in memberUids", () => {
+    const entries = [
+      makeEntry({
+        uid: "uid-removed",
+        status: TransportationStatus.NeedTransportation,
+      }),
+      makeEntry({
+        entryId: "entry-2",
+        uid: "uid-active",
+        status: TransportationStatus.Driving,
+      }),
+    ];
+    const { demand } = computeLegSummary(["uid-active"], entries, {});
+
+    expect(demand.needRide).toBe(0);
+    expect(demand.driving).toBe(1);
+    expect(demand.noReply).toBe(0);
+  });
+
   it("produces zero skipLeg when no FlyingOrOther entries are present", () => {
     const { demand } = computeLegSummary([], [], {});
 

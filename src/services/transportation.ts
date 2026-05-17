@@ -28,27 +28,16 @@ export async function getTransportationEntriesForTrip(
   });
 }
 
-export async function resolveDriverDisplayNames(
-  uids: string[],
-): Promise<Record<string, string | undefined>> {
-  if (uids.length === 0) return {};
-  const db = getAdminFirestore();
-  const snapshots = await Promise.all(
-    uids.map((uid) => db.collection("users").doc(uid).get()),
-  );
-  const result: Record<string, string | undefined> = {};
-  for (const snap of snapshots) {
-    result[snap.id] = snap.data()?.["displayName"] as string | undefined;
-  }
-  return result;
-}
+export { resolveDisplayNames as resolveDriverDisplayNames } from "./members";
 
 export function computeLegSummary(
   memberUids: string[],
   entries: TransportationEntry[],
   displayNameByUid: Record<string, string | undefined>,
 ): { demand: TransportLegDemand; supply: TransportCarOffer[] } {
-  const entryUids = new Set(entries.map((e) => e.uid));
+  const memberUidSet = new Set(memberUids);
+  const memberEntries = entries.filter((e) => memberUidSet.has(e.uid));
+  const entryUids = new Set(memberEntries.map((e) => e.uid));
 
   const demand: TransportLegDemand = {
     driving: 0,
@@ -57,7 +46,7 @@ export function computeLegSummary(
     skipLeg: 0,
   };
 
-  for (const entry of entries) {
+  for (const entry of memberEntries) {
     if (
       entry.status === TransportationStatus.Driving ||
       entry.status === TransportationStatus.DrivingWithSeats
@@ -70,10 +59,10 @@ export function computeLegSummary(
     }
   }
 
-  const supply: TransportCarOffer[] = entries
+  const supply: TransportCarOffer[] = memberEntries
     .filter((e) => e.status === TransportationStatus.DrivingWithSeats)
     .map((e) => {
-      const inviteeCount = entries.filter(
+      const inviteeCount = memberEntries.filter(
         (r) =>
           r.status === TransportationStatus.RidingWith &&
           r.ridingWithUid === e.uid,
