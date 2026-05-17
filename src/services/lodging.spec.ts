@@ -275,7 +275,6 @@ describe("getLodgingForStop", () => {
       "uid-viewer",
     );
   });
-
 });
 
 describe("setLodgingInvitees", () => {
