@@ -4,7 +4,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TripRole } from "@/lib/types/trip";
 import {
-  TransportationStatus,
   type TransportCarOffer,
   type TransportLegDemand,
   TransportOfferVisibility,
@@ -297,13 +296,5 @@ describe("TransportPage — transport status enum", () => {
         ],
       }),
     );
-  });
-});
-
-// Keep existing TransportationStatus import verified at module level
-describe("TransportationStatus enum availability", () => {
-  it("TransportationStatus values are accessible", () => {
-    expect(TransportationStatus.DrivingWithSeats).toBe("driving-with-seats");
-    expect(TransportationStatus.NeedTransportation).toBe("need-transportation");
   });
 });
