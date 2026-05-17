@@ -165,6 +165,53 @@ describe("PUT /api/trips/[tripId]/availability — validation", () => {
     );
     expect(response.status).toBe(400);
   });
+
+  it("returns 400 when a date entry is not in YYYY-MM-DD format", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["06/10/2025"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when a date entry has unpadded month or day", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["2025-6-1"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when a date entry has an invalid calendar value", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["2025-13-01"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    expect(body["error"]).toBe(
+      "availableDates entries must be valid YYYY-MM-DD dates",
+    );
+  });
+
+  it("returns 400 when a date entry has an impossible day for the month", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["2025-02-30"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when one date in a mixed array is malformed", async () => {
+    const response = await PUT(
+      makePutRequest("uid-1", {
+        availableDates: ["2025-06-10", "bad-date", "2025-06-12"],
+      }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(400);
+  });
 });
 
 describe("PUT /api/trips/[tripId]/availability — authorization", () => {
@@ -193,6 +240,16 @@ describe("PUT /api/trips/[tripId]/availability — success", () => {
 
     const body = (await response.json()) as Record<string, unknown>;
     expect(body["ok"]).toBe(true);
+  });
+
+  it("returns 200 for calendar-valid dates in years 0000 through 0099", async () => {
+    vi.mocked(setMyTripAvailability).mockResolvedValue(undefined);
+
+    const response = await PUT(
+      makePutRequest("uid-1", { availableDates: ["0099-12-31"] }),
+      ROUTE_CONTEXT,
+    );
+    expect(response.status).toBe(200);
   });
 
   it("calls setMyTripAvailability with uid, tripId, and dates", async () => {
