@@ -100,18 +100,25 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(data.legs[0]!["toStopId"]).toBe("stop-2");
   });
 
-  it("returns null role and null legSummaries when user is not a member", async () => {
+  it("returns 403 when user is not a member", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
-    vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-stranger");
     const response = await GET(request, {
       params: Promise.resolve({ tripId: "trip-1" }),
     });
-    expect(response.status).toBe(200);
-    const data = (await response.json()) as { role: null; legSummaries: null };
-    expect(data.role).toBeNull();
-    expect(data.legSummaries).toBeNull();
+    expect(response.status).toBe(403);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("Forbidden");
+  });
+
+  it("does not fetch legs for non-members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+
+    const request = makeGetRequest("uid-stranger");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(getLegsForTrip)).not.toHaveBeenCalled();
   });
 
   it("returns null legSummaries and the guest role when user is a Guest", async () => {
@@ -133,7 +140,6 @@ describe("GET /api/trips/[tripId]/legs", () => {
 
   it("does not fetch transportation data for non-members", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
-    vi.mocked(getLegsForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-stranger");
     await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
