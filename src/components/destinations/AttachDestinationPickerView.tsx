@@ -16,7 +16,7 @@ function StopRow({ stop, trip, onSelectStop }: StopRowProps) {
     <Button
       type="button"
       variant="outline"
-      className="w-full justify-start whitespace-normal"
+      className="h-auto w-full justify-start whitespace-normal"
       onClick={() => {
         onSelectStop(trip, stop);
       }}
