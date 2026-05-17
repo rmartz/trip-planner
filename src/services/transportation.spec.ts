@@ -312,4 +312,64 @@ describe("computeLegSummary — supply", () => {
     expect(supply[0]!.visibility).toBe(TransportOfferVisibility.InviteOnly);
     expect(supply[0]!.inviteeCount).toBe(1);
   });
+
+  it("subtracts RidingWith passengers from available seatCount for coverage", () => {
+    const entries = [
+      makeEntry({
+        uid: "uid-driver",
+        status: TransportationStatus.DrivingWithSeats,
+        seatCount: 4,
+      }),
+      makeEntry({
+        entryId: "entry-2",
+        uid: "uid-rider-1",
+        status: TransportationStatus.RidingWith,
+        ridingWithUid: "uid-driver",
+      }),
+      makeEntry({
+        entryId: "entry-3",
+        uid: "uid-rider-2",
+        status: TransportationStatus.RidingWith,
+        ridingWithUid: "uid-driver",
+      }),
+      makeEntry({
+        entryId: "entry-4",
+        uid: "uid-rider-3",
+        status: TransportationStatus.RidingWith,
+        ridingWithUid: "uid-driver",
+      }),
+      makeEntry({
+        entryId: "entry-5",
+        uid: "uid-needs-1",
+        status: TransportationStatus.NeedTransportation,
+      }),
+      makeEntry({
+        entryId: "entry-6",
+        uid: "uid-needs-2",
+        status: TransportationStatus.NeedTransportation,
+      }),
+    ];
+    const summary = computeLegSummary(
+      [
+        "uid-driver",
+        "uid-rider-1",
+        "uid-rider-2",
+        "uid-rider-3",
+        "uid-needs-1",
+        "uid-needs-2",
+      ],
+      entries,
+      { "uid-driver": "Bob" },
+    );
+
+    const seats = summary.supply.reduce(
+      (acc, offer) => acc + offer.seatCount,
+      0,
+    );
+    const gap = seats - summary.demand.needRide;
+
+    expect(summary.supply[0]!.seatCount).toBe(1);
+    expect(summary.demand.needRide).toBe(2);
+    expect(gap).toBe(-1);
+  });
 });

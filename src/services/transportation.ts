@@ -82,7 +82,7 @@ export function computeLegSummary(
         driverName: displayNameByUid[e.uid] ?? e.uid,
         ...(inviteeCount > 0 ? { inviteeCount } : {}),
         routeName: e.routeName,
-        seatCount: e.seatCount ?? 0,
+        seatCount: Math.max((e.seatCount ?? 0) - inviteeCount, 0),
         visibility:
           inviteeCount > 0
             ? TransportOfferVisibility.InviteOnly
