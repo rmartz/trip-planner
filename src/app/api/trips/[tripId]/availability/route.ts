@@ -4,6 +4,7 @@ import {
   setMyTripAvailability,
 } from "@/services/trip-availability";
 import { PlannerOnlyError } from "@/services/errors";
+import { getTripMemberRole } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -17,6 +18,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
+
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const availability = await getTripAvailability(tripId);
 
   return NextResponse.json({ availability });
