@@ -25,9 +25,17 @@ export async function setMemberSortedOwnLodging(
   }
 
   const db = getAdminFirestore();
-  const lodgingRef = db
-    .collection("trips")
-    .doc(tripId)
+  const tripRef = db.collection("trips").doc(tripId);
+
+  const nonAccountMemberDoc = await tripRef
+    .collection("nonAccountMembers")
+    .doc(memberId)
+    .get();
+  if (!nonAccountMemberDoc.exists) {
+    throw new NotFoundError("Member not found in non-account members");
+  }
+
+  const lodgingRef = tripRef
     .collection("stops")
     .doc(stopId)
     .collection("lodging")
@@ -65,10 +73,14 @@ export async function getLodgingForStop(
   }
 
   const snapshot = await stopRef.collection("lodging").get();
+  const records = snapshot.docs.map((doc) =>
+    firebaseToLodging(doc.id, stopId, doc.data()),
+  );
+  const viewerStatus = records.find((r) => r.uid === uid)?.status;
 
-  return snapshot.docs
-    .map((doc) => firebaseToLodging(doc.id, stopId, doc.data()))
-    .filter((record) => canViewLodgingRecord(record, uid));
+  return records.filter((record) =>
+    canViewLodgingRecord(record, uid, viewerStatus),
+  );
 }
 
 export async function getLodgingInviteeCandidates(
@@ -121,14 +133,19 @@ export async function setLodgingInvitees(
   });
 }
 
-function canViewLodgingRecord(record: LodgingRecord, uid: string): boolean {
+function canViewLodgingRecord(
+  record: LodgingRecord,
+  uid: string,
+  viewerStatus: LodgingStatus | undefined,
+): boolean {
   if (record.uid === uid) {
     return true;
   }
 
   return (
     record.status === LodgingStatus.SecuredCapacity &&
-    record.invitedUids?.includes(uid) === true
+    record.invitedUids?.includes(uid) === true &&
+    viewerStatus === LodgingStatus.NeedLodging
   );
 }
 

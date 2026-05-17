@@ -344,3 +344,24 @@ describe("NotificationsListPageView — notification click", () => {
     expect(onNotificationClick).toHaveBeenCalledWith("n-42");
   });
 });
+
+describe("NotificationsListPageView — future timestamps", () => {
+  it("displays 'just now' when the notification timestamp is in the future", () => {
+    render(
+      <NotificationsListPageView
+        notifications={[
+          makeNotification({
+            notificationId: "n-future",
+            occurredAt: new Date("2026-05-11T10:05:00Z"),
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        now={new Date("2026-05-11T10:00:00Z")}
+        onMarkAllRead={vi.fn()}
+        onNotificationClick={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("just now")).toBeDefined();
+  });
+});
