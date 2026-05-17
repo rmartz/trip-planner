@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { SCREEN_DESTINATIONS_TRIP_COPY } from "./ScreenDestinationsTripView.copy";
 import type { TripDestination } from "@/lib/types/destination";
 
@@ -45,14 +46,15 @@ export function ScreenDestinationsTripView({
     <div className="flex flex-col min-h-screen">
       <header className="flex items-center justify-between px-4 py-3 border-b">
         <div>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={onBack}
-            className="mb-1 text-sm text-zinc-500 hover:underline"
+            className="mb-1 h-auto p-0 text-sm text-zinc-500 hover:underline"
             aria-label="Go back"
           >
             ←
-          </button>
+          </Button>
           <h1 className="text-lg font-semibold">
             {SCREEN_DESTINATIONS_TRIP_COPY.heading}
           </h1>
@@ -60,13 +62,9 @@ export function ScreenDestinationsTripView({
             {SCREEN_DESTINATIONS_TRIP_COPY.subheading}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onAdd}
-          className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
+        <Button type="button" onClick={onAdd}>
           {SCREEN_DESTINATIONS_TRIP_COPY.addButton}
-        </button>
+        </Button>
       </header>
 
       <main className="flex flex-col gap-2 p-4 flex-1">
