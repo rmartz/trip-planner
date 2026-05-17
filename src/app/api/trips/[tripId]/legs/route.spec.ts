@@ -28,6 +28,8 @@ import {
   computeLegSummary,
   getTransportationEntriesForTrip,
 } from "@/services/transportation";
+import { TransportationStatus } from "@/lib/types/transportation";
+import type { TransportationEntry } from "@/lib/types/transportation";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {
@@ -206,6 +208,46 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(vi.mocked(getTransportationEntriesForTrip)).toHaveBeenCalledWith(
       "trip-xyz",
     );
+  });
+
+  it("passes only entries matching each leg's legId to computeLegSummary", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getLegsForTrip).mockResolvedValue([
+      makeLeg({ legId: "leg-A", memberUids: ["uid-1"] }),
+      makeLeg({ legId: "leg-B", memberUids: ["uid-2"] }),
+    ]);
+
+    const entryA: TransportationEntry = {
+      entryId: "entry-1",
+      legId: "leg-A",
+      uid: "uid-1",
+      status: TransportationStatus.Driving,
+      routeName: "Route A",
+    };
+    const entryB: TransportationEntry = {
+      entryId: "entry-2",
+      legId: "leg-B",
+      uid: "uid-2",
+      status: TransportationStatus.Driving,
+      routeName: "Route B",
+    };
+    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([
+      entryA,
+      entryB,
+    ]);
+
+    const request = makeGetRequest("uid-planner");
+    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    const calls = vi.mocked(computeLegSummary).mock.calls;
+    const callForLegA = calls.find((c) => c[0].includes("uid-1"));
+    const callForLegB = calls.find((c) => c[0].includes("uid-2"));
+
+    expect(callForLegA).toBeDefined();
+    expect(callForLegA![1]).toEqual([entryA]);
+
+    expect(callForLegB).toBeDefined();
+    expect(callForLegB![1]).toEqual([entryB]);
   });
 });
 

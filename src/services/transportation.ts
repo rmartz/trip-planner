@@ -59,14 +59,23 @@ export function computeLegSummary(
     }
   }
 
+  const ridersPerDriverUid = new Map<string, number>();
+  for (const entry of memberEntries) {
+    if (
+      entry.status === TransportationStatus.RidingWith &&
+      entry.ridingWithUid !== undefined
+    ) {
+      ridersPerDriverUid.set(
+        entry.ridingWithUid,
+        (ridersPerDriverUid.get(entry.ridingWithUid) ?? 0) + 1,
+      );
+    }
+  }
+
   const supply: TransportCarOffer[] = memberEntries
     .filter((e) => e.status === TransportationStatus.DrivingWithSeats)
     .map((e) => {
-      const inviteeCount = memberEntries.filter(
-        (r) =>
-          r.status === TransportationStatus.RidingWith &&
-          r.ridingWithUid === e.uid,
-      ).length;
+      const inviteeCount = ridersPerDriverUid.get(e.uid) ?? 0;
       return {
         driverName: displayNameByUid[e.uid] ?? e.uid,
         ...(inviteeCount > 0 ? { inviteeCount } : {}),
