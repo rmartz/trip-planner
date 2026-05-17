@@ -32,7 +32,7 @@ export async function getMembersForTrip(
   );
 
   const uids = rawAccountMembers.map((m) => m.uid);
-  const displayNameByUid = await resolveDisplayNames(db, uids);
+  const displayNameByUid = await resolveDisplayNames(uids);
 
   const accountMembers = rawAccountMembers.map((m) => ({
     ...m,
@@ -42,11 +42,11 @@ export async function getMembersForTrip(
   return { accountMembers, nonAccountMembers };
 }
 
-async function resolveDisplayNames(
-  db: ReturnType<typeof getAdminFirestore>,
+export async function resolveDisplayNames(
   uids: string[],
 ): Promise<Record<string, string | undefined>> {
   if (uids.length === 0) return {};
+  const db = getAdminFirestore();
   const snapshots = await Promise.all(
     uids.map((uid) => db.collection("users").doc(uid).get()),
   );

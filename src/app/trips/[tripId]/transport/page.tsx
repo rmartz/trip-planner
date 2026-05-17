@@ -11,6 +11,13 @@ import { useLegs } from "@/hooks/use-legs";
 import { TripRole } from "@/lib/types/trip";
 import { TRANSPORT_PAGE_COPY } from "./copy";
 
+const EMPTY_DEMAND = {
+  driving: 0,
+  needRide: 0,
+  noReply: 0,
+  skipLeg: 0,
+};
+
 interface TransportPageProps {
   params: Promise<{ tripId: string }>;
 }
@@ -24,8 +31,8 @@ export default function TransportPage({ params }: TransportPageProps) {
 
   const legSummaries: TransportLegSummary[] = legs.map((leg) => ({
     leg,
-    demand: { driving: 0, needRide: 0, haveOwn: 0, skipLeg: 0, noReply: 0 },
-    supply: [],
+    demand: data?.legSummaries?.[leg.legId]?.demand ?? EMPTY_DEMAND,
+    supply: data?.legSummaries?.[leg.legId]?.supply ?? [],
   }));
 
   return (
