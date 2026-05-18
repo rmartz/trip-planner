@@ -1,12 +1,13 @@
 export const TRIP_DASHBOARD_COPY = {
   appTitle: "Trip Planner",
-  openMenuAriaLabel: "Open menu",
+  activeTripsHeading: "Active",
+  gapCountLabel: (count: number) => `${String(count)} gaps`,
   notificationsAriaLabel: "Notifications",
-  quickAccessHeading: "Quick Access",
+  openMenuAriaLabel: "Open menu",
+  pastTripsHeading: "Past",
   quickAccessCalendar: "Calendar",
   quickAccessDestinations: "Destinations",
+  quickAccessHeading: "Quick Access",
   quickAccessNotifications: "Notifications",
   quickAccessTrips: "Trips",
-  activeTripsHeading: "Active",
-  pastTripsHeading: "Past",
 } as const;
