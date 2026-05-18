@@ -11,6 +11,12 @@ export async function getTripById(tripId: string): Promise<Trip | undefined> {
   return firebaseToTrip(doc.id, doc.data() ?? {});
 }
 
+export async function getTripMemberUids(tripId: string): Promise<string[]> {
+  const db = getAdminFirestore();
+  const doc = await db.collection("trips").doc(tripId).get();
+  return (doc.data()?.["memberUids"] as string[] | undefined) ?? [];
+}
+
 export async function getTripMemberRole(
   tripId: string,
   uid: string,

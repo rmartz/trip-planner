@@ -5,7 +5,7 @@ import {
   getTransportationEntriesForTrip,
   resolveDriverDisplayNames,
 } from "@/services/transportation";
-import { getTripMemberRole } from "@/services/trips";
+import { getTripMemberRole, getTripMemberUids } from "@/services/trips";
 import { TransportationStatus } from "@/lib/types/transportation";
 import { TripRole } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
@@ -33,7 +33,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ legs, legSummaries: null, role });
   }
 
-  const entries = await getTransportationEntriesForTrip(tripId);
+  const [entries, tripMemberUids] = await Promise.all([
+    getTransportationEntriesForTrip(tripId),
+    getTripMemberUids(tripId),
+  ]);
 
   const driverUids = [
     ...new Set(
@@ -55,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   for (const leg of legs) {
     const legEntries = entriesByLegId.get(leg.legId) ?? [];
     legSummaries[leg.legId] = computeLegSummary(
-      leg.memberUids,
+      tripMemberUids,
       legEntries,
       displayNameByUid,
     );
