@@ -52,7 +52,7 @@ const meta: Meta<typeof ExpensesListPageView> = {
         expenseId: "e-4",
         title: "Museum tickets",
         amountCents: 2500,
-        category: ExpenseCategory.Activities,
+        category: ExpenseCategory.Activity,
         payerName: "Alice",
       }),
     ],

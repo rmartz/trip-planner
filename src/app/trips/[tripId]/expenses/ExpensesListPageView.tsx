@@ -1,17 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ExpenseCategory } from "@/lib/types/expense";
 import { EXPENSES_LIST_PAGE_COPY } from "./ExpensesListPageView.copy";
 
-const COPY = EXPENSES_LIST_PAGE_COPY;
+export { ExpenseCategory };
 
-export enum ExpenseCategory {
-  Activities = "activities",
-  Food = "food",
-  Lodging = "lodging",
-  Other = "other",
-  Transport = "transport",
-}
+const COPY = EXPENSES_LIST_PAGE_COPY;
 
 export interface ExpenseListItem {
   amountCents: number;
@@ -43,7 +38,7 @@ function formatAmount(amountCents: number, currency: string): string {
 }
 
 function categoryLabel(category: ExpenseCategory): string {
-  if (category === ExpenseCategory.Activities) return "Activities";
+  if (category === ExpenseCategory.Activity) return "Activity";
   if (category === ExpenseCategory.Food) return "Food";
   if (category === ExpenseCategory.Lodging) return "Lodging";
   if (category === ExpenseCategory.Transport) return "Transport";

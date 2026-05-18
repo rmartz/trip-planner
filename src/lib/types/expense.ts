@@ -30,6 +30,7 @@ export interface Expense {
   tripId: string;
   name: string;
   amount: number;
+  currency: string;
   category: ExpenseCategory;
   payerUid: string;
   participantUids: string[];

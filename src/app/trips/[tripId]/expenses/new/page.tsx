@@ -3,6 +3,16 @@
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
+import { useCreateExpense } from "@/hooks/use-create-expense";
+import { useLegs } from "@/hooks/use-legs";
+import { useStops } from "@/hooks/use-stops";
+import { useTripMembers } from "@/hooks/use-trip-members";
+import {
+  ExpenseCategory,
+  ExpenseLinkedEntityType,
+  ExpenseSplitMethod,
+} from "@/lib/types/expense";
+import type { ExpenseLinkedEntity } from "@/lib/types/expense";
 import {
   ExpenseEntryFormView,
   type ExpenseEntryLinkedEntityOption,
@@ -10,17 +20,11 @@ import {
 } from "./ExpenseEntryFormView";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 
-const STUB_MEMBERS: ExpenseEntryMemberOption[] = [
-  { memberId: "member-alice", name: "Alice" },
-  { memberId: "member-bob", name: "Bob" },
-  { memberId: "member-carol", name: "Carol" },
-];
-
-const STUB_LINKED_ENTITIES: ExpenseEntryLinkedEntityOption[] = [
-  { entityId: "stop-paris", label: "Paris stop" },
-  { entityId: "lodging-1", label: "Lyon hotel" },
-  { entityId: "transport-1", label: "Paris → Lyon train" },
-];
+interface LinkedEntityMeta {
+  entityId: string;
+  label: string;
+  type: ExpenseLinkedEntityType;
+}
 
 export default function NewExpensePage() {
   const params = useParams<{ tripId: string }>();
@@ -28,6 +32,43 @@ export default function NewExpensePage() {
   const tripId = params.tripId;
 
   const { data: trip } = useTrip(tripId);
+  const { data: members } = useTripMembers(tripId);
+  const { data: stopsData } = useStops(tripId);
+  const { data: legsData } = useLegs(tripId);
+  const createExpense = useCreateExpense(tripId);
+
+  const memberOptions: ExpenseEntryMemberOption[] = (members ?? []).map(
+    (m) => ({
+      memberId: m.uid,
+      name: m.displayName ?? m.uid,
+    }),
+  );
+
+  const linkedEntityMetas: LinkedEntityMeta[] = [
+    ...(stopsData?.stops ?? []).map((s) => ({
+      entityId: s.stopId,
+      label: s.name,
+      type: ExpenseLinkedEntityType.Stop,
+    })),
+    ...(legsData?.legs ?? []).map((l) => ({
+      entityId: l.legId,
+      label: l.name,
+      type: ExpenseLinkedEntityType.Leg,
+    })),
+  ];
+
+  const linkedEntityOptions: ExpenseEntryLinkedEntityOption[] =
+    linkedEntityMetas.map(({ entityId, label }) => ({ entityId, label }));
+
+  function resolveLinkedEntity(
+    entityId: string,
+  ): ExpenseLinkedEntity | undefined {
+    const meta = linkedEntityMetas.find((m) => m.entityId === entityId);
+    if (!meta) return undefined;
+    return { entityId: meta.entityId, label: meta.label, type: meta.type };
+  }
+
+  const initialPayerId = members?.[0]?.uid;
 
   return (
     <AppShell
@@ -40,13 +81,34 @@ export default function NewExpensePage() {
       }}
     >
       <ExpenseEntryFormView
-        initialPayerId={STUB_MEMBERS[0]?.memberId}
-        memberOptions={STUB_MEMBERS}
-        linkedEntityOptions={STUB_LINKED_ENTITIES}
+        initialPayerId={initialPayerId}
+        isSubmitting={createExpense.isPending}
+        memberOptions={memberOptions}
+        linkedEntityOptions={linkedEntityOptions}
         onSubmit={(input) => {
-          // Persistence is out of scope for this scaffold (#57).
-          void input;
-          router.push(`/trips/${tripId}/expenses`);
+          const linkedEntity =
+            input.linkedEntityId !== undefined
+              ? resolveLinkedEntity(input.linkedEntityId)
+              : undefined;
+
+          createExpense.mutate(
+            {
+              tripId,
+              name: input.description ?? "",
+              amount: input.amountCents / 100,
+              currency: input.currency,
+              category: input.category as unknown as ExpenseCategory,
+              payerUid: input.payerMemberId,
+              participantUids: input.participantMemberIds,
+              splitMethod: ExpenseSplitMethod.Even,
+              ...(linkedEntity !== undefined ? { linkedEntity } : {}),
+            },
+            {
+              onSuccess: () => {
+                router.push(`/trips/${tripId}/expenses`);
+              },
+            },
+          );
         }}
         onCancel={() => {
           router.push(`/trips/${tripId}/expenses`);

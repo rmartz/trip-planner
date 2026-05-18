@@ -3,49 +3,47 @@
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
+import { useExpenses } from "@/hooks/use-expenses";
+import { useTripMembers } from "@/hooks/use-trip-members";
 import {
-  ExpenseCategory,
   type ExpenseListItem,
   ExpensesListPageView,
 } from "./ExpensesListPageView";
 import { EXPENSES_LIST_PAGE_COPY } from "./ExpensesListPageView.copy";
-
-const STUB_EXPENSES: ExpenseListItem[] = [
-  {
-    amountCents: 4250,
-    category: ExpenseCategory.Food,
-    currency: "USD",
-    expenseId: "stub-1",
-    linkedEntityLabel: "Paris — Day 2",
-    payerName: "Alice",
-    title: "Dinner at Le Marais",
-  },
-  {
-    amountCents: 12000,
-    category: ExpenseCategory.Transport,
-    currency: "USD",
-    expenseId: "stub-2",
-    linkedEntityLabel: "Paris → Lyon",
-    payerName: "Bob",
-    title: "Train tickets",
-  },
-  {
-    amountCents: 32000,
-    category: ExpenseCategory.Lodging,
-    currency: "USD",
-    expenseId: "stub-3",
-    linkedEntityLabel: "Lyon",
-    payerName: "Carol",
-    title: "Hotel night",
-  },
-];
 
 export default function ExpensesPage() {
   const params = useParams<{ tripId: string }>();
   const router = useRouter();
   const tripId = params.tripId;
 
-  const { data: trip, isLoading, isError } = useTrip(tripId);
+  const {
+    data: trip,
+    isLoading: tripLoading,
+    isError: tripError,
+  } = useTrip(tripId);
+  const {
+    data: expenses,
+    isLoading: expensesLoading,
+    isError: expensesError,
+  } = useExpenses(tripId);
+  const { data: members } = useTripMembers(tripId);
+
+  const memberNameById = new Map(
+    members?.map((m) => [m.uid, m.displayName ?? m.uid]) ?? [],
+  );
+
+  const isLoading = tripLoading || expensesLoading;
+  const isError = tripError || expensesError;
+
+  const expenseItems: ExpenseListItem[] = (expenses ?? []).map((expense) => ({
+    amountCents: Math.round(expense.amount * 100),
+    category: expense.category,
+    currency: expense.currency,
+    expenseId: expense.expenseId,
+    linkedEntityLabel: expense.linkedEntity?.label,
+    payerName: memberNameById.get(expense.payerUid) ?? expense.payerUid,
+    title: expense.name,
+  }));
 
   return (
     <AppShell
@@ -58,7 +56,7 @@ export default function ExpensesPage() {
       }}
     >
       <ExpensesListPageView
-        expenses={STUB_EXPENSES}
+        expenses={expenseItems}
         isLoading={isLoading}
         isError={isError}
         onAddExpense={() => {

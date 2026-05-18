@@ -10,7 +10,7 @@ import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 const COPY = EXPENSE_ENTRY_FORM_COPY;
 
 export enum ExpenseEntryCategory {
-  Activities = "activities",
+  Activity = "activity",
   Food = "food",
   Lodging = "lodging",
   Other = "other",
@@ -49,7 +49,7 @@ export interface ExpenseEntryFormViewProps {
 const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
   {
     label: COPY.categoryOptionActivities,
-    value: ExpenseEntryCategory.Activities,
+    value: ExpenseEntryCategory.Activity,
   },
   { label: COPY.categoryOptionFood, value: ExpenseEntryCategory.Food },
   { label: COPY.categoryOptionLodging, value: ExpenseEntryCategory.Lodging },
