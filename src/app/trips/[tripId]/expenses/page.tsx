@@ -111,37 +111,26 @@ export default function ExpensesPage() {
         },
       }}
     >
-      {preFillOptions.length > 0 ? (
-        <ExpensesListPageView
-          expenses={STUB_EXPENSES}
-          isLoading={isLoading}
-          isError={isError}
-          preFillOptions={preFillOptions}
-          onAddExpenseWithPrefill={(option: ExpensePreFillOption) => {
-            const preFillSearchParams = new URLSearchParams({
-              linkedEntityId: option.entityId,
-              linkedEntityLabel: option.label,
-              linkedEntityType: toLinkedEntityType(option.type),
-              participantMemberIds: option.participantMemberIds.join(","),
-            });
-            router.push(
-              `/trips/${tripId}/expenses/new?${preFillSearchParams.toString()}`,
-            );
-          }}
-          onAddExpense={() => {
-            router.push(`/trips/${tripId}/expenses/new`);
-          }}
-        />
-      ) : (
-        <ExpensesListPageView
-          expenses={STUB_EXPENSES}
-          isLoading={isLoading}
-          isError={isError}
-          onAddExpense={() => {
-            router.push(`/trips/${tripId}/expenses/new`);
-          }}
-        />
-      )}
+      <ExpensesListPageView
+        expenses={STUB_EXPENSES}
+        isLoading={isLoading}
+        isError={isError}
+        preFillOptions={preFillOptions}
+        onAddExpenseWithPrefill={(option: ExpensePreFillOption) => {
+          const preFillSearchParams = new URLSearchParams({
+            linkedEntityId: option.entityId,
+            linkedEntityLabel: option.label,
+            linkedEntityType: toLinkedEntityType(option.type),
+            participantMemberIds: option.participantMemberIds.join(","),
+          });
+          router.push(
+            `/trips/${tripId}/expenses/new?${preFillSearchParams.toString()}`,
+          );
+        }}
+        onAddExpense={() => {
+          router.push(`/trips/${tripId}/expenses/new`);
+        }}
+      />
     </AppShell>
   );
 }

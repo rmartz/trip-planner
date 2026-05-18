@@ -57,7 +57,7 @@ export default function NewExpensePage() {
   const initialParticipantIds = searchParams
     .get("participantMemberIds")
     ?.split(",")
-    .filter((id) => id.length > 0);
+    .filter((id) => id.trim().length > 0);
   const initialLinkedEntityId = searchParams.get("linkedEntityId");
   const initialLinkedEntityLabel = searchParams.get("linkedEntityLabel");
   const initialLinkedEntityType = toExpenseLinkedEntityType(

@@ -174,10 +174,12 @@ describe("ExpenseEntryFormView — initial linked entity pre-fill", () => {
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    const payload = (
-      onSubmit.mock.calls[0] as [{ linkedEntity?: { entityId: string } }]
-    )[0];
-    expect(payload.linkedEntity?.entityId).toBe("lodging-1");
+    const payload = (onSubmit.mock.calls[0] as [{ linkedEntity?: unknown }])[0];
+    expect(payload.linkedEntity).toEqual({
+      entityId: "lodging-1",
+      label: "Lyon hotel",
+      type: ExpenseLinkedEntityType.Stop,
+    });
   });
 
   it("falls back to no linked entity when initialLinkedEntity is not in linkedEntityOptions", () => {
