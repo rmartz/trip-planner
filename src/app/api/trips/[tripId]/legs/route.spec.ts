@@ -311,7 +311,37 @@ describe("POST /api/trips/[tripId]/legs", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns 403 when user is not a trip member", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+
+    const request = makePostRequest("uid-stranger", {
+      fromStopId: "stop-1",
+      toStopId: "stop-2",
+      name: "London to Paris",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(403);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("Forbidden");
+  });
+
+  it("does not call addLeg for non-members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+
+    const request = makePostRequest("uid-stranger", {
+      fromStopId: "stop-1",
+      toStopId: "stop-2",
+      name: "London to Paris",
+    });
+    await POST(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(addLeg)).not.toHaveBeenCalled();
+  });
+
   it("returns legId on success", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(addLeg).mockResolvedValue("leg-xyz");
 
     const request = makePostRequest("uid-1", {
@@ -328,6 +358,7 @@ describe("POST /api/trips/[tripId]/legs", () => {
   });
 
   it("calls addLeg with uid, tripId, fromStopId, toStopId, and name", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(addLeg).mockResolvedValue("leg-xyz");
 
     const request = makePostRequest("uid-1", {
