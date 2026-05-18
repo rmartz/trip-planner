@@ -12,8 +12,9 @@ export interface TransportationEntry {
   uid: string;
   status: TransportationStatus;
   routeName: string;
-  seatCount?: number;
+  offeredToUids?: string[];
   ridingWithUid?: string;
+  seatCount?: number;
 }
 
 export enum TransportOfferVisibility {
