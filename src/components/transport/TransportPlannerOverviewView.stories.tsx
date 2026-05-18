@@ -1,6 +1,8 @@
+import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { Leg } from "@/lib/types/trip";
 import {
+  type NonAccountMemberTransportSummary,
   type TransportLegSummary,
   TransportOfferVisibility,
   TransportPlannerOverviewView,
@@ -38,10 +40,22 @@ function makeLegSummary(
   };
 }
 
+function makeNonAccountMember(
+  overrides: Partial<NonAccountMemberTransportSummary> = {},
+): NonAccountMemberTransportSummary {
+  return {
+    memberId: "member-1",
+    name: "Dana",
+    sortedOwnTransport: false,
+    ...overrides,
+  };
+}
+
 const meta: Meta<typeof TransportPlannerOverviewView> = {
   component: TransportPlannerOverviewView,
   args: {
     legs: [makeLegSummary()],
+    onToggleMemberSortedOwn: fn(),
   },
 };
 
@@ -115,5 +129,22 @@ export const MultipleDrivers: Story = {
 export const Empty: Story = {
   args: {
     legs: [],
+  },
+};
+
+export const WithNonAccountMembers: Story = {
+  args: {
+    legs: [
+      makeLegSummary({
+        nonAccountMembers: [
+          makeNonAccountMember({ memberId: "m-1", name: "Dana" }),
+          makeNonAccountMember({
+            memberId: "m-2",
+            name: "Eli",
+            sortedOwnTransport: true,
+          }),
+        ],
+      }),
+    ],
   },
 };
