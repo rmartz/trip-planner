@@ -2,10 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import { TripRole } from "@/lib/types/trip";
-import {
-  ExpenseCategory,
-  ExpenseSplitMethod,
-} from "@/lib/types/expense";
+import { ExpenseCategory, ExpenseSplitMethod } from "@/lib/types/expense";
 import type { Expense } from "@/lib/types/expense";
 
 vi.mock("@/services/expenses", () => ({

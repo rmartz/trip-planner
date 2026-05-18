@@ -46,9 +46,7 @@ export default function NewExpensePage() {
     }),
   );
 
-  const stopById = new Map(
-    (stopsData?.stops ?? []).map((s) => [s.stopId, s]),
-  );
+  const stopById = new Map((stopsData?.stops ?? []).map((s) => [s.stopId, s]));
 
   const linkedEntityMetas: LinkedEntityMeta[] = [
     ...(stopsData?.stops ?? []).map((s) => ({

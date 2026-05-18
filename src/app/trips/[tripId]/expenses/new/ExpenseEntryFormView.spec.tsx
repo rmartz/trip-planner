@@ -265,10 +265,9 @@ describe("ExpenseEntryFormView — submit", () => {
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
       { target: { value: "42.50" } },
     );
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
-      { target: { value: "Group dinner" } },
-    );
+    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
+      target: { value: "Group dinner" },
+    });
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -300,10 +299,9 @@ describe("ExpenseEntryFormView — submit", () => {
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
       { target: { value: "100" } },
     );
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
-      { target: { value: "Group dinner" } },
-    );
+    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
+      target: { value: "Group dinner" },
+    });
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -327,10 +325,9 @@ describe("ExpenseEntryFormView — submit", () => {
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
       { target: { value: "30" } },
     );
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
-      { target: { value: "Train ticket" } },
-    );
+    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
+      target: { value: "Train ticket" },
+    });
     fireEvent.change(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
       { target: { value: "stop-paris" } },
@@ -358,10 +355,9 @@ describe("ExpenseEntryFormView — submit", () => {
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
       { target: { value: "30" } },
     );
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
-      { target: { value: "Shared taxi" } },
-    );
+    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
+      target: { value: "Shared taxi" },
+    });
     // Uncheck Bob (all three start checked because initial state pre-fills participants)
     fireEvent.click(screen.getByLabelText("Bob"));
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
@@ -422,8 +418,6 @@ describe("ExpenseEntryFormView — submitError", () => {
       />,
     );
 
-    expect(
-      screen.queryByText(EXPENSE_ENTRY_FORM_COPY.submitError),
-    ).toBeNull();
+    expect(screen.queryByText(EXPENSE_ENTRY_FORM_COPY.submitError)).toBeNull();
   });
 });
