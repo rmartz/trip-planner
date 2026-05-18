@@ -46,6 +46,10 @@ export default function NewExpensePage() {
     }),
   );
 
+  const stopById = new Map(
+    (stopsData?.stops ?? []).map((s) => [s.stopId, s]),
+  );
+
   const linkedEntityMetas: LinkedEntityMeta[] = [
     ...(stopsData?.stops ?? []).map((s) => ({
       entityId: s.stopId,
@@ -58,7 +62,7 @@ export default function NewExpensePage() {
       type: ExpenseLinkedEntityType.Leg,
     })),
     ...(activitiesData ?? []).map((a) => {
-      const stop = stopsData?.stops.find((s) => s.stopId === a.stopId);
+      const stop = stopById.get(a.stopId);
       const label = stop !== undefined ? `${stop.name}: ${a.name}` : a.name;
       return {
         entityId: a.activityId,
@@ -111,7 +115,7 @@ export default function NewExpensePage() {
             createExpense.mutate(
               {
                 tripId,
-                name: input.description,
+                name: input.name,
                 amount: input.amountCents / 100,
                 currency: input.currency,
                 category: input.category as unknown as ExpenseCategory,

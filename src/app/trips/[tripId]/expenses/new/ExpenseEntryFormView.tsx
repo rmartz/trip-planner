@@ -31,8 +31,8 @@ export interface ExpenseEntryInput {
   amountCents: number;
   category: ExpenseEntryCategory;
   currency: string;
-  description: string;
   linkedEntityId?: string;
+  name: string;
   participantMemberIds: string[];
   payerMemberId: string;
 }
@@ -81,12 +81,10 @@ export function ExpenseEntryFormView({
   const [participantIds, setParticipantIds] = useState<string[]>(
     memberOptions.map((m) => m.memberId),
   );
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState("");
   const [linkedEntityId, setLinkedEntityId] = useState("");
   const [amountError, setAmountError] = useState<string | undefined>();
-  const [descriptionError, setDescriptionError] = useState<
-    string | undefined
-  >();
+  const [nameError, setNameError] = useState<string | undefined>();
   const [payerError, setPayerError] = useState<string | undefined>();
 
   function handleParticipantToggle(memberId: string) {
@@ -100,7 +98,7 @@ export function ExpenseEntryFormView({
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setAmountError(undefined);
-    setDescriptionError(undefined);
+    setNameError(undefined);
     setPayerError(undefined);
 
     let hasError = false;
@@ -116,8 +114,8 @@ export function ExpenseEntryFormView({
       }
     }
 
-    if (description.trim() === "") {
-      setDescriptionError(COPY.errorDescriptionRequired);
+    if (name.trim() === "") {
+      setNameError(COPY.errorNameRequired);
       hasError = true;
     }
 
@@ -136,8 +134,8 @@ export function ExpenseEntryFormView({
       amountCents,
       category,
       currency,
-      description: description.trim(),
       ...(linkedEntityId !== "" ? { linkedEntityId } : {}),
+      name: name.trim(),
       participantMemberIds: participantIds,
       payerMemberId,
     });
@@ -249,18 +247,18 @@ export function ExpenseEntryFormView({
       </fieldset>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="expense-description">{COPY.descriptionLabel}</Label>
+        <Label htmlFor="expense-name">{COPY.nameLabel}</Label>
         <Textarea
-          id="expense-description"
-          value={description}
+          id="expense-name"
+          value={name}
           onChange={(e) => {
-            setDescription(e.target.value);
+            setName(e.target.value);
           }}
-          placeholder={COPY.descriptionPlaceholder}
+          placeholder={COPY.namePlaceholder}
           rows={2}
         />
-        {descriptionError !== undefined && (
-          <p className="text-sm text-destructive">{descriptionError}</p>
+        {nameError !== undefined && (
+          <p className="text-sm text-destructive">{nameError}</p>
         )}
       </div>
 

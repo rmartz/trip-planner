@@ -10,14 +10,15 @@ export async function getActivitiesForTrip(tripId: string): Promise<Activity[]> 
     .collection("stops")
     .get();
 
-  const allActivities: Activity[] = [];
-  for (const stopDoc of stopsSnapshot.docs) {
-    const activitiesSnapshot = await stopDoc.ref.collection("activities").get();
-    for (const activityDoc of activitiesSnapshot.docs) {
-      allActivities.push(
+  const allActivities = await Promise.all(
+    stopsSnapshot.docs.map(async (stopDoc) => {
+      const activitiesSnapshot = await stopDoc.ref
+        .collection("activities")
+        .get();
+      return activitiesSnapshot.docs.map((activityDoc) =>
         firebaseToActivity(activityDoc.id, stopDoc.id, tripId, activityDoc.data()),
       );
-    }
-  }
-  return allActivities;
+    }),
+  );
+  return allActivities.flat();
 }

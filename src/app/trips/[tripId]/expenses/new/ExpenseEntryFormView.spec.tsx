@@ -43,7 +43,7 @@ const DEFAULT_LINKED: ExpenseEntryLinkedEntityOption[] = [
 ];
 
 describe("ExpenseEntryFormView — renders fields", () => {
-  it("renders amount, currency, category, payer, description, and linked entity fields", () => {
+  it("renders amount, currency, category, payer, name, and linked entity fields", () => {
     render(
       <ExpenseEntryFormView
         memberOptions={DEFAULT_MEMBERS}
@@ -66,7 +66,7 @@ describe("ExpenseEntryFormView — renders fields", () => {
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.payerLabel),
     ).toBeDefined();
     expect(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
     ).toBeDefined();
     expect(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
@@ -199,11 +199,11 @@ describe("ExpenseEntryFormView — description validation", () => {
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(
-      screen.getByText(EXPENSE_ENTRY_FORM_COPY.errorDescriptionRequired),
+      screen.getByText(EXPENSE_ENTRY_FORM_COPY.errorNameRequired),
     ).toBeDefined();
   });
 
-  it("does not call onSubmit when description is empty", () => {
+  it("does not call onSubmit when name is empty", () => {
     const onSubmit = vi.fn();
     render(
       <ExpenseEntryFormView
@@ -266,7 +266,7 @@ describe("ExpenseEntryFormView — submit", () => {
       { target: { value: "42.50" } },
     );
     fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
       { target: { value: "Group dinner" } },
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
@@ -301,14 +301,14 @@ describe("ExpenseEntryFormView — submit", () => {
       { target: { value: "100" } },
     );
     fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
       { target: { value: "Group dinner" } },
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     const payload = onSubmit.mock.calls[0]?.[0] as ExpenseEntryInput;
-    expect(payload.description).toBe("Group dinner");
+    expect(payload.name).toBe("Group dinner");
   });
 
   it("includes linked entity id in payload when selected", () => {
@@ -328,7 +328,7 @@ describe("ExpenseEntryFormView — submit", () => {
       { target: { value: "30" } },
     );
     fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
       { target: { value: "Train ticket" } },
     );
     fireEvent.change(
@@ -359,7 +359,7 @@ describe("ExpenseEntryFormView — submit", () => {
       { target: { value: "30" } },
     );
     fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
       { target: { value: "Shared taxi" } },
     );
     // Uncheck Bob (all three start checked because initial state pre-fills participants)

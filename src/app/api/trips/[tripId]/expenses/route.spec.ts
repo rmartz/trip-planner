@@ -52,14 +52,22 @@ function makePostRequest(
   uid: string | undefined,
   body: unknown,
   tripId = "trip-1",
-  options: { malformedJson?: boolean } = {},
+  options: { malformedJson?: boolean; nullBody?: boolean } = {},
 ) {
   const headers = new Headers({ "Content-Type": "application/json" });
   if (uid !== undefined) headers.set(X_USER_ID_HEADER, uid);
+  let bodyStr: string;
+  if (options.malformedJson) {
+    bodyStr = "not-json";
+  } else if (options.nullBody) {
+    bodyStr = "null";
+  } else {
+    bodyStr = JSON.stringify(body);
+  }
   return new NextRequest(`http://localhost/api/trips/${tripId}/expenses`, {
     method: "POST",
     headers,
-    body: options.malformedJson ? "not-json" : JSON.stringify(body),
+    body: bodyStr,
   });
 }
 
@@ -156,16 +164,9 @@ describe("POST /api/trips/[tripId]/expenses", () => {
   });
 
   it("returns 400 when body is JSON null", async () => {
-    const headers = new Headers({ "Content-Type": "application/json" });
-    headers.set(X_USER_ID_HEADER, "uid-alice");
-    const request = new NextRequest(
-      "http://localhost/api/trips/trip-1/expenses",
-      {
-        method: "POST",
-        headers,
-        body: "null",
-      },
-    );
+    const request = makePostRequest("uid-alice", null, "trip-1", {
+      nullBody: true,
+    });
     const response = await POST(request, {
       params: Promise.resolve({ tripId: "trip-1" }),
     });
