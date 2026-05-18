@@ -48,4 +48,6 @@ export interface Activity {
   groupSize?: ActivityGroupSize;
   costPerPerson?: number;
   transportationRequired?: TransportationMode;
+  pinned?: boolean;
+  pinnedSlot?: TimeOfDaySlot;
 }
