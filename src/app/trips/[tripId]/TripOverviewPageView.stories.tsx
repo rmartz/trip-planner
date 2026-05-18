@@ -70,3 +70,16 @@ export const WithLodgingGap: Story = {
     lodgingGapCount: 2,
   },
 };
+
+export const WithTransportGap: Story = {
+  args: {
+    transportGapCount: 3,
+  },
+};
+
+export const WithBothGaps: Story = {
+  args: {
+    lodgingGapCount: 1,
+    transportGapCount: 2,
+  },
+};
