@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { InterestVote } from "@/lib/types/interest-vote";
+import { TripRole } from "@/lib/types/trip";
 import {
   ActivitiesTripPageView,
   type ActivityProposal,
 } from "./ActivitiesTripPageView";
 import { ACTIVITIES_TRIP_PAGE_COPY } from "./ActivitiesTripPageView.copy";
+import { VOTE_ROW_COPY } from "@/components/ui/VoteRow.copy";
 
 afterEach(cleanup);
 
@@ -20,6 +22,7 @@ function makeProposal(
     counts: { yes: 2, maybe: 1, no: 0 },
     timeHint: "Saturday morning",
     userVote: undefined,
+    voterNames: { yes: [], maybe: [], no: [] },
     ...overrides,
   };
 }
@@ -232,5 +235,205 @@ describe("ActivitiesTripPageView — loaded state", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Yes" }));
     expect(onVote).toHaveBeenCalledWith("p-42", InterestVote.Yes);
+  });
+});
+
+describe("ActivitiesTripPageView — planner role: by-name inset visible", () => {
+  it("renders the by-name sub-header for planners", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            voterNames: { yes: ["Marco"], maybe: [], no: [] },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByText(ACTIVITIES_TRIP_PAGE_COPY.byNameSubheader),
+    ).toBeDefined();
+  });
+
+  it("renders yes voter names in the inset", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            voterNames: { yes: ["Marco", "Jess"], maybe: [], no: [] },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/Marco/)).toBeDefined();
+    expect(screen.getByText(/Jess/)).toBeDefined();
+  });
+
+  it("renders maybe voter names in the inset", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            voterNames: { yes: [], maybe: ["Kev"], no: [] },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/Kev/)).toBeDefined();
+  });
+
+  it("renders no voter names in the inset", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            voterNames: { yes: [], maybe: [], no: ["Pat"] },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/Pat/)).toBeDefined();
+  });
+
+  it("shows overflow +N when more than 3 voters in a category", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            voterNames: {
+              yes: ["Marco", "Jess", "Tara", "Bob", "Carol"],
+              maybe: [],
+              no: [],
+            },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByText(ACTIVITIES_TRIP_PAGE_COPY.overflowLabel(2)),
+    ).toBeDefined();
+  });
+
+  it("renders aggregate vote counts for planners", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            counts: { yes: 4, maybe: 1, no: 2 },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByText(VOTE_ROW_COPY.aggregateCounts(4, 1, 2)),
+    ).toBeDefined();
+  });
+
+  it("does not show vote buttons when role is planner", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1" })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Yes" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Maybe" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "No" })).toBeNull();
+  });
+});
+
+describe("ActivitiesTripPageView — planner role: by-name inset hidden when voterNames absent", () => {
+  it("does not render the by-name sub-header when voterNames is undefined", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1", voterNames: undefined })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.queryByText(ACTIVITIES_TRIP_PAGE_COPY.byNameSubheader),
+    ).toBeNull();
+  });
+
+  it("renders vote buttons for planners when voterNames is undefined", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1", voterNames: undefined })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Yes" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Maybe" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "No" })).toBeDefined();
+  });
+});
+
+describe("ActivitiesTripPageView — guest role: by-name inset hidden", () => {
+  it("does not render the by-name sub-header for guests", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1" })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Guest}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.queryByText(ACTIVITIES_TRIP_PAGE_COPY.byNameSubheader),
+    ).toBeNull();
+  });
+
+  it("renders vote buttons for guests", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1" })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Guest}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Yes" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Maybe" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "No" })).toBeDefined();
   });
 });

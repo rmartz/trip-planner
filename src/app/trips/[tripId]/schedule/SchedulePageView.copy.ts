@@ -4,5 +4,7 @@ export const SCHEDULE_PAGE_COPY = {
   heading: "Schedule",
   headingSubtext: "Published itinerary",
   pageTitle: "Schedule",
+  timeLockedHeading: "Time-locked",
+  timeLockedSlotLabel: (slot: string) => `${slot} 🔒`,
   timeSlotLabel: (slot: string) => slot,
 } as const;
