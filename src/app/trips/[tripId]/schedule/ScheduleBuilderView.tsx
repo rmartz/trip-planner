@@ -28,7 +28,7 @@ function PinnedActivityRow({ activity }: PinnedActivityRowProps) {
   return (
     <li
       data-testid="pinned-activity-item"
-      className="flex items-center gap-3 rounded-lg border border-zinc-900 p-3"
+      className="flex items-center gap-3 rounded-lg border border-zinc-900 p-3 dark:border-zinc-100"
     >
       <span className="flex-1 text-sm font-medium">{activity.name}</span>
       {activity.timeOfDaySlot !== undefined && (
