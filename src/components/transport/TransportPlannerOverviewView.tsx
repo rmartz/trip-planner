@@ -13,14 +13,26 @@ export type { TransportCarOffer, TransportLegDemand };
 
 const COPY = TRANSPORT_PLANNER_OVERVIEW_COPY;
 
+export interface NonAccountMemberTransportSummary {
+  memberId: string;
+  name: string;
+  sortedOwnTransport: boolean;
+}
+
 export interface TransportLegSummary {
   leg: Leg;
   demand: TransportLegDemand;
   supply: TransportCarOffer[];
+  nonAccountMembers?: NonAccountMemberTransportSummary[];
 }
 
 export interface TransportPlannerOverviewViewProps {
   legs: TransportLegSummary[];
+  onToggleMemberSortedOwn?: (
+    legId: string,
+    memberId: string,
+    sorted: boolean,
+  ) => void;
 }
 
 function totalSeats(supply: TransportCarOffer[]): number {
@@ -28,11 +40,16 @@ function totalSeats(supply: TransportCarOffer[]): number {
 }
 
 interface LegSectionProps {
+  onToggleMemberSortedOwn?: (
+    legId: string,
+    memberId: string,
+    sorted: boolean,
+  ) => void;
   summary: TransportLegSummary;
 }
 
-function LegSection({ summary }: LegSectionProps) {
-  const { leg, demand, supply } = summary;
+function LegSection({ onToggleMemberSortedOwn, summary }: LegSectionProps) {
+  const { leg, demand, supply, nonAccountMembers } = summary;
   const seats = totalSeats(supply);
   const gap = seats - demand.needRide;
   const isGap = gap < 0;
@@ -109,12 +126,44 @@ function LegSection({ summary }: LegSectionProps) {
           </ul>
         </div>
       </div>
+
+      {nonAccountMembers !== undefined && nonAccountMembers.length > 0 && (
+        <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+          <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            {COPY.nonAccountMembersTitle}
+          </p>
+          <ul
+            aria-label={COPY.sortedOwnTransportLabel}
+            className="flex flex-col gap-1"
+          >
+            {nonAccountMembers.map((member) => (
+              <li key={member.memberId}>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={member.sortedOwnTransport}
+                    onChange={(e) => {
+                      onToggleMemberSortedOwn?.(
+                        leg.legId,
+                        member.memberId,
+                        e.target.checked,
+                      );
+                    }}
+                  />
+                  {member.name}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
 
 export function TransportPlannerOverviewView({
   legs,
+  onToggleMemberSortedOwn,
 }: TransportPlannerOverviewViewProps) {
   return (
     <div className="flex min-h-screen flex-col">
@@ -133,7 +182,11 @@ export function TransportPlannerOverviewView({
           </p>
         )}
         {legs.map((summary) => (
-          <LegSection key={summary.leg.legId} summary={summary} />
+          <LegSection
+            key={summary.leg.legId}
+            onToggleMemberSortedOwn={onToggleMemberSortedOwn}
+            summary={summary}
+          />
         ))}
       </main>
     </div>

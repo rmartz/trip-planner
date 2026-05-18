@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
+  type NonAccountMemberTransportSummary,
   type TransportLegSummary,
   TransportOfferVisibility,
   TransportPlannerOverviewView,
@@ -352,5 +353,166 @@ describe("TransportPlannerOverviewView — supply card", () => {
     );
     expect(screen.getByText(COPY.seatsLabel(7))).toBeDefined();
     expect(screen.getByText(COPY.driversLabel(2))).toBeDefined();
+  });
+});
+
+function makeNonAccountMember(
+  overrides: Partial<NonAccountMemberTransportSummary> = {},
+): NonAccountMemberTransportSummary {
+  return {
+    memberId: "member-1",
+    name: "Dana",
+    sortedOwnTransport: false,
+    ...overrides,
+  };
+}
+
+describe("TransportPlannerOverviewView — non-account members section", () => {
+  it("renders the non-account members section title when members are present", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            nonAccountMembers: [makeNonAccountMember()],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(COPY.nonAccountMembersTitle)).toBeDefined();
+  });
+
+  it("renders each non-account member by name", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            nonAccountMembers: [
+              makeNonAccountMember({ memberId: "m-1", name: "Dana" }),
+              makeNonAccountMember({ memberId: "m-2", name: "Eli" }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Dana")).toBeDefined();
+    expect(screen.getByText("Eli")).toBeDefined();
+  });
+
+  it("does not render the non-account members section when nonAccountMembers is absent", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[makeLegSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText(COPY.nonAccountMembersTitle)).toBeNull();
+  });
+
+  it("does not render the non-account members section when the list is empty", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[makeLegSummary({ nonAccountMembers: [] })]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText(COPY.nonAccountMembersTitle)).toBeNull();
+  });
+});
+
+describe("TransportPlannerOverviewView — sorted-own checkbox reflects current state", () => {
+  it("renders member checkbox as checked when sortedOwnTransport is true", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            nonAccountMembers: [
+              makeNonAccountMember({
+                memberId: "m-1",
+                name: "Dana",
+                sortedOwnTransport: true,
+              }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    const checkedBox = screen.getByLabelText("Dana");
+    expect((checkedBox as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("renders member checkbox as unchecked when sortedOwnTransport is false", () => {
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            nonAccountMembers: [
+              makeNonAccountMember({
+                memberId: "m-1",
+                name: "Dana",
+                sortedOwnTransport: false,
+              }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
+
+    const uncheckedBox = screen.getByLabelText("Dana");
+    expect((uncheckedBox as HTMLInputElement).checked).toBe(false);
+  });
+});
+
+describe("TransportPlannerOverviewView — toggling sorted-own fires onToggleMemberSortedOwn", () => {
+  it("calls onToggleMemberSortedOwn with legId, memberId, and true when checking", () => {
+    const onToggle = vi.fn();
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            leg: makeLeg({ legId: "leg-99" }),
+            nonAccountMembers: [
+              makeNonAccountMember({ memberId: "m-42", name: "Dana" }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={onToggle}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("Dana"));
+    expect(onToggle).toHaveBeenCalledWith("leg-99", "m-42", true);
+  });
+
+  it("calls onToggleMemberSortedOwn with false when unchecking", () => {
+    const onToggle = vi.fn();
+    render(
+      <TransportPlannerOverviewView
+        legs={[
+          makeLegSummary({
+            leg: makeLeg({ legId: "leg-99" }),
+            nonAccountMembers: [
+              makeNonAccountMember({
+                memberId: "m-42",
+                name: "Dana",
+                sortedOwnTransport: true,
+              }),
+            ],
+          }),
+        ]}
+        onToggleMemberSortedOwn={onToggle}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("Dana"));
+    expect(onToggle).toHaveBeenCalledWith("leg-99", "m-42", false);
   });
 });
