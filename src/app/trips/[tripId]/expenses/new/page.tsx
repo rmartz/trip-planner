@@ -1,7 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
+import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import { useTrip } from "@/hooks/use-trip";
 import {
   ExpenseEntryFormView,
@@ -17,15 +18,71 @@ const STUB_MEMBERS: ExpenseEntryMemberOption[] = [
 ];
 
 const STUB_LINKED_ENTITIES: ExpenseEntryLinkedEntityOption[] = [
-  { entityId: "stop-paris", label: "Paris stop" },
-  { entityId: "lodging-1", label: "Lyon hotel" },
-  { entityId: "transport-1", label: "Paris → Lyon train" },
+  {
+    entityId: "stop-paris",
+    label: "Paris stop",
+    type: ExpenseLinkedEntityType.Stop,
+  },
+  {
+    entityId: "lodging-1",
+    label: "Lyon hotel",
+    type: ExpenseLinkedEntityType.Stop,
+  },
+  {
+    entityId: "transport-1",
+    label: "Paris → Lyon train",
+    type: ExpenseLinkedEntityType.Leg,
+  },
 ];
+
+function toExpenseLinkedEntityType(
+  rawType: string | null,
+): ExpenseLinkedEntityType | undefined {
+  if (
+    rawType !== ExpenseLinkedEntityType.Activity &&
+    rawType !== ExpenseLinkedEntityType.Leg &&
+    rawType !== ExpenseLinkedEntityType.Stop
+  ) {
+    return undefined;
+  }
+
+  return rawType;
+}
 
 export default function NewExpensePage() {
   const params = useParams<{ tripId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const tripId = params.tripId;
+  const initialParticipantIds = searchParams
+    .get("participantMemberIds")
+    ?.split(",")
+    .filter((id) => id.length > 0);
+  const initialLinkedEntityId = searchParams.get("linkedEntityId");
+  const initialLinkedEntityLabel = searchParams.get("linkedEntityLabel");
+  const initialLinkedEntityType = toExpenseLinkedEntityType(
+    searchParams.get("linkedEntityType"),
+  );
+  const initialLinkedEntity =
+    initialLinkedEntityId !== null && initialLinkedEntityType !== undefined
+      ? { entityId: initialLinkedEntityId, type: initialLinkedEntityType }
+      : undefined;
+  const linkedEntityOptions =
+    initialLinkedEntity !== undefined &&
+    !STUB_LINKED_ENTITIES.some(
+      ({ entityId, type }) =>
+        entityId === initialLinkedEntity.entityId &&
+        type === initialLinkedEntity.type,
+    )
+      ? [
+          ...STUB_LINKED_ENTITIES,
+          {
+            entityId: initialLinkedEntity.entityId,
+            label: initialLinkedEntityLabel ?? initialLinkedEntity.entityId,
+            type: initialLinkedEntity.type,
+          },
+        ]
+      : STUB_LINKED_ENTITIES;
 
   const { data: trip } = useTrip(tripId);
 
@@ -40,9 +97,11 @@ export default function NewExpensePage() {
       }}
     >
       <ExpenseEntryFormView
+        initialLinkedEntity={initialLinkedEntity}
+        initialParticipantIds={initialParticipantIds}
         initialPayerId={STUB_MEMBERS[0]?.memberId}
         memberOptions={STUB_MEMBERS}
-        linkedEntityOptions={STUB_LINKED_ENTITIES}
+        linkedEntityOptions={linkedEntityOptions}
         onSubmit={(input) => {
           // Persistence is out of scope for this scaffold (#57).
           void input;

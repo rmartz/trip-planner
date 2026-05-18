@@ -92,6 +92,12 @@ export const Error: Story = {
 
 const STUB_PREFILL_OPTIONS: ExpensePreFillOption[] = [
   {
+    entityId: "activity-welcome-breakfast",
+    label: "Welcome breakfast",
+    participantMemberIds: ["member-alice", "member-carol"],
+    type: ExpensePreFillType.ActivityRsvp,
+  },
+  {
     entityId: "lodging-lyon",
     label: "Lyon Hotel",
     participantMemberIds: ["member-alice", "member-bob"],

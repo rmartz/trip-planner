@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import {
   ExpenseEntryFormView,
   type ExpenseEntryLinkedEntityOption,
@@ -25,6 +26,7 @@ function makeLinkedEntity(
   return {
     entityId: "stop-1",
     label: "Paris — Day 2",
+    type: ExpenseLinkedEntityType.Stop,
     ...overrides,
   };
 }
@@ -103,32 +105,65 @@ describe("ExpenseEntryFormView — initial participant pre-fill", () => {
     )[0];
     expect(payload.participantMemberIds).toEqual(["member-alice"]);
   });
-});
 
-describe("ExpenseEntryFormView — initial linked entity pre-fill", () => {
-  it("pre-selects the linked entity when initialLinkedEntityId is provided", () => {
-    render(
-      <ExpenseEntryFormView
-        memberOptions={DEFAULT_MEMBERS}
-        linkedEntityOptions={DEFAULT_LINKED}
-        initialLinkedEntityId="stop-paris"
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-      />,
-    );
-    expect(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
-    ).toHaveProperty("value", "stop-paris");
-  });
-
-  it("includes the pre-filled linked entity id in the submitted payload", () => {
+  it("de-duplicates repeated participant ids from initialParticipantIds", () => {
     const onSubmit = vi.fn();
     render(
       <ExpenseEntryFormView
         initialPayerId="member-alice"
         memberOptions={DEFAULT_MEMBERS}
         linkedEntityOptions={DEFAULT_LINKED}
-        initialLinkedEntityId="lodging-1"
+        initialParticipantIds={["member-alice", "member-alice", "member-bob"]}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
+      { target: { value: "50" } },
+    );
+    fireEvent.submit(screen.getByTestId("expense-entry-form"));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const payload = (
+      onSubmit.mock.calls[0] as [{ participantMemberIds: string[] }]
+    )[0];
+    expect(payload.participantMemberIds).toEqual([
+      "member-alice",
+      "member-bob",
+    ]);
+  });
+});
+
+describe("ExpenseEntryFormView — initial linked entity pre-fill", () => {
+  it("pre-selects the linked entity when initialLinkedEntity is provided", () => {
+    render(
+      <ExpenseEntryFormView
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        initialLinkedEntity={{
+          entityId: "stop-paris",
+          type: ExpenseLinkedEntityType.Stop,
+        }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
+    ).toHaveProperty("value", "stop:stop-paris");
+  });
+
+  it("includes the pre-filled linked entity in the submitted payload", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExpenseEntryFormView
+        initialPayerId="member-alice"
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        initialLinkedEntity={{
+          entityId: "lodging-1",
+          type: ExpenseLinkedEntityType.Stop,
+        }}
         onSubmit={onSubmit}
         onCancel={vi.fn()}
       />,
@@ -139,18 +174,23 @@ describe("ExpenseEntryFormView — initial linked entity pre-fill", () => {
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    const payload = (onSubmit.mock.calls[0] as [{ linkedEntityId: string }])[0];
-    expect(payload.linkedEntityId).toBe("lodging-1");
+    const payload = (
+      onSubmit.mock.calls[0] as [{ linkedEntity?: { entityId: string } }]
+    )[0];
+    expect(payload.linkedEntity?.entityId).toBe("lodging-1");
   });
 
-  it("falls back to no linked entity when initialLinkedEntityId is not in linkedEntityOptions", () => {
+  it("falls back to no linked entity when initialLinkedEntity is not in linkedEntityOptions", () => {
     const onSubmit = vi.fn();
     render(
       <ExpenseEntryFormView
         initialPayerId="member-alice"
         memberOptions={DEFAULT_MEMBERS}
         linkedEntityOptions={DEFAULT_LINKED}
-        initialLinkedEntityId="entity-unknown"
+        initialLinkedEntity={{
+          entityId: "entity-unknown",
+          type: ExpenseLinkedEntityType.Leg,
+        }}
         onSubmit={onSubmit}
         onCancel={vi.fn()}
       />,
@@ -162,8 +202,8 @@ describe("ExpenseEntryFormView — initial linked entity pre-fill", () => {
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
     expect(onSubmit).toHaveBeenCalledTimes(1);
     const payload = (
-      onSubmit.mock.calls[0] as [{ linkedEntityId?: string }]
+      onSubmit.mock.calls[0] as [{ linkedEntity?: { entityId?: string } }]
     )[0];
-    expect(payload.linkedEntityId).toBeUndefined();
+    expect(payload.linkedEntity).toBeUndefined();
   });
 });
