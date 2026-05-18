@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   type ScheduleRSVPActivity,
-  ScheduleRsvpStatus,
+  ScheduleRSVPStatus,
   ScheduleRSVPView,
 } from "./ScheduleRSVPView";
 import { SCHEDULE_RSVP_COPY } from "./ScheduleRSVPView.copy";
@@ -75,7 +75,7 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
   it('"I\'m in" button has data-active=true when rsvp is Confirmed', () => {
     render(
       <ScheduleRSVPView
-        activities={[makeActivity({ rsvp: ScheduleRsvpStatus.Confirmed })]}
+        activities={[makeActivity({ rsvp: ScheduleRSVPStatus.Confirmed })]}
         onRsvp={vi.fn()}
       />,
     );
@@ -86,7 +86,7 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
   it('"Skip" button has data-active=true when rsvp is Skipped', () => {
     render(
       <ScheduleRSVPView
-        activities={[makeActivity({ rsvp: ScheduleRsvpStatus.Skipped })]}
+        activities={[makeActivity({ rsvp: ScheduleRSVPStatus.Skipped })]}
         onRsvp={vi.fn()}
       />,
     );
@@ -118,7 +118,7 @@ describe("ScheduleRSVPView — onRsvp callback", () => {
       />,
     );
     fireEvent.click(screen.getByText(COPY.confirmButton));
-    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRsvpStatus.Confirmed);
+    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRSVPStatus.Confirmed);
   });
 
   it('clicking "Skip" calls onRsvp with activityId and Skipped', () => {
@@ -130,7 +130,7 @@ describe("ScheduleRSVPView — onRsvp callback", () => {
       />,
     );
     fireEvent.click(screen.getByText(COPY.skipButton));
-    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRsvpStatus.Skipped);
+    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRSVPStatus.Skipped);
   });
 });
 

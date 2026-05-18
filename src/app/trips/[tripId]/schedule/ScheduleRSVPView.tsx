@@ -4,7 +4,7 @@ import { SCHEDULE_RSVP_COPY } from "./ScheduleRSVPView.copy";
 
 const COPY = SCHEDULE_RSVP_COPY;
 
-export enum ScheduleRsvpStatus {
+export enum ScheduleRSVPStatus {
   Confirmed = "confirmed",
   Skipped = "skipped",
 }
@@ -13,22 +13,22 @@ export interface ScheduleRSVPActivity {
   activityId: string;
   name: string;
   timeLabel: string;
-  rsvp?: ScheduleRsvpStatus;
+  rsvp?: ScheduleRSVPStatus;
 }
 
 export interface ScheduleRSVPViewProps {
   activities: ScheduleRSVPActivity[];
-  onRsvp: (activityId: string, status: ScheduleRsvpStatus) => void;
+  onRsvp: (activityId: string, status: ScheduleRSVPStatus) => void;
 }
 
 interface ActivityRSVPCardProps {
   activity: ScheduleRSVPActivity;
-  onRsvp: (activityId: string, status: ScheduleRsvpStatus) => void;
+  onRsvp: (activityId: string, status: ScheduleRSVPStatus) => void;
 }
 
 function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
-  const isConfirmed = activity.rsvp === ScheduleRsvpStatus.Confirmed;
-  const isSkipped = activity.rsvp === ScheduleRsvpStatus.Skipped;
+  const isConfirmed = activity.rsvp === ScheduleRSVPStatus.Confirmed;
+  const isSkipped = activity.rsvp === ScheduleRSVPStatus.Skipped;
 
   return (
     <li
@@ -50,7 +50,7 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
               : "border border-input bg-background text-foreground"
           }`}
           onClick={() => {
-            onRsvp(activity.activityId, ScheduleRsvpStatus.Confirmed);
+            onRsvp(activity.activityId, ScheduleRSVPStatus.Confirmed);
           }}
         >
           {COPY.confirmButton}
@@ -59,13 +59,13 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
           type="button"
           aria-pressed={isSkipped}
           data-active={isSkipped ? "true" : undefined}
-          className={`flex-1 rounded-md border px-3 py-1.5 text-sm font-medium ${
+          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${
             isSkipped
               ? "bg-primary text-primary-foreground"
-              : "border-input bg-background text-foreground"
+              : "border border-input bg-background text-foreground"
           }`}
           onClick={() => {
-            onRsvp(activity.activityId, ScheduleRsvpStatus.Skipped);
+            onRsvp(activity.activityId, ScheduleRSVPStatus.Skipped);
           }}
         >
           {COPY.skipButton}

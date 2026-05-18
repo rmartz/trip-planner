@@ -1,6 +1,6 @@
 import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { ScheduleRsvpStatus, ScheduleRSVPView } from "./ScheduleRSVPView";
+import { ScheduleRSVPStatus, ScheduleRSVPView } from "./ScheduleRSVPView";
 
 const meta: Meta<typeof ScheduleRSVPView> = {
   component: ScheduleRSVPView,
@@ -17,13 +17,13 @@ const meta: Meta<typeof ScheduleRSVPView> = {
         activityId: "act-2",
         name: "Lunch at Barton Springs",
         timeLabel: "Afternoon",
-        rsvp: ScheduleRsvpStatus.Confirmed,
+        rsvp: ScheduleRSVPStatus.Confirmed,
       },
       {
         activityId: "act-3",
         name: "Sunset paddle",
         timeLabel: "Evening",
-        rsvp: ScheduleRsvpStatus.Skipped,
+        rsvp: ScheduleRSVPStatus.Skipped,
       },
     ],
   },
@@ -42,13 +42,13 @@ export const AllConfirmed: Story = {
         activityId: "act-1",
         name: "Morning hike",
         timeLabel: "Morning",
-        rsvp: ScheduleRsvpStatus.Confirmed,
+        rsvp: ScheduleRSVPStatus.Confirmed,
       },
       {
         activityId: "act-2",
         name: "Lunch at Barton Springs",
         timeLabel: "Afternoon",
-        rsvp: ScheduleRsvpStatus.Confirmed,
+        rsvp: ScheduleRSVPStatus.Confirmed,
       },
     ],
   },
@@ -61,13 +61,13 @@ export const AllSkipped: Story = {
         activityId: "act-1",
         name: "Morning hike",
         timeLabel: "Morning",
-        rsvp: ScheduleRsvpStatus.Skipped,
+        rsvp: ScheduleRSVPStatus.Skipped,
       },
       {
         activityId: "act-2",
         name: "Lunch at Barton Springs",
         timeLabel: "Afternoon",
-        rsvp: ScheduleRsvpStatus.Skipped,
+        rsvp: ScheduleRSVPStatus.Skipped,
       },
     ],
   },
