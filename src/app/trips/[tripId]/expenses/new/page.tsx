@@ -100,6 +100,11 @@ export default function NewExpensePage() {
         initialLinkedEntity={initialLinkedEntity}
         initialParticipantIds={initialParticipantIds}
         initialPayerId={STUB_MEMBERS[0]?.memberId}
+        // STUB_MEMBERS uses hardcoded IDs (member-alice etc.) that do not match
+        // the real UIDs passed via quick-add prefill. ExpenseEntryFormView filters
+        // initialParticipantIds against memberOptions, so prefill participants
+        // will be dropped until STUB_MEMBERS is replaced with real member data
+        // (#57).
         memberOptions={STUB_MEMBERS}
         linkedEntityOptions={linkedEntityOptions}
         onSubmit={(input) => {

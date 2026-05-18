@@ -40,7 +40,7 @@ afterEach(() => {
 });
 
 describe("ExpensesPage — quick-add wiring", () => {
-  it("builds and renders quick-add pills from stop attendance, lodging, activity RSVP, and transport entities", () => {
+  it("builds and renders quick-add pills for stop attendance and transport legs", () => {
     vi.mocked(useTrip).mockReturnValue({
       data: { name: "Paris Trip" },
       isError: false,
@@ -64,13 +64,15 @@ describe("ExpensesPage — quick-add wiring", () => {
     expect(
       screen.getByText(EXPENSES_LIST_PAGE_COPY.preFillHeading),
     ).toBeDefined();
-    expect(screen.getByText("Activity RSVP: Paris")).toBeDefined();
-    expect(screen.getByText("Lodging unit: Paris")).toBeDefined();
+    // ActivityRsvp and LodgingUnit are omitted — real activity/lodging IDs are
+    // not yet available from the stop record (#57).
+    expect(screen.queryByText("Activity RSVP: Paris")).toBeNull();
+    expect(screen.queryByText("Lodging unit: Paris")).toBeNull();
     expect(screen.getByText("Stop attendance: Paris")).toBeDefined();
     expect(screen.getByText("Transport leg: Paris to Lyon")).toBeDefined();
   });
 
-  it("navigates to new expense route with linked entity type and participant prefill when a pill is clicked", () => {
+  it("navigates to new expense route with linked entity type and participant prefill when a stop attendance pill is clicked", () => {
     vi.mocked(useTrip).mockReturnValue({
       data: { name: "Paris Trip" },
       isError: false,
@@ -87,12 +89,12 @@ describe("ExpensesPage — quick-add wiring", () => {
 
     render(<ExpensesPage />);
     fireEvent.click(
-      screen.getByRole("button", { name: "Activity RSVP: Paris" }),
+      screen.getByRole("button", { name: "Stop attendance: Paris" }),
     );
 
     expect(pushSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/trips/trip-1/expenses/new?linkedEntityId=stop-paris&linkedEntityLabel=Activity+RSVP%3A+Paris&linkedEntityType=${ExpenseLinkedEntityType.Activity}&participantMemberIds=uid-1`,
+        `/trips/trip-1/expenses/new?linkedEntityId=stop-paris&linkedEntityLabel=Stop+attendance%3A+Paris&linkedEntityType=${ExpenseLinkedEntityType.Stop}&participantMemberIds=uid-1`,
       ),
     );
   });

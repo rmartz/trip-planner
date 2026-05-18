@@ -53,33 +53,26 @@ export default function ExpensesPage() {
   const { data: trip, isLoading, isError } = useTrip(tripId);
   const { data: legsData } = useLegs(tripId);
   const { data: stopsData } = useStops(tripId);
+  // ActivityRsvp and LodgingUnit shortcuts are omitted here because activity
+  // and lodging records each carry their own IDs (activityId, lodgingId) that
+  // are distinct from the stop they belong to. Using stop.stopId as the entity
+  // ID would produce a type/ID mismatch in persisted expenses. These options
+  // will be wired once the activity and lodging hooks expose their entity IDs
+  // directly (tracked in #57).
   const stopPreFillOptions: ExpensePreFillOption[] = (
     stopsData?.stops ?? []
-  ).flatMap((stop) => {
-    const participantMemberIds = [...new Set(stop.memberUids)];
-    return [
-      {
-        entityId: stop.stopId,
-        label: `${EXPENSES_LIST_PAGE_COPY.preFillActivityRsvpLabel}: ${stop.name}`,
-        participantMemberIds,
-        type: ExpensePreFillType.ActivityRsvp,
-      },
-      {
-        entityId: stop.stopId,
-        label: `${EXPENSES_LIST_PAGE_COPY.preFillLodgingUnitLabel}: ${stop.name}`,
-        participantMemberIds,
-        type: ExpensePreFillType.LodgingUnit,
-      },
-      {
-        entityId: stop.stopId,
-        label: `${EXPENSES_LIST_PAGE_COPY.preFillStopAttendanceLabel}: ${stop.name}`,
-        participantMemberIds,
-        type: ExpensePreFillType.StopAttendance,
-      },
-    ];
-  });
+  ).map((stop) => ({
+    // stop.memberUids mirrors the trip's full membership list (scaffold); no
+    // per-stop attendance tracking is available yet (#57).
+    entityId: stop.stopId,
+    label: `${EXPENSES_LIST_PAGE_COPY.preFillStopAttendanceLabel}: ${stop.name}`,
+    participantMemberIds: [...new Set(stop.memberUids)],
+    type: ExpensePreFillType.StopAttendance,
+  }));
   const legPreFillOptions: ExpensePreFillOption[] = (legsData?.legs ?? []).map(
     (leg) => ({
+      // leg.memberUids mirrors the trip's full membership list (scaffold); no
+      // per-leg rider list is available yet (#57).
       entityId: leg.legId,
       label: `${EXPENSES_LIST_PAGE_COPY.preFillTransportLegLabel}: ${leg.name}`,
       participantMemberIds: [...new Set(leg.memberUids)],
@@ -91,9 +84,6 @@ export default function ExpensesPage() {
   function toLinkedEntityType(
     type: ExpensePreFillType,
   ): ExpenseLinkedEntityType {
-    if (type === ExpensePreFillType.ActivityRsvp) {
-      return ExpenseLinkedEntityType.Activity;
-    }
     if (type === ExpensePreFillType.TransportLeg) {
       return ExpenseLinkedEntityType.Leg;
     }
