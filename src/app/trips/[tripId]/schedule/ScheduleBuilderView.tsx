@@ -1,0 +1,192 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import type { TimeOfDaySlot } from "@/lib/types/activity";
+import { SCHEDULE_BUILDER_COPY } from "./ScheduleBuilderView.copy";
+
+const COPY = SCHEDULE_BUILDER_COPY;
+
+export interface ProposedActivityItem {
+  activityId: string;
+  name: string;
+  pinned: boolean;
+  timeOfDaySlot?: TimeOfDaySlot;
+  order: number;
+}
+
+export interface ScheduleBuilderViewProps {
+  stopName: string;
+  activities: ProposedActivityItem[];
+  onReorder: (orderedIds: string[]) => void;
+  onPublish: () => void;
+}
+
+interface PinnedActivityRowProps {
+  activity: ProposedActivityItem;
+}
+
+function PinnedActivityRow({ activity }: PinnedActivityRowProps) {
+  return (
+    <li
+      data-testid="pinned-activity-item"
+      className="flex items-center gap-3 rounded-lg border p-3"
+      style={{ borderColor: "var(--ink, #18181b)" }}
+    >
+      <span className="flex-1 text-sm font-medium">{activity.name}</span>
+      {activity.timeOfDaySlot !== undefined && (
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {COPY.slotLabel(activity.timeOfDaySlot)}
+        </span>
+      )}
+    </li>
+  );
+}
+
+interface ProposedActivityRowProps {
+  activity: ProposedActivityItem;
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+}
+
+function ProposedActivityRow({
+  activity,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
+}: ProposedActivityRowProps) {
+  return (
+    <li
+      data-testid="proposed-activity-item"
+      className="flex items-center gap-3 rounded-lg border bg-card p-3"
+    >
+      <div className="flex flex-col gap-0.5">
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          aria-label={COPY.moveUpLabel}
+          disabled={isFirst}
+          onClick={onMoveUp}
+          className="h-5 w-5 p-0 text-xs leading-none"
+        >
+          ▲
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          aria-label={COPY.moveDownLabel}
+          disabled={isLast}
+          onClick={onMoveDown}
+          className="h-5 w-5 p-0 text-xs leading-none"
+        >
+          ▼
+        </Button>
+      </div>
+      <span className="flex-1 text-sm font-medium">{activity.name}</span>
+      {activity.timeOfDaySlot !== undefined && (
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {COPY.slotLabel(activity.timeOfDaySlot)}
+        </span>
+      )}
+    </li>
+  );
+}
+
+export function ScheduleBuilderView({
+  stopName,
+  activities,
+  onReorder,
+  onPublish,
+}: ScheduleBuilderViewProps) {
+  const pinnedActivities = activities.filter((a) => a.pinned);
+  const [unpinnedOrder, setUnpinnedOrder] = useState(() =>
+    [...activities.filter((a) => !a.pinned)].sort((a, b) => a.order - b.order),
+  );
+
+  function moveActivity(fromIndex: number, toIndex: number) {
+    const next = [...unpinnedOrder];
+    const [moved] = next.splice(fromIndex, 1);
+    if (moved === undefined) return;
+    next.splice(toIndex, 0, moved);
+    setUnpinnedOrder(next);
+    onReorder(next.map((a) => a.activityId));
+  }
+
+  const isEmpty = pinnedActivities.length === 0 && unpinnedOrder.length === 0;
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <header className="flex flex-col gap-0.5 border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-semibold">{COPY.heading}</h1>
+          <span className="rounded-full border px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            {COPY.draftBadge}
+          </span>
+        </div>
+        <p className="font-mono text-xs text-muted-foreground">
+          {COPY.headingSubtext}
+        </p>
+        <p className="text-sm font-medium">{COPY.stopLabel(stopName)}</p>
+      </header>
+
+      <main className="flex flex-1 flex-col gap-6 p-4">
+        {isEmpty ? (
+          <p className="text-sm text-muted-foreground">{COPY.emptyProposals}</p>
+        ) : (
+          <>
+            {pinnedActivities.length > 0 && (
+              <section className="flex flex-col gap-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {COPY.pinnedSectionHeading}
+                </h2>
+                <ol className="flex flex-col gap-2">
+                  {pinnedActivities.map((activity) => (
+                    <PinnedActivityRow
+                      key={activity.activityId}
+                      activity={activity}
+                    />
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            {unpinnedOrder.length > 0 && (
+              <section className="flex flex-col gap-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {COPY.proposedSectionHeading}
+                </h2>
+                <ol className="flex flex-col gap-2">
+                  {unpinnedOrder.map((activity, index) => (
+                    <ProposedActivityRow
+                      key={activity.activityId}
+                      activity={activity}
+                      isFirst={index === 0}
+                      isLast={index === unpinnedOrder.length - 1}
+                      onMoveUp={() => {
+                        moveActivity(index, index - 1);
+                      }}
+                      onMoveDown={() => {
+                        moveActivity(index, index + 1);
+                      }}
+                    />
+                  ))}
+                </ol>
+              </section>
+            )}
+          </>
+        )}
+      </main>
+
+      <footer className="border-t p-4">
+        <Button type="button" className="w-full" onClick={onPublish}>
+          {COPY.publishButton}
+        </Button>
+      </footer>
+    </div>
+  );
+}
