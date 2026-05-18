@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
-  RsvpStatus,
   type ScheduleRSVPActivity,
+  ScheduleRsvpStatus,
   ScheduleRSVPView,
 } from "./ScheduleRSVPView";
 import { SCHEDULE_RSVP_COPY } from "./ScheduleRSVPView.copy";
@@ -75,7 +75,7 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
   it('"I\'m in" button has data-active=true when rsvp is Confirmed', () => {
     render(
       <ScheduleRSVPView
-        activities={[makeActivity({ rsvp: RsvpStatus.Confirmed })]}
+        activities={[makeActivity({ rsvp: ScheduleRsvpStatus.Confirmed })]}
         onRsvp={vi.fn()}
       />,
     );
@@ -86,7 +86,7 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
   it('"Skip" button has data-active=true when rsvp is Skipped', () => {
     render(
       <ScheduleRSVPView
-        activities={[makeActivity({ rsvp: RsvpStatus.Skipped })]}
+        activities={[makeActivity({ rsvp: ScheduleRsvpStatus.Skipped })]}
         onRsvp={vi.fn()}
       />,
     );
@@ -118,7 +118,7 @@ describe("ScheduleRSVPView — onRsvp callback", () => {
       />,
     );
     fireEvent.click(screen.getByText(COPY.confirmButton));
-    expect(onRsvp).toHaveBeenCalledWith("act-42", RsvpStatus.Confirmed);
+    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRsvpStatus.Confirmed);
   });
 
   it('clicking "Skip" calls onRsvp with activityId and Skipped', () => {
@@ -130,7 +130,7 @@ describe("ScheduleRSVPView — onRsvp callback", () => {
       />,
     );
     fireEvent.click(screen.getByText(COPY.skipButton));
-    expect(onRsvp).toHaveBeenCalledWith("act-42", RsvpStatus.Skipped);
+    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRsvpStatus.Skipped);
   });
 });
 
@@ -138,5 +138,17 @@ describe("ScheduleRSVPView — header subline", () => {
   it('renders the "published · please RSVP" subline in the header', () => {
     render(<ScheduleRSVPView activities={[makeActivity()]} onRsvp={vi.fn()} />);
     expect(screen.getByText(COPY.publishedSubline)).toBeDefined();
+  });
+});
+
+describe("ScheduleRSVPView — empty state", () => {
+  it("renders the empty state message when activities is empty", () => {
+    render(<ScheduleRSVPView activities={[]} onRsvp={vi.fn()} />);
+    expect(screen.getByText(COPY.emptyState)).toBeDefined();
+  });
+
+  it("does not render the empty state message when activities are present", () => {
+    render(<ScheduleRSVPView activities={[makeActivity()]} onRsvp={vi.fn()} />);
+    expect(screen.queryByText(COPY.emptyState)).toBeNull();
   });
 });

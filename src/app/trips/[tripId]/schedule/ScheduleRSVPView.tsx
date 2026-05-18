@@ -4,7 +4,7 @@ import { SCHEDULE_RSVP_COPY } from "./ScheduleRSVPView.copy";
 
 const COPY = SCHEDULE_RSVP_COPY;
 
-export enum RsvpStatus {
+export enum ScheduleRsvpStatus {
   Confirmed = "confirmed",
   Skipped = "skipped",
 }
@@ -13,22 +13,22 @@ export interface ScheduleRSVPActivity {
   activityId: string;
   name: string;
   timeLabel: string;
-  rsvp?: RsvpStatus;
+  rsvp?: ScheduleRsvpStatus;
 }
 
 export interface ScheduleRSVPViewProps {
   activities: ScheduleRSVPActivity[];
-  onRsvp: (activityId: string, status: RsvpStatus) => void;
+  onRsvp: (activityId: string, status: ScheduleRsvpStatus) => void;
 }
 
 interface ActivityRSVPCardProps {
   activity: ScheduleRSVPActivity;
-  onRsvp: (activityId: string, status: RsvpStatus) => void;
+  onRsvp: (activityId: string, status: ScheduleRsvpStatus) => void;
 }
 
 function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
-  const isConfirmed = activity.rsvp === RsvpStatus.Confirmed;
-  const isSkipped = activity.rsvp === RsvpStatus.Skipped;
+  const isConfirmed = activity.rsvp === ScheduleRsvpStatus.Confirmed;
+  const isSkipped = activity.rsvp === ScheduleRsvpStatus.Skipped;
 
   return (
     <li
@@ -41,6 +41,8 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
       <span className="text-sm font-semibold">{activity.name}</span>
       <div className="flex gap-2">
         <button
+          type="button"
+          aria-pressed={isConfirmed}
           data-active={isConfirmed ? "true" : undefined}
           className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${
             isConfirmed
@@ -48,12 +50,14 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
               : "border border-input bg-background text-foreground"
           }`}
           onClick={() => {
-            onRsvp(activity.activityId, RsvpStatus.Confirmed);
+            onRsvp(activity.activityId, ScheduleRsvpStatus.Confirmed);
           }}
         >
           {COPY.confirmButton}
         </button>
         <button
+          type="button"
+          aria-pressed={isSkipped}
           data-active={isSkipped ? "true" : undefined}
           className={`flex-1 rounded-md border px-3 py-1.5 text-sm font-medium ${
             isSkipped
@@ -61,7 +65,7 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
               : "border-input bg-background text-foreground"
           }`}
           onClick={() => {
-            onRsvp(activity.activityId, RsvpStatus.Skipped);
+            onRsvp(activity.activityId, ScheduleRsvpStatus.Skipped);
           }}
         >
           {COPY.skipButton}
@@ -85,15 +89,21 @@ export function ScheduleRSVPView({
       </header>
 
       <main className="flex flex-1 flex-col gap-4 p-4">
-        <ol className="flex flex-col gap-3">
-          {activities.map((activity) => (
-            <ActivityRSVPCard
-              key={activity.activityId}
-              activity={activity}
-              onRsvp={onRsvp}
-            />
-          ))}
-        </ol>
+        {activities.length === 0 ? (
+          <p className="font-mono text-sm text-muted-foreground">
+            {COPY.emptyState}
+          </p>
+        ) : (
+          <ol className="flex flex-col gap-3">
+            {activities.map((activity) => (
+              <ActivityRSVPCard
+                key={activity.activityId}
+                activity={activity}
+                onRsvp={onRsvp}
+              />
+            ))}
+          </ol>
+        )}
       </main>
     </div>
   );
