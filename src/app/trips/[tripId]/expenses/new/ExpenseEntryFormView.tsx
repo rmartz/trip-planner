@@ -80,12 +80,21 @@ export function ExpenseEntryFormView({
     ExpenseEntryCategory.Food,
   );
   const [payerMemberId, setPayerMemberId] = useState(initialPayerId ?? "");
+  const validMemberIds = new Set(memberOptions.map((m) => m.memberId));
   const [participantIds, setParticipantIds] = useState<string[]>(
-    initialParticipantIds ?? memberOptions.map((m) => m.memberId),
+    initialParticipantIds !== undefined
+      ? initialParticipantIds.filter((id) => validMemberIds.has(id))
+      : memberOptions.map((m) => m.memberId),
   );
   const [description, setDescription] = useState("");
+  const validLinkedEntityIds = new Set(
+    linkedEntityOptions.map((e) => e.entityId),
+  );
   const [linkedEntityId, setLinkedEntityId] = useState(
-    initialLinkedEntityId ?? "",
+    initialLinkedEntityId !== undefined &&
+      validLinkedEntityIds.has(initialLinkedEntityId)
+      ? initialLinkedEntityId
+      : "",
   );
   const [amountError, setAmountError] = useState<string | undefined>();
   const [payerError, setPayerError] = useState<string | undefined>();

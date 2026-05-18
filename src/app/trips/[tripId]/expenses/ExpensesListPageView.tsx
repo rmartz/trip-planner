@@ -14,6 +14,7 @@ export enum ExpenseCategory {
 }
 
 export enum ExpensePreFillType {
+  ActivityRsvp = "activity_rsvp",
   LodgingUnit = "lodging_unit",
   StopAttendance = "stop_attendance",
   TransportLeg = "transport_leg",
@@ -36,14 +37,26 @@ export interface ExpensePreFillOption {
   type: ExpensePreFillType;
 }
 
-export interface ExpensesListPageViewProps {
+interface ExpensesListPageViewBaseProps {
   expenses: ExpenseListItem[];
   isError: boolean;
   isLoading: boolean;
   onAddExpense: () => void;
-  onAddExpenseWithPrefill?: (option: ExpensePreFillOption) => void;
-  preFillOptions?: ExpensePreFillOption[];
 }
+
+interface ExpensesListPageViewWithPreFillProps extends ExpensesListPageViewBaseProps {
+  onAddExpenseWithPrefill: (option: ExpensePreFillOption) => void;
+  preFillOptions: ExpensePreFillOption[];
+}
+
+interface ExpensesListPageViewWithoutPreFillProps extends ExpensesListPageViewBaseProps {
+  onAddExpenseWithPrefill?: undefined;
+  preFillOptions?: undefined;
+}
+
+export type ExpensesListPageViewProps =
+  | ExpensesListPageViewWithPreFillProps
+  | ExpensesListPageViewWithoutPreFillProps;
 
 interface ExpenseRowProps {
   expense: ExpenseListItem;
@@ -104,7 +117,6 @@ export function ExpensesListPageView({
 }: ExpensesListPageViewProps) {
   const showList = !isLoading && !isError && expenses.length > 0;
   const showEmpty = !isLoading && !isError && expenses.length === 0;
-  const showPreFill = preFillOptions !== undefined && preFillOptions.length > 0;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -125,7 +137,7 @@ export function ExpensesListPageView({
         </Button>
       </header>
 
-      {showPreFill && (
+      {preFillOptions !== undefined && preFillOptions.length > 0 && (
         <section
           className="flex flex-col gap-2 border-b px-4 py-3"
           data-testid="prefill-shortcuts"
@@ -136,12 +148,12 @@ export function ExpensesListPageView({
           <div className="flex flex-wrap gap-2">
             {preFillOptions.map((option) => (
               <Button
-                key={option.entityId}
+                key={`${option.type}-${option.entityId}`}
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  onAddExpenseWithPrefill?.(option);
+                  onAddExpenseWithPrefill(option);
                 }}
               >
                 {option.label}

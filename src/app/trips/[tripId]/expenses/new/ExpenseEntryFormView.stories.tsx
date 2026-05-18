@@ -41,6 +41,13 @@ export const NoPreselectedPayer: Story = {
   },
 };
 
+export const WithPreFill: Story = {
+  args: {
+    initialParticipantIds: ["member-alice", "member-bob"],
+    initialLinkedEntityId: "stop-paris",
+  },
+};
+
 export const Submitting: Story = {
   args: {
     isSubmitting: true,
