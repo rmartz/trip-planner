@@ -12,9 +12,11 @@ export const TRANSPORT_PLANNER_OVERVIEW_COPY = {
   headingSubtext: "Per-leg supply and demand breakdown",
   inviteOnlyLabel: "invite-only",
   inviteOnlyVisibility: (count: number) => `invite-only (${String(count)})`,
+  nonAccountMembersTitle: "Non-account members",
   okPill: "Covered",
   publicVisibility: "public",
   seatsLabel: (count: number) =>
     `${String(count)} ${count === 1 ? "seat" : "seats"}`,
+  sortedOwnTransportLabel: "Sorted own transportation",
   supplyCardTitle: "Supply",
 } as const;
