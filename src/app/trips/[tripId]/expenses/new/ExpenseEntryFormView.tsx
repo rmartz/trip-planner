@@ -5,17 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ExpenseCategory } from "@/lib/types/expense";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 
 const COPY = EXPENSE_ENTRY_FORM_COPY;
-
-export enum ExpenseEntryCategory {
-  Activity = "activity",
-  Food = "food",
-  Lodging = "lodging",
-  Other = "other",
-  Transport = "transport",
-}
 
 export interface ExpenseEntryMemberOption {
   memberId: string;
@@ -29,7 +22,7 @@ export interface ExpenseEntryLinkedEntityOption {
 
 export interface ExpenseEntryInput {
   amountCents: number;
-  category: ExpenseEntryCategory;
+  category: ExpenseCategory;
   currency: string;
   linkedEntityId?: string;
   name: string;
@@ -47,17 +40,17 @@ export interface ExpenseEntryFormViewProps {
   submitError?: string;
 }
 
-const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
+const CATEGORY_OPTIONS: { label: string; value: ExpenseCategory }[] = [
   {
     label: COPY.categoryOptionActivities,
-    value: ExpenseEntryCategory.Activity,
+    value: ExpenseCategory.Activity,
   },
-  { label: COPY.categoryOptionFood, value: ExpenseEntryCategory.Food },
-  { label: COPY.categoryOptionLodging, value: ExpenseEntryCategory.Lodging },
-  { label: COPY.categoryOptionOther, value: ExpenseEntryCategory.Other },
+  { label: COPY.categoryOptionFood, value: ExpenseCategory.Food },
+  { label: COPY.categoryOptionLodging, value: ExpenseCategory.Lodging },
+  { label: COPY.categoryOptionOther, value: ExpenseCategory.Other },
   {
     label: COPY.categoryOptionTransport,
-    value: ExpenseEntryCategory.Transport,
+    value: ExpenseCategory.Transport,
   },
 ];
 
@@ -74,8 +67,8 @@ export function ExpenseEntryFormView({
 }: ExpenseEntryFormViewProps) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
-  const [category, setCategory] = useState<ExpenseEntryCategory>(
-    ExpenseEntryCategory.Food,
+  const [category, setCategory] = useState<ExpenseCategory>(
+    ExpenseCategory.Food,
   );
   const [payerMemberId, setPayerMemberId] = useState(initialPayerId ?? "");
   const [participantIds, setParticipantIds] = useState<string[]>(
@@ -85,6 +78,9 @@ export function ExpenseEntryFormView({
   const [linkedEntityId, setLinkedEntityId] = useState("");
   const [amountError, setAmountError] = useState<string | undefined>();
   const [nameError, setNameError] = useState<string | undefined>();
+  const [participantError, setParticipantError] = useState<
+    string | undefined
+  >();
   const [payerError, setPayerError] = useState<string | undefined>();
 
   function handleParticipantToggle(memberId: string) {
@@ -99,6 +95,7 @@ export function ExpenseEntryFormView({
     e.preventDefault();
     setAmountError(undefined);
     setNameError(undefined);
+    setParticipantError(undefined);
     setPayerError(undefined);
 
     let hasError = false;
@@ -121,6 +118,11 @@ export function ExpenseEntryFormView({
 
     if (payerMemberId === "") {
       setPayerError(COPY.errorPayerRequired);
+      hasError = true;
+    }
+
+    if (participantIds.length === 0) {
+      setParticipantError(COPY.errorParticipantsRequired);
       hasError = true;
     }
 
@@ -191,7 +193,7 @@ export function ExpenseEntryFormView({
           id="expense-category"
           value={category}
           onChange={(e) => {
-            setCategory(e.target.value as ExpenseEntryCategory);
+            setCategory(e.target.value as ExpenseCategory);
           }}
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >
@@ -244,6 +246,9 @@ export function ExpenseEntryFormView({
             </label>
           ))}
         </div>
+        {participantError !== undefined && (
+          <p className="text-sm text-destructive">{participantError}</p>
+        )}
       </fieldset>
 
       <div className="flex flex-col gap-1.5">

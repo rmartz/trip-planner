@@ -8,23 +8,24 @@ import type {
 } from "@/lib/types/expense";
 
 interface CreateExpenseInput {
-  tripId: string;
-  name: string;
   amount: number;
   currency: string;
   category: ExpenseCategory;
+  name: string;
   payerUid: string;
   participantUids: string[];
   splitMethod: ExpenseSplitMethod;
   linkedEntity?: ExpenseLinkedEntity;
 }
 
-async function createExpense(input: CreateExpenseInput): Promise<string> {
-  const { tripId, ...body } = input;
+async function createExpense(
+  tripId: string,
+  input: CreateExpenseInput,
+): Promise<string> {
   const response = await fetch(`/api/trips/${tripId}/expenses`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify(input),
   });
   if (!response.ok) throw new Error("Failed to create expense");
   const data = (await response.json()) as { expenseId: string };
@@ -34,7 +35,7 @@ async function createExpense(input: CreateExpenseInput): Promise<string> {
 export function useCreateExpense(tripId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createExpense,
+    mutationFn: (input: CreateExpenseInput) => createExpense(tripId, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["expenses", tripId] });
     },

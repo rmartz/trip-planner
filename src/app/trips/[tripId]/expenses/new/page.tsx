@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
+import { Button } from "@/components/ui/button";
 import { useActivities } from "@/hooks/use-activities";
 import { useTrip } from "@/hooks/use-trip";
 import { useCreateExpense } from "@/hooks/use-create-expense";
@@ -9,7 +10,6 @@ import { useLegs } from "@/hooks/use-legs";
 import { useStops } from "@/hooks/use-stops";
 import { useTripMembers } from "@/hooks/use-trip-members";
 import {
-  ExpenseCategory,
   ExpenseLinkedEntityType,
   ExpenseSplitMethod,
 } from "@/lib/types/expense";
@@ -33,7 +33,11 @@ export default function NewExpensePage() {
   const tripId = params.tripId;
 
   const { data: trip } = useTrip(tripId);
-  const { data: members } = useTripMembers(tripId);
+  const {
+    data: members,
+    isError: membersError,
+    refetch: refetchMembers,
+  } = useTripMembers(tripId);
   const { data: stopsData } = useStops(tripId);
   const { data: legsData } = useLegs(tripId);
   const { data: activitiesData } = useActivities(tripId);
@@ -93,7 +97,24 @@ export default function NewExpensePage() {
         },
       }}
     >
-      {members !== undefined && (
+      {membersError && (
+        <div className="flex flex-col gap-3 p-4">
+          <p className="text-sm text-destructive">
+            {EXPENSE_ENTRY_FORM_COPY.membersLoadError}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-fit"
+            onClick={() => {
+              void refetchMembers();
+            }}
+          >
+            {EXPENSE_ENTRY_FORM_COPY.retryMembersButton}
+          </Button>
+        </div>
+      )}
+      {!membersError && members !== undefined && (
         <ExpenseEntryFormView
           initialPayerId={initialPayerId}
           isSubmitting={createExpense.isPending}
@@ -112,11 +133,10 @@ export default function NewExpensePage() {
 
             createExpense.mutate(
               {
-                tripId,
                 name: input.name,
                 amount: input.amountCents / 100,
                 currency: input.currency,
-                category: input.category as unknown as ExpenseCategory,
+                category: input.category,
                 payerUid: input.payerMemberId,
                 participantUids: input.participantMemberIds,
                 splitMethod: ExpenseSplitMethod.Even,

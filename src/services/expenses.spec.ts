@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Expense } from "@/lib/types/expense";
 import { ExpenseCategory, ExpenseSplitMethod } from "@/lib/types/expense";
+import { TripRole } from "@/lib/types/trip";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
 vi.mock("@/lib/firebase/schema/expense", () => ({
@@ -13,7 +14,11 @@ import {
   expenseToFirebase,
   firebaseToExpense,
 } from "@/lib/firebase/schema/expense";
-import { addExpense, getExpensesForTrip } from "./expenses";
+import {
+  addExpense,
+  getExpenseMemberRole,
+  getExpensesForTrip,
+} from "./expenses";
 
 function makeExpense(overrides: Partial<Expense> = {}): Expense {
   return {
@@ -40,6 +45,59 @@ interface MockDocSnapshot {
   exists: boolean;
   data: () => Record<string, unknown> | undefined;
 }
+
+describe("getExpenseMemberRole", () => {
+  const memberDocGet = vi.fn();
+  const membersDoc = vi.fn();
+  const membersCollection = vi.fn();
+  const tripDoc = vi.fn();
+  const tripsCollection = vi.fn();
+  const mockDb = { collection: tripsCollection };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+    tripsCollection.mockReturnValue({ doc: tripDoc });
+    tripDoc.mockReturnValue({ collection: membersCollection });
+    membersCollection.mockReturnValue({ doc: membersDoc });
+    membersDoc.mockReturnValue({ get: memberDocGet });
+  });
+
+  it("returns the stored role when the membership document has a role", async () => {
+    memberDocGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ role: TripRole.Planner }),
+    });
+
+    const role = await getExpenseMemberRole("uid-1", "trip-1");
+
+    expect(role).toBe(TripRole.Planner);
+  });
+
+  it("defaults missing role to guest for legacy membership documents", async () => {
+    memberDocGet.mockResolvedValue({
+      exists: true,
+      data: () => ({}),
+    });
+
+    const role = await getExpenseMemberRole("uid-1", "trip-1");
+
+    expect(role).toBe(TripRole.Guest);
+  });
+
+  it("returns null when no membership document exists", async () => {
+    memberDocGet.mockResolvedValue({
+      exists: false,
+      data: () => undefined,
+    });
+
+    const role = await getExpenseMemberRole("uid-1", "trip-1");
+
+    expect(role).toBeNull();
+  });
+});
 
 describe("getExpensesForTrip", () => {
   const orderBy = vi.fn();
