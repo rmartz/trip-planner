@@ -1,0 +1,63 @@
+name: PR Screenshots
+
+on:
+  pull_request:
+    branches: [main]
+
+# Requires contents:write to push to gh-screenshots branch.
+# Forks get a read-only token regardless of this block, so the job is skipped
+# for forked PRs (see the `if:` condition on the job below).
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: screenshots-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Storybook screenshots
+    runs-on: ubuntu-latest
+    # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot push to
+    # gh-screenshots regardless of the permissions block above.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }}
+
+      - name: Detect changed story files
+        id: stories
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.stories.tsx')
+          if [ -z "$CHANGED" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            printf 'files<<EOF\n%s\nEOF\n' "$CHANGED" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: ./.github/actions/setup
+        if: steps.stories.outputs.found == 'true'
+
+      - name: Install Playwright chromium
+        if: steps.stories.outputs.found == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build Storybook
+        if: steps.stories.outputs.found == 'true'
+        run: pnpm build-storybook
+
+      - name: Capture screenshots and post PR comment
+        if: steps.stories.outputs.found == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHANGED_FILES: ${{ steps.stories.outputs.files }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/storybook-screenshots.mjs
