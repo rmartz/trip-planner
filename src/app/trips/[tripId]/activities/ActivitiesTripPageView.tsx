@@ -64,13 +64,13 @@ function VoterNameGroup({ label, names }: VoterNameGroupProps) {
 }
 
 interface PlannerByNameInsetProps {
-  voterNames?: ActivityProposalVoterNames;
+  voterNames: ActivityProposalVoterNames;
 }
 
 function PlannerByNameInset({ voterNames }: PlannerByNameInsetProps) {
-  const yes = voterNames?.yes ?? [];
-  const maybe = voterNames?.maybe ?? [];
-  const no = voterNames?.no ?? [];
+  const yes = voterNames.yes;
+  const maybe = voterNames.maybe;
+  const no = voterNames.no;
   return (
     <div className="mt-1 rounded-md bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
       <p className="mb-1 font-mono text-[10px] text-zinc-400 dark:text-zinc-500">
@@ -149,7 +149,7 @@ export function ActivitiesTripPageView({
                     onVote(proposal.proposalId, vote);
                   }}
                 />
-                {isPlanner && (
+                {isPlanner && proposal.voterNames !== undefined && (
                   <PlannerByNameInset voterNames={proposal.voterNames} />
                 )}
               </li>

@@ -44,7 +44,12 @@ function VoteButton({ label, vote, selected, onSelect }: VoteButtonProps) {
   );
 }
 
-export function VoteRow({ counts, hideButtons, onChange, value }: VoteRowProps) {
+export function VoteRow({
+  counts,
+  hideButtons,
+  onChange,
+  value,
+}: VoteRowProps) {
   return (
     <div className="flex flex-col gap-1">
       <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400">

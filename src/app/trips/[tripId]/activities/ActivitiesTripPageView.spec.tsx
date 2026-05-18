@@ -374,6 +374,23 @@ describe("ActivitiesTripPageView — planner role: by-name inset visible", () =>
   });
 });
 
+describe("ActivitiesTripPageView — planner role: by-name inset hidden when voterNames absent", () => {
+  it("does not render the by-name sub-header when voterNames is undefined", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1", voterNames: undefined })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.queryByText(ACTIVITIES_TRIP_PAGE_COPY.byNameSubheader),
+    ).toBeNull();
+  });
+});
+
 describe("ActivitiesTripPageView — guest role: by-name inset hidden", () => {
   it("does not render the by-name sub-header for guests", () => {
     render(
