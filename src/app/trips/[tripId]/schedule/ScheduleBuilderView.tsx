@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { TimeOfDaySlot } from "@/lib/types/activity";
-import { SCHEDULE_BUILDER_COPY } from "./ScheduleBuilderView.copy";
-
-const COPY = SCHEDULE_BUILDER_COPY;
+import { SCHEDULE_BUILDER_COPY as COPY } from "./ScheduleBuilderView.copy";
 
 export interface ProposedActivityItem {
   activityId: string;
@@ -30,8 +28,7 @@ function PinnedActivityRow({ activity }: PinnedActivityRowProps) {
   return (
     <li
       data-testid="pinned-activity-item"
-      className="flex items-center gap-3 rounded-lg border p-3"
-      style={{ borderColor: "var(--ink, #18181b)" }}
+      className="flex items-center gap-3 rounded-lg border border-zinc-900 p-3"
     >
       <span className="flex-1 text-sm font-medium">{activity.name}</span>
       {activity.timeOfDaySlot !== undefined && (
@@ -66,23 +63,21 @@ function ProposedActivityRow({
       <div className="flex flex-col gap-0.5">
         <Button
           type="button"
-          size="sm"
+          size="icon-xs"
           variant="ghost"
-          aria-label={COPY.moveUpLabel}
+          aria-label={COPY.moveUpLabel(activity.name)}
           disabled={isFirst}
           onClick={onMoveUp}
-          className="h-5 w-5 p-0 text-xs leading-none"
         >
           ▲
         </Button>
         <Button
           type="button"
-          size="sm"
+          size="icon-xs"
           variant="ghost"
-          aria-label={COPY.moveDownLabel}
+          aria-label={COPY.moveDownLabel(activity.name)}
           disabled={isLast}
           onClick={onMoveDown}
-          className="h-5 w-5 p-0 text-xs leading-none"
         >
           ▼
         </Button>
@@ -103,7 +98,9 @@ export function ScheduleBuilderView({
   onReorder,
   onPublish,
 }: ScheduleBuilderViewProps) {
-  const pinnedActivities = activities.filter((a) => a.pinned);
+  const pinnedActivities = [...activities.filter((a) => a.pinned)].sort(
+    (a, b) => a.order - b.order,
+  );
   const [unpinnedOrder, setUnpinnedOrder] = useState(() =>
     [...activities.filter((a) => !a.pinned)].sort((a, b) => a.order - b.order),
   );
@@ -183,7 +180,12 @@ export function ScheduleBuilderView({
       </main>
 
       <footer className="border-t p-4">
-        <Button type="button" className="w-full" onClick={onPublish}>
+        <Button
+          type="button"
+          className="w-full"
+          disabled={isEmpty}
+          onClick={onPublish}
+        >
           {COPY.publishButton}
         </Button>
       </footer>

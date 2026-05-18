@@ -1,23 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import { TimeOfDaySlot } from "@/lib/types/activity";
-import {
-  type ProposedActivityItem,
-  ScheduleBuilderView,
-} from "./ScheduleBuilderView";
-
-function makeActivity(
-  overrides: Partial<ProposedActivityItem> = {},
-): ProposedActivityItem {
-  return {
-    activityId: "activity-1",
-    name: "Morning hike",
-    pinned: false,
-    timeOfDaySlot: undefined,
-    order: 0,
-    ...overrides,
-  };
-}
+import { ScheduleBuilderView } from "./ScheduleBuilderView";
+import { makeActivity } from "./ScheduleBuilderView-tests/fixtures";
 
 const meta: Meta<typeof ScheduleBuilderView> = {
   component: ScheduleBuilderView,
