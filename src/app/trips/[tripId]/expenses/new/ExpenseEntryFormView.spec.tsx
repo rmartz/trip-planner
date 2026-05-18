@@ -180,8 +180,8 @@ describe("ExpenseEntryFormView — amount validation", () => {
   });
 });
 
-describe("ExpenseEntryFormView — description validation", () => {
-  it("shows description-required error when submitted without a name", () => {
+describe("ExpenseEntryFormView — name validation", () => {
+  it("shows name-required error when submitted without a name", () => {
     render(
       <ExpenseEntryFormView
         initialPayerId="member-alice"
