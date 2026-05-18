@@ -1,34 +1,32 @@
 "use client";
 
-import { SCHEDULE_RSVP_COPY } from "./ScheduleRSVPView.copy";
+import { SCHEDULE_RSVP_COPY as COPY } from "./ScheduleRsvpView.copy";
 
-const COPY = SCHEDULE_RSVP_COPY;
-
-export enum ScheduleRSVPStatus {
+export enum ScheduleRsvpStatus {
   Confirmed = "confirmed",
   Skipped = "skipped",
 }
 
-export interface ScheduleRSVPActivity {
+export interface ScheduleRsvpActivity {
   activityId: string;
   name: string;
   timeLabel: string;
-  rsvp?: ScheduleRSVPStatus;
+  rsvp?: ScheduleRsvpStatus;
 }
 
-export interface ScheduleRSVPViewProps {
-  activities: ScheduleRSVPActivity[];
-  onRsvp: (activityId: string, status: ScheduleRSVPStatus) => void;
+export interface ScheduleRsvpViewProps {
+  activities: ScheduleRsvpActivity[];
+  onRsvp: (activityId: string, status: ScheduleRsvpStatus) => void;
 }
 
-interface ActivityRSVPCardProps {
-  activity: ScheduleRSVPActivity;
-  onRsvp: (activityId: string, status: ScheduleRSVPStatus) => void;
+interface ActivityRsvpCardProps {
+  activity: ScheduleRsvpActivity;
+  onRsvp: (activityId: string, status: ScheduleRsvpStatus) => void;
 }
 
-function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
-  const isConfirmed = activity.rsvp === ScheduleRSVPStatus.Confirmed;
-  const isSkipped = activity.rsvp === ScheduleRSVPStatus.Skipped;
+function ActivityRsvpCard({ activity, onRsvp }: ActivityRsvpCardProps) {
+  const isConfirmed = activity.rsvp === ScheduleRsvpStatus.Confirmed;
+  const isSkipped = activity.rsvp === ScheduleRsvpStatus.Skipped;
 
   return (
     <li
@@ -50,7 +48,7 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
               : "border border-input bg-background text-foreground"
           }`}
           onClick={() => {
-            onRsvp(activity.activityId, ScheduleRSVPStatus.Confirmed);
+            onRsvp(activity.activityId, ScheduleRsvpStatus.Confirmed);
           }}
         >
           {COPY.confirmButton}
@@ -65,7 +63,7 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
               : "border border-input bg-background text-foreground"
           }`}
           onClick={() => {
-            onRsvp(activity.activityId, ScheduleRSVPStatus.Skipped);
+            onRsvp(activity.activityId, ScheduleRsvpStatus.Skipped);
           }}
         >
           {COPY.skipButton}
@@ -75,10 +73,10 @@ function ActivityRSVPCard({ activity, onRsvp }: ActivityRSVPCardProps) {
   );
 }
 
-export function ScheduleRSVPView({
+export function ScheduleRsvpView({
   activities,
   onRsvp,
-}: ScheduleRSVPViewProps) {
+}: ScheduleRsvpViewProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex flex-col gap-0.5 border-b px-4 py-3">
@@ -96,7 +94,7 @@ export function ScheduleRSVPView({
         ) : (
           <ol className="flex flex-col gap-3">
             {activities.map((activity) => (
-              <ActivityRSVPCard
+              <ActivityRsvpCard
                 key={activity.activityId}
                 activity={activity}
                 onRsvp={onRsvp}

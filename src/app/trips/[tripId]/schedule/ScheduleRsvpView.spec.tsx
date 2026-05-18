@@ -1,19 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
-  type ScheduleRSVPActivity,
-  ScheduleRSVPStatus,
-  ScheduleRSVPView,
-} from "./ScheduleRSVPView";
-import { SCHEDULE_RSVP_COPY } from "./ScheduleRSVPView.copy";
+  type ScheduleRsvpActivity,
+  ScheduleRsvpStatus,
+  ScheduleRsvpView,
+} from "./ScheduleRsvpView";
+import { SCHEDULE_RSVP_COPY } from "./ScheduleRsvpView.copy";
 
 afterEach(cleanup);
 
 const COPY = SCHEDULE_RSVP_COPY;
 
 function makeActivity(
-  overrides: Partial<ScheduleRSVPActivity> = {},
-): ScheduleRSVPActivity {
+  overrides: Partial<ScheduleRsvpActivity> = {},
+): ScheduleRsvpActivity {
   return {
     activityId: "act-1",
     name: "Morning hike",
@@ -23,10 +23,10 @@ function makeActivity(
   };
 }
 
-describe("ScheduleRSVPView — per-activity rendering", () => {
+describe("ScheduleRsvpView — per-activity rendering", () => {
   it("renders the activity name for each scheduled activity", () => {
     render(
-      <ScheduleRSVPView
+      <ScheduleRsvpView
         activities={[
           makeActivity({ activityId: "a1", name: "Morning hike" }),
           makeActivity({ activityId: "a2", name: "Lunch at Barton Springs" }),
@@ -40,7 +40,7 @@ describe("ScheduleRSVPView — per-activity rendering", () => {
 
   it("renders the time label for each activity", () => {
     render(
-      <ScheduleRSVPView
+      <ScheduleRsvpView
         activities={[makeActivity({ timeLabel: "Morning" })]}
         onRsvp={vi.fn()}
       />,
@@ -49,16 +49,16 @@ describe("ScheduleRSVPView — per-activity rendering", () => {
   });
 });
 
-describe("ScheduleRSVPView — RSVP buttons per card", () => {
+describe("ScheduleRsvpView — RSVP buttons per card", () => {
   it('renders an "I\'m in" button and a "Skip" button for each activity', () => {
-    render(<ScheduleRSVPView activities={[makeActivity()]} onRsvp={vi.fn()} />);
+    render(<ScheduleRsvpView activities={[makeActivity()]} onRsvp={vi.fn()} />);
     expect(screen.getByText(COPY.confirmButton)).toBeDefined();
     expect(screen.getByText(COPY.skipButton)).toBeDefined();
   });
 
   it("renders two sets of buttons when there are two activities", () => {
     render(
-      <ScheduleRSVPView
+      <ScheduleRsvpView
         activities={[
           makeActivity({ activityId: "a1", name: "Activity One" }),
           makeActivity({ activityId: "a2", name: "Activity Two" }),
@@ -71,11 +71,11 @@ describe("ScheduleRSVPView — RSVP buttons per card", () => {
   });
 });
 
-describe("ScheduleRSVPView — button active state reflects RSVP status", () => {
+describe("ScheduleRsvpView — button active state reflects RSVP status", () => {
   it('"I\'m in" button has data-active=true when rsvp is Confirmed', () => {
     render(
-      <ScheduleRSVPView
-        activities={[makeActivity({ rsvp: ScheduleRSVPStatus.Confirmed })]}
+      <ScheduleRsvpView
+        activities={[makeActivity({ rsvp: ScheduleRsvpStatus.Confirmed })]}
         onRsvp={vi.fn()}
       />,
     );
@@ -85,8 +85,8 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
 
   it('"Skip" button has data-active=true when rsvp is Skipped', () => {
     render(
-      <ScheduleRSVPView
-        activities={[makeActivity({ rsvp: ScheduleRSVPStatus.Skipped })]}
+      <ScheduleRsvpView
+        activities={[makeActivity({ rsvp: ScheduleRsvpStatus.Skipped })]}
         onRsvp={vi.fn()}
       />,
     );
@@ -96,7 +96,7 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
 
   it("neither button has data-active=true when rsvp is undefined", () => {
     render(
-      <ScheduleRSVPView
+      <ScheduleRsvpView
         activities={[makeActivity({ rsvp: undefined })]}
         onRsvp={vi.fn()}
       />,
@@ -108,47 +108,47 @@ describe("ScheduleRSVPView — button active state reflects RSVP status", () => 
   });
 });
 
-describe("ScheduleRSVPView — onRsvp callback", () => {
+describe("ScheduleRsvpView — onRsvp callback", () => {
   it('clicking "I\'m in" calls onRsvp with activityId and Confirmed', () => {
     const onRsvp = vi.fn();
     render(
-      <ScheduleRSVPView
+      <ScheduleRsvpView
         activities={[makeActivity({ activityId: "act-42" })]}
         onRsvp={onRsvp}
       />,
     );
     fireEvent.click(screen.getByText(COPY.confirmButton));
-    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRSVPStatus.Confirmed);
+    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRsvpStatus.Confirmed);
   });
 
   it('clicking "Skip" calls onRsvp with activityId and Skipped', () => {
     const onRsvp = vi.fn();
     render(
-      <ScheduleRSVPView
+      <ScheduleRsvpView
         activities={[makeActivity({ activityId: "act-42" })]}
         onRsvp={onRsvp}
       />,
     );
     fireEvent.click(screen.getByText(COPY.skipButton));
-    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRSVPStatus.Skipped);
+    expect(onRsvp).toHaveBeenCalledWith("act-42", ScheduleRsvpStatus.Skipped);
   });
 });
 
-describe("ScheduleRSVPView — header subline", () => {
+describe("ScheduleRsvpView — header subline", () => {
   it('renders the "published · please RSVP" subline in the header', () => {
-    render(<ScheduleRSVPView activities={[makeActivity()]} onRsvp={vi.fn()} />);
+    render(<ScheduleRsvpView activities={[makeActivity()]} onRsvp={vi.fn()} />);
     expect(screen.getByText(COPY.publishedSubline)).toBeDefined();
   });
 });
 
-describe("ScheduleRSVPView — empty state", () => {
+describe("ScheduleRsvpView — empty state", () => {
   it("renders the empty state message when activities is empty", () => {
-    render(<ScheduleRSVPView activities={[]} onRsvp={vi.fn()} />);
+    render(<ScheduleRsvpView activities={[]} onRsvp={vi.fn()} />);
     expect(screen.getByText(COPY.emptyState)).toBeDefined();
   });
 
   it("does not render the empty state message when activities are present", () => {
-    render(<ScheduleRSVPView activities={[makeActivity()]} onRsvp={vi.fn()} />);
+    render(<ScheduleRsvpView activities={[makeActivity()]} onRsvp={vi.fn()} />);
     expect(screen.queryByText(COPY.emptyState)).toBeNull();
   });
 });
