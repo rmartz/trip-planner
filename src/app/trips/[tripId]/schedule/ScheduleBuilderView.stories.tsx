@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import { TimeOfDaySlot } from "@/lib/types/activity";
 import { ScheduleBuilderView } from "./ScheduleBuilderView";
-import { makeActivity } from "./ScheduleBuilderView-tests/fixtures";
+import { makeActivity } from "./ScheduleBuilderView.fixtures";
 
 const meta: Meta<typeof ScheduleBuilderView> = {
   component: ScheduleBuilderView,

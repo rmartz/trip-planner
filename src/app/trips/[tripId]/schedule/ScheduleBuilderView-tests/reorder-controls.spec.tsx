@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ScheduleBuilderView } from "../ScheduleBuilderView";
 import { SCHEDULE_BUILDER_COPY } from "../ScheduleBuilderView.copy";
-import { makeActivity } from "./fixtures";
+import { makeActivity } from "../ScheduleBuilderView.fixtures";
 
 afterEach(cleanup);
 
