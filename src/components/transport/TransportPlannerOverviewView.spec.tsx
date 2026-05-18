@@ -52,24 +52,44 @@ function makeLegSummary(
 
 describe("TransportPlannerOverviewView — page header", () => {
   it("renders the heading", () => {
-    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
+    render(
+      <TransportPlannerOverviewView
+        legs={[makeLegSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
     expect(screen.getByText(COPY.heading)).toBeDefined();
   });
 
   it("renders the heading subtext", () => {
-    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
+    render(
+      <TransportPlannerOverviewView
+        legs={[makeLegSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
     expect(screen.getByText(COPY.headingSubtext)).toBeDefined();
   });
 });
 
 describe("TransportPlannerOverviewView — empty state", () => {
   it("shows the empty-legs message when no legs are passed", () => {
-    render(<TransportPlannerOverviewView legs={[]} />);
+    render(
+      <TransportPlannerOverviewView
+        legs={[]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
     expect(screen.getByText(COPY.emptyLegsMessage)).toBeDefined();
   });
 
   it("does not render any leg sections when legs are empty", () => {
-    const { container } = render(<TransportPlannerOverviewView legs={[]} />);
+    const { container } = render(
+      <TransportPlannerOverviewView
+        legs={[]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
     expect(
       container.querySelectorAll("[data-testid=transport-leg-section]").length,
     ).toBe(0);
@@ -83,6 +103,7 @@ describe("TransportPlannerOverviewView — per-leg cards", () => {
         legs={[
           makeLegSummary({ leg: makeLeg({ name: "Austin → San Antonio" }) }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText("Austin → San Antonio")).toBeDefined();
@@ -95,6 +116,7 @@ describe("TransportPlannerOverviewView — per-leg cards", () => {
           makeLegSummary({ leg: makeLeg({ legId: "l1", name: "Leg One" }) }),
           makeLegSummary({ leg: makeLeg({ legId: "l2", name: "Leg Two" }) }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(
@@ -125,6 +147,7 @@ describe("TransportPlannerOverviewView — status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.okPill)).toBeDefined();
@@ -151,6 +174,7 @@ describe("TransportPlannerOverviewView — status pill", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.gapPill(3))).toBeDefined();
@@ -159,7 +183,12 @@ describe("TransportPlannerOverviewView — status pill", () => {
 
 describe("TransportPlannerOverviewView — demand breakdown", () => {
   it("renders the demand card title", () => {
-    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
+    render(
+      <TransportPlannerOverviewView
+        legs={[makeLegSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
     expect(screen.getByText(COPY.demandCardTitle)).toBeDefined();
   });
 
@@ -176,6 +205,7 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.demandDriving)).toBeDefined();
@@ -195,6 +225,7 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.demandNeedRide)).toBeDefined();
@@ -214,6 +245,7 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.demandNoReply)).toBeDefined();
@@ -233,6 +265,7 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
             },
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.demandSkipLeg)).toBeDefined();
@@ -242,7 +275,12 @@ describe("TransportPlannerOverviewView — demand breakdown", () => {
 
 describe("TransportPlannerOverviewView — supply card", () => {
   it("renders the supply card title", () => {
-    render(<TransportPlannerOverviewView legs={[makeLegSummary()]} />);
+    render(
+      <TransportPlannerOverviewView
+        legs={[makeLegSummary()]}
+        onToggleMemberSortedOwn={vi.fn()}
+      />,
+    );
     expect(screen.getByText(COPY.supplyCardTitle)).toBeDefined();
   });
 
@@ -261,6 +299,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText("Tara · Tara's SUV")).toBeDefined();
@@ -282,6 +321,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.publicVisibility)).toBeDefined();
@@ -303,6 +343,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.inviteOnlyVisibility(4))).toBeDefined();
@@ -323,6 +364,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.inviteOnlyLabel)).toBeDefined();
@@ -349,6 +391,7 @@ describe("TransportPlannerOverviewView — supply card", () => {
             ],
           }),
         ]}
+        onToggleMemberSortedOwn={vi.fn()}
       />,
     );
     expect(screen.getByText(COPY.seatsLabel(7))).toBeDefined();

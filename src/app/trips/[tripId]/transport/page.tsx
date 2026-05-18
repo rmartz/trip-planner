@@ -46,7 +46,10 @@ export default function TransportPage({ params }: TransportPageProps) {
       }}
     >
       {isPlanner ? (
-        <TransportPlannerOverviewView legs={legSummaries} />
+        <TransportPlannerOverviewView
+          legs={legSummaries}
+          onToggleMemberSortedOwn={() => undefined}
+        />
       ) : (
         <p className="p-4 text-sm text-muted-foreground">
           {TRANSPORT_PAGE_COPY.plannerOnlyMessage}

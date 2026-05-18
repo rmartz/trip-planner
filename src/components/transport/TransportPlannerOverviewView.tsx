@@ -28,7 +28,7 @@ export interface TransportLegSummary {
 
 export interface TransportPlannerOverviewViewProps {
   legs: TransportLegSummary[];
-  onToggleMemberSortedOwn?: (
+  onToggleMemberSortedOwn: (
     legId: string,
     memberId: string,
     sorted: boolean,
@@ -40,7 +40,7 @@ function totalSeats(supply: TransportCarOffer[]): number {
 }
 
 interface LegSectionProps {
-  onToggleMemberSortedOwn?: (
+  onToggleMemberSortedOwn: (
     legId: string,
     memberId: string,
     sorted: boolean,
@@ -143,7 +143,7 @@ function LegSection({ onToggleMemberSortedOwn, summary }: LegSectionProps) {
                     type="checkbox"
                     checked={member.sortedOwnTransport}
                     onChange={(e) => {
-                      onToggleMemberSortedOwn?.(
+                      onToggleMemberSortedOwn(
                         leg.legId,
                         member.memberId,
                         e.target.checked,
