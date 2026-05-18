@@ -201,6 +201,36 @@ describe("tripToFirebase", () => {
     });
     expect(data.inviteToken).toBe("tok-xyz");
   });
+
+  it("maps cached gap fields when present", () => {
+    const data = tripToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      createdAt: new Date(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+      inviteToken: "tok-xyz",
+      gapCount: 4,
+      transportGapCount: 2,
+    });
+    expect(data.gapCount).toBe(4);
+    expect(data.transportGapCount).toBe(2);
+  });
+
+  it("omits cached gap fields when absent", () => {
+    const data = tripToFirebase({
+      name: "x",
+      startDate: new Date(START),
+      endDate: new Date(END),
+      createdAt: new Date(CREATED_AT),
+      createdBy: "uid-owner",
+      memberUids: MEMBER_UIDS,
+      inviteToken: "tok-xyz",
+    });
+    expect(data.gapCount).toBeUndefined();
+    expect(data.transportGapCount).toBeUndefined();
+  });
 });
 
 describe("tripToFirebase — date fields are firebase-admin Timestamps", () => {

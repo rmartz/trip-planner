@@ -44,6 +44,8 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
   createdBy: string;
   memberUids: string[];
   inviteToken: string;
+  gapCount?: number;
+  transportGapCount?: number;
   settledAt?: Timestamp;
 } {
   return {
@@ -54,6 +56,10 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
     createdBy: trip.createdBy,
     memberUids: trip.memberUids,
     inviteToken: trip.inviteToken,
+    ...(trip.gapCount !== undefined && { gapCount: trip.gapCount }),
+    ...(trip.transportGapCount !== undefined && {
+      transportGapCount: trip.transportGapCount,
+    }),
     ...(trip.settledAt !== undefined && {
       settledAt: Timestamp.fromDate(trip.settledAt),
     }),

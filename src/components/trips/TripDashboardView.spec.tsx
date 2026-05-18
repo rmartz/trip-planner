@@ -130,6 +130,14 @@ describe("Trip cards surface phase pill, date range with countdown, and avatar s
     ).toBeDefined();
   });
 
+  it("renders singular gap label when combined count is 1", () => {
+    const trip = makeTrip({ gapCount: 1 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(
+      screen.getByText(TRIP_DASHBOARD_COPY.gapCountLabel(1)),
+    ).toBeDefined();
+  });
+
   it("renders the gap-count pill when only transportGapCount is provided", () => {
     const trip = makeTrip({ transportGapCount: 3 });
     render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);

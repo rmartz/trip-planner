@@ -58,8 +58,18 @@ export async function getTripsForUser(uid: string): Promise<Trip[]> {
   }
 
   const tripDocs = await db.getAll(...tripRefs);
-  return tripDocs.flatMap((tripDoc) =>
+  const trips = tripDocs.flatMap((tripDoc) =>
     tripDoc.exists ? [firebaseToTrip(tripDoc.id, tripDoc.data() ?? {})] : [],
+  );
+  return Promise.all(
+    trips.map(async (trip) => {
+      if (trip.transportGapCount !== undefined) {
+        return trip;
+      }
+
+      const transportGapCount = await recomputeTransportGapCount(trip.tripId);
+      return { ...trip, transportGapCount };
+    }),
   );
 }
 
@@ -98,7 +108,7 @@ export async function createTripForUser(
 
 export async function recomputeTransportGapCount(
   tripId: string,
-): Promise<void> {
+): Promise<number> {
   const [legs, entries] = await Promise.all([
     getLegsForTrip(tripId),
     getTransportationEntriesForTrip(tripId),
@@ -126,4 +136,5 @@ export async function recomputeTransportGapCount(
 
   const db = getAdminFirestore();
   await db.collection("trips").doc(tripId).update({ transportGapCount });
+  return transportGapCount;
 }

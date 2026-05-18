@@ -1,7 +1,8 @@
 export const TRIP_DASHBOARD_COPY = {
   appTitle: "Trip Planner",
   activeTripsHeading: "Active",
-  gapCountLabel: (count: number) => `${String(count)} gaps`,
+  gapCountLabel: (count: number) =>
+    `${String(count)} ${count === 1 ? "gap" : "gaps"}`,
   notificationsAriaLabel: "Notifications",
   openMenuAriaLabel: "Open menu",
   pastTripsHeading: "Past",
