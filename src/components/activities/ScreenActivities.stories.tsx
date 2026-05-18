@@ -3,6 +3,8 @@ import { fn } from "storybook/test";
 import { ScreenActivitiesView } from "./ScreenActivitiesView";
 import type { Activity } from "@/lib/types/activity";
 import { TimeOfDaySlot, TransportationMode } from "@/lib/types/activity";
+import { InterestVote } from "@/lib/types/interest-vote";
+import { TripRole } from "@/lib/types/trip";
 
 const sampleActivities: Activity[] = [
   {
@@ -57,12 +59,23 @@ const sampleActivitiesWithPinned: Activity[] = [
   },
 ];
 
+const sampleVotes = {
+  "act-1": { userVote: undefined, counts: { yes: 5, maybe: 2, no: 1 } },
+  "act-2": {
+    userVote: InterestVote.Yes,
+    counts: { yes: 3, maybe: 0, no: 2 },
+  },
+};
+
 const meta: Meta<typeof ScreenActivitiesView> = {
   component: ScreenActivitiesView,
   args: {
     activities: [],
+    activityVotes: {},
     canPropose: true,
     onPropose: fn(),
+    onVote: fn(),
+    role: TripRole.Guest,
   },
 };
 
@@ -78,32 +91,48 @@ export const EmptyReadOnly: Story = {
   },
 };
 
-export const WithActivities: Story = {
+export const GuestWithActivities: Story = {
   args: {
     activities: sampleActivities,
+    activityVotes: sampleVotes,
+    role: TripRole.Guest,
   },
 };
 
-export const WithActivitiesReadOnly: Story = {
+export const GuestWithActivitiesReadOnly: Story = {
   args: {
     activities: sampleActivities,
+    activityVotes: sampleVotes,
     canPropose: false,
+    role: TripRole.Guest,
+  },
+};
+
+export const PlannerWithActivities: Story = {
+  args: {
+    activities: sampleActivities,
+    activityVotes: sampleVotes,
+    role: TripRole.Planner,
   },
 };
 
 export const WithPinnedActivitiesPlanner: Story = {
   args: {
     activities: sampleActivitiesWithPinned,
+    activityVotes: {},
     canPin: true,
     onPin: fn(),
     onPinToSlot: fn(),
     onUnpin: fn(),
+    role: TripRole.Planner,
   },
 };
 
 export const WithPinnedActivitiesGuest: Story = {
   args: {
     activities: sampleActivitiesWithPinned,
+    activityVotes: {},
     canPropose: false,
+    role: TripRole.Guest,
   },
 };
