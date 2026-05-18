@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 import { getClientAuth } from "@/lib/firebase/client";
 import { getOrCreateUserProfile } from "@/services/user-profile";
@@ -29,6 +30,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
       } else {
+        queryClient.clear();
         setProfile(undefined);
         setLoading(false);
       }
@@ -65,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       void handleAuthChange(firebaseUser, ++callId);
     });
     return unsubscribe;
-  }, []);
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider value={{ user, profile, loading }}>
