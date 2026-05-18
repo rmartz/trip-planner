@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { fn } from "storybook/test";
 import type { Leg } from "@/lib/types/trip";
 import {
   type TransportGuestLegSummary,
@@ -47,7 +48,7 @@ const meta: Meta<typeof TransportGuestOverviewView> = {
   component: TransportGuestOverviewView,
   args: {
     legs: [makeLegSummary()],
-    onClaimSeat: () => undefined,
+    onClaimSeat: fn(),
   },
 };
 

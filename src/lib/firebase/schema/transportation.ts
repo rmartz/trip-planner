@@ -21,7 +21,10 @@ export function firebaseToTransportationEntry(
     ...(data["seatCount"] !== undefined
       ? { seatCount: data["seatCount"] as number }
       : {}),
-    ...(Array.isArray(data["offeredToUids"])
+    ...(Array.isArray(data["offeredToUids"]) &&
+    (data["offeredToUids"] as unknown[]).every(
+      (u): u is string => typeof u === "string",
+    )
       ? { offeredToUids: data["offeredToUids"] as string[] }
       : {}),
     ...(data["ridingWithUid"] !== undefined

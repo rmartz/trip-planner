@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { fn } from "storybook/test";
 import {
   TransportDriverGuestPickerView,
   type TransportGuestCandidate,
@@ -24,8 +25,8 @@ const meta: Meta<typeof TransportDriverGuestPickerView> = {
     ],
     selectedUids: new Set(["uid-1"]),
     isSubmitting: false,
-    onToggleGuest: () => undefined,
-    onSave: () => undefined,
+    onToggleGuest: fn(),
+    onSave: fn(),
   },
 };
 
