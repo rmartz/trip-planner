@@ -1,6 +1,6 @@
 export const TRANSPORT_GUEST_OVERVIEW_COPY = {
   claimSeatButton: "Claim a seat",
-  claimSeatAriaLabel: (routeName: string) => `Claim a seat from ${routeName}`,
+  claimSeatAriaLabel: (driverName: string) => `Claim a seat from ${driverName}`,
   emptyOffersText: "No seat offers visible for this leg yet.",
   heading: "Your transport",
   headingSubtext: "Seat offers visible to you for each leg",

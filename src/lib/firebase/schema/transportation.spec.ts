@@ -245,4 +245,21 @@ describe("transportationEntryToFirebase — maps status and routeName", () => {
     });
     expect("ridingWithUid" in data).toBe(false);
   });
+
+  it("maps offeredToUids when present", () => {
+    const data = transportationEntryToFirebase({
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+      offeredToUids: ["uid-a", "uid-b"],
+    });
+    expect(data.offeredToUids).toEqual(["uid-a", "uid-b"]);
+  });
+
+  it("omits offeredToUids when undefined", () => {
+    const data = transportationEntryToFirebase({
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+    });
+    expect("offeredToUids" in data).toBe(false);
+  });
 });
