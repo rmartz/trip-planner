@@ -147,4 +147,23 @@ describe("Criterion 5 — Time-locked section for time-pinned activities", () =>
     render(<SchedulePageView days={days} />);
     expect(screen.getByTestId("schedule-activity-block-locked")).toBeDefined();
   });
+
+  it("time-locked activity block uses Tailwind border class instead of inline style", () => {
+    const days = [
+      makeScheduleDay({
+        activities: [
+          makeScheduledActivity({
+            activityId: "a-1",
+            name: "Birthday dinner",
+            timeLocked: true,
+            timeSlot: "19:00",
+          }),
+        ],
+      }),
+    ];
+    render(<SchedulePageView days={days} />);
+    const block = screen.getByTestId("schedule-activity-block-locked");
+    expect(block.classList.contains("border-zinc-900")).toBe(true);
+    expect(block.getAttribute("style")).toBeNull();
+  });
 });
