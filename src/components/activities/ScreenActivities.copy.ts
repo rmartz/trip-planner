@@ -9,8 +9,9 @@ const SLOT_LABELS: Record<TimeOfDaySlot, string> = {
 };
 
 export const SCREEN_ACTIVITIES_COPY = {
-  activityMenuLabel: "Activity options",
+  activityMenuLabel: (name: string) => `Activity options for ${name}`,
   cancelButton: "Cancel",
+  changeSlotOption: "Change time slot…",
   costLabel: "Cost per person ($)",
   descriptionLabel: "Description",
   descriptionPlaceholder: "Optional description",

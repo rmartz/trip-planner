@@ -8,11 +8,11 @@ import type { Activity } from "@/lib/types/activity";
 type OpenMenu = "main" | "slot-picker" | undefined;
 
 const SLOT_OPTIONS: TimeOfDaySlot[] = [
-  TimeOfDaySlot.Afternoon,
   TimeOfDaySlot.EarlyMorning,
+  TimeOfDaySlot.Morning,
+  TimeOfDaySlot.Afternoon,
   TimeOfDaySlot.Evening,
   TimeOfDaySlot.LateEvening,
-  TimeOfDaySlot.Morning,
 ];
 
 export interface ActivityCardViewProps {
@@ -48,7 +48,9 @@ export function ActivityCardView({
             <div className="relative">
               <button
                 type="button"
-                aria-label={SCREEN_ACTIVITIES_COPY.activityMenuLabel}
+                aria-label={SCREEN_ACTIVITIES_COPY.activityMenuLabel(
+                  activity.name,
+                )}
                 className="rounded p-0.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                 onClick={() => {
                   setOpenMenu(openMenu === "main" ? undefined : "main");
@@ -59,18 +61,31 @@ export function ActivityCardView({
               {openMenu === "main" && (
                 <ul className="absolute right-0 z-10 mt-1 min-w-max rounded-md border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
                   {activity.pinned ? (
-                    <li>
-                      <button
-                        type="button"
-                        className="w-full px-3 py-1.5 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                        onClick={() => {
-                          setOpenMenu(undefined);
-                          onUnpin(activity.activityId);
-                        }}
-                      >
-                        {SCREEN_ACTIVITIES_COPY.unpinOption}
-                      </button>
-                    </li>
+                    <>
+                      <li>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-1.5 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                          onClick={() => {
+                            setOpenMenu("slot-picker");
+                          }}
+                        >
+                          {SCREEN_ACTIVITIES_COPY.changeSlotOption}
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-1.5 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                          onClick={() => {
+                            setOpenMenu(undefined);
+                            onUnpin(activity.activityId);
+                          }}
+                        >
+                          {SCREEN_ACTIVITIES_COPY.unpinOption}
+                        </button>
+                      </li>
+                    </>
                   ) : (
                     <>
                       <li>

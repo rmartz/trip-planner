@@ -66,34 +66,38 @@ describe("Criterion 3 — Planner overflow menu", () => {
       />,
     );
     expect(
-      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel),
+      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel("Hiking")),
     ).toBeDefined();
   });
 
   it("does not show overflow menu when canPin is false", () => {
     render(
       <ScreenActivitiesView
-        activities={[makeActivity()]}
+        activities={[makeActivity({ name: "Hiking" })]}
         canPropose={false}
         canPin={false}
         onPropose={vi.fn()}
       />,
     );
     expect(
-      screen.queryByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel),
+      screen.queryByLabelText(
+        SCREEN_ACTIVITIES_COPY.activityMenuLabel("Hiking"),
+      ),
     ).toBeNull();
   });
 
   it("does not show overflow menu when canPin is undefined", () => {
     render(
       <ScreenActivitiesView
-        activities={[makeActivity()]}
+        activities={[makeActivity({ name: "Hiking" })]}
         canPropose={false}
         onPropose={vi.fn()}
       />,
     );
     expect(
-      screen.queryByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel),
+      screen.queryByLabelText(
+        SCREEN_ACTIVITIES_COPY.activityMenuLabel("Hiking"),
+      ),
     ).toBeNull();
   });
 
@@ -112,7 +116,7 @@ describe("Criterion 3 — Planner overflow menu", () => {
     );
 
     fireEvent.click(
-      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel),
+      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel("Hiking")),
     );
     fireEvent.click(screen.getByText(SCREEN_ACTIVITIES_COPY.pinOption));
 
@@ -136,14 +140,14 @@ describe("Criterion 3 — Planner overflow menu", () => {
     );
 
     fireEvent.click(
-      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel),
+      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel("Dinner")),
     );
     fireEvent.click(screen.getByText(SCREEN_ACTIVITIES_COPY.unpinOption));
 
     expect(onUnpin).toHaveBeenCalledWith("act-7");
   });
 
-  it("calls onPinToSlot with activityId and slot when a time slot is chosen", () => {
+  it("calls onPinToSlot with activityId and slot when a time slot is chosen from an unpinned activity", () => {
     const onPinToSlot = vi.fn();
     render(
       <ScreenActivitiesView
@@ -158,7 +162,7 @@ describe("Criterion 3 — Planner overflow menu", () => {
     );
 
     fireEvent.click(
-      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel),
+      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel("Brunch")),
     );
     fireEvent.click(screen.getByText(SCREEN_ACTIVITIES_COPY.pinToSlotOption));
     fireEvent.click(
@@ -166,5 +170,32 @@ describe("Criterion 3 — Planner overflow menu", () => {
     );
 
     expect(onPinToSlot).toHaveBeenCalledWith("act-99", TimeOfDaySlot.Evening);
+  });
+
+  it("calls onPinToSlot with activityId and slot when changing slot on an already-pinned activity", () => {
+    const onPinToSlot = vi.fn();
+    render(
+      <ScreenActivitiesView
+        activities={[
+          makeActivity({ activityId: "act-5", name: "Dinner", pinned: true }),
+        ]}
+        canPropose={false}
+        canPin={true}
+        onPropose={vi.fn()}
+        onPin={vi.fn()}
+        onPinToSlot={onPinToSlot}
+        onUnpin={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByLabelText(SCREEN_ACTIVITIES_COPY.activityMenuLabel("Dinner")),
+    );
+    fireEvent.click(screen.getByText(SCREEN_ACTIVITIES_COPY.changeSlotOption));
+    fireEvent.click(
+      screen.getByText(SCREEN_ACTIVITIES_COPY.slotLabel(TimeOfDaySlot.Morning)),
+    );
+
+    expect(onPinToSlot).toHaveBeenCalledWith("act-5", TimeOfDaySlot.Morning);
   });
 });
