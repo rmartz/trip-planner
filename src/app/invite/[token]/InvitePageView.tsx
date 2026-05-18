@@ -13,9 +13,10 @@ interface TripSummary {
 }
 
 export interface InvitePageViewProps {
-  trip: TripSummary;
+  trip?: TripSummary;
   isAuthenticated: boolean;
   isAlreadyMember: boolean;
+  inviteError?: "expired" | "revoked" | "used";
   joinError: boolean;
   onJoin: () => void;
   isJoining: boolean;
@@ -23,16 +24,38 @@ export interface InvitePageViewProps {
   signUpHref: string;
 }
 
+function inviteErrorMessage(error: "expired" | "revoked" | "used"): string {
+  if (error === "expired") return INVITE_PAGE_COPY.expiredError;
+  if (error === "used") return INVITE_PAGE_COPY.usedError;
+  return INVITE_PAGE_COPY.revokedError;
+}
+
 export function InvitePageView({
   trip,
   isAuthenticated,
   isAlreadyMember,
+  inviteError,
   joinError,
   onJoin,
   isJoining,
   signInHref,
   signUpHref,
 }: InvitePageViewProps) {
+  if (inviteError !== undefined) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
+        <div className="w-16 h-16 rounded-xl bg-muted" aria-hidden="true" />
+        <p className="text-sm text-destructive text-center">
+          {inviteErrorMessage(inviteError)}
+        </p>
+      </main>
+    );
+  }
+
+  if (trip === undefined) {
+    return null;
+  }
+
   const dateRange = `${new Date(trip.startDate).toLocaleDateString()} – ${new Date(trip.endDate).toLocaleDateString()}`;
 
   return (

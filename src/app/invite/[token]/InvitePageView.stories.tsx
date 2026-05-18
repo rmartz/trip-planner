@@ -80,3 +80,42 @@ export const JoinError: Story = {
     signUpHref: "/sign-up",
   },
 };
+
+export const ExpiredLink: Story = {
+  args: {
+    inviteError: "expired",
+    isAuthenticated: false,
+    isAlreadyMember: false,
+    joinError: false,
+    onJoin: () => undefined,
+    isJoining: false,
+    signInHref: "/sign-in",
+    signUpHref: "/sign-up",
+  },
+};
+
+export const RevokedLink: Story = {
+  args: {
+    inviteError: "revoked",
+    isAuthenticated: false,
+    isAlreadyMember: false,
+    joinError: false,
+    onJoin: () => undefined,
+    isJoining: false,
+    signInHref: "/sign-in",
+    signUpHref: "/sign-up",
+  },
+};
+
+export const UsedLink: Story = {
+  args: {
+    inviteError: "used",
+    isAuthenticated: false,
+    isAlreadyMember: false,
+    joinError: false,
+    onJoin: () => undefined,
+    isJoining: false,
+    signInHref: "/sign-in",
+    signUpHref: "/sign-up",
+  },
+};
