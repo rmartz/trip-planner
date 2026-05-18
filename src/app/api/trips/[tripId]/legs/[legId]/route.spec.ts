@@ -7,6 +7,10 @@ vi.mock("@/services/legs", () => ({
   updateLeg: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
+}));
+
 import { updateLeg } from "@/services/legs";
 import { PATCH } from "./route";
 

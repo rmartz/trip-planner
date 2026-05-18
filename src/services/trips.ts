@@ -3,6 +3,11 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
+import { getLegsForTrip } from "./legs";
+import {
+  computeLegSummary,
+  getTransportationEntriesForTrip,
+} from "./transportation";
 
 export async function getTripById(tripId: string): Promise<Trip | undefined> {
   const db = getAdminFirestore();
@@ -89,4 +94,36 @@ export async function createTripForUser(
   await batch.commit();
 
   return tripRef.id;
+}
+
+export async function recomputeTransportGapCount(
+  tripId: string,
+): Promise<void> {
+  const [legs, entries] = await Promise.all([
+    getLegsForTrip(tripId),
+    getTransportationEntriesForTrip(tripId),
+  ]);
+
+  const entriesByLegId = new Map<string, typeof entries>();
+  for (const entry of entries) {
+    const bucket = entriesByLegId.get(entry.legId) ?? [];
+    bucket.push(entry);
+    entriesByLegId.set(entry.legId, bucket);
+  }
+
+  let transportGapCount = 0;
+  for (const leg of legs) {
+    const legEntries = entriesByLegId.get(leg.legId) ?? [];
+    const { demand, supply } = computeLegSummary(
+      leg.memberUids,
+      legEntries,
+      {},
+    );
+    const seats = supply.reduce((acc, offer) => acc + offer.seatCount, 0);
+    const legGap = demand.needRide - seats;
+    if (legGap > 0) transportGapCount += legGap;
+  }
+
+  const db = getAdminFirestore();
+  await db.collection("trips").doc(tripId).update({ transportGapCount });
 }

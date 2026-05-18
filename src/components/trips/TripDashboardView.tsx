@@ -45,9 +45,9 @@ function TripCard({ trip, faded = false }: TripCardProps) {
       </p>
       <div className="mt-2 flex items-center gap-2">
         <span className="text-xs text-zinc-400">{trip.memberUids.length}</span>
-        {trip.gapCount != null && trip.gapCount > 0 && (
+        {(trip.gapCount ?? 0) + (trip.transportGapCount ?? 0) > 0 && (
           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-            {trip.gapCount} gaps
+            {(trip.gapCount ?? 0) + (trip.transportGapCount ?? 0)} gaps
           </span>
         )}
       </div>

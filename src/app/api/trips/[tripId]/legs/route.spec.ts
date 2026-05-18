@@ -11,6 +11,7 @@ vi.mock("@/services/legs", () => ({
 
 vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
 }));
 
 import { addLeg, getLegsForTrip } from "@/services/legs";

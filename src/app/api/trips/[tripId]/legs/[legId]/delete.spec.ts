@@ -8,6 +8,10 @@ vi.mock("@/services/legs", () => ({
   updateLeg: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
+}));
+
 import { softDeleteLeg } from "@/services/legs";
 import { DELETE } from "./route";
 

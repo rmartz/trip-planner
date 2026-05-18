@@ -87,6 +87,52 @@ describe("firebaseToTrip", () => {
     expect(trip.startDate.getTime()).toBeGreaterThanOrEqual(before);
     expect(trip.startDate.getTime()).toBeLessThanOrEqual(after);
   });
+
+  it("maps gapCount when present", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-x",
+      gapCount: 3,
+    });
+    expect(trip.gapCount).toBe(3);
+  });
+
+  it("returns gapCount as undefined when absent", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-x",
+    });
+    expect(trip.gapCount).toBeUndefined();
+  });
+
+  it("maps transportGapCount when present", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-x",
+      transportGapCount: 2,
+    });
+    expect(trip.transportGapCount).toBe(2);
+  });
+
+  it("returns transportGapCount as undefined when absent", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-x",
+    });
+    expect(trip.transportGapCount).toBeUndefined();
+  });
 });
 
 describe("tripToFirebase", () => {

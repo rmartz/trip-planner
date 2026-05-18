@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { softDeleteLeg, updateLeg } from "@/services/legs";
 import { PlannerOnlyError } from "@/services/errors";
+import { recomputeTransportGapCount } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -49,6 +50,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 
   try {
     await updateLeg(uid, tripId, legId, fields);
+    await recomputeTransportGapCount(tripId);
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof PlannerOnlyError) {
@@ -78,6 +80,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
   try {
     await softDeleteLeg(uid, tripId, legId);
+    await recomputeTransportGapCount(tripId);
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof PlannerOnlyError) {

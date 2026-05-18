@@ -7,6 +7,10 @@ vi.mock("@/services/legs", () => ({
   hardDeleteLeg: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
+}));
+
 import { hardDeleteLeg } from "@/services/legs";
 import { DELETE } from "./route";
 

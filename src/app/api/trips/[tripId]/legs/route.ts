@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { addLeg, getLegsForTrip } from "@/services/legs";
-import { getTripMemberRole } from "@/services/trips";
+import {
+  getTripMemberRole,
+  recomputeTransportGapCount,
+} from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -89,6 +92,8 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     body.name,
     notes,
   );
+
+  await recomputeTransportGapCount(tripId);
 
   return NextResponse.json({ legId });
 }

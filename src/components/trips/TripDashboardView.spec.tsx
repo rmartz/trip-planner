@@ -128,6 +128,24 @@ describe("Trip cards surface phase pill, date range with countdown, and avatar s
     expect(screen.getByText("2 gaps")).toBeDefined();
   });
 
+  it("renders the gap-count pill when only transportGapCount is provided", () => {
+    const trip = makeTrip({ transportGapCount: 3 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(screen.getByText("3 gaps")).toBeDefined();
+  });
+
+  it("sums gapCount and transportGapCount for the pill label", () => {
+    const trip = makeTrip({ gapCount: 2, transportGapCount: 3 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(screen.getByText("5 gaps")).toBeDefined();
+  });
+
+  it("does not render a gap-count pill when both gapCount and transportGapCount are 0", () => {
+    const trip = makeTrip({ gapCount: 0, transportGapCount: 0 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(screen.queryByText("0 gaps")).toBeNull();
+  });
+
   it("does not render a gap-count pill when gapCount is 0", () => {
     const trip = makeTrip({ gapCount: 0 });
     render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
