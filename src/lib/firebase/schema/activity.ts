@@ -10,6 +10,15 @@ import type {
   ActivityTimeOfDaySlot,
 } from "@/lib/types/activity";
 
+function toPinnedSlot(value: unknown): TimeOfDaySlot | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  return Object.values(TimeOfDaySlot).includes(value as TimeOfDaySlot)
+    ? (value as TimeOfDaySlot)
+    : undefined;
+}
+
 function toTimeOfDaySlot(value: unknown): ActivityTimeOfDaySlot | undefined {
   if (
     typeof value !== "object" ||
@@ -49,6 +58,10 @@ export function firebaseToActivity(
 ): Activity {
   const timeOfDaySlot = toTimeOfDaySlot(data["timeOfDaySlot"]);
   const groupSize = toGroupSize(data["groupSize"]);
+  const pinnedSlot =
+    data["pinned"] === true && data["pinnedSlot"] !== undefined
+      ? toPinnedSlot(data["pinnedSlot"])
+      : undefined;
   return {
     activityId,
     stopId,
@@ -71,6 +84,8 @@ export function firebaseToActivity(
           ] as TransportationMode,
         }
       : {}),
+    ...(data["pinned"] === true ? { pinned: true as const } : {}),
+    ...(pinnedSlot !== undefined ? { pinnedSlot } : {}),
   };
 }
 
@@ -84,6 +99,8 @@ export function activityToFirebase(
   groupSize?: ActivityGroupSize;
   costPerPerson?: number;
   transportationRequired?: TransportationMode;
+  pinned?: true;
+  pinnedSlot?: TimeOfDaySlot;
 } {
   return {
     name: activity.name,
@@ -102,6 +119,10 @@ export function activityToFirebase(
       : {}),
     ...(activity.transportationRequired !== undefined
       ? { transportationRequired: activity.transportationRequired }
+      : {}),
+    ...(activity.pinned === true ? { pinned: true as const } : {}),
+    ...(activity.pinned === true && activity.pinnedSlot !== undefined
+      ? { pinnedSlot: activity.pinnedSlot }
       : {}),
   };
 }

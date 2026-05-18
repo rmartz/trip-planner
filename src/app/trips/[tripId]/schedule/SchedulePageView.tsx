@@ -9,6 +9,7 @@ export interface ScheduledActivity {
   name: string;
   timeSlot: string;
   order: number;
+  timeLocked?: boolean;
 }
 
 export interface ScheduleDay {
@@ -26,28 +27,62 @@ interface DaySectionProps {
 }
 
 function DaySection({ day }: DaySectionProps) {
-  const sorted = [...day.activities].sort((a, b) => a.order - b.order);
+  const lockedActivities = [...day.activities]
+    .filter((a) => a.timeLocked)
+    .sort((a, b) => a.order - b.order);
+  const regularActivities = [...day.activities]
+    .filter((a) => !a.timeLocked)
+    .sort((a, b) => a.order - b.order);
 
   return (
     <section data-testid="schedule-day-section" className="flex flex-col gap-3">
       <h2 className="text-sm font-semibold">{day.label}</h2>
-      {sorted.length === 0 ? (
+      {lockedActivities.length === 0 && regularActivities.length === 0 ? (
         <p className="text-sm text-muted-foreground">{COPY.emptyDayMessage}</p>
       ) : (
-        <ol className="flex flex-col gap-2">
-          {sorted.map((activity) => (
-            <li
-              key={activity.activityId}
-              data-testid="schedule-activity-block"
-              className="flex items-start gap-3 rounded-lg border bg-card p-3"
+        <>
+          {lockedActivities.length > 0 && (
+            <div
+              data-testid="time-locked-section"
+              className="flex flex-col gap-2"
             >
-              <span className="font-mono text-xs text-muted-foreground">
-                {COPY.timeSlotLabel(activity.timeSlot)}
-              </span>
-              <span className="text-sm font-medium">{activity.name}</span>
-            </li>
-          ))}
-        </ol>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {COPY.timeLockedHeading}
+              </h3>
+              <ol className="flex flex-col gap-2">
+                {lockedActivities.map((activity) => (
+                  <li
+                    key={activity.activityId}
+                    data-testid="schedule-activity-block-locked"
+                    className="flex items-start gap-3 rounded-lg border p-3"
+                    style={{ borderColor: "var(--ink, #18181b)" }}
+                  >
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {COPY.timeLockedSlotLabel(activity.timeSlot)}
+                    </span>
+                    <span className="text-sm font-medium">{activity.name}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+          {regularActivities.length > 0 && (
+            <ol className="flex flex-col gap-2">
+              {regularActivities.map((activity) => (
+                <li
+                  key={activity.activityId}
+                  data-testid="schedule-activity-block"
+                  className="flex items-start gap-3 rounded-lg border bg-card p-3"
+                >
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {COPY.timeSlotLabel(activity.timeSlot)}
+                  </span>
+                  <span className="text-sm font-medium">{activity.name}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </>
       )}
     </section>
   );
