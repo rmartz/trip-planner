@@ -13,6 +13,12 @@ export enum ExpenseCategory {
   Transport = "transport",
 }
 
+export enum ExpensePreFillType {
+  LodgingUnit = "lodging_unit",
+  StopAttendance = "stop_attendance",
+  TransportLeg = "transport_leg",
+}
+
 export interface ExpenseListItem {
   amountCents: number;
   category: ExpenseCategory;
@@ -23,11 +29,20 @@ export interface ExpenseListItem {
   title: string;
 }
 
+export interface ExpensePreFillOption {
+  entityId: string;
+  label: string;
+  participantMemberIds: string[];
+  type: ExpensePreFillType;
+}
+
 export interface ExpensesListPageViewProps {
   expenses: ExpenseListItem[];
   isError: boolean;
   isLoading: boolean;
   onAddExpense: () => void;
+  onAddExpenseWithPrefill?: (option: ExpensePreFillOption) => void;
+  preFillOptions?: ExpensePreFillOption[];
 }
 
 interface ExpenseRowProps {
@@ -84,9 +99,12 @@ export function ExpensesListPageView({
   isError,
   isLoading,
   onAddExpense,
+  onAddExpenseWithPrefill,
+  preFillOptions,
 }: ExpensesListPageViewProps) {
   const showList = !isLoading && !isError && expenses.length > 0;
   const showEmpty = !isLoading && !isError && expenses.length === 0;
+  const showPreFill = preFillOptions !== undefined && preFillOptions.length > 0;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -106,6 +124,32 @@ export function ExpensesListPageView({
           {COPY.addExpenseButton}
         </Button>
       </header>
+
+      {showPreFill && (
+        <section
+          className="flex flex-col gap-2 border-b px-4 py-3"
+          data-testid="prefill-shortcuts"
+        >
+          <p className="text-xs font-medium text-muted-foreground">
+            {COPY.preFillHeading}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {preFillOptions.map((option) => (
+              <Button
+                key={option.entityId}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onAddExpenseWithPrefill?.(option);
+                }}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <main className="flex flex-1 flex-col gap-4 p-4">
         {isLoading && (

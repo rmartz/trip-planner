@@ -38,6 +38,8 @@ export interface ExpenseEntryInput {
 }
 
 export interface ExpenseEntryFormViewProps {
+  initialLinkedEntityId?: string;
+  initialParticipantIds?: string[];
   initialPayerId?: string;
   isSubmitting?: boolean;
   linkedEntityOptions: ExpenseEntryLinkedEntityOption[];
@@ -63,6 +65,8 @@ const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
 const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "JPY"];
 
 export function ExpenseEntryFormView({
+  initialLinkedEntityId,
+  initialParticipantIds,
   initialPayerId,
   isSubmitting = false,
   linkedEntityOptions,
@@ -77,10 +81,12 @@ export function ExpenseEntryFormView({
   );
   const [payerMemberId, setPayerMemberId] = useState(initialPayerId ?? "");
   const [participantIds, setParticipantIds] = useState<string[]>(
-    memberOptions.map((m) => m.memberId),
+    initialParticipantIds ?? memberOptions.map((m) => m.memberId),
   );
   const [description, setDescription] = useState("");
-  const [linkedEntityId, setLinkedEntityId] = useState("");
+  const [linkedEntityId, setLinkedEntityId] = useState(
+    initialLinkedEntityId ?? "",
+  );
   const [amountError, setAmountError] = useState<string | undefined>();
   const [payerError, setPayerError] = useState<string | undefined>();
 

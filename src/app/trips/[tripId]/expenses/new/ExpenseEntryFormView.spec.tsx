@@ -318,6 +318,86 @@ describe("ExpenseEntryFormView — submit", () => {
   });
 });
 
+describe("ExpenseEntryFormView — initial participant pre-fill", () => {
+  it("checks only the given initial participants when initialParticipantIds is provided", () => {
+    render(
+      <ExpenseEntryFormView
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        initialParticipantIds={["member-alice", "member-bob"]}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText("Alice")).toHaveProperty("checked", true);
+    expect(screen.getByLabelText("Bob")).toHaveProperty("checked", true);
+    expect(screen.getByLabelText("Carol")).toHaveProperty("checked", false);
+  });
+
+  it("submits only the pre-filled participant ids", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExpenseEntryFormView
+        initialPayerId="member-alice"
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        initialParticipantIds={["member-alice"]}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
+      { target: { value: "50" } },
+    );
+    fireEvent.submit(screen.getByTestId("expense-entry-form"));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const payload = (
+      onSubmit.mock.calls[0] as [{ participantMemberIds: string[] }]
+    )[0];
+    expect(payload.participantMemberIds).toEqual(["member-alice"]);
+  });
+});
+
+describe("ExpenseEntryFormView — initial linked entity pre-fill", () => {
+  it("pre-selects the linked entity when initialLinkedEntityId is provided", () => {
+    render(
+      <ExpenseEntryFormView
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        initialLinkedEntityId="stop-paris"
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
+    ).toHaveProperty("value", "stop-paris");
+  });
+
+  it("includes the pre-filled linked entity id in the submitted payload", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExpenseEntryFormView
+        initialPayerId="member-alice"
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        initialLinkedEntityId="lodging-1"
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
+      { target: { value: "80" } },
+    );
+    fireEvent.submit(screen.getByTestId("expense-entry-form"));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const payload = (onSubmit.mock.calls[0] as [{ linkedEntityId: string }])[0];
+    expect(payload.linkedEntityId).toBe("lodging-1");
+  });
+});
+
 describe("ExpenseEntryFormView — cancel", () => {
   it("calls onCancel when cancel button is clicked", () => {
     const onCancel = vi.fn();
