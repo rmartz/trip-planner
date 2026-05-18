@@ -6,7 +6,7 @@ vi.mock("@/lib/firebase/schema/trip", () => ({ firebaseToTrip: vi.fn() }));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
-import { getTripsForUser } from "./trips";
+import { getTripMemberUids, getTripsForUser } from "./trips";
 
 interface MockMemberDoc {
   ref: {
@@ -23,6 +23,55 @@ interface MockTripDoc {
   exists: boolean;
   data: () => Record<string, unknown> | undefined;
 }
+
+describe("getTripMemberUids", () => {
+  const get = vi.fn();
+  const doc = vi.fn(() => ({ get }));
+  const collection = vi.fn(() => ({ doc }));
+
+  const mockDb = { collection };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+  });
+
+  it("returns filtered string array when memberUids is a valid string array", async () => {
+    get.mockResolvedValue({ data: () => ({ memberUids: ["uid-1", "uid-2"] }) });
+
+    const result = await getTripMemberUids("trip-1");
+
+    expect(result).toEqual(["uid-1", "uid-2"]);
+  });
+
+  it("returns empty array when memberUids field is absent", async () => {
+    get.mockResolvedValue({ data: () => ({}) });
+
+    const result = await getTripMemberUids("trip-1");
+
+    expect(result).toEqual([]);
+  });
+
+  it("returns empty array when memberUids is not an array", async () => {
+    get.mockResolvedValue({ data: () => ({ memberUids: "not-an-array" }) });
+
+    const result = await getTripMemberUids("trip-1");
+
+    expect(result).toEqual([]);
+  });
+
+  it("filters out non-string elements from memberUids", async () => {
+    get.mockResolvedValue({
+      data: () => ({ memberUids: ["uid-1", 42, null, "uid-2", undefined] }),
+    });
+
+    const result = await getTripMemberUids("trip-1");
+
+    expect(result).toEqual(["uid-1", "uid-2"]);
+  });
+});
 
 describe("getTripsForUser", () => {
   const getMembers = vi.fn();
