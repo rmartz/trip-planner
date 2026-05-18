@@ -36,7 +36,12 @@ vi.mock("@/hooks/use-legs", () => ({
   useLegs: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-transport-summaries", () => ({
+  useTransportSummaries: vi.fn(),
+}));
+
 import { useLegs } from "@/hooks/use-legs";
+import { useTransportSummaries } from "@/hooks/use-transport-summaries";
 import TransportPage from "./page";
 
 afterEach(() => {
@@ -44,6 +49,19 @@ afterEach(() => {
   plannerOverviewSpy.mockReset();
   vi.clearAllMocks();
 });
+
+function makeLegEntry(legId = "leg-1") {
+  return {
+    legId,
+    tripId: "trip-1",
+    fromStopId: "stop-a",
+    toStopId: "stop-b",
+    name: "Leg A",
+    order: 0,
+    memberUids: ["uid-1"],
+    isActive: true,
+  };
+}
 
 function makeDemand(
   overrides: Partial<TransportLegDemand> = {},
@@ -83,11 +101,10 @@ function renderWithQueryClient() {
 describe("TransportPage — role gating", () => {
   it("renders the planner overview when role is Planner", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [],
-        role: TripRole.Planner,
-        legSummaries: {},
-      },
+      data: { legs: [], role: TripRole.Planner },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [],
     } as never);
 
     renderWithQueryClient();
@@ -97,11 +114,10 @@ describe("TransportPage — role gating", () => {
 
   it("renders the planner-only message when role is Guest", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [],
-        role: TripRole.Guest,
-        legSummaries: null,
-      },
+      data: { legs: [], role: TripRole.Guest },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
     } as never);
 
     renderWithQueryClient();
@@ -114,11 +130,10 @@ describe("TransportPage — role gating", () => {
 
   it("renders the planner-only message when role is null", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [],
-        role: null,
-        legSummaries: null,
-      },
+      data: { legs: [], role: null },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
     } as never);
 
     renderWithQueryClient();
@@ -130,27 +145,20 @@ describe("TransportPage — role gating", () => {
 });
 
 describe("TransportPage — demand and supply wiring", () => {
-  it("passes real demand from legSummaries to the planner overview", () => {
+  it("passes demand from summaries to the planner overview", () => {
     const demand = makeDemand({ driving: 2, needRide: 3 });
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-1",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Leg A",
-            order: 0,
-            memberUids: ["uid-1"],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {
-          "leg-1": { demand, supply: [] },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [
+        {
+          legId: "leg-1",
+          leg: makeLegEntry(),
+          demand,
+          supply: [],
         },
-      },
+      ],
     } as never);
 
     renderWithQueryClient();
@@ -169,27 +177,20 @@ describe("TransportPage — demand and supply wiring", () => {
     );
   });
 
-  it("passes real supply from legSummaries to the planner overview", () => {
+  it("passes supply from summaries to the planner overview", () => {
     const offer = makeOffer({ driverName: "Bob", seatCount: 4 });
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-1",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Leg A",
-            order: 0,
-            memberUids: ["uid-1"],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {
-          "leg-1": { demand: makeDemand(), supply: [offer] },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [
+        {
+          legId: "leg-1",
+          leg: makeLegEntry(),
+          demand: makeDemand(),
+          supply: [offer],
         },
-      },
+      ],
     } as never);
 
     renderWithQueryClient();
@@ -207,48 +208,22 @@ describe("TransportPage — demand and supply wiring", () => {
     );
   });
 
-  it("falls back to zero demand and empty supply when legSummaries is missing a leg", () => {
+  it("shows empty legs when summaries are not yet loaded", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-missing",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Unknown Leg",
-            order: 0,
-            memberUids: [],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {},
-      },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
     } as never);
 
     renderWithQueryClient();
 
     expect(plannerOverviewSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        legs: [
-          expect.objectContaining({
-            demand: {
-              driving: 0,
-              needRide: 0,
-              noReply: 0,
-              skipLeg: 0,
-            },
-            supply: [],
-          }),
-        ],
-      }),
+      expect.objectContaining({ legs: [] }),
     );
   });
-});
 
-describe("TransportPage — transport status enum", () => {
-  it("builds leg summaries with DrivingWithSeats status from supply", () => {
+  it("passes InviteOnly supply with inviteeCount to the planner overview", () => {
     const offer = makeOffer({
       driverName: "Carol",
       routeName: "I-90",
@@ -257,27 +232,17 @@ describe("TransportPage — transport status enum", () => {
       inviteeCount: 1,
     });
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-1",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Leg A",
-            order: 0,
-            memberUids: ["uid-carol", "uid-rider"],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {
-          "leg-1": {
-            demand: makeDemand({ driving: 1 }),
-            supply: [offer],
-          },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [
+        {
+          legId: "leg-1",
+          leg: makeLegEntry(),
+          demand: makeDemand({ driving: 1 }),
+          supply: [offer],
         },
-      },
+      ],
     } as never);
 
     renderWithQueryClient();

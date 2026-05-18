@@ -8,15 +8,9 @@ import {
   TransportPlannerOverviewView,
 } from "@/components/transport/TransportPlannerOverviewView";
 import { useLegs } from "@/hooks/use-legs";
+import { useTransportSummaries } from "@/hooks/use-transport-summaries";
 import { TripRole } from "@/lib/types/trip";
 import { TRANSPORT_PAGE_COPY } from "./copy";
-
-const EMPTY_DEMAND = {
-  driving: 0,
-  needRide: 0,
-  noReply: 0,
-  skipLeg: 0,
-};
 
 interface TransportPageProps {
   params: Promise<{ tripId: string }>;
@@ -25,17 +19,15 @@ interface TransportPageProps {
 export default function TransportPage({ params }: TransportPageProps) {
   const { tripId } = use(params);
   const router = useRouter();
-  const { data } = useLegs(tripId);
-  const legs = data?.legs ?? [];
-  const isPlanner = data?.role === TripRole.Planner;
+  const { data: legsData } = useLegs(tripId);
+  const { data: summaries } = useTransportSummaries(tripId);
+  const isPlanner = legsData?.role === TripRole.Planner;
 
-  // TODO: Populate nonAccountMembers per leg from leg data (follow-up PR).
-  // Currently omitted; the member-sort toggle is intentionally a no-op until
-  // that data is wired up, mirroring the same deferral on the lodging page.
-  const legSummaries: TransportLegSummary[] = legs.map((leg) => ({
-    leg,
-    demand: data?.legSummaries?.[leg.legId]?.demand ?? EMPTY_DEMAND,
-    supply: data?.legSummaries?.[leg.legId]?.supply ?? [],
+  // haveOwn is not yet computed by the transport service (future work).
+  const legSummaries: TransportLegSummary[] = (summaries ?? []).map((s) => ({
+    leg: s.leg,
+    demand: { ...s.demand, haveOwn: 0 },
+    supply: s.supply,
   }));
 
   return (
@@ -52,7 +44,7 @@ export default function TransportPage({ params }: TransportPageProps) {
         <TransportPlannerOverviewView
           legs={legSummaries}
           // TODO: Wire real handler and populate nonAccountMembers from leg
-          // data in a follow-up PR (see comment above legSummaries).
+          // data in a follow-up PR.
           onToggleMemberSortedOwn={() => undefined}
         />
       ) : (
