@@ -77,9 +77,9 @@ function PlannerByNameInset({ voterNames }: PlannerByNameInsetProps) {
         {COPY.byNameSubheader}
       </p>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
-        <VoterNameGroup label="Y" names={yes} />
-        <VoterNameGroup label="M" names={maybe} />
-        <VoterNameGroup label="N" names={no} />
+        <VoterNameGroup label={COPY.yesCategoryLabel} names={yes} />
+        <VoterNameGroup label={COPY.maybeCategoryLabel} names={maybe} />
+        <VoterNameGroup label={COPY.noCategoryLabel} names={no} />
       </div>
     </div>
   );
@@ -141,16 +141,23 @@ export function ActivitiesTripPageView({
                     </span>
                   )}
                 </div>
-                <VoteRow
-                  value={proposal.userVote}
-                  counts={proposal.counts}
-                  hideButtons={isPlanner}
-                  onChange={(vote) => {
-                    onVote(proposal.proposalId, vote);
-                  }}
-                />
-                {isPlanner && proposal.voterNames !== undefined && (
-                  <PlannerByNameInset voterNames={proposal.voterNames} />
+                {isPlanner && proposal.voterNames !== undefined ? (
+                  <>
+                    <VoteRow
+                      value={proposal.userVote}
+                      counts={proposal.counts}
+                      hideButtons={true}
+                    />
+                    <PlannerByNameInset voterNames={proposal.voterNames} />
+                  </>
+                ) : (
+                  <VoteRow
+                    value={proposal.userVote}
+                    counts={proposal.counts}
+                    onChange={(vote) => {
+                      onVote(proposal.proposalId, vote);
+                    }}
+                  />
                 )}
               </li>
             ))}

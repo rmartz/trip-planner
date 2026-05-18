@@ -78,6 +78,19 @@ export const PlannerLoaded: Story = {
   },
 };
 
+export const PlannerVoterNamesAbsent: Story = {
+  args: {
+    role: TripRole.Planner,
+    proposals: [
+      makeProposal({
+        proposalId: "p-1",
+        name: "Hiking the Ridge Trail",
+        voterNames: undefined,
+      }),
+    ],
+  },
+};
+
 export const Loading: Story = {
   args: {
     proposals: [],

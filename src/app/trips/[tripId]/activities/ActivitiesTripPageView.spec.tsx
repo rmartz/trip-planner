@@ -389,6 +389,21 @@ describe("ActivitiesTripPageView — planner role: by-name inset hidden when vot
       screen.queryByText(ACTIVITIES_TRIP_PAGE_COPY.byNameSubheader),
     ).toBeNull();
   });
+
+  it("renders vote buttons for planners when voterNames is undefined", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[makeProposal({ proposalId: "p-1", voterNames: undefined })]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Yes" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Maybe" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "No" })).toBeDefined();
+  });
 });
 
 describe("ActivitiesTripPageView — guest role: by-name inset hidden", () => {
