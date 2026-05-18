@@ -29,6 +29,9 @@ export default function TransportPage({ params }: TransportPageProps) {
   const legs = data?.legs ?? [];
   const isPlanner = data?.role === TripRole.Planner;
 
+  // TODO: Populate nonAccountMembers per leg from leg data (follow-up PR).
+  // Currently omitted; the member-sort toggle is intentionally a no-op until
+  // that data is wired up, mirroring the same deferral on the lodging page.
   const legSummaries: TransportLegSummary[] = legs.map((leg) => ({
     leg,
     demand: data?.legSummaries?.[leg.legId]?.demand ?? EMPTY_DEMAND,
@@ -48,6 +51,8 @@ export default function TransportPage({ params }: TransportPageProps) {
       {isPlanner ? (
         <TransportPlannerOverviewView
           legs={legSummaries}
+          // TODO: Wire real handler and populate nonAccountMembers from leg
+          // data in a follow-up PR (see comment above legSummaries).
           onToggleMemberSortedOwn={() => undefined}
         />
       ) : (
