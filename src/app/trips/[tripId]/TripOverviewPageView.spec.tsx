@@ -228,6 +228,58 @@ describe("TripOverviewPageView — section navigation", () => {
   });
 });
 
+describe("TripOverviewPageView — transport gap sub-line", () => {
+  it("shows a gap sub-line on the transport card when transportGapCount > 0", () => {
+    render(
+      <TripOverviewPageView
+        trip={makeTrip({ tripId: "trip-1" })}
+        isLoading={false}
+        isError={false}
+        transportGapCount={2}
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: new RegExp(TRIP_OVERVIEW_PAGE_COPY.sectionTransport),
+    });
+    expect(link.textContent).toContain(
+      TRIP_OVERVIEW_PAGE_COPY.transportGapSubline(2),
+    );
+  });
+
+  it("does not show a gap sub-line when transportGapCount is 0", () => {
+    render(
+      <TripOverviewPageView
+        trip={makeTrip({ tripId: "trip-1" })}
+        isLoading={false}
+        isError={false}
+        transportGapCount={0}
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: TRIP_OVERVIEW_PAGE_COPY.sectionTransport,
+    });
+    expect(link.textContent).not.toContain(
+      TRIP_OVERVIEW_PAGE_COPY.transportGapSubline(0),
+    );
+  });
+
+  it("does not show a gap sub-line when transportGapCount is undefined", () => {
+    render(
+      <TripOverviewPageView
+        trip={makeTrip({ tripId: "trip-1" })}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: TRIP_OVERVIEW_PAGE_COPY.sectionTransport,
+    });
+    expect(link.textContent).not.toContain(
+      TRIP_OVERVIEW_PAGE_COPY.transportGapSubline(1),
+    );
+  });
+});
+
 describe("TripOverviewPageView — lodging gap sub-line", () => {
   it("shows a gap sub-line on the lodging card when lodgingGapCount > 0", () => {
     render(

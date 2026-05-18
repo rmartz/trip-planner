@@ -167,6 +167,34 @@ describe("firebaseToTransportationEntry — maps optional fields", () => {
   });
 });
 
+describe("firebaseToTransportationEntry — maps offeredToUids", () => {
+  it("maps offeredToUids when all elements are strings", () => {
+    const entry = firebaseToTransportationEntry("e1", "l1", "u1", {
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+      offeredToUids: ["uid-a", "uid-b"],
+    });
+    expect(entry.offeredToUids).toEqual(["uid-a", "uid-b"]);
+  });
+
+  it("leaves offeredToUids undefined when the field is absent", () => {
+    const entry = firebaseToTransportationEntry("e1", "l1", "u1", {
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+    });
+    expect(entry.offeredToUids).toBeUndefined();
+  });
+
+  it("leaves offeredToUids undefined when the array contains a non-string element", () => {
+    const entry = firebaseToTransportationEntry("e1", "l1", "u1", {
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+      offeredToUids: [1, "uid-b"],
+    });
+    expect(entry.offeredToUids).toBeUndefined();
+  });
+});
+
 describe("transportationEntryToFirebase — maps status and routeName", () => {
   it("maps status Driving", () => {
     const data = transportationEntryToFirebase({
@@ -216,5 +244,22 @@ describe("transportationEntryToFirebase — maps status and routeName", () => {
       routeName: "caravan",
     });
     expect("ridingWithUid" in data).toBe(false);
+  });
+
+  it("maps offeredToUids when present", () => {
+    const data = transportationEntryToFirebase({
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+      offeredToUids: ["uid-a", "uid-b"],
+    });
+    expect(data.offeredToUids).toEqual(["uid-a", "uid-b"]);
+  });
+
+  it("omits offeredToUids when undefined", () => {
+    const data = transportationEntryToFirebase({
+      status: TransportationStatus.DrivingWithSeats,
+      routeName: "caravan",
+    });
+    expect("offeredToUids" in data).toBe(false);
   });
 });

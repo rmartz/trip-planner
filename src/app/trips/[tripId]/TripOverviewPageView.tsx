@@ -81,6 +81,7 @@ export interface TripOverviewPageViewProps {
   isLoading: boolean;
   isError: boolean;
   lodgingGapCount?: number;
+  transportGapCount?: number;
 }
 
 export function TripOverviewPageView({
@@ -88,10 +89,15 @@ export function TripOverviewPageView({
   isLoading,
   isError,
   lodgingGapCount,
+  transportGapCount,
 }: TripOverviewPageViewProps) {
   const lodgingSubline =
     lodgingGapCount != null && lodgingGapCount > 0
       ? TRIP_OVERVIEW_PAGE_COPY.lodgingGapSubline(lodgingGapCount)
+      : undefined;
+  const transportSubline =
+    transportGapCount != null && transportGapCount > 0
+      ? TRIP_OVERVIEW_PAGE_COPY.transportGapSubline(transportGapCount)
       : undefined;
   return (
     <div className="flex min-h-screen flex-col">
@@ -146,6 +152,11 @@ export function TripOverviewPageView({
                     {section.id === "lodging" && lodgingSubline && (
                       <span className="text-xs font-normal text-amber-600 dark:text-amber-400">
                         {lodgingSubline}
+                      </span>
+                    )}
+                    {section.id === "transport" && transportSubline && (
+                      <span className="text-xs font-normal text-amber-600 dark:text-amber-400">
+                        {transportSubline}
                       </span>
                     )}
                   </span>

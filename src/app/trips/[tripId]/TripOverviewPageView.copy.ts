@@ -17,4 +17,6 @@ export const TRIP_OVERVIEW_PAGE_COPY = {
   sectionStructure: "Structure",
   sectionTransport: "Transportation",
   sectionsHeading: "Plan & coordinate",
+  transportGapSubline: (count: number) =>
+    `${String(count)} ${count === 1 ? "gap" : "gaps"}`,
 } as const;
