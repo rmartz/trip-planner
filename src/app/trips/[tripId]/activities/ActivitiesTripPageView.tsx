@@ -28,7 +28,7 @@ export interface ActivityProposal {
   counts: ActivityProposalCounts;
   timeHint?: string;
   userVote: InterestVote | undefined;
-  voterNames: ActivityProposalVoterNames;
+  voterNames?: ActivityProposalVoterNames;
 }
 
 export interface ActivitiesTripPageViewProps {
@@ -64,19 +64,22 @@ function VoterNameGroup({ label, names }: VoterNameGroupProps) {
 }
 
 interface PlannerByNameInsetProps {
-  voterNames: ActivityProposalVoterNames;
+  voterNames?: ActivityProposalVoterNames;
 }
 
 function PlannerByNameInset({ voterNames }: PlannerByNameInsetProps) {
+  const yes = voterNames?.yes ?? [];
+  const maybe = voterNames?.maybe ?? [];
+  const no = voterNames?.no ?? [];
   return (
     <div className="mt-1 rounded-md bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
       <p className="mb-1 font-mono text-[10px] text-zinc-400 dark:text-zinc-500">
         {COPY.byNameSubheader}
       </p>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
-        <VoterNameGroup label="Y" names={voterNames.yes} />
-        <VoterNameGroup label="M" names={voterNames.maybe} />
-        <VoterNameGroup label="N" names={voterNames.no} />
+        <VoterNameGroup label="Y" names={yes} />
+        <VoterNameGroup label="M" names={maybe} />
+        <VoterNameGroup label="N" names={no} />
       </div>
     </div>
   );
@@ -138,16 +141,16 @@ export function ActivitiesTripPageView({
                     </span>
                   )}
                 </div>
-                {isPlanner ? (
+                <VoteRow
+                  value={proposal.userVote}
+                  counts={proposal.counts}
+                  hideButtons={isPlanner}
+                  onChange={(vote) => {
+                    onVote(proposal.proposalId, vote);
+                  }}
+                />
+                {isPlanner && (
                   <PlannerByNameInset voterNames={proposal.voterNames} />
-                ) : (
-                  <VoteRow
-                    value={proposal.userVote}
-                    counts={proposal.counts}
-                    onChange={(vote) => {
-                      onVote(proposal.proposalId, vote);
-                    }}
-                  />
                 )}
               </li>
             ))}

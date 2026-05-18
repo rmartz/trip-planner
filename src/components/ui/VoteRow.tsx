@@ -14,6 +14,7 @@ export interface VoteRowProps {
   value: InterestVote | undefined;
   counts: VoteCounts;
   onChange: (vote: InterestVote) => void;
+  hideButtons?: boolean;
 }
 
 interface VoteButtonProps {
@@ -43,32 +44,34 @@ function VoteButton({ label, vote, selected, onSelect }: VoteButtonProps) {
   );
 }
 
-export function VoteRow({ value, counts, onChange }: VoteRowProps) {
+export function VoteRow({ counts, hideButtons, onChange, value }: VoteRowProps) {
   return (
     <div className="flex flex-col gap-1">
       <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
         {VOTE_ROW_COPY.aggregateCounts(counts.yes, counts.maybe, counts.no)}
       </p>
-      <div className="flex gap-2">
-        <VoteButton
-          label={VOTE_ROW_COPY.yesLabel}
-          vote={InterestVote.Yes}
-          selected={value === InterestVote.Yes}
-          onSelect={onChange}
-        />
-        <VoteButton
-          label={VOTE_ROW_COPY.maybeLabel}
-          vote={InterestVote.Maybe}
-          selected={value === InterestVote.Maybe}
-          onSelect={onChange}
-        />
-        <VoteButton
-          label={VOTE_ROW_COPY.noLabel}
-          vote={InterestVote.No}
-          selected={value === InterestVote.No}
-          onSelect={onChange}
-        />
-      </div>
+      {!hideButtons && (
+        <div className="flex gap-2">
+          <VoteButton
+            label={VOTE_ROW_COPY.yesLabel}
+            vote={InterestVote.Yes}
+            selected={value === InterestVote.Yes}
+            onSelect={onChange}
+          />
+          <VoteButton
+            label={VOTE_ROW_COPY.maybeLabel}
+            vote={InterestVote.Maybe}
+            selected={value === InterestVote.Maybe}
+            onSelect={onChange}
+          />
+          <VoteButton
+            label={VOTE_ROW_COPY.noLabel}
+            vote={InterestVote.No}
+            selected={value === InterestVote.No}
+            onSelect={onChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   type ActivityProposal,
 } from "./ActivitiesTripPageView";
 import { ACTIVITIES_TRIP_PAGE_COPY } from "./ActivitiesTripPageView.copy";
+import { VOTE_ROW_COPY } from "@/components/ui/VoteRow.copy";
 
 afterEach(cleanup);
 
@@ -334,6 +335,26 @@ describe("ActivitiesTripPageView — planner role: by-name inset visible", () =>
     );
     expect(
       screen.getByText(ACTIVITIES_TRIP_PAGE_COPY.overflowLabel(2)),
+    ).toBeDefined();
+  });
+
+  it("renders aggregate vote counts for planners", () => {
+    render(
+      <ActivitiesTripPageView
+        proposals={[
+          makeProposal({
+            proposalId: "p-1",
+            counts: { yes: 4, maybe: 1, no: 2 },
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+        role={TripRole.Planner}
+        onVote={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByText(VOTE_ROW_COPY.aggregateCounts(4, 1, 2)),
     ).toBeDefined();
   });
 
