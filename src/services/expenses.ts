@@ -4,7 +4,7 @@ import {
   firebaseToExpense,
 } from "@/lib/firebase/schema/expense";
 import type { Expense } from "@/lib/types/expense";
-import type { TripRole } from "@/lib/types/trip";
+import { TripRole } from "@/lib/types/trip";
 
 export async function getExpenseMemberRole(
   uid: string,
@@ -18,7 +18,7 @@ export async function getExpenseMemberRole(
     .doc(uid)
     .get();
   if (!memberDoc.exists) return null;
-  return (memberDoc.data()?.["role"] as TripRole | undefined) ?? null;
+  return (memberDoc.data()?.["role"] as TripRole | undefined) ?? TripRole.Guest;
 }
 
 export async function getExpensesForTrip(tripId: string): Promise<Expense[]> {

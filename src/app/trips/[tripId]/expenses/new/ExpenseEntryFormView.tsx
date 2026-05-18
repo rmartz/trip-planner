@@ -31,7 +31,7 @@ export interface ExpenseEntryInput {
   amountCents: number;
   category: ExpenseEntryCategory;
   currency: string;
-  description?: string;
+  description: string;
   linkedEntityId?: string;
   participantMemberIds: string[];
   payerMemberId: string;
@@ -44,6 +44,7 @@ export interface ExpenseEntryFormViewProps {
   memberOptions: ExpenseEntryMemberOption[];
   onCancel: () => void;
   onSubmit: (input: ExpenseEntryInput) => void;
+  submitError?: string;
 }
 
 const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
@@ -69,6 +70,7 @@ export function ExpenseEntryFormView({
   memberOptions,
   onCancel,
   onSubmit,
+  submitError,
 }: ExpenseEntryFormViewProps) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
@@ -82,6 +84,9 @@ export function ExpenseEntryFormView({
   const [description, setDescription] = useState("");
   const [linkedEntityId, setLinkedEntityId] = useState("");
   const [amountError, setAmountError] = useState<string | undefined>();
+  const [descriptionError, setDescriptionError] = useState<
+    string | undefined
+  >();
   const [payerError, setPayerError] = useState<string | undefined>();
 
   function handleParticipantToggle(memberId: string) {
@@ -95,6 +100,7 @@ export function ExpenseEntryFormView({
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setAmountError(undefined);
+    setDescriptionError(undefined);
     setPayerError(undefined);
 
     let hasError = false;
@@ -108,6 +114,11 @@ export function ExpenseEntryFormView({
         setAmountError(COPY.errorAmountInvalid);
         hasError = true;
       }
+    }
+
+    if (description.trim() === "") {
+      setDescriptionError(COPY.errorDescriptionRequired);
+      hasError = true;
     }
 
     if (payerMemberId === "") {
@@ -125,7 +136,7 @@ export function ExpenseEntryFormView({
       amountCents,
       category,
       currency,
-      ...(description.trim() !== "" ? { description: description.trim() } : {}),
+      description: description.trim(),
       ...(linkedEntityId !== "" ? { linkedEntityId } : {}),
       participantMemberIds: participantIds,
       payerMemberId,
@@ -248,6 +259,9 @@ export function ExpenseEntryFormView({
           placeholder={COPY.descriptionPlaceholder}
           rows={2}
         />
+        {descriptionError !== undefined && (
+          <p className="text-sm text-destructive">{descriptionError}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -268,6 +282,10 @@ export function ExpenseEntryFormView({
           ))}
         </select>
       </div>
+
+      {submitError !== undefined && (
+        <p className="text-sm text-destructive">{submitError}</p>
+      )}
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" disabled={isSubmitting}>

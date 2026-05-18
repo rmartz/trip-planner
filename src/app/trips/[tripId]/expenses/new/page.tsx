@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
+import { useActivities } from "@/hooks/use-activities";
 import { useTrip } from "@/hooks/use-trip";
 import { useCreateExpense } from "@/hooks/use-create-expense";
 import { useLegs } from "@/hooks/use-legs";
@@ -35,6 +36,7 @@ export default function NewExpensePage() {
   const { data: members } = useTripMembers(tripId);
   const { data: stopsData } = useStops(tripId);
   const { data: legsData } = useLegs(tripId);
+  const { data: activitiesData } = useActivities(tripId);
   const createExpense = useCreateExpense(tripId);
 
   const memberOptions: ExpenseEntryMemberOption[] = (members ?? []).map(
@@ -55,6 +57,15 @@ export default function NewExpensePage() {
       label: l.name,
       type: ExpenseLinkedEntityType.Leg,
     })),
+    ...(activitiesData ?? []).map((a) => {
+      const stop = stopsData?.stops.find((s) => s.stopId === a.stopId);
+      const label = stop !== undefined ? `${stop.name}: ${a.name}` : a.name;
+      return {
+        entityId: a.activityId,
+        label,
+        type: ExpenseLinkedEntityType.Activity,
+      };
+    }),
   ];
 
   const linkedEntityOptions: ExpenseEntryLinkedEntityOption[] =
@@ -80,40 +91,47 @@ export default function NewExpensePage() {
         },
       }}
     >
-      <ExpenseEntryFormView
-        initialPayerId={initialPayerId}
-        isSubmitting={createExpense.isPending}
-        memberOptions={memberOptions}
-        linkedEntityOptions={linkedEntityOptions}
-        onSubmit={(input) => {
-          const linkedEntity =
-            input.linkedEntityId !== undefined
-              ? resolveLinkedEntity(input.linkedEntityId)
-              : undefined;
+      {members !== undefined && (
+        <ExpenseEntryFormView
+          initialPayerId={initialPayerId}
+          isSubmitting={createExpense.isPending}
+          memberOptions={memberOptions}
+          linkedEntityOptions={linkedEntityOptions}
+          submitError={
+            createExpense.isError
+              ? EXPENSE_ENTRY_FORM_COPY.submitError
+              : undefined
+          }
+          onSubmit={(input) => {
+            const linkedEntity =
+              input.linkedEntityId !== undefined
+                ? resolveLinkedEntity(input.linkedEntityId)
+                : undefined;
 
-          createExpense.mutate(
-            {
-              tripId,
-              name: input.description ?? "",
-              amount: input.amountCents / 100,
-              currency: input.currency,
-              category: input.category as unknown as ExpenseCategory,
-              payerUid: input.payerMemberId,
-              participantUids: input.participantMemberIds,
-              splitMethod: ExpenseSplitMethod.Even,
-              ...(linkedEntity !== undefined ? { linkedEntity } : {}),
-            },
-            {
-              onSuccess: () => {
-                router.push(`/trips/${tripId}/expenses`);
+            createExpense.mutate(
+              {
+                tripId,
+                name: input.description,
+                amount: input.amountCents / 100,
+                currency: input.currency,
+                category: input.category as unknown as ExpenseCategory,
+                payerUid: input.payerMemberId,
+                participantUids: input.participantMemberIds,
+                splitMethod: ExpenseSplitMethod.Even,
+                ...(linkedEntity !== undefined ? { linkedEntity } : {}),
               },
-            },
-          );
-        }}
-        onCancel={() => {
-          router.push(`/trips/${tripId}/expenses`);
-        }}
-      />
+              {
+                onSuccess: () => {
+                  router.push(`/trips/${tripId}/expenses`);
+                },
+              },
+            );
+          }}
+          onCancel={() => {
+            router.push(`/trips/${tripId}/expenses`);
+          }}
+        />
+      )}
     </AppShell>
   );
 }

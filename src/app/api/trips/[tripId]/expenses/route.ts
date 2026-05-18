@@ -42,7 +42,18 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: {
+  let rawBody: unknown;
+  try {
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+  }
+
+  if (rawBody === null || typeof rawBody !== "object") {
+    return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+  }
+
+  const body = rawBody as {
     name: unknown;
     amount: unknown;
     currency: unknown;
@@ -52,11 +63,6 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     splitMethod: unknown;
     linkedEntity?: unknown;
   };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Bad Request" }, { status: 400 });
-  }
 
   if (
     typeof body.name !== "string" ||
@@ -81,6 +87,11 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
+
+  const role = await getExpenseMemberRole(uid, tripId);
+  if (role === null) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const linkedEntityRaw =
     body.linkedEntity !== undefined &&

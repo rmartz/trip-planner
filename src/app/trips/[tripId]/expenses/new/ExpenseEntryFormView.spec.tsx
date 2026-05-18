@@ -180,6 +180,51 @@ describe("ExpenseEntryFormView — amount validation", () => {
   });
 });
 
+describe("ExpenseEntryFormView — description validation", () => {
+  it("shows description-required error when submitted without a name", () => {
+    render(
+      <ExpenseEntryFormView
+        initialPayerId="member-alice"
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
+      { target: { value: "42.50" } },
+    );
+    fireEvent.submit(screen.getByTestId("expense-entry-form"));
+
+    expect(
+      screen.getByText(EXPENSE_ENTRY_FORM_COPY.errorDescriptionRequired),
+    ).toBeDefined();
+  });
+
+  it("does not call onSubmit when description is empty", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExpenseEntryFormView
+        initialPayerId="member-alice"
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
+      { target: { value: "42.50" } },
+    );
+    fireEvent.submit(screen.getByTestId("expense-entry-form"));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+});
+
 describe("ExpenseEntryFormView — payer validation", () => {
   it("shows payer-required error when no payer is selected", () => {
     render(
@@ -219,6 +264,10 @@ describe("ExpenseEntryFormView — submit", () => {
     fireEvent.change(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
       { target: { value: "42.50" } },
+    );
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      { target: { value: "Group dinner" } },
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
@@ -279,6 +328,10 @@ describe("ExpenseEntryFormView — submit", () => {
       { target: { value: "30" } },
     );
     fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      { target: { value: "Train ticket" } },
+    );
+    fireEvent.change(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
       { target: { value: "stop-paris" } },
     );
@@ -304,6 +357,10 @@ describe("ExpenseEntryFormView — submit", () => {
     fireEvent.change(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
       { target: { value: "30" } },
+    );
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      { target: { value: "Shared taxi" } },
     );
     // Uncheck Bob (all three start checked because initial state pre-fills participants)
     fireEvent.click(screen.getByLabelText("Bob"));
@@ -337,5 +394,36 @@ describe("ExpenseEntryFormView — cancel", () => {
     );
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ExpenseEntryFormView — submitError", () => {
+  it("renders submitError when provided", () => {
+    render(
+      <ExpenseEntryFormView
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        submitError={EXPENSE_ENTRY_FORM_COPY.submitError}
+      />,
+    );
+
+    expect(screen.getByText(EXPENSE_ENTRY_FORM_COPY.submitError)).toBeDefined();
+  });
+
+  it("does not render a submit error when submitError is undefined", () => {
+    render(
+      <ExpenseEntryFormView
+        memberOptions={DEFAULT_MEMBERS}
+        linkedEntityOptions={DEFAULT_LINKED}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByText(EXPENSE_ENTRY_FORM_COPY.submitError),
+    ).toBeNull();
   });
 });
