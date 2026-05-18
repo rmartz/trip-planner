@@ -21,6 +21,9 @@ export function firebaseToTransportationEntry(
     ...(data["seatCount"] !== undefined
       ? { seatCount: data["seatCount"] as number }
       : {}),
+    ...(Array.isArray(data["offeredToUids"])
+      ? { offeredToUids: data["offeredToUids"] as string[] }
+      : {}),
     ...(data["ridingWithUid"] !== undefined
       ? { ridingWithUid: data["ridingWithUid"] as string }
       : {}),
@@ -32,15 +35,19 @@ export function transportationEntryToFirebase(
 ): {
   status: TransportationStatus;
   routeName: string;
-  seatCount?: number;
+  offeredToUids?: string[];
   ridingWithUid?: string;
+  seatCount?: number;
 } {
   return {
     status: entry.status,
     routeName: entry.routeName,
-    ...(entry.seatCount !== undefined ? { seatCount: entry.seatCount } : {}),
+    ...(entry.offeredToUids !== undefined
+      ? { offeredToUids: entry.offeredToUids }
+      : {}),
     ...(entry.ridingWithUid !== undefined
       ? { ridingWithUid: entry.ridingWithUid }
       : {}),
+    ...(entry.seatCount !== undefined ? { seatCount: entry.seatCount } : {}),
   };
 }
