@@ -58,6 +58,10 @@ export function firebaseToActivity(
 ): Activity {
   const timeOfDaySlot = toTimeOfDaySlot(data["timeOfDaySlot"]);
   const groupSize = toGroupSize(data["groupSize"]);
+  const pinnedSlot =
+    data["pinned"] === true && data["pinnedSlot"] !== undefined
+      ? toPinnedSlot(data["pinnedSlot"])
+      : undefined;
   return {
     activityId,
     stopId,
@@ -81,9 +85,7 @@ export function firebaseToActivity(
         }
       : {}),
     ...(data["pinned"] === true ? { pinned: true as const } : {}),
-    ...(data["pinned"] === true && data["pinnedSlot"] !== undefined
-      ? { pinnedSlot: toPinnedSlot(data["pinnedSlot"]) }
-      : {}),
+    ...(pinnedSlot !== undefined ? { pinnedSlot } : {}),
   };
 }
 

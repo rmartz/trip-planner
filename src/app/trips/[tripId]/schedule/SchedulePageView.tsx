@@ -27,7 +27,9 @@ interface DaySectionProps {
 }
 
 function DaySection({ day }: DaySectionProps) {
-  const lockedActivities = day.activities.filter((a) => a.timeLocked);
+  const lockedActivities = [...day.activities]
+    .filter((a) => a.timeLocked)
+    .sort((a, b) => a.order - b.order);
   const regularActivities = [...day.activities]
     .filter((a) => !a.timeLocked)
     .sort((a, b) => a.order - b.order);
