@@ -54,8 +54,7 @@ function DaySection({ day }: DaySectionProps) {
                   <li
                     key={activity.activityId}
                     data-testid="schedule-activity-block-locked"
-                    className="flex items-start gap-3 rounded-lg border p-3"
-                    style={{ borderColor: "var(--ink, #18181b)" }}
+                    className="flex items-start gap-3 rounded-lg border border-zinc-900 p-3 dark:border-zinc-100"
                   >
                     <span className="font-mono text-xs text-muted-foreground">
                       {COPY.timeLockedSlotLabel(activity.timeSlot)}

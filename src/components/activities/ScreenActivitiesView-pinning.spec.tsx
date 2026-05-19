@@ -4,6 +4,7 @@ import { ScreenActivitiesView } from "./ScreenActivitiesView";
 import { SCREEN_ACTIVITIES_COPY } from "./ScreenActivities.copy";
 import { TimeOfDaySlot } from "@/lib/types/activity";
 import type { Activity } from "@/lib/types/activity";
+import { TripRole } from "@/lib/types/trip";
 
 afterEach(() => {
   cleanup();
@@ -27,8 +28,11 @@ describe("Criterion 2 — pinned activity shows 📌 prefix", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ name: "Birthday dinner", pinned: true })]}
+        activityVotes={{}}
         canPropose={false}
         onPropose={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
     expect(
@@ -40,8 +44,11 @@ describe("Criterion 2 — pinned activity shows 📌 prefix", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ name: "Kayaking" })]}
+        activityVotes={{}}
         canPropose={false}
         onPropose={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
     expect(
@@ -57,12 +64,15 @@ describe("Criterion 3 — Planner overflow menu", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ activityId: "act-1", name: "Hiking" })]}
+        activityVotes={{}}
         canPropose={false}
         canPin={true}
         onPropose={vi.fn()}
         onPin={vi.fn()}
         onPinToSlot={vi.fn()}
         onUnpin={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
     expect(
@@ -74,9 +84,12 @@ describe("Criterion 3 — Planner overflow menu", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ name: "Hiking" })]}
+        activityVotes={{}}
         canPropose={false}
         canPin={false}
         onPropose={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
     expect(
@@ -90,8 +103,11 @@ describe("Criterion 3 — Planner overflow menu", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ name: "Hiking" })]}
+        activityVotes={{}}
         canPropose={false}
         onPropose={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
     expect(
@@ -106,12 +122,15 @@ describe("Criterion 3 — Planner overflow menu", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ activityId: "act-42", name: "Hiking" })]}
+        activityVotes={{}}
         canPropose={false}
         canPin={true}
         onPropose={vi.fn()}
         onPin={onPin}
         onPinToSlot={vi.fn()}
         onUnpin={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
 
@@ -130,12 +149,15 @@ describe("Criterion 3 — Planner overflow menu", () => {
         activities={[
           makeActivity({ activityId: "act-7", name: "Dinner", pinned: true }),
         ]}
+        activityVotes={{}}
         canPropose={false}
         canPin={true}
         onPropose={vi.fn()}
         onPin={vi.fn()}
         onPinToSlot={vi.fn()}
         onUnpin={onUnpin}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
 
@@ -152,12 +174,15 @@ describe("Criterion 3 — Planner overflow menu", () => {
     render(
       <ScreenActivitiesView
         activities={[makeActivity({ activityId: "act-99", name: "Brunch" })]}
+        activityVotes={{}}
         canPropose={false}
         canPin={true}
         onPropose={vi.fn()}
         onPin={vi.fn()}
         onPinToSlot={onPinToSlot}
         onUnpin={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
 
@@ -179,12 +204,15 @@ describe("Criterion 3 — Planner overflow menu", () => {
         activities={[
           makeActivity({ activityId: "act-5", name: "Dinner", pinned: true }),
         ]}
+        activityVotes={{}}
         canPropose={false}
         canPin={true}
         onPropose={vi.fn()}
         onPin={vi.fn()}
         onPinToSlot={onPinToSlot}
         onUnpin={vi.fn()}
+        onVote={vi.fn()}
+        role={TripRole.Planner}
       />,
     );
 

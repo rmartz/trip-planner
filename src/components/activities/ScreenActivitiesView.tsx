@@ -1,14 +1,26 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { VoteRow } from "@/components/ui/VoteRow";
+import type { VoteCounts } from "@/components/ui/VoteRow";
 import { SCREEN_ACTIVITIES_COPY } from "./ScreenActivities.copy";
 import { ActivityCardView } from "./ActivityCardView";
 import type { Activity, TimeOfDaySlot } from "@/lib/types/activity";
+import type { InterestVote } from "@/lib/types/interest-vote";
+import { TripRole } from "@/lib/types/trip";
+
+export interface ActivityVoteEntry {
+  counts: VoteCounts;
+  userVote: InterestVote | undefined;
+}
 
 interface ScreenActivitiesBaseProps {
   activities: Activity[];
+  activityVotes: Record<string, ActivityVoteEntry>;
   canPropose: boolean;
   onPropose: () => void;
+  onVote: (activityId: string, vote: InterestVote) => void;
+  role: TripRole;
 }
 
 interface ScreenActivitiesWithPinProps extends ScreenActivitiesBaseProps {
@@ -30,7 +42,16 @@ export type ScreenActivitiesViewProps =
   | ScreenActivitiesWithoutPinProps;
 
 export function ScreenActivitiesView(props: ScreenActivitiesViewProps) {
-  const { activities, canPropose, canPin, onPropose } = props;
+  const {
+    activities,
+    activityVotes,
+    canPropose,
+    canPin,
+    onPropose,
+    onVote,
+    role,
+  } = props;
+  const isGuest = role === TripRole.Guest;
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -48,34 +69,42 @@ export function ScreenActivitiesView(props: ScreenActivitiesViewProps) {
         </p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {activities.map((activity) =>
-            canPin ? (
-              <ActivityCardView
-                key={activity.activityId}
-                activity={activity}
-                canPin={true}
-                onPin={props.onPin}
-                onPinToSlot={props.onPinToSlot}
-                onUnpin={props.onUnpin}
-              />
-            ) : (
+          {activities.map((activity) => {
+            if (canPin) {
+              return (
+                <ActivityCardView
+                  key={activity.activityId}
+                  activity={activity}
+                  canPin={true}
+                  onPin={props.onPin}
+                  onPinToSlot={props.onPinToSlot}
+                  onUnpin={props.onUnpin}
+                />
+              );
+            }
+            const voteEntry = activityVotes[activity.activityId];
+            return (
               <li
                 key={activity.activityId}
-                className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+                className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="font-medium">
-                    {activity.pinned
-                      ? `${SCREEN_ACTIVITIES_COPY.pinnedPrefix}${activity.name}`
-                      : activity.name}
-                  </span>
-                  <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
-                    {SCREEN_ACTIVITIES_COPY.votesFormat(0, 0, 0)}
-                  </span>
-                </div>
+                <span className="font-medium">
+                  {activity.pinned
+                    ? `${SCREEN_ACTIVITIES_COPY.pinnedPrefix}${activity.name}`
+                    : activity.name}
+                </span>
+                {isGuest && voteEntry !== undefined && (
+                  <VoteRow
+                    value={voteEntry.userVote}
+                    counts={voteEntry.counts}
+                    onChange={(vote) => {
+                      onVote(activity.activityId, vote);
+                    }}
+                  />
+                )}
               </li>
-            ),
-          )}
+            );
+          })}
         </ul>
       )}
     </div>

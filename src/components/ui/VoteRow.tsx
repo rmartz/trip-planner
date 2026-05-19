@@ -10,11 +10,21 @@ export interface VoteCounts {
   no: number;
 }
 
-export interface VoteRowProps {
+interface VoteRowReadOnlyProps {
   value: InterestVote | undefined;
   counts: VoteCounts;
+  hideButtons: true;
+  onChange?: undefined;
+}
+
+interface VoteRowInteractiveProps {
+  value: InterestVote | undefined;
+  counts: VoteCounts;
+  hideButtons?: false;
   onChange: (vote: InterestVote) => void;
 }
+
+export type VoteRowProps = VoteRowReadOnlyProps | VoteRowInteractiveProps;
 
 interface VoteButtonProps {
   label: string;
@@ -43,32 +53,35 @@ function VoteButton({ label, vote, selected, onSelect }: VoteButtonProps) {
   );
 }
 
-export function VoteRow({ value, counts, onChange }: VoteRowProps) {
+export function VoteRow(props: VoteRowProps) {
+  const { counts, value } = props;
   return (
     <div className="flex flex-col gap-1">
       <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
         {VOTE_ROW_COPY.aggregateCounts(counts.yes, counts.maybe, counts.no)}
       </p>
-      <div className="flex gap-2">
-        <VoteButton
-          label={VOTE_ROW_COPY.yesLabel}
-          vote={InterestVote.Yes}
-          selected={value === InterestVote.Yes}
-          onSelect={onChange}
-        />
-        <VoteButton
-          label={VOTE_ROW_COPY.maybeLabel}
-          vote={InterestVote.Maybe}
-          selected={value === InterestVote.Maybe}
-          onSelect={onChange}
-        />
-        <VoteButton
-          label={VOTE_ROW_COPY.noLabel}
-          vote={InterestVote.No}
-          selected={value === InterestVote.No}
-          onSelect={onChange}
-        />
-      </div>
+      {!props.hideButtons && (
+        <div className="flex gap-2">
+          <VoteButton
+            label={VOTE_ROW_COPY.yesLabel}
+            vote={InterestVote.Yes}
+            selected={value === InterestVote.Yes}
+            onSelect={props.onChange}
+          />
+          <VoteButton
+            label={VOTE_ROW_COPY.maybeLabel}
+            vote={InterestVote.Maybe}
+            selected={value === InterestVote.Maybe}
+            onSelect={props.onChange}
+          />
+          <VoteButton
+            label={VOTE_ROW_COPY.noLabel}
+            vote={InterestVote.No}
+            selected={value === InterestVote.No}
+            onSelect={props.onChange}
+          />
+        </div>
+      )}
     </div>
   );
 }
