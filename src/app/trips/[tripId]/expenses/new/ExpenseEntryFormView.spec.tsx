@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import {
   ExpenseEntryCategory,
   ExpenseEntryFormView,
@@ -27,6 +28,7 @@ function makeLinkedEntity(
   return {
     entityId: "stop-1",
     label: "Paris — Day 2",
+    type: ExpenseLinkedEntityType.Stop,
     ...overrides,
   };
 }
@@ -262,7 +264,7 @@ describe("ExpenseEntryFormView — submit", () => {
     expect(payload.description).toBe("Group dinner");
   });
 
-  it("includes linked entity id in payload when selected", () => {
+  it("includes linked entity in payload when selected", () => {
     const onSubmit = vi.fn();
     render(
       <ExpenseEntryFormView
@@ -280,13 +282,17 @@ describe("ExpenseEntryFormView — submit", () => {
     );
     fireEvent.change(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
-      { target: { value: "stop-paris" } },
+      { target: { value: "stop:stop-paris" } },
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     const payload = onSubmit.mock.calls[0]?.[0] as ExpenseEntryInput;
-    expect(payload.linkedEntityId).toBe("stop-paris");
+    expect(payload.linkedEntity).toEqual({
+      entityId: "stop-paris",
+      label: "Paris stop",
+      type: ExpenseLinkedEntityType.Stop,
+    });
   });
 
   it("excludes deselected members from participantMemberIds", () => {
