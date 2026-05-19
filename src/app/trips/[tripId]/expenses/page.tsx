@@ -94,7 +94,7 @@ export default function ExpensesPage() {
         // Not yet wired — real entity IDs are not exposed by the stop record.
         // Update this function when #57 lands.
         throw new Error(
-          `${type} is not yet mapped to an ExpenseLinkedEntityType`,
+          `${type} is not yet mapped to an ExpenseLinkedEntityType. See #57`,
         );
       default: {
         const _exhaustive: never = type;
