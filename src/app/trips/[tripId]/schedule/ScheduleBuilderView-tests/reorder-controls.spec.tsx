@@ -157,3 +157,67 @@ describe("ScheduleBuilderView — move up/down controls", () => {
     expect((lastMoveDown as HTMLButtonElement).disabled).toBe(true);
   });
 });
+
+describe("ScheduleBuilderView — moveActivity bounds guard", () => {
+  it("does not call onReorder when Move Up is clicked on the first activity", () => {
+    const onReorder = vi.fn();
+    render(
+      <ScheduleBuilderView
+        stopName="London"
+        activities={[
+          makeActivity({
+            activityId: "a-1",
+            name: "First",
+            pinned: false,
+            order: 0,
+          }),
+          makeActivity({
+            activityId: "a-2",
+            name: "Second",
+            pinned: false,
+            order: 1,
+          }),
+        ]}
+        onReorder={onReorder}
+        onPublish={vi.fn()}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: SCHEDULE_BUILDER_COPY.moveUpLabel("First"),
+      }),
+    );
+    expect(onReorder).not.toHaveBeenCalled();
+  });
+
+  it("does not call onReorder when Move Down is clicked on the last activity", () => {
+    const onReorder = vi.fn();
+    render(
+      <ScheduleBuilderView
+        stopName="London"
+        activities={[
+          makeActivity({
+            activityId: "a-1",
+            name: "First",
+            pinned: false,
+            order: 0,
+          }),
+          makeActivity({
+            activityId: "a-2",
+            name: "Last",
+            pinned: false,
+            order: 1,
+          }),
+        ]}
+        onReorder={onReorder}
+        onPublish={vi.fn()}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: SCHEDULE_BUILDER_COPY.moveDownLabel("Last"),
+      }),
+    );
+    expect(onReorder).not.toHaveBeenCalled();
+  });
+});
