@@ -123,7 +123,7 @@ interface InviteFirebaseData {
 
 function validateInviteData(data: InviteFirebaseData): void {
   const now = new Date();
-  if (data.expiresAt.toDate() < now) throw new InviteLinkExpiredError();
+  if (data.expiresAt.toDate() <= now) throw new InviteLinkExpiredError();
   if (data.consumedAt != null) throw new InviteLinkUsedError();
   if (data.revokedAt != null) throw new InviteLinkRevokedError();
 }

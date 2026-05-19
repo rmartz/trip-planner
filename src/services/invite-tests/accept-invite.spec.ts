@@ -104,6 +104,19 @@ describe("acceptInviteByLink — expired link", () => {
       InviteLinkExpiredError,
     );
   });
+
+  it("throws InviteLinkExpiredError when expiresAt equals now (boundary)", async () => {
+    const now = new Date();
+    const inviteDoc = makeInviteDoc({ expiresAt: now });
+    const { db } = makeTransactionDb(inviteDoc, false);
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      db as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(acceptInviteByLink("tok-abc", "uid-x")).rejects.toThrow(
+      InviteLinkExpiredError,
+    );
+  });
 });
 
 describe("acceptInviteByLink — revoked link", () => {
