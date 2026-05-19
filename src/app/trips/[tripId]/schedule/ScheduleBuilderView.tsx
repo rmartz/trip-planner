@@ -128,7 +128,7 @@ export function ScheduleBuilderView({
         <p className="font-mono text-xs text-muted-foreground">
           {COPY.headingSubtext}
         </p>
-        <p className="text-sm font-medium">{COPY.stopLabel(stopName)}</p>
+        <p className="text-sm font-medium">{stopName}</p>
       </header>
 
       <main className="flex flex-1 flex-col gap-6 p-4">
