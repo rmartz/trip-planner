@@ -1,3 +1,9 @@
+export enum InviteError {
+  Expired = "expired",
+  Revoked = "revoked",
+  Used = "used",
+}
+
 export enum InviteMode {
   GroupUse = "group-use",
   SingleUse = "single-use",

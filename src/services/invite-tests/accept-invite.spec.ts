@@ -21,6 +21,7 @@ const PAST = new Date(Date.now() - 1000);
 function makeInviteDoc(overrides: {
   mode?: InviteMode;
   expiresAt?: Date;
+  consumedAt?: Date;
   revokedAt?: Date;
   exists?: boolean;
 }) {
@@ -33,6 +34,9 @@ function makeInviteDoc(overrides: {
             tripId: "trip-1",
             mode: overrides.mode ?? InviteMode.GroupUse,
             expiresAt: { toDate: () => overrides.expiresAt ?? FUTURE },
+            consumedAt: overrides.consumedAt
+              ? { toDate: () => overrides.consumedAt }
+              : null,
             revokedAt: overrides.revokedAt
               ? { toDate: () => overrides.revokedAt }
               : null,
@@ -117,7 +121,7 @@ describe("acceptInviteByLink — revoked link", () => {
 });
 
 describe("acceptInviteByLink — single-use auto-revocation", () => {
-  it("sets revokedAt on the invite after a new member joins", async () => {
+  it("sets consumedAt on the invite after a new member joins", async () => {
     const inviteDoc = makeInviteDoc({ mode: InviteMode.SingleUse });
     const { db, transactionUpdateFn } = makeTransactionDb(inviteDoc, false);
     vi.mocked(getAdminFirestore).mockReturnValue(
@@ -128,14 +132,14 @@ describe("acceptInviteByLink — single-use auto-revocation", () => {
 
     expect(transactionUpdateFn).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ revokedAt: expect.any(Date) }),
+      expect.objectContaining({ consumedAt: expect.any(Date) }),
     );
   });
 
-  it("throws InviteLinkUsedError on second accept when revokedAt is already set", async () => {
+  it("throws InviteLinkUsedError on second accept when consumedAt is already set", async () => {
     const inviteDoc = makeInviteDoc({
       mode: InviteMode.SingleUse,
-      revokedAt: PAST,
+      consumedAt: PAST,
     });
     const { db } = makeTransactionDb(inviteDoc, false);
     vi.mocked(getAdminFirestore).mockReturnValue(

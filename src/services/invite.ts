@@ -9,6 +9,7 @@ import {
   InviteMode,
   SINGLE_USE_TTL_DAYS,
 } from "@/lib/types/invite";
+import { FieldValue } from "firebase-admin/firestore";
 
 export class InviteLinkExpiredError extends Error {
   constructor() {
@@ -101,9 +102,11 @@ export async function createInviteLink(
   const expiresAt = new Date(now.getTime() + ttlDays * 24 * 60 * 60 * 1000);
 
   await db.collection("invites").doc(token).set({
+    consumedAt: null,
     createdAt: now,
     expiresAt,
     mode,
+    revokedAt: null,
     tripId,
   });
 
@@ -111,6 +114,7 @@ export async function createInviteLink(
 }
 
 interface InviteFirebaseData {
+  consumedAt: { toDate(): Date } | null;
   expiresAt: { toDate(): Date };
   mode: InviteMode;
   revokedAt: { toDate(): Date } | null;
@@ -120,10 +124,25 @@ interface InviteFirebaseData {
 function validateInviteData(data: InviteFirebaseData): void {
   const now = new Date();
   if (data.expiresAt.toDate() < now) throw new InviteLinkExpiredError();
-  if (data.revokedAt !== null) {
-    if (data.mode === InviteMode.SingleUse) throw new InviteLinkUsedError();
-    throw new InviteLinkRevokedError();
-  }
+  if (data.consumedAt != null) throw new InviteLinkUsedError();
+  if (data.revokedAt != null) throw new InviteLinkRevokedError();
+}
+
+export async function getTripByInviteLink(
+  token: string,
+): Promise<Trip | undefined> {
+  const db = getAdminFirestore();
+  const inviteSnap = await db.collection("invites").doc(token).get();
+  if (!inviteSnap.exists) return undefined;
+
+  const data = inviteSnap.data() as InviteFirebaseData;
+  validateInviteData(data);
+
+  const tripSnap = await db.collection("trips").doc(data.tripId).get();
+  if (!tripSnap.exists) return undefined;
+  const tripData = tripSnap.data();
+  if (!tripData) return undefined;
+  return firebaseToTrip(tripSnap.id, tripData);
 }
 
 export async function acceptInviteByLink(
@@ -135,22 +154,22 @@ export async function acceptInviteByLink(
 
   return db.runTransaction(async (txn) => {
     const inviteSnap = await txn.get(inviteRef);
+    if (!inviteSnap.exists) throw new Error("Invalid invite token");
+
     const data = inviteSnap.data() as InviteFirebaseData;
     validateInviteData(data);
 
     const { tripId, mode } = data;
-    const memberRef = db
-      .collection("trips")
-      .doc(tripId)
-      .collection("members")
-      .doc(uid);
+    const tripRef = db.collection("trips").doc(tripId);
+    const memberRef = tripRef.collection("members").doc(uid);
 
     const memberSnap = await txn.get(memberRef);
     if (memberSnap.exists) return { alreadyMember: true, tripId };
 
     txn.set(memberRef, { joinedAt: new Date(), role: TripRole.Guest, uid });
+    txn.update(tripRef, { memberUids: FieldValue.arrayUnion(uid) });
     if (mode === InviteMode.SingleUse) {
-      txn.update(inviteRef, { revokedAt: new Date() });
+      txn.update(inviteRef, { consumedAt: new Date() });
     }
 
     return { alreadyMember: false, tripId };

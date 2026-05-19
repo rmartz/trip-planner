@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
+import { InviteError } from "@/lib/types/invite";
 import type { Trip } from "@/lib/types/trip";
 
 vi.mock("@/services/invite", () => ({
@@ -19,14 +20,13 @@ vi.mock("@/services/invite", () => ({
       super("This invite has already been used");
     }
   },
-  acceptInvite: vi.fn(),
   acceptInviteByLink: vi.fn(),
-  getTripByInviteToken: vi.fn(),
+  getTripByInviteLink: vi.fn(),
 }));
 
 import {
-  acceptInvite,
-  getTripByInviteToken,
+  acceptInviteByLink,
+  getTripByInviteLink,
   InviteLinkExpiredError,
   InviteLinkRevokedError,
   InviteLinkUsedError,
@@ -66,7 +66,7 @@ function makePostRequest(uid: string | undefined) {
 
 describe("GET /api/invite/[token] — valid token", () => {
   it("returns trip name, date range, and member count", async () => {
-    vi.mocked(getTripByInviteToken).mockResolvedValue(makeTrip());
+    vi.mocked(getTripByInviteLink).mockResolvedValue(makeTrip());
 
     const response = await GET(makeGetRequest(), {
       params: Promise.resolve({ token: "tok-abc" }),
@@ -80,19 +80,19 @@ describe("GET /api/invite/[token] — valid token", () => {
     expect(body["memberCount"]).toBe(2);
   });
 
-  it("calls getTripByInviteToken with the route token", async () => {
-    vi.mocked(getTripByInviteToken).mockResolvedValue(makeTrip());
+  it("calls getTripByInviteLink with the route token", async () => {
+    vi.mocked(getTripByInviteLink).mockResolvedValue(makeTrip());
 
     await GET(makeGetRequest(), {
       params: Promise.resolve({ token: "tok-abc" }),
     });
-    expect(vi.mocked(getTripByInviteToken)).toHaveBeenCalledWith("tok-abc");
+    expect(vi.mocked(getTripByInviteLink)).toHaveBeenCalledWith("tok-abc");
   });
 });
 
 describe("GET /api/invite/[token] — invalid token", () => {
-  it("returns 404 when the token does not match any trip", async () => {
-    vi.mocked(getTripByInviteToken).mockResolvedValue(undefined);
+  it("returns 404 when the token does not match any invite link", async () => {
+    vi.mocked(getTripByInviteLink).mockResolvedValue(undefined);
 
     const response = await GET(makeGetRequest(), {
       params: Promise.resolve({ token: "bad-token" }),
@@ -111,8 +111,8 @@ describe("POST /api/invite/[token] — unauthenticated", () => {
 });
 
 describe("POST /api/invite/[token] — invalid token", () => {
-  it("returns 404 when acceptInvite throws Invalid invite token", async () => {
-    vi.mocked(acceptInvite).mockRejectedValue(
+  it("returns 404 when acceptInviteByLink throws Invalid invite token", async () => {
+    vi.mocked(acceptInviteByLink).mockRejectedValue(
       new Error("Invalid invite token"),
     );
 
@@ -122,8 +122,10 @@ describe("POST /api/invite/[token] — invalid token", () => {
     expect(response.status).toBe(404);
   });
 
-  it("returns 500 when acceptInvite throws an unexpected error", async () => {
-    vi.mocked(acceptInvite).mockRejectedValue(new Error("Firestore timeout"));
+  it("returns 500 when acceptInviteByLink throws an unexpected error", async () => {
+    vi.mocked(acceptInviteByLink).mockRejectedValue(
+      new Error("Firestore timeout"),
+    );
 
     const response = await POST(makePostRequest("uid-x"), {
       params: Promise.resolve({ token: "tok-abc" }),
@@ -134,7 +136,7 @@ describe("POST /api/invite/[token] — invalid token", () => {
 
 describe("POST /api/invite/[token] — authenticated, valid token", () => {
   it("returns tripId and alreadyMember:false for a new member", async () => {
-    vi.mocked(acceptInvite).mockResolvedValue({
+    vi.mocked(acceptInviteByLink).mockResolvedValue({
       tripId: "trip-1",
       alreadyMember: false,
     });
@@ -153,7 +155,7 @@ describe("POST /api/invite/[token] — authenticated, valid token", () => {
   });
 
   it("returns tripId and alreadyMember:true for an existing member", async () => {
-    vi.mocked(acceptInvite).mockResolvedValue({
+    vi.mocked(acceptInviteByLink).mockResolvedValue({
       tripId: "trip-1",
       alreadyMember: true,
     });
@@ -171,8 +173,8 @@ describe("POST /api/invite/[token] — authenticated, valid token", () => {
     expect(body.alreadyMember).toBe(true);
   });
 
-  it("calls acceptInvite with the token and uid", async () => {
-    vi.mocked(acceptInvite).mockResolvedValue({
+  it("calls acceptInviteByLink with the token and uid", async () => {
+    vi.mocked(acceptInviteByLink).mockResolvedValue({
       tripId: "trip-1",
       alreadyMember: false,
     });
@@ -180,13 +182,16 @@ describe("POST /api/invite/[token] — authenticated, valid token", () => {
     await POST(makePostRequest("uid-new"), {
       params: Promise.resolve({ token: "tok-abc" }),
     });
-    expect(vi.mocked(acceptInvite)).toHaveBeenCalledWith("tok-abc", "uid-new");
+    expect(vi.mocked(acceptInviteByLink)).toHaveBeenCalledWith(
+      "tok-abc",
+      "uid-new",
+    );
   });
 });
 
 describe("GET /api/invite/[token] — expired link", () => {
-  it("returns 410 when getTripByInviteToken throws InviteLinkExpiredError", async () => {
-    vi.mocked(getTripByInviteToken).mockRejectedValue(
+  it("returns 410 with InviteError.Expired when getTripByInviteLink throws InviteLinkExpiredError", async () => {
+    vi.mocked(getTripByInviteLink).mockRejectedValue(
       new InviteLinkExpiredError(),
     );
 
@@ -195,14 +200,18 @@ describe("GET /api/invite/[token] — expired link", () => {
     });
     expect(response.status).toBe(410);
 
-    const body = (await response.json()) as { error: string };
+    const body = (await response.json()) as {
+      error: string;
+      inviteError: InviteError;
+    };
     expect(body.error).toContain("expired");
+    expect(body.inviteError).toBe(InviteError.Expired);
   });
 });
 
 describe("GET /api/invite/[token] — revoked link", () => {
-  it("returns 410 when getTripByInviteToken throws InviteLinkRevokedError", async () => {
-    vi.mocked(getTripByInviteToken).mockRejectedValue(
+  it("returns 410 with InviteError.Revoked when getTripByInviteLink throws InviteLinkRevokedError", async () => {
+    vi.mocked(getTripByInviteLink).mockRejectedValue(
       new InviteLinkRevokedError(),
     );
 
@@ -211,45 +220,65 @@ describe("GET /api/invite/[token] — revoked link", () => {
     });
     expect(response.status).toBe(410);
 
-    const body = (await response.json()) as { error: string };
+    const body = (await response.json()) as {
+      error: string;
+      inviteError: InviteError;
+    };
     expect(body.error).toContain("longer active");
+    expect(body.inviteError).toBe(InviteError.Revoked);
   });
 });
 
 describe("POST /api/invite/[token] — link error states", () => {
-  it("returns 410 with expired message when acceptInvite throws InviteLinkExpiredError", async () => {
-    vi.mocked(acceptInvite).mockRejectedValue(new InviteLinkExpiredError());
+  it("returns 410 with InviteError.Expired when acceptInviteByLink throws InviteLinkExpiredError", async () => {
+    vi.mocked(acceptInviteByLink).mockRejectedValue(
+      new InviteLinkExpiredError(),
+    );
 
     const response = await POST(makePostRequest("uid-x"), {
       params: Promise.resolve({ token: "tok-expired" }),
     });
     expect(response.status).toBe(410);
 
-    const body = (await response.json()) as { error: string };
+    const body = (await response.json()) as {
+      error: string;
+      inviteError: InviteError;
+    };
     expect(body.error).toContain("expired");
+    expect(body.inviteError).toBe(InviteError.Expired);
   });
 
-  it("returns 410 with revoked message when acceptInvite throws InviteLinkRevokedError", async () => {
-    vi.mocked(acceptInvite).mockRejectedValue(new InviteLinkRevokedError());
+  it("returns 410 with InviteError.Revoked when acceptInviteByLink throws InviteLinkRevokedError", async () => {
+    vi.mocked(acceptInviteByLink).mockRejectedValue(
+      new InviteLinkRevokedError(),
+    );
 
     const response = await POST(makePostRequest("uid-x"), {
       params: Promise.resolve({ token: "tok-revoked" }),
     });
     expect(response.status).toBe(410);
 
-    const body = (await response.json()) as { error: string };
+    const body = (await response.json()) as {
+      error: string;
+      inviteError: InviteError;
+    };
     expect(body.error).toContain("longer active");
+    expect(body.inviteError).toBe(InviteError.Revoked);
   });
 
-  it("returns 410 with used message when acceptInvite throws InviteLinkUsedError", async () => {
-    vi.mocked(acceptInvite).mockRejectedValue(new InviteLinkUsedError());
+  it("returns 410 with InviteError.Used when acceptInviteByLink throws InviteLinkUsedError", async () => {
+    vi.mocked(acceptInviteByLink).mockRejectedValue(new InviteLinkUsedError());
 
     const response = await POST(makePostRequest("uid-x"), {
       params: Promise.resolve({ token: "tok-used" }),
     });
     expect(response.status).toBe(410);
 
-    const body = (await response.json()) as { error: string };
+    const body = (await response.json()) as {
+      error: string;
+      inviteError: InviteError;
+    };
     expect(body.error).toContain("already been used");
+    expect(body.inviteError).toBe(InviteError.Used);
   });
 });

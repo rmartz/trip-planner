@@ -1,12 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
-  acceptInvite,
-  getTripByInviteToken,
+  acceptInviteByLink,
+  getTripByInviteLink,
   InviteLinkExpiredError,
   InviteLinkRevokedError,
   InviteLinkUsedError,
 } from "@/services/invite";
 import { X_USER_ID_HEADER } from "@/lib/constants";
+import { InviteError } from "@/lib/types/invite";
 
 interface RouteContext {
   params: Promise<{ token: string }>;
@@ -16,7 +17,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
   const { token } = await params;
 
   try {
-    const trip = await getTripByInviteToken(token);
+    const trip = await getTripByInviteLink(token);
 
     if (!trip) {
       return NextResponse.json({ error: "Invite not found" }, { status: 404 });
@@ -30,13 +31,22 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
     });
   } catch (err) {
     if (err instanceof InviteLinkExpiredError) {
-      return NextResponse.json({ error: err.message }, { status: 410 });
+      return NextResponse.json(
+        { error: err.message, inviteError: InviteError.Expired },
+        { status: 410 },
+      );
     }
     if (err instanceof InviteLinkRevokedError) {
-      return NextResponse.json({ error: err.message }, { status: 410 });
+      return NextResponse.json(
+        { error: err.message, inviteError: InviteError.Revoked },
+        { status: 410 },
+      );
     }
     if (err instanceof InviteLinkUsedError) {
-      return NextResponse.json({ error: err.message }, { status: 410 });
+      return NextResponse.json(
+        { error: err.message, inviteError: InviteError.Used },
+        { status: 410 },
+      );
     }
     return NextResponse.json(
       { error: "Internal server error" },
@@ -54,17 +64,26 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   const { token } = await params;
 
   try {
-    const { tripId, alreadyMember } = await acceptInvite(token, uid);
+    const { tripId, alreadyMember } = await acceptInviteByLink(token, uid);
     return NextResponse.json({ tripId, alreadyMember });
   } catch (err) {
     if (err instanceof InviteLinkExpiredError) {
-      return NextResponse.json({ error: err.message }, { status: 410 });
+      return NextResponse.json(
+        { error: err.message, inviteError: InviteError.Expired },
+        { status: 410 },
+      );
     }
     if (err instanceof InviteLinkRevokedError) {
-      return NextResponse.json({ error: err.message }, { status: 410 });
+      return NextResponse.json(
+        { error: err.message, inviteError: InviteError.Revoked },
+        { status: 410 },
+      );
     }
     if (err instanceof InviteLinkUsedError) {
-      return NextResponse.json({ error: err.message }, { status: 410 });
+      return NextResponse.json(
+        { error: err.message, inviteError: InviteError.Used },
+        { status: 410 },
+      );
     }
     if (err instanceof Error && err.message === "Invalid invite token") {
       return NextResponse.json({ error: "Invite not found" }, { status: 404 });

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { InviteError } from "@/lib/types/invite";
 import { INVITE_PAGE_COPY } from "./copy";
 
 interface TripSummary {
@@ -16,7 +17,7 @@ export interface InvitePageViewProps {
   trip?: TripSummary;
   isAuthenticated: boolean;
   isAlreadyMember: boolean;
-  inviteError?: "expired" | "revoked" | "used";
+  inviteError?: InviteError;
   joinError: boolean;
   onJoin: () => void;
   isJoining: boolean;
@@ -24,9 +25,9 @@ export interface InvitePageViewProps {
   signUpHref: string;
 }
 
-function inviteErrorMessage(error: "expired" | "revoked" | "used"): string {
-  if (error === "expired") return INVITE_PAGE_COPY.expiredError;
-  if (error === "used") return INVITE_PAGE_COPY.usedError;
+function inviteErrorMessage(error: InviteError): string {
+  if (error === InviteError.Expired) return INVITE_PAGE_COPY.expiredError;
+  if (error === InviteError.Used) return INVITE_PAGE_COPY.usedError;
   return INVITE_PAGE_COPY.revokedError;
 }
 

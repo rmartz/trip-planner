@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { InviteError } from "@/lib/types/invite";
 import { InvitePageView } from "./InvitePageView";
 
 const meta: Meta<typeof InvitePageView> = {
@@ -83,7 +84,7 @@ export const JoinError: Story = {
 
 export const ExpiredLink: Story = {
   args: {
-    inviteError: "expired",
+    inviteError: InviteError.Expired,
     isAuthenticated: false,
     isAlreadyMember: false,
     joinError: false,
@@ -96,7 +97,7 @@ export const ExpiredLink: Story = {
 
 export const RevokedLink: Story = {
   args: {
-    inviteError: "revoked",
+    inviteError: InviteError.Revoked,
     isAuthenticated: false,
     isAlreadyMember: false,
     joinError: false,
@@ -109,7 +110,7 @@ export const RevokedLink: Story = {
 
 export const UsedLink: Story = {
   args: {
-    inviteError: "used",
+    inviteError: InviteError.Used,
     isAuthenticated: false,
     isAlreadyMember: false,
     joinError: false,
