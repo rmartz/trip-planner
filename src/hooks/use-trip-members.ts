@@ -1,33 +1,42 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { type TripMember, TripRole } from "@/lib/types/trip";
 
-interface TripMemberJson {
-  displayName?: string;
-  joinedAt: string;
-  memberUids: string[];
-  role: TripRole;
-  tripId: string;
+export interface TripMemberOption {
+  displayName: string | undefined;
   uid: string;
 }
 
-interface TripMembersResponse {
-  accountMembers: TripMemberJson[];
+interface AccountMemberJson {
+  displayName?: string;
+  uid: string;
 }
 
-function parseTripMember(json: TripMemberJson): TripMember {
+interface NonAccountMemberJson {
+  name: string;
+  nonAccountMemberId: string;
+}
+
+interface TripMembersResponse {
+  accountMembers: AccountMemberJson[];
+  nonAccountMembers?: NonAccountMemberJson[];
+}
+
+function parseAccountMember(json: AccountMemberJson): TripMemberOption {
   return {
     displayName: json.displayName,
-    joinedAt: new Date(json.joinedAt),
-    memberUids: json.memberUids,
-    role: json.role,
-    tripId: json.tripId,
     uid: json.uid,
   };
 }
 
-async function fetchTripMembers(tripId: string): Promise<TripMember[]> {
+function parseNonAccountMember(json: NonAccountMemberJson): TripMemberOption {
+  return {
+    displayName: `${json.name}*`,
+    uid: json.nonAccountMemberId,
+  };
+}
+
+async function fetchTripMembers(tripId: string): Promise<TripMemberOption[]> {
   const response = await fetch(`/api/trips/${tripId}/members`);
   if (!response.ok) {
     throw new Error(
@@ -36,7 +45,10 @@ async function fetchTripMembers(tripId: string): Promise<TripMember[]> {
   }
 
   const data = (await response.json()) as TripMembersResponse;
-  return data.accountMembers.map(parseTripMember);
+  return [
+    ...data.accountMembers.map(parseAccountMember),
+    ...(data.nonAccountMembers ?? []).map(parseNonAccountMember),
+  ];
 }
 
 export function tripMembersQueryOptions(tripId: string) {
