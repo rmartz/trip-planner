@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
+import { computeTransportGapCount } from "@/lib/trips/transport";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 import { getLegsForTrip } from "./legs";
@@ -111,18 +112,11 @@ export async function recomputeTransportGapCount(
     entriesByLegId.set(entry.legId, bucket);
   }
 
-  let transportGapCount = 0;
-  for (const leg of legs) {
+  const legSummaries = legs.map((leg) => {
     const legEntries = entriesByLegId.get(leg.legId) ?? [];
-    const { demand, supply } = computeLegSummary(
-      leg.memberUids,
-      legEntries,
-      {},
-    );
-    const seats = supply.reduce((acc, offer) => acc + offer.seatCount, 0);
-    const legGap = demand.needRide - seats;
-    if (legGap > 0) transportGapCount += legGap;
-  }
+    return computeLegSummary(leg.memberUids, legEntries, {});
+  });
+  const transportGapCount = computeTransportGapCount(legSummaries);
 
   const db = getAdminFirestore();
   await db.collection("trips").doc(tripId).update({ transportGapCount });
