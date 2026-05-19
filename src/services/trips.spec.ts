@@ -1,12 +1,30 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Trip } from "@/lib/types/trip";
+import {
+  TransportationStatus,
+  TransportOfferVisibility,
+} from "@/lib/types/transportation";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
 vi.mock("@/lib/firebase/schema/trip", () => ({ firebaseToTrip: vi.fn() }));
+vi.mock("./legs", () => ({ getLegsForTrip: vi.fn() }));
+vi.mock("./transportation", () => ({
+  computeLegSummary: vi.fn(),
+  getTransportationEntriesForTrip: vi.fn(),
+}));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
-import { getTripMemberUids, getTripsForUser } from "./trips";
+import { getLegsForTrip } from "./legs";
+import {
+  computeLegSummary,
+  getTransportationEntriesForTrip,
+} from "./transportation";
+import {
+  getTripMemberUids,
+  getTripsForUser,
+  recomputeTransportGapCount,
+} from "./trips";
 
 interface MockMemberDoc {
   ref: {
@@ -65,6 +83,7 @@ describe("getTripsForUser", () => {
       createdBy: "uid-1",
       memberUids: ["uid-1"],
       inviteToken: "tok-1",
+      transportGapCount: 0,
     };
     vi.mocked(firebaseToTrip).mockReturnValue(mappedTrip);
 
@@ -87,6 +106,31 @@ describe("getTripsForUser", () => {
     expect(getAll).not.toHaveBeenCalled();
     expect(firebaseToTrip).not.toHaveBeenCalled();
     expect(trips).toEqual([]);
+  });
+
+  it("returns trips without backfilling missing transportGapCount", async () => {
+    getMembers.mockResolvedValue({
+      docs: [{ ref: { parent: { parent: { id: "trip-1" } } } }],
+    });
+    getAll.mockResolvedValue([
+      { id: "trip-1", exists: true, data: () => ({ name: "A" }) },
+    ]);
+    const mappedTrip: Trip = {
+      tripId: "trip-1",
+      name: "A",
+      startDate: new Date("2025-01-01T00:00:00.000Z"),
+      endDate: new Date("2025-01-02T00:00:00.000Z"),
+      createdAt: new Date("2025-01-03T00:00:00.000Z"),
+      createdBy: "uid-1",
+      memberUids: ["uid-1"],
+      inviteToken: "tok-1",
+    };
+    vi.mocked(firebaseToTrip).mockReturnValue(mappedTrip);
+
+    const trips = await getTripsForUser("uid-1");
+
+    expect(trips).toEqual([mappedTrip]);
+    expect(trips[0]?.transportGapCount).toBeUndefined();
   });
 });
 
@@ -130,5 +174,101 @@ describe("getTripMemberUids", () => {
       "uid-1",
       "uid-2",
     ]);
+  });
+});
+
+describe("recomputeTransportGapCount", () => {
+  const update = vi.fn();
+  const tripDoc = vi.fn(() => ({ update }));
+  const mockDb = {
+    collection: vi.fn(() => ({ doc: tripDoc })),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+    update.mockResolvedValue(undefined);
+  });
+
+  it("writes computed transportGapCount to the trip document", async () => {
+    vi.mocked(getLegsForTrip).mockResolvedValue([
+      {
+        legId: "leg-1",
+        tripId: "trip-1",
+        fromStopId: "s1",
+        toStopId: "s2",
+        name: "Leg 1",
+        order: 0,
+        memberUids: ["uid-a", "uid-b"],
+        isActive: true,
+      },
+    ]);
+    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([
+      {
+        entryId: "e1",
+        legId: "leg-1",
+        uid: "uid-a",
+        status: TransportationStatus.NeedTransportation,
+        routeName: "",
+      },
+    ]);
+    vi.mocked(computeLegSummary).mockReturnValue({
+      demand: { driving: 0, needRide: 2, noReply: 0, skipLeg: 0 },
+      supply: [
+        {
+          driverName: "Bob",
+          seatCount: 1,
+          routeName: "",
+          visibility: TransportOfferVisibility.Public,
+        },
+      ],
+    });
+
+    await recomputeTransportGapCount("trip-1");
+
+    expect(tripDoc).toHaveBeenCalledWith("trip-1");
+    expect(update).toHaveBeenCalledWith({ transportGapCount: 1 });
+  });
+
+  it("writes 0 when there are no legs", async () => {
+    vi.mocked(getLegsForTrip).mockResolvedValue([]);
+    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
+
+    await recomputeTransportGapCount("trip-1");
+
+    expect(update).toHaveBeenCalledWith({ transportGapCount: 0 });
+  });
+
+  it("writes 0 when supply covers all demand", async () => {
+    vi.mocked(getLegsForTrip).mockResolvedValue([
+      {
+        legId: "leg-1",
+        tripId: "trip-1",
+        fromStopId: "s1",
+        toStopId: "s2",
+        name: "Leg 1",
+        order: 0,
+        memberUids: ["uid-a"],
+        isActive: true,
+      },
+    ]);
+    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
+    vi.mocked(computeLegSummary).mockReturnValue({
+      demand: { driving: 1, needRide: 0, noReply: 0, skipLeg: 0 },
+      supply: [
+        {
+          driverName: "Alice",
+          seatCount: 3,
+          routeName: "",
+          visibility: TransportOfferVisibility.Public,
+        },
+      ],
+    });
+
+    await recomputeTransportGapCount("trip-1");
+
+    expect(update).toHaveBeenCalledWith({ transportGapCount: 0 });
   });
 });

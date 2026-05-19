@@ -8,7 +8,12 @@ vi.mock("@/services/legs", () => ({
   updateLeg: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
+}));
+
 import { softDeleteLeg } from "@/services/legs";
+import { recomputeTransportGapCount } from "@/services/trips";
 import { DELETE } from "./route";
 
 function makeDeleteRequest(
@@ -49,6 +54,19 @@ describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
       "uid-planner",
       "trip-1",
       "leg-1",
+    );
+  });
+
+  it("calls recomputeTransportGapCount with the tripId on success", async () => {
+    vi.mocked(softDeleteLeg).mockResolvedValue(undefined);
+
+    const request = makeDeleteRequest("uid-planner");
+    await DELETE(request, {
+      params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
+    });
+
+    expect(vi.mocked(recomputeTransportGapCount)).toHaveBeenCalledWith(
+      "trip-1",
     );
   });
 
