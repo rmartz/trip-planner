@@ -218,4 +218,16 @@ describe("GET /api/trips/[tripId]/transport/summaries", () => {
 
     expect(data.summaries[0]!.leg.name).toBe("London to Paris");
   });
+
+  it("includes role in the 200 response", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await GET(makeRequest("uid-planner"), {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(200);
+
+    const data = (await response.json()) as { role: TripRole };
+    expect(data.role).toBe(TripRole.Planner);
+  });
 });
