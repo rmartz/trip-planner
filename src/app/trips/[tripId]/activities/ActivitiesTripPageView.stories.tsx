@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import { InterestVote } from "@/lib/types/interest-vote";
+import { TripRole } from "@/lib/types/trip";
 import {
   ActivitiesTripPageView,
   type ActivityProposal,
@@ -17,6 +18,7 @@ function makeProposal(
     counts: { yes: 2, maybe: 1, no: 0 },
     timeHint: "Saturday morning",
     userVote: undefined,
+    voterNames: { yes: [], maybe: [], no: [] },
     ...overrides,
   };
 }
@@ -25,7 +27,15 @@ const meta: Meta<typeof ActivitiesTripPageView> = {
   component: ActivitiesTripPageView,
   args: {
     proposals: [
-      makeProposal({ proposalId: "p-1", name: "Hiking the Ridge Trail" }),
+      makeProposal({
+        proposalId: "p-1",
+        name: "Hiking the Ridge Trail",
+        voterNames: {
+          yes: ["Marco", "Jess", "Tara", "Bob"],
+          maybe: ["Kev"],
+          no: [],
+        },
+      }),
       makeProposal({
         proposalId: "p-2",
         name: "Kayaking on the River",
@@ -34,6 +44,7 @@ const meta: Meta<typeof ActivitiesTripPageView> = {
         counts: { yes: 3, maybe: 0, no: 1 },
         timeHint: "Sunday afternoon",
         userVote: InterestVote.Yes,
+        voterNames: { yes: ["Alice", "Casey", "Dana"], maybe: [], no: ["Pat"] },
       }),
       makeProposal({
         proposalId: "p-3",
@@ -42,6 +53,7 @@ const meta: Meta<typeof ActivitiesTripPageView> = {
         proposerName: "Casey",
         counts: { yes: 1, maybe: 2, no: 0 },
         timeHint: undefined,
+        voterNames: { yes: ["Alice"], maybe: ["Marco", "Jess"], no: [] },
       }),
     ],
     isLoading: false,
@@ -54,7 +66,30 @@ export default meta;
 
 type Story = StoryObj<typeof ActivitiesTripPageView>;
 
-export const Loaded: Story = {};
+export const GuestLoaded: Story = {
+  args: {
+    role: TripRole.Guest,
+  },
+};
+
+export const PlannerLoaded: Story = {
+  args: {
+    role: TripRole.Planner,
+  },
+};
+
+export const PlannerVoterNamesAbsent: Story = {
+  args: {
+    role: TripRole.Planner,
+    proposals: [
+      makeProposal({
+        proposalId: "p-1",
+        name: "Hiking the Ridge Trail",
+        voterNames: undefined,
+      }),
+    ],
+  },
+};
 
 export const Loading: Story = {
   args: {

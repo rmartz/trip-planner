@@ -13,8 +13,12 @@ vi.mock("@/services/user-profile", () => ({
   getOrCreateUserProfile: vi.fn().mockResolvedValue({ uid: "user-1" }),
 }));
 vi.mock("@sentry/nextjs", () => ({ setUser: vi.fn() }));
+vi.mock("@tanstack/react-query", () => ({
+  useQueryClient: vi.fn().mockReturnValue({ clear: vi.fn() }),
+}));
 
 import { onAuthStateChanged } from "firebase/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 import { AuthProvider } from "./AuthProvider";
 
@@ -55,5 +59,31 @@ describe("AuthProvider — Sentry user context: clears context on logout", () =>
     const { triggerAuth } = setupAuthCallback();
     triggerAuth(null);
     expect(vi.mocked(Sentry.setUser)).toHaveBeenCalledWith(null);
+  });
+});
+
+describe("AuthProvider — query cache: clears on sign-out", () => {
+  it("calls queryClient.clear() when user signs out", () => {
+    const mockClear = vi.fn();
+    vi.mocked(useQueryClient).mockReturnValue({
+      clear: mockClear,
+    } as unknown as ReturnType<typeof useQueryClient>);
+
+    const { triggerAuth } = setupAuthCallback();
+    triggerAuth(null);
+
+    expect(mockClear).toHaveBeenCalledOnce();
+  });
+
+  it("does not call queryClient.clear() when user signs in", () => {
+    const mockClear = vi.fn();
+    vi.mocked(useQueryClient).mockReturnValue({
+      clear: mockClear,
+    } as unknown as ReturnType<typeof useQueryClient>);
+
+    const { triggerAuth } = setupAuthCallback();
+    triggerAuth(makeUser("uid-xyz"));
+
+    expect(mockClear).not.toHaveBeenCalled();
   });
 });
