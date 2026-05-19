@@ -19,5 +19,4 @@ export const SCHEDULE_BUILDER_COPY = {
   proposedSectionHeading: "Proposed activities",
   publishButton: "Publish schedule",
   slotLabel: (slot: TimeOfDaySlot) => SLOT_LABELS[slot],
-  stopLabel: (name: string) => name,
 } as const;
