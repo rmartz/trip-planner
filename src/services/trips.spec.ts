@@ -47,19 +47,14 @@ describe("getTripsForUser", () => {
   const where = vi.fn(() => ({ get: getMembers }));
   const collectionGroup = vi.fn(() => ({ where }));
   const getAll = vi.fn();
-  const update = vi.fn();
-  const doc = vi.fn(() => ({ update }));
-  const collection = vi.fn(() => ({ doc }));
 
   const mockDb = {
-    collection,
     collectionGroup,
     getAll,
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    update.mockResolvedValue(undefined);
     vi.mocked(getAdminFirestore).mockReturnValue(
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
@@ -113,53 +108,29 @@ describe("getTripsForUser", () => {
     expect(trips).toEqual([]);
   });
 
-  it("recomputes and backfills missing transportGapCount", async () => {
+  it("returns trips without backfilling missing transportGapCount", async () => {
     getMembers.mockResolvedValue({
       docs: [{ ref: { parent: { parent: { id: "trip-1" } } } }],
     });
     getAll.mockResolvedValue([
       { id: "trip-1", exists: true, data: () => ({ name: "A" }) },
     ]);
-    vi.mocked(firebaseToTrip).mockReturnValue({
+    const mappedTrip: Trip = {
       tripId: "trip-1",
       name: "A",
       startDate: new Date("2025-01-01T00:00:00.000Z"),
       endDate: new Date("2025-01-02T00:00:00.000Z"),
       createdAt: new Date("2025-01-03T00:00:00.000Z"),
       createdBy: "uid-1",
-      memberUids: ["uid-1", "uid-2"],
+      memberUids: ["uid-1"],
       inviteToken: "tok-1",
-    });
-    vi.mocked(getLegsForTrip).mockResolvedValue([
-      {
-        legId: "leg-1",
-        tripId: "trip-1",
-        fromStopId: "s1",
-        toStopId: "s2",
-        name: "Leg 1",
-        order: 0,
-        memberUids: ["uid-1", "uid-2"],
-        isActive: true,
-      },
-    ]);
-    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
-    vi.mocked(computeLegSummary).mockReturnValue({
-      demand: { driving: 0, needRide: 3, noReply: 0, skipLeg: 0 },
-      supply: [
-        {
-          driverName: "Alex",
-          routeName: "",
-          seatCount: 1,
-          visibility: TransportOfferVisibility.Public,
-        },
-      ],
-    });
+    };
+    vi.mocked(firebaseToTrip).mockReturnValue(mappedTrip);
 
     const trips = await getTripsForUser("uid-1");
 
-    expect(doc).toHaveBeenCalledWith("trip-1");
-    expect(update).toHaveBeenCalledWith({ transportGapCount: 2 });
-    expect(trips[0]?.transportGapCount).toBe(2);
+    expect(trips).toEqual([mappedTrip]);
+    expect(trips[0]?.transportGapCount).toBeUndefined();
   });
 });
 
