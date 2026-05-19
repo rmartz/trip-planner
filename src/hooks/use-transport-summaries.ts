@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 import type { Leg } from "@/lib/types/trip";
 import type {
   TransportCarOffer,
@@ -27,9 +28,19 @@ async function fetchTransportSummaries(
   return data.summaries;
 }
 
-export function useTransportSummaries(tripId: string) {
+interface UseTransportSummariesOptions {
+  enabled?: boolean;
+}
+
+export function useTransportSummaries(
+  tripId: string,
+  options: UseTransportSummariesOptions = {},
+) {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: ["transport-summaries", tripId],
+    queryKey: ["transport-summaries", tripId, user?.uid],
     queryFn: () => fetchTransportSummaries(tripId),
+    enabled: (options.enabled ?? true) && tripId.length > 0,
   });
 }

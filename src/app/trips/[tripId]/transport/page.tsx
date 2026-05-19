@@ -19,9 +19,13 @@ interface TransportPageProps {
 export default function TransportPage({ params }: TransportPageProps) {
   const { tripId } = use(params);
   const router = useRouter();
-  const { data: legsData } = useLegs(tripId);
-  const { data: summaries } = useTransportSummaries(tripId);
+  const { data: legsData, isLoading: isLegsLoading } = useLegs(tripId);
   const isPlanner = legsData?.role === TripRole.Planner;
+  const {
+    data: summaries,
+    isError: isSummariesError,
+    isLoading: isSummariesLoading,
+  } = useTransportSummaries(tripId, { enabled: isPlanner });
 
   // haveOwn is not yet computed by the transport service (future work).
   const legSummaries: TransportLegSummary[] = (summaries ?? []).map((s) => ({
@@ -40,13 +44,27 @@ export default function TransportPage({ params }: TransportPageProps) {
         },
       }}
     >
-      {isPlanner ? (
-        <TransportPlannerOverviewView
-          legs={legSummaries}
-          // TODO: Wire real handler and populate nonAccountMembers from leg
-          // data in a follow-up PR.
-          onToggleMemberSortedOwn={() => undefined}
-        />
+      {isLegsLoading ? (
+        <p className="p-4 text-sm text-muted-foreground">
+          {TRANSPORT_PAGE_COPY.loadingMessage}
+        </p>
+      ) : isPlanner ? (
+        isSummariesLoading ? (
+          <p className="p-4 text-sm text-muted-foreground">
+            {TRANSPORT_PAGE_COPY.loadingMessage}
+          </p>
+        ) : isSummariesError ? (
+          <p className="p-4 text-sm text-muted-foreground">
+            {TRANSPORT_PAGE_COPY.summaryErrorMessage}
+          </p>
+        ) : (
+          <TransportPlannerOverviewView
+            legs={legSummaries}
+            // TODO: Wire real handler and populate nonAccountMembers from leg
+            // data in a follow-up PR.
+            onToggleMemberSortedOwn={() => undefined}
+          />
+        )
       ) : (
         <p className="p-4 text-sm text-muted-foreground">
           {TRANSPORT_PAGE_COPY.plannerOnlyMessage}

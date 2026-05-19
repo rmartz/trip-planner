@@ -2,8 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
+import { useLegs } from "@/hooks/use-legs";
 import { useTransportSummaries } from "@/hooks/use-transport-summaries";
 import { useTrip } from "@/hooks/use-trip";
+import { TripRole } from "@/lib/types/trip";
 import { computeTransportGapCount } from "@/lib/trips/transport";
 import { TripOverviewPageView } from "./TripOverviewPageView";
 
@@ -13,9 +15,16 @@ export default function TripOverviewPage() {
   const tripId = params.tripId;
 
   const { data: trip, isLoading, isError } = useTrip(tripId);
-  const { data: summaries } = useTransportSummaries(tripId);
+  const { data: legsData } = useLegs(tripId);
+  const isPlanner = legsData?.role === TripRole.Planner;
+  const { data: summaries } = useTransportSummaries(tripId, {
+    enabled: isPlanner,
+  });
 
-  const transportGapCount = computeTransportGapCount(summaries ?? []);
+  const transportGapCount =
+    isPlanner && summaries !== undefined
+      ? computeTransportGapCount(summaries)
+      : undefined;
 
   return (
     <AppShell

@@ -13,10 +13,12 @@ export async function getTripById(tripId: string): Promise<Trip | undefined> {
 
 export async function getTripMemberUids(tripId: string): Promise<string[]> {
   const db = getAdminFirestore();
-  const doc = await db.collection("trips").doc(tripId).get();
-  const raw: unknown = doc.data()?.["memberUids"];
-  if (!Array.isArray(raw)) return [];
-  return raw.filter((item): item is string => typeof item === "string");
+  const snapshot = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members")
+    .get();
+  return [...new Set(snapshot.docs.map((doc) => doc.id).filter(Boolean))];
 }
 
 export async function getTripMemberRole(

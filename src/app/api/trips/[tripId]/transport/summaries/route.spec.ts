@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import type { Leg } from "@/lib/types/trip";
 import { TripRole } from "@/lib/types/trip";
@@ -27,6 +27,7 @@ import { getTripMemberRole, getTripMemberUids } from "@/services/trips";
 import {
   computeLegSummary,
   getTransportationEntriesForTrip,
+  resolveDriverDisplayNames,
 } from "@/services/transportation";
 import { TransportationStatus } from "@/lib/types/transportation";
 import type { TransportationEntry } from "@/lib/types/transportation";
@@ -55,8 +56,17 @@ function makeRequest(uid: string | undefined, tripId = "trip-1") {
   );
 }
 
-afterEach(() => {
-  vi.clearAllMocks();
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.mocked(computeLegSummary).mockReturnValue({
+    demand: { driving: 0, needRide: 0, noReply: 0, skipLeg: 0 },
+    supply: [],
+  });
+  vi.mocked(getLegsForTrip).mockResolvedValue([]);
+  vi.mocked(resolveDriverDisplayNames).mockResolvedValue({});
+  vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
+  vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+  vi.mocked(getTripMemberUids).mockResolvedValue([]);
 });
 
 describe("GET /api/trips/[tripId]/transport/summaries", () => {
