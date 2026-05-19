@@ -13,23 +13,8 @@ vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
 }));
 
-vi.mock("@/services/transportation", () => ({
-  computeLegSummary: vi.fn(() => ({
-    demand: { driving: 0, needRide: 0, noReply: 0, skipLeg: 0 },
-    supply: [],
-  })),
-  getTransportationEntriesForTrip: vi.fn(() => Promise.resolve([])),
-  resolveDriverDisplayNames: vi.fn(() => Promise.resolve({})),
-}));
-
 import { addLeg, getLegsForTrip } from "@/services/legs";
 import { getTripMemberRole } from "@/services/trips";
-import {
-  computeLegSummary,
-  getTransportationEntriesForTrip,
-} from "@/services/transportation";
-import { TransportationStatus } from "@/lib/types/transportation";
-import type { TransportationEntry } from "@/lib/types/transportation";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {
@@ -102,6 +87,19 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(data.legs[0]!["toStopId"]).toBe("stop-2");
   });
 
+  it("returns legs for Guest members", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getLegsForTrip).mockResolvedValue([makeLeg()]);
+
+    const request = makeGetRequest("uid-guest");
+    const response = await GET(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(200);
+    const data = (await response.json()) as { role: string };
+    expect(data.role).toBe(TripRole.Guest);
+  });
+
   it("returns 403 when user is not a member", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
 
@@ -123,42 +121,6 @@ describe("GET /api/trips/[tripId]/legs", () => {
     expect(vi.mocked(getLegsForTrip)).not.toHaveBeenCalled();
   });
 
-  it("returns null legSummaries and the guest role when user is a Guest", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
-    vi.mocked(getLegsForTrip).mockResolvedValue([]);
-
-    const request = makeGetRequest("uid-guest");
-    const response = await GET(request, {
-      params: Promise.resolve({ tripId: "trip-1" }),
-    });
-    expect(response.status).toBe(200);
-    const data = (await response.json()) as {
-      role: string;
-      legSummaries: null;
-    };
-    expect(data.role).toBe(TripRole.Guest);
-    expect(data.legSummaries).toBeNull();
-  });
-
-  it("does not fetch transportation data for non-members", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
-
-    const request = makeGetRequest("uid-stranger");
-    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
-
-    expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
-  });
-
-  it("does not fetch transportation data for Guest members", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
-    vi.mocked(getLegsForTrip).mockResolvedValue([]);
-
-    const request = makeGetRequest("uid-guest");
-    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
-
-    expect(vi.mocked(getTransportationEntriesForTrip)).not.toHaveBeenCalled();
-  });
-
   it("calls getTripMemberRole and getLegsForTrip with correct tripId", async () => {
     vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
@@ -171,83 +133,6 @@ describe("GET /api/trips/[tripId]/legs", () => {
       "uid-1",
     );
     expect(vi.mocked(getLegsForTrip)).toHaveBeenCalledWith("trip-abc");
-  });
-
-  it("includes legSummaries in the response keyed by legId", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
-    vi.mocked(getLegsForTrip).mockResolvedValue([makeLeg({ legId: "leg-1" })]);
-    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
-    vi.mocked(computeLegSummary).mockReturnValue({
-      demand: { driving: 2, needRide: 3, noReply: 1, skipLeg: 0 },
-      supply: [],
-    });
-
-    const request = makeGetRequest("uid-planner");
-    const response = await GET(request, {
-      params: Promise.resolve({ tripId: "trip-1" }),
-    });
-    const data = (await response.json()) as {
-      legSummaries: Record<
-        string,
-        { demand: { driving: number; needRide: number } }
-      >;
-    };
-
-    expect(data.legSummaries["leg-1"]).toBeDefined();
-    expect(data.legSummaries["leg-1"]!.demand.driving).toBe(2);
-    expect(data.legSummaries["leg-1"]!.demand.needRide).toBe(3);
-  });
-
-  it("fetches transportation entries for the trip", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
-    vi.mocked(getLegsForTrip).mockResolvedValue([]);
-
-    const request = makeGetRequest("uid-1", "trip-xyz");
-    await GET(request, { params: Promise.resolve({ tripId: "trip-xyz" }) });
-
-    expect(vi.mocked(getTransportationEntriesForTrip)).toHaveBeenCalledWith(
-      "trip-xyz",
-    );
-  });
-
-  it("passes only entries matching each leg's legId to computeLegSummary", async () => {
-    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
-    vi.mocked(getLegsForTrip).mockResolvedValue([
-      makeLeg({ legId: "leg-A", memberUids: ["uid-1"] }),
-      makeLeg({ legId: "leg-B", memberUids: ["uid-2"] }),
-    ]);
-
-    const entryA: TransportationEntry = {
-      entryId: "entry-1",
-      legId: "leg-A",
-      uid: "uid-1",
-      status: TransportationStatus.Driving,
-      routeName: "Route A",
-    };
-    const entryB: TransportationEntry = {
-      entryId: "entry-2",
-      legId: "leg-B",
-      uid: "uid-2",
-      status: TransportationStatus.Driving,
-      routeName: "Route B",
-    };
-    vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([
-      entryA,
-      entryB,
-    ]);
-
-    const request = makeGetRequest("uid-planner");
-    await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
-
-    const calls = vi.mocked(computeLegSummary).mock.calls;
-    const callForLegA = calls.find((c) => c[0].includes("uid-1"));
-    const callForLegB = calls.find((c) => c[0].includes("uid-2"));
-
-    expect(callForLegA).toBeDefined();
-    expect(callForLegA![1]).toEqual([entryA]);
-
-    expect(callForLegB).toBeDefined();
-    expect(callForLegB![1]).toEqual([entryB]);
   });
 });
 

@@ -6,7 +6,7 @@ vi.mock("@/lib/firebase/schema/trip", () => ({ firebaseToTrip: vi.fn() }));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
-import { getTripsForUser } from "./trips";
+import { getTripMemberUids, getTripsForUser } from "./trips";
 
 interface MockMemberDoc {
   ref: {
@@ -87,5 +87,48 @@ describe("getTripsForUser", () => {
     expect(getAll).not.toHaveBeenCalled();
     expect(firebaseToTrip).not.toHaveBeenCalled();
     expect(trips).toEqual([]);
+  });
+});
+
+describe("getTripMemberUids", () => {
+  const getMembers = vi.fn();
+  const membersCollection = vi.fn(() => ({ get: getMembers }));
+  const doc = vi.fn(() => ({ collection: membersCollection }));
+  const collection = vi.fn(() => ({ doc }));
+
+  const mockDb = {
+    collection,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+  });
+
+  it("returns member document IDs from the members subcollection", async () => {
+    getMembers.mockResolvedValue({
+      docs: [{ id: "uid-1" }, { id: "uid-2" }],
+    });
+
+    await expect(getTripMemberUids("trip-1")).resolves.toEqual([
+      "uid-1",
+      "uid-2",
+    ]);
+    expect(collection).toHaveBeenCalledWith("trips");
+    expect(doc).toHaveBeenCalledWith("trip-1");
+    expect(membersCollection).toHaveBeenCalledWith("members");
+  });
+
+  it("deduplicates repeated member IDs", async () => {
+    getMembers.mockResolvedValue({
+      docs: [{ id: "uid-1" }, { id: "uid-1" }, { id: "uid-2" }],
+    });
+
+    await expect(getTripMemberUids("trip-1")).resolves.toEqual([
+      "uid-1",
+      "uid-2",
+    ]);
   });
 });
