@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
+import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import {
   ExpenseEntryFormView,
   type ExpenseEntryLinkedEntityOption,
@@ -13,9 +14,21 @@ const MEMBERS: ExpenseEntryMemberOption[] = [
 ];
 
 const LINKED_ENTITIES: ExpenseEntryLinkedEntityOption[] = [
-  { entityId: "stop-paris", label: "Paris stop" },
-  { entityId: "lodging-1", label: "Lyon hotel" },
-  { entityId: "transport-1", label: "Paris → Lyon train" },
+  {
+    entityId: "stop-paris",
+    label: "Paris stop",
+    type: ExpenseLinkedEntityType.Stop,
+  },
+  {
+    entityId: "lodging-1",
+    label: "Lyon hotel",
+    type: ExpenseLinkedEntityType.Stop,
+  },
+  {
+    entityId: "transport-1",
+    label: "Paris → Lyon train",
+    type: ExpenseLinkedEntityType.Leg,
+  },
 ];
 
 const meta: Meta<typeof ExpenseEntryFormView> = {
@@ -38,6 +51,16 @@ export const Default: Story = {};
 export const NoPreselectedPayer: Story = {
   args: {
     initialPayerId: undefined,
+  },
+};
+
+export const WithPreFill: Story = {
+  args: {
+    initialParticipantIds: ["member-alice", "member-bob"],
+    initialLinkedEntity: {
+      entityId: "stop-paris",
+      type: ExpenseLinkedEntityType.Stop,
+    },
   },
 };
 
