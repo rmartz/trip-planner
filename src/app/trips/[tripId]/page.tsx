@@ -17,12 +17,17 @@ export default function TripOverviewPage() {
   const { data: trip, isLoading, isError } = useTrip(tripId);
   const { data: legsData } = useLegs(tripId);
   const isPlanner = legsData?.role === TripRole.Planner;
-  const { data: summaries } = useTransportSummaries(tripId, {
-    enabled: isPlanner,
-  });
+  const {
+    data: summaries,
+    isError: isSummariesError,
+    isLoading: isSummariesLoading,
+  } = useTransportSummaries(tripId, { enabled: isPlanner });
 
   const transportGapCount =
-    isPlanner && summaries !== undefined
+    isPlanner &&
+    !isSummariesError &&
+    !isSummariesLoading &&
+    summaries !== undefined
       ? computeTransportGapCount(summaries)
       : undefined;
 
