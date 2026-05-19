@@ -111,7 +111,11 @@ describe("ExpensesPage — quick-add wiring", () => {
     vi.mocked(useLegs).mockReturnValue({
       data: {
         legs: [
-          { legId: "leg-paris-lyon", name: "Paris to Lyon", memberUids: ["uid-2"] },
+          {
+            legId: "leg-paris-lyon",
+            name: "Paris to Lyon",
+            memberUids: ["uid-2"],
+          },
         ],
       },
     } as never);
