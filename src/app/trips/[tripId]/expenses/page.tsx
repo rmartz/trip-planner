@@ -84,11 +84,23 @@ export default function ExpensesPage() {
   function toLinkedEntityType(
     type: ExpensePreFillType,
   ): ExpenseLinkedEntityType {
-    if (type === ExpensePreFillType.TransportLeg) {
-      return ExpenseLinkedEntityType.Leg;
+    switch (type) {
+      case ExpensePreFillType.StopAttendance:
+        return ExpenseLinkedEntityType.Stop;
+      case ExpensePreFillType.TransportLeg:
+        return ExpenseLinkedEntityType.Leg;
+      case ExpensePreFillType.ActivityRsvp:
+      case ExpensePreFillType.LodgingUnit:
+        // Not yet wired — real entity IDs are not exposed by the stop record.
+        // Update this function when #57 lands.
+        throw new Error(
+          `${type} is not yet mapped to an ExpenseLinkedEntityType`,
+        );
+      default: {
+        const _exhaustive: never = type;
+        throw new Error(`Unhandled ExpensePreFillType: ${String(_exhaustive)}`);
+      }
     }
-
-    return ExpenseLinkedEntityType.Stop;
   }
 
   return (
