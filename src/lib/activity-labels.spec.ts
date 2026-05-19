@@ -1,9 +1,6 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import { TimeOfDaySlot } from "@/lib/types/activity";
 import { slotLabel } from "./activity-labels";
-
-afterEach(cleanup);
 
 describe("slotLabel", () => {
   it("returns 'Afternoon' for Afternoon slot", () => {
