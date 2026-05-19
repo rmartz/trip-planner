@@ -13,7 +13,7 @@ describe("tripMembersQueryOptions", () => {
         accountMembers: [{ uid: "uid-alice", displayName: "Alice" }],
         nonAccountMembers: [{ nonAccountMemberId: "na-1", name: "Ben" }],
       }),
-    } as Response);
+    } as unknown as Response);
 
     const members = await tripMembersQueryOptions("trip-1").queryFn();
 
@@ -27,7 +27,7 @@ describe("tripMembersQueryOptions", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: false,
       status: 500,
-    } as Response);
+    } as unknown as Response);
 
     await expect(tripMembersQueryOptions("trip-1").queryFn()).rejects.toThrow(
       "Failed to fetch trip members (500)",

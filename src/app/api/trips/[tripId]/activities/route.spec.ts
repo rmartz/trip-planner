@@ -55,15 +55,7 @@ describe("GET /api/trips/[tripId]/activities", () => {
         stopId: "stop-1",
         tripId: "trip-1",
         name: "Museum",
-        notes: undefined,
-        pinnedAt: undefined,
-        pinnedBy: undefined,
-        scheduledAt: undefined,
-        voteBy: undefined,
-        voteStateByMember: {},
-        yesCount: 0,
-        noCount: 0,
-        maybeCount: 0,
+        estimatedDurationMinutes: 60,
       },
     ]);
 

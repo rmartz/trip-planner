@@ -13,18 +13,10 @@ import { getActivitiesForTrip } from "./activities";
 function makeActivity(overrides: Partial<Activity> = {}): Activity {
   return {
     activityId: "activity-1",
+    estimatedDurationMinutes: 60,
+    name: "Museum tour",
     stopId: "stop-1",
     tripId: "trip-1",
-    name: "Museum tour",
-    scheduledAt: undefined,
-    notes: undefined,
-    voteBy: undefined,
-    pinnedAt: undefined,
-    pinnedBy: undefined,
-    voteStateByMember: {},
-    yesCount: 0,
-    noCount: 0,
-    maybeCount: 0,
     ...overrides,
   };
 }
