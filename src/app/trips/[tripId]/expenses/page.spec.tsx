@@ -98,6 +98,35 @@ describe("ExpensesPage — quick-add wiring", () => {
       ),
     );
   });
+
+  it("navigates to new expense route with Leg linked entity type when a transport leg pill is clicked", () => {
+    vi.mocked(useTrip).mockReturnValue({
+      data: { name: "Paris Trip" },
+      isError: false,
+      isLoading: false,
+    } as never);
+    vi.mocked(useStops).mockReturnValue({
+      data: { stops: [] },
+    } as never);
+    vi.mocked(useLegs).mockReturnValue({
+      data: {
+        legs: [
+          { legId: "leg-paris-lyon", name: "Paris to Lyon", memberUids: ["uid-2"] },
+        ],
+      },
+    } as never);
+
+    render(<ExpensesPage />);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Transport leg: Paris to Lyon" }),
+    );
+
+    expect(pushSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/trips/trip-1/expenses/new?linkedEntityId=leg-paris-lyon&linkedEntityLabel=Transport+leg%3A+Paris+to+Lyon&linkedEntityType=${ExpenseLinkedEntityType.Leg}&participantMemberIds=uid-2`,
+      ),
+    );
+  });
 });
 
 describe("ExpensePreFillType — coverage", () => {
