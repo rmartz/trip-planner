@@ -1,3 +1,4 @@
+import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import type {
   ExpenseEntryLinkedEntityOption,
   ExpenseEntryMemberOption,
@@ -19,6 +20,7 @@ function makeLinkedEntity(
   return {
     entityId: "stop-1",
     label: "Paris — Day 2",
+    type: ExpenseLinkedEntityType.Stop,
     ...overrides,
   };
 }

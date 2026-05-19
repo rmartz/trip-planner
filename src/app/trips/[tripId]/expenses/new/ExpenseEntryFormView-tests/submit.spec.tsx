@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { ExpenseCategory } from "@/lib/types/expense";
+import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import {
+  ExpenseEntryCategory,
   ExpenseEntryFormView,
   type ExpenseEntryInput,
 } from "../ExpenseEntryFormView";
@@ -29,9 +30,6 @@ describe("ExpenseEntryFormView — submit", () => {
         target: { value: "42.50" },
       },
     );
-    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
-      target: { value: "Group dinner" },
-    });
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -39,7 +37,7 @@ describe("ExpenseEntryFormView — submit", () => {
     expect(payload.amountCents).toBe(4250);
     expect(payload.payerMemberId).toBe("member-alice");
     expect(payload.currency).toBe("USD");
-    expect(payload.category).toBe(ExpenseCategory.Food);
+    expect(payload.category).toBe(ExpenseEntryCategory.Food);
     expect(payload.participantMemberIds).toEqual([
       "member-alice",
       "member-bob",
@@ -47,7 +45,7 @@ describe("ExpenseEntryFormView — submit", () => {
     ]);
   });
 
-  it("includes name in payload when provided", () => {
+  it("includes description in payload when provided", () => {
     const onSubmit = vi.fn();
     render(
       <ExpenseEntryFormView
@@ -65,17 +63,20 @@ describe("ExpenseEntryFormView — submit", () => {
         target: { value: "100" },
       },
     );
-    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
-      target: { value: "Group dinner" },
-    });
+    fireEvent.change(
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
+      {
+        target: { value: "Group dinner" },
+      },
+    );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     const payload = onSubmit.mock.calls[0]?.[0] as ExpenseEntryInput;
-    expect(payload.name).toBe("Group dinner");
+    expect(payload.description).toBe("Group dinner");
   });
 
-  it("includes linked entity id in payload when selected", () => {
+  it("includes linked entity in payload when selected", () => {
     const onSubmit = vi.fn();
     render(
       <ExpenseEntryFormView
@@ -93,18 +94,19 @@ describe("ExpenseEntryFormView — submit", () => {
         target: { value: "30" },
       },
     );
-    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
-      target: { value: "Train ticket" },
-    });
     fireEvent.change(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),
-      { target: { value: "stop-paris" } },
+      { target: { value: "stop:stop-paris" } },
     );
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     const payload = onSubmit.mock.calls[0]?.[0] as ExpenseEntryInput;
-    expect(payload.linkedEntityId).toBe("stop-paris");
+    expect(payload.linkedEntity).toEqual({
+      entityId: "stop-paris",
+      label: "Paris stop",
+      type: ExpenseLinkedEntityType.Stop,
+    });
   });
 
   it("excludes deselected members from participantMemberIds", () => {
@@ -125,9 +127,6 @@ describe("ExpenseEntryFormView — submit", () => {
         target: { value: "30" },
       },
     );
-    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
-      target: { value: "Shared taxi" },
-    });
     fireEvent.click(screen.getByLabelText("Bob"));
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 

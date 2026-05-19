@@ -7,7 +7,7 @@ import { DEFAULT_LINKED, DEFAULT_MEMBERS } from "./test-helpers";
 afterEach(cleanup);
 
 describe("ExpenseEntryFormView — renders fields", () => {
-  it("renders amount, currency, category, payer, name, and linked entity fields", () => {
+  it("renders amount, currency, category, payer, description, and linked entity fields", () => {
     render(
       <ExpenseEntryFormView
         memberOptions={DEFAULT_MEMBERS}
@@ -30,7 +30,7 @@ describe("ExpenseEntryFormView — renders fields", () => {
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.payerLabel),
     ).toBeDefined();
     expect(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel),
+      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.descriptionLabel),
     ).toBeDefined();
     expect(
       screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.linkedEntityLabel),

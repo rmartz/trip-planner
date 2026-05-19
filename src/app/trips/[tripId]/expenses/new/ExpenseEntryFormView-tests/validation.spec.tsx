@@ -64,56 +64,7 @@ describe("ExpenseEntryFormView — amount validation", () => {
   });
 });
 
-describe("ExpenseEntryFormView — name validation", () => {
-  it("shows name-required error when submitted without a name", () => {
-    render(
-      <ExpenseEntryFormView
-        initialPayerId="member-alice"
-        memberOptions={DEFAULT_MEMBERS}
-        linkedEntityOptions={DEFAULT_LINKED}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-      />,
-    );
-
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
-      {
-        target: { value: "42.50" },
-      },
-    );
-    fireEvent.submit(screen.getByTestId("expense-entry-form"));
-
-    expect(
-      screen.getByText(EXPENSE_ENTRY_FORM_COPY.errorNameRequired),
-    ).toBeDefined();
-  });
-
-  it("does not call onSubmit when name is empty", () => {
-    const onSubmit = vi.fn();
-    render(
-      <ExpenseEntryFormView
-        initialPayerId="member-alice"
-        memberOptions={DEFAULT_MEMBERS}
-        linkedEntityOptions={DEFAULT_LINKED}
-        onSubmit={onSubmit}
-        onCancel={vi.fn()}
-      />,
-    );
-
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
-      {
-        target: { value: "42.50" },
-      },
-    );
-    fireEvent.submit(screen.getByTestId("expense-entry-form"));
-
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-});
-
-describe("ExpenseEntryFormView — payer and participant validation", () => {
+describe("ExpenseEntryFormView — payer validation", () => {
   it("shows payer-required error when no payer is selected", () => {
     render(
       <ExpenseEntryFormView
@@ -130,43 +81,10 @@ describe("ExpenseEntryFormView — payer and participant validation", () => {
         target: { value: "42.50" },
       },
     );
-    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
-      target: { value: "Group dinner" },
-    });
     fireEvent.submit(screen.getByTestId("expense-entry-form"));
 
     expect(
       screen.getByText(EXPENSE_ENTRY_FORM_COPY.errorPayerRequired),
-    ).toBeDefined();
-  });
-
-  it("shows participants-required error when all participants are unchecked", () => {
-    render(
-      <ExpenseEntryFormView
-        initialPayerId="member-alice"
-        memberOptions={DEFAULT_MEMBERS}
-        linkedEntityOptions={DEFAULT_LINKED}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-      />,
-    );
-
-    fireEvent.change(
-      screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.amountLabel),
-      {
-        target: { value: "42.50" },
-      },
-    );
-    fireEvent.change(screen.getByLabelText(EXPENSE_ENTRY_FORM_COPY.nameLabel), {
-      target: { value: "Group dinner" },
-    });
-    fireEvent.click(screen.getByLabelText("Alice"));
-    fireEvent.click(screen.getByLabelText("Bob"));
-    fireEvent.click(screen.getByLabelText("Carol"));
-    fireEvent.submit(screen.getByTestId("expense-entry-form"));
-
-    expect(
-      screen.getByText(EXPENSE_ENTRY_FORM_COPY.errorParticipantsRequired),
     ).toBeDefined();
   });
 });

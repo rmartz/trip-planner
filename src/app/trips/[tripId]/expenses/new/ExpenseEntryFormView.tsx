@@ -5,10 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ExpenseCategory } from "@/lib/types/expense";
+import type {
+  ExpenseLinkedEntity,
+  ExpenseLinkedEntityType,
+} from "@/lib/types/expense";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 
 const COPY = EXPENSE_ENTRY_FORM_COPY;
+
+export enum ExpenseEntryCategory {
+  Activities = "activities",
+  Food = "food",
+  Lodging = "lodging",
+  Other = "other",
+  Transport = "transport",
+}
 
 export interface ExpenseEntryMemberOption {
   memberId: string;
@@ -18,69 +29,88 @@ export interface ExpenseEntryMemberOption {
 export interface ExpenseEntryLinkedEntityOption {
   entityId: string;
   label: string;
+  type: ExpenseLinkedEntityType;
 }
 
 export interface ExpenseEntryInput {
   amountCents: number;
-  category: ExpenseCategory;
+  category: ExpenseEntryCategory;
   currency: string;
-  linkedEntityId?: string;
-  name: string;
+  description?: string;
+  linkedEntity?: ExpenseLinkedEntity;
   participantMemberIds: string[];
   payerMemberId: string;
 }
 
 export interface ExpenseEntryFormViewProps {
+  initialLinkedEntity?: Pick<ExpenseLinkedEntity, "entityId" | "type">;
+  initialParticipantIds?: string[];
   initialPayerId?: string;
   isSubmitting?: boolean;
   linkedEntityOptions: ExpenseEntryLinkedEntityOption[];
   memberOptions: ExpenseEntryMemberOption[];
   onCancel: () => void;
   onSubmit: (input: ExpenseEntryInput) => void;
-  submitError?: string;
 }
 
-const CATEGORY_OPTIONS: { label: string; value: ExpenseCategory }[] = [
+const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
   {
     label: COPY.categoryOptionActivities,
-    value: ExpenseCategory.Activity,
+    value: ExpenseEntryCategory.Activities,
   },
-  { label: COPY.categoryOptionFood, value: ExpenseCategory.Food },
-  { label: COPY.categoryOptionLodging, value: ExpenseCategory.Lodging },
-  { label: COPY.categoryOptionOther, value: ExpenseCategory.Other },
+  { label: COPY.categoryOptionFood, value: ExpenseEntryCategory.Food },
+  { label: COPY.categoryOptionLodging, value: ExpenseEntryCategory.Lodging },
+  { label: COPY.categoryOptionOther, value: ExpenseEntryCategory.Other },
   {
     label: COPY.categoryOptionTransport,
-    value: ExpenseCategory.Transport,
+    value: ExpenseEntryCategory.Transport,
   },
 ];
 
 const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "JPY"];
 
 export function ExpenseEntryFormView({
+  initialLinkedEntity,
+  initialParticipantIds,
   initialPayerId,
   isSubmitting = false,
   linkedEntityOptions,
   memberOptions,
   onCancel,
   onSubmit,
-  submitError,
 }: ExpenseEntryFormViewProps) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
-  const [category, setCategory] = useState<ExpenseCategory>(
-    ExpenseCategory.Food,
+  const [category, setCategory] = useState<ExpenseEntryCategory>(
+    ExpenseEntryCategory.Food,
   );
   const [payerMemberId, setPayerMemberId] = useState(initialPayerId ?? "");
+  const validMemberIds = new Set(memberOptions.map((m) => m.memberId));
   const [participantIds, setParticipantIds] = useState<string[]>(
-    memberOptions.map((m) => m.memberId),
+    initialParticipantIds !== undefined
+      ? [
+          ...new Set(
+            initialParticipantIds.filter((id) => validMemberIds.has(id)),
+          ),
+        ]
+      : memberOptions.map((m) => m.memberId),
   );
-  const [name, setName] = useState("");
-  const [linkedEntityId, setLinkedEntityId] = useState("");
+  const [description, setDescription] = useState("");
+  const linkedEntityByKey = new Map(
+    linkedEntityOptions.map((option) => [
+      `${option.type}:${option.entityId}`,
+      option,
+    ]),
+  );
+  const [linkedEntityKey, setLinkedEntityKey] = useState(
+    initialLinkedEntity !== undefined &&
+      linkedEntityByKey.has(
+        `${initialLinkedEntity.type}:${initialLinkedEntity.entityId}`,
+      )
+      ? `${initialLinkedEntity.type}:${initialLinkedEntity.entityId}`
+      : "",
+  );
   const [amountError, setAmountError] = useState<string | undefined>();
-  const [nameError, setNameError] = useState<string | undefined>();
-  const [participantError, setParticipantError] = useState<
-    string | undefined
-  >();
   const [payerError, setPayerError] = useState<string | undefined>();
 
   function handleParticipantToggle(memberId: string) {
@@ -94,8 +124,6 @@ export function ExpenseEntryFormView({
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setAmountError(undefined);
-    setNameError(undefined);
-    setParticipantError(undefined);
     setPayerError(undefined);
 
     let hasError = false;
@@ -111,18 +139,8 @@ export function ExpenseEntryFormView({
       }
     }
 
-    if (name.trim() === "") {
-      setNameError(COPY.errorNameRequired);
-      hasError = true;
-    }
-
     if (payerMemberId === "") {
       setPayerError(COPY.errorPayerRequired);
-      hasError = true;
-    }
-
-    if (participantIds.length === 0) {
-      setParticipantError(COPY.errorParticipantsRequired);
       hasError = true;
     }
 
@@ -132,12 +150,22 @@ export function ExpenseEntryFormView({
 
     const amountCents = Math.round(Number(amount) * 100);
 
+    const selectedLinkedEntity = linkedEntityByKey.get(linkedEntityKey);
+
     onSubmit({
       amountCents,
       category,
       currency,
-      ...(linkedEntityId !== "" ? { linkedEntityId } : {}),
-      name: name.trim(),
+      ...(description.trim() !== "" ? { description: description.trim() } : {}),
+      ...(selectedLinkedEntity !== undefined
+        ? {
+            linkedEntity: {
+              entityId: selectedLinkedEntity.entityId,
+              label: selectedLinkedEntity.label,
+              type: selectedLinkedEntity.type,
+            },
+          }
+        : {}),
       participantMemberIds: participantIds,
       payerMemberId,
     });
@@ -193,7 +221,7 @@ export function ExpenseEntryFormView({
           id="expense-category"
           value={category}
           onChange={(e) => {
-            setCategory(e.target.value as ExpenseCategory);
+            setCategory(e.target.value as ExpenseEntryCategory);
           }}
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >
@@ -246,49 +274,39 @@ export function ExpenseEntryFormView({
             </label>
           ))}
         </div>
-        {participantError !== undefined && (
-          <p className="text-sm text-destructive">{participantError}</p>
-        )}
       </fieldset>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="expense-name">{COPY.nameLabel}</Label>
+        <Label htmlFor="expense-description">{COPY.descriptionLabel}</Label>
         <Textarea
-          id="expense-name"
-          value={name}
+          id="expense-description"
+          value={description}
           onChange={(e) => {
-            setName(e.target.value);
+            setDescription(e.target.value);
           }}
-          placeholder={COPY.namePlaceholder}
+          placeholder={COPY.descriptionPlaceholder}
           rows={2}
         />
-        {nameError !== undefined && (
-          <p className="text-sm text-destructive">{nameError}</p>
-        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="expense-linked-entity">{COPY.linkedEntityLabel}</Label>
         <select
           id="expense-linked-entity"
-          value={linkedEntityId}
+          value={linkedEntityKey}
           onChange={(e) => {
-            setLinkedEntityId(e.target.value);
+            setLinkedEntityKey(e.target.value);
           }}
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >
           <option value="">{COPY.linkedEntityNoneOption}</option>
-          {linkedEntityOptions.map(({ entityId, label }) => (
-            <option key={entityId} value={entityId}>
+          {linkedEntityOptions.map(({ entityId, label, type }) => (
+            <option key={`${type}:${entityId}`} value={`${type}:${entityId}`}>
               {label}
             </option>
           ))}
         </select>
       </div>
-
-      {submitError !== undefined && (
-        <p className="text-sm text-destructive">{submitError}</p>
-      )}
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" disabled={isSubmitting}>

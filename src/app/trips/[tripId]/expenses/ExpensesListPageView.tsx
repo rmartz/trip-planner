@@ -8,6 +8,13 @@ export { ExpenseCategory };
 
 const COPY = EXPENSES_LIST_PAGE_COPY;
 
+export enum ExpensePreFillType {
+  ActivityRsvp = "activity_rsvp",
+  LodgingUnit = "lodging_unit",
+  StopAttendance = "stop_attendance",
+  TransportLeg = "transport_leg",
+}
+
 export interface ExpenseListItem {
   amountCents: number;
   category: ExpenseCategory;
@@ -18,12 +25,33 @@ export interface ExpenseListItem {
   title: string;
 }
 
-export interface ExpensesListPageViewProps {
+export interface ExpensePreFillOption {
+  entityId: string;
+  label: string;
+  participantMemberIds: string[];
+  type: ExpensePreFillType;
+}
+
+interface ExpensesListPageViewBaseProps {
   expenses: ExpenseListItem[];
   isError: boolean;
   isLoading: boolean;
   onAddExpense: () => void;
 }
+
+interface ExpensesListPageViewWithPreFillProps extends ExpensesListPageViewBaseProps {
+  onAddExpenseWithPrefill: (option: ExpensePreFillOption) => void;
+  preFillOptions: ExpensePreFillOption[];
+}
+
+interface ExpensesListPageViewWithoutPreFillProps extends ExpensesListPageViewBaseProps {
+  onAddExpenseWithPrefill?: undefined;
+  preFillOptions?: undefined;
+}
+
+export type ExpensesListPageViewProps =
+  | ExpensesListPageViewWithPreFillProps
+  | ExpensesListPageViewWithoutPreFillProps;
 
 interface ExpenseRowProps {
   expense: ExpenseListItem;
@@ -79,6 +107,8 @@ export function ExpensesListPageView({
   isError,
   isLoading,
   onAddExpense,
+  onAddExpenseWithPrefill,
+  preFillOptions,
 }: ExpensesListPageViewProps) {
   const showList = !isLoading && !isError && expenses.length > 0;
   const showEmpty = !isLoading && !isError && expenses.length === 0;
@@ -101,6 +131,32 @@ export function ExpensesListPageView({
           {COPY.addExpenseButton}
         </Button>
       </header>
+
+      {preFillOptions !== undefined && preFillOptions.length > 0 && (
+        <section
+          className="flex flex-col gap-2 border-b px-4 py-3"
+          data-testid="prefill-shortcuts"
+        >
+          <p className="text-xs font-medium text-muted-foreground">
+            {COPY.preFillHeading}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {preFillOptions.map((option) => (
+              <Button
+                key={`${option.type}-${option.entityId}`}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onAddExpenseWithPrefill(option);
+                }}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <main className="flex flex-1 flex-col gap-4 p-4">
         {isLoading && (
