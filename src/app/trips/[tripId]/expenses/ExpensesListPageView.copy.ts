@@ -9,4 +9,9 @@ export const EXPENSES_LIST_PAGE_COPY = {
   loadingText: "Loading expenses…",
   pageTitle: "Expenses",
   payerLabel: "Paid by",
+  preFillActivityRsvpLabel: "Activity RSVP",
+  preFillHeading: "Quick-add",
+  preFillLodgingUnitLabel: "Lodging unit",
+  preFillStopAttendanceLabel: "Stop attendance",
+  preFillTransportLegLabel: "Transport leg",
 } as const;
