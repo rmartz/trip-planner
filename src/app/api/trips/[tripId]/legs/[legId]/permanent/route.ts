@@ -18,8 +18,6 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
   try {
     await hardDeleteLeg(uid, tripId, legId);
-    await recomputeTransportGapCount(tripId);
-    return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof PlannerOnlyError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -29,4 +27,12 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
       { status: 500 },
     );
   }
+
+  try {
+    await recomputeTransportGapCount(tripId);
+  } catch {
+    // best-effort aggregate update; do not surface recompute failures to the caller
+  }
+
+  return NextResponse.json({ success: true });
 }

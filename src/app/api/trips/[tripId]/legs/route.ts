@@ -93,7 +93,11 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     notes,
   );
 
-  await recomputeTransportGapCount(tripId);
+  try {
+    await recomputeTransportGapCount(tripId);
+  } catch {
+    // best-effort aggregate update; do not surface recompute failures to the caller
+  }
 
   return NextResponse.json({ legId });
 }
