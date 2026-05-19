@@ -7,9 +7,7 @@ import {
   type TransportLegSummary,
   TransportPlannerOverviewView,
 } from "@/components/transport/TransportPlannerOverviewView";
-import { useLegs } from "@/hooks/use-legs";
 import { useTransportSummaries } from "@/hooks/use-transport-summaries";
-import { TripRole } from "@/lib/types/trip";
 import { TRANSPORT_PAGE_COPY } from "./copy";
 
 interface TransportPageProps {
@@ -19,16 +17,16 @@ interface TransportPageProps {
 export default function TransportPage({ params }: TransportPageProps) {
   const { tripId } = use(params);
   const router = useRouter();
-  const { data: legsData, isLoading: isLegsLoading } = useLegs(tripId);
-  const isPlanner = legsData?.role === TripRole.Planner;
   const {
-    data: summaries,
+    data: summariesData,
     isError: isSummariesError,
     isLoading: isSummariesLoading,
-  } = useTransportSummaries(tripId, { enabled: isPlanner });
+  } = useTransportSummaries(tripId);
 
   // haveOwn is not yet computed by the transport service (future work).
-  const legSummaries: TransportLegSummary[] = (summaries ?? []).map((s) => ({
+  const legSummaries: TransportLegSummary[] = (
+    summariesData?.summaries ?? []
+  ).map((s) => ({
     leg: s.leg,
     demand: { ...s.demand, haveOwn: 0 },
     supply: s.supply,
@@ -44,27 +42,21 @@ export default function TransportPage({ params }: TransportPageProps) {
         },
       }}
     >
-      {isLegsLoading ? (
+      {isSummariesLoading ? (
         <p className="p-4 text-sm text-muted-foreground">
           {TRANSPORT_PAGE_COPY.loadingMessage}
         </p>
-      ) : isPlanner ? (
-        isSummariesLoading ? (
-          <p className="p-4 text-sm text-muted-foreground">
-            {TRANSPORT_PAGE_COPY.loadingMessage}
-          </p>
-        ) : isSummariesError ? (
-          <p className="p-4 text-sm text-muted-foreground">
-            {TRANSPORT_PAGE_COPY.summaryErrorMessage}
-          </p>
-        ) : (
-          <TransportPlannerOverviewView
-            legs={legSummaries}
-            // TODO: Wire real handler and populate nonAccountMembers from leg
-            // data in a follow-up PR.
-            onToggleMemberSortedOwn={() => undefined}
-          />
-        )
+      ) : isSummariesError ? (
+        <p className="p-4 text-sm text-muted-foreground">
+          {TRANSPORT_PAGE_COPY.summaryErrorMessage}
+        </p>
+      ) : summariesData !== undefined ? (
+        <TransportPlannerOverviewView
+          legs={legSummaries}
+          // TODO: Wire real handler and populate nonAccountMembers from leg
+          // data in a follow-up PR.
+          onToggleMemberSortedOwn={() => undefined}
+        />
       ) : (
         <p className="p-4 text-sm text-muted-foreground">
           {TRANSPORT_PAGE_COPY.plannerOnlyMessage}

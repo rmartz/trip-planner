@@ -32,15 +32,10 @@ vi.mock("@/components/transport/TransportPlannerOverviewView", () => ({
   },
 }));
 
-vi.mock("@/hooks/use-legs", () => ({
-  useLegs: vi.fn(),
-}));
-
 vi.mock("@/hooks/use-transport-summaries", () => ({
   useTransportSummaries: vi.fn(),
 }));
 
-import { useLegs } from "@/hooks/use-legs";
 import { useTransportSummaries } from "@/hooks/use-transport-summaries";
 import TransportPage from "./page";
 
@@ -99,13 +94,9 @@ function renderWithQueryClient() {
 }
 
 describe("TransportPage — role gating", () => {
-  it("renders the planner overview when role is Planner", () => {
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [], role: TripRole.Planner },
-      isLoading: false,
-    } as never);
+  it("renders the planner overview when summaries are returned (caller is Planner)", () => {
     vi.mocked(useTransportSummaries).mockReturnValue({
-      data: [],
+      data: { summaries: [], role: TripRole.Planner },
       isError: false,
       isLoading: false,
     } as never);
@@ -113,16 +104,9 @@ describe("TransportPage — role gating", () => {
     renderWithQueryClient();
 
     expect(screen.getByTestId("transport-planner-overview")).toBeDefined();
-    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1", {
-      enabled: true,
-    });
   });
 
-  it("renders the planner-only message when role is Guest", () => {
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [], role: TripRole.Guest },
-      isLoading: false,
-    } as never);
+  it("renders the planner-only message when summaries return undefined (caller is not a Planner)", () => {
     vi.mocked(useTransportSummaries).mockReturnValue({
       data: undefined,
       isError: false,
@@ -135,16 +119,36 @@ describe("TransportPage — role gating", () => {
       screen.getByText(TRANSPORT_PAGE_COPY.plannerOnlyMessage),
     ).toBeDefined();
     expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
-    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1", {
-      enabled: false,
-    });
   });
 
-  it("renders loading while legs data is not ready", () => {
-    vi.mocked(useLegs).mockReturnValue({
+  it("renders loading while summaries are being fetched", () => {
+    vi.mocked(useTransportSummaries).mockReturnValue({
       data: undefined,
+      isError: false,
       isLoading: true,
     } as never);
+
+    renderWithQueryClient();
+
+    expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
+  });
+
+  it("renders an error message when summaries fail to load", () => {
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+    } as never);
+
+    renderWithQueryClient();
+
+    expect(
+      screen.getByText(TRANSPORT_PAGE_COPY.summaryErrorMessage),
+    ).toBeDefined();
+    expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
+  });
+
+  it("does not call useTransportSummaries with an enabled option", () => {
     vi.mocked(useTransportSummaries).mockReturnValue({
       data: undefined,
       isError: false,
@@ -153,29 +157,25 @@ describe("TransportPage — role gating", () => {
 
     renderWithQueryClient();
 
-    expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
-    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1", {
-      enabled: false,
-    });
+    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1");
   });
 });
 
 describe("TransportPage — demand and supply wiring", () => {
   it("passes demand from summaries to the planner overview", () => {
     const demand = makeDemand({ driving: 2, needRide: 3 });
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [makeLegEntry()], role: TripRole.Planner },
-      isLoading: false,
-    } as never);
     vi.mocked(useTransportSummaries).mockReturnValue({
-      data: [
-        {
-          legId: "leg-1",
-          leg: makeLegEntry(),
-          demand,
-          supply: [],
-        },
-      ],
+      data: {
+        role: TripRole.Planner,
+        summaries: [
+          {
+            legId: "leg-1",
+            leg: makeLegEntry(),
+            demand,
+            supply: [],
+          },
+        ],
+      },
       isError: false,
       isLoading: false,
     } as never);
@@ -198,19 +198,18 @@ describe("TransportPage — demand and supply wiring", () => {
 
   it("passes supply from summaries to the planner overview", () => {
     const offer = makeOffer({ driverName: "Bob", seatCount: 4 });
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [makeLegEntry()], role: TripRole.Planner },
-      isLoading: false,
-    } as never);
     vi.mocked(useTransportSummaries).mockReturnValue({
-      data: [
-        {
-          legId: "leg-1",
-          leg: makeLegEntry(),
-          demand: makeDemand(),
-          supply: [offer],
-        },
-      ],
+      data: {
+        role: TripRole.Planner,
+        summaries: [
+          {
+            legId: "leg-1",
+            leg: makeLegEntry(),
+            demand: makeDemand(),
+            supply: [offer],
+          },
+        ],
+      },
       isError: false,
       isLoading: false,
     } as never);
@@ -230,23 +229,6 @@ describe("TransportPage — demand and supply wiring", () => {
     );
   });
 
-  it("renders loading while summaries are being fetched for planners", () => {
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [makeLegEntry()], role: TripRole.Planner },
-      isLoading: false,
-    } as never);
-    vi.mocked(useTransportSummaries).mockReturnValue({
-      data: undefined,
-      isError: false,
-      isLoading: true,
-    } as never);
-
-    renderWithQueryClient();
-
-    expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
-    expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
-  });
-
   it("passes InviteOnly supply with inviteeCount to the planner overview", () => {
     const offer = makeOffer({
       driverName: "Carol",
@@ -255,19 +237,18 @@ describe("TransportPage — demand and supply wiring", () => {
       visibility: TransportOfferVisibility.InviteOnly,
       inviteeCount: 1,
     });
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [makeLegEntry()], role: TripRole.Planner },
-      isLoading: false,
-    } as never);
     vi.mocked(useTransportSummaries).mockReturnValue({
-      data: [
-        {
-          legId: "leg-1",
-          leg: makeLegEntry(),
-          demand: makeDemand({ driving: 1 }),
-          supply: [offer],
-        },
-      ],
+      data: {
+        role: TripRole.Planner,
+        summaries: [
+          {
+            legId: "leg-1",
+            leg: makeLegEntry(),
+            demand: makeDemand({ driving: 1 }),
+            supply: [offer],
+          },
+        ],
+      },
       isError: false,
       isLoading: false,
     } as never);
@@ -288,24 +269,5 @@ describe("TransportPage — demand and supply wiring", () => {
         ],
       }),
     );
-  });
-
-  it("renders an error message when planner summaries fail to load", () => {
-    vi.mocked(useLegs).mockReturnValue({
-      data: { legs: [makeLegEntry()], role: TripRole.Planner },
-      isLoading: false,
-    } as never);
-    vi.mocked(useTransportSummaries).mockReturnValue({
-      data: undefined,
-      isError: true,
-      isLoading: false,
-    } as never);
-
-    renderWithQueryClient();
-
-    expect(
-      screen.getByText(TRANSPORT_PAGE_COPY.summaryErrorMessage),
-    ).toBeDefined();
-    expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
   });
 });
