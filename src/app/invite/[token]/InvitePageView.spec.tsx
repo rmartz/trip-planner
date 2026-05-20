@@ -1,7 +1,18 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { InviteError } from "@/lib/types/invite";
 import { InvitePageView } from "./InvitePageView";
 import { INVITE_PAGE_COPY } from "./copy";
+
+const INVITE_PROPS_BASE = {
+  isAuthenticated: false,
+  isAlreadyMember: false,
+  joinError: false,
+  onJoin: vi.fn(),
+  isJoining: false,
+  signInHref: "/sign-in",
+  signUpHref: "/sign-up",
+};
 
 afterEach(() => {
   cleanup();
@@ -218,5 +229,75 @@ describe("InvitePageView — member count", () => {
     );
     const memberLine = screen.getByText(/already going/);
     expect(memberLine.textContent).toContain("5");
+  });
+});
+
+describe("InvitePageView — expired link", () => {
+  it("renders the expired error message", () => {
+    render(
+      <InvitePageView
+        {...INVITE_PROPS_BASE}
+        inviteError={InviteError.Expired}
+      />,
+    );
+    expect(screen.getByText(INVITE_PAGE_COPY.expiredError)).toBeDefined();
+  });
+
+  it("does not render the join button for an expired link", () => {
+    render(
+      <InvitePageView
+        {...INVITE_PROPS_BASE}
+        inviteError={InviteError.Expired}
+      />,
+    );
+    expect(screen.queryByText(INVITE_PAGE_COPY.joinButton)).toBeNull();
+  });
+
+  it("does not render sign-up for an expired link", () => {
+    render(
+      <InvitePageView
+        {...INVITE_PROPS_BASE}
+        inviteError={InviteError.Expired}
+      />,
+    );
+    expect(screen.queryByText(INVITE_PAGE_COPY.signUpButton)).toBeNull();
+  });
+});
+
+describe("InvitePageView — revoked link", () => {
+  it("renders the revoked error message", () => {
+    render(
+      <InvitePageView
+        {...INVITE_PROPS_BASE}
+        inviteError={InviteError.Revoked}
+      />,
+    );
+    expect(screen.getByText(INVITE_PAGE_COPY.revokedError)).toBeDefined();
+  });
+
+  it("does not render the join button for a revoked link", () => {
+    render(
+      <InvitePageView
+        {...INVITE_PROPS_BASE}
+        inviteError={InviteError.Revoked}
+      />,
+    );
+    expect(screen.queryByText(INVITE_PAGE_COPY.joinButton)).toBeNull();
+  });
+});
+
+describe("InvitePageView — used link (single-use already accepted)", () => {
+  it("renders the used error message", () => {
+    render(
+      <InvitePageView {...INVITE_PROPS_BASE} inviteError={InviteError.Used} />,
+    );
+    expect(screen.getByText(INVITE_PAGE_COPY.usedError)).toBeDefined();
+  });
+
+  it("does not render the join button for a used link", () => {
+    render(
+      <InvitePageView {...INVITE_PROPS_BASE} inviteError={InviteError.Used} />,
+    );
+    expect(screen.queryByText(INVITE_PAGE_COPY.joinButton)).toBeNull();
   });
 });
