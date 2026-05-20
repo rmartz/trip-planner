@@ -100,9 +100,10 @@ export async function createTripForUser(
 export async function recomputeTransportGapCount(
   tripId: string,
 ): Promise<void> {
-  const [legs, entries] = await Promise.all([
+  const [legs, entries, memberUids] = await Promise.all([
     getLegsForTrip(tripId),
     getTransportationEntriesForTrip(tripId),
+    getTripMemberUids(tripId),
   ]);
 
   const entriesByLegId = new Map<string, typeof entries>();
@@ -114,7 +115,7 @@ export async function recomputeTransportGapCount(
 
   const legSummaries = legs.map((leg) => {
     const legEntries = entriesByLegId.get(leg.legId) ?? [];
-    return computeLegSummary(leg.memberUids, legEntries, {});
+    return computeLegSummary(memberUids, legEntries, {});
   });
   const transportGapCount = computeTransportGapCount(legSummaries);
 

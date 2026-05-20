@@ -178,8 +178,13 @@ describe("getTripMemberUids", () => {
 });
 
 describe("recomputeTransportGapCount", () => {
+  const getMembers = vi.fn();
+  const membersCollection = vi.fn(() => ({ get: getMembers }));
   const update = vi.fn();
-  const tripDoc = vi.fn(() => ({ update }));
+  const tripDoc = vi.fn(() => ({
+    collection: membersCollection,
+    update,
+  }));
   const mockDb = {
     collection: vi.fn(() => ({ doc: tripDoc })),
   };
@@ -225,9 +230,17 @@ describe("recomputeTransportGapCount", () => {
         },
       ],
     });
+    getMembers.mockResolvedValue({
+      docs: [{ id: "uid-live-1" }, { id: "uid-live-2" }],
+    });
 
     await recomputeTransportGapCount("trip-1");
 
+    expect(vi.mocked(computeLegSummary)).toHaveBeenCalledWith(
+      ["uid-live-1", "uid-live-2"],
+      expect.any(Array),
+      {},
+    );
     expect(tripDoc).toHaveBeenCalledWith("trip-1");
     expect(update).toHaveBeenCalledWith({ transportGapCount: 1 });
   });
@@ -235,6 +248,7 @@ describe("recomputeTransportGapCount", () => {
   it("writes 0 when there are no legs", async () => {
     vi.mocked(getLegsForTrip).mockResolvedValue([]);
     vi.mocked(getTransportationEntriesForTrip).mockResolvedValue([]);
+    getMembers.mockResolvedValue({ docs: [] });
 
     await recomputeTransportGapCount("trip-1");
 
@@ -265,6 +279,9 @@ describe("recomputeTransportGapCount", () => {
           visibility: TransportOfferVisibility.Public,
         },
       ],
+    });
+    getMembers.mockResolvedValue({
+      docs: [{ id: "uid-live-1" }],
     });
 
     await recomputeTransportGapCount("trip-1");
