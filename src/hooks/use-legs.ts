@@ -3,10 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Leg } from "@/lib/types/trip";
 import { TripRole } from "@/lib/types/trip";
-import type {
-  TransportCarOffer,
-  TransportLegDemand,
-} from "@/lib/types/transportation";
 
 interface LegJson {
   legId: string;
@@ -20,28 +16,19 @@ interface LegJson {
   isActive: boolean;
 }
 
-interface LegSummaryJson {
-  demand: TransportLegDemand;
-  supply: TransportCarOffer[];
-}
-
 interface LegsResponse {
   legs: LegJson[];
-  legSummaries: Record<string, LegSummaryJson> | null;
-  role: TripRole | null;
+  role: TripRole;
 }
 
-async function fetchLegs(tripId: string): Promise<{
-  legs: Leg[];
-  legSummaries: Record<string, LegSummaryJson> | null;
-  role: TripRole | null;
-}> {
+async function fetchLegs(
+  tripId: string,
+): Promise<{ legs: Leg[]; role: TripRole }> {
   const response = await fetch(`/api/trips/${tripId}/legs`);
   if (!response.ok) throw new Error("Failed to fetch legs");
   const data = (await response.json()) as LegsResponse;
   return {
     legs: data.legs,
-    legSummaries: data.legSummaries,
     role: data.role,
   };
 }
