@@ -15,6 +15,7 @@ export const EXPENSE_ENTRY_FORM_COPY = {
   errorPayerRequired: "Choose who paid",
   formHeading: "Add expense",
   linkedEntityLabel: "Linked to",
+  nonAccountCaption: "* non-account members included",
   linkedEntityNoneOption: "(none)",
   pageTitle: "Add expense",
   participantsLabel: "Participants",

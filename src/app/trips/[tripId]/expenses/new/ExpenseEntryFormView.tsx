@@ -24,6 +24,7 @@ export enum ExpenseEntryCategory {
 export interface ExpenseEntryMemberOption {
   memberId: string;
   name: string;
+  nonAccount?: boolean;
 }
 
 export interface ExpenseEntryLinkedEntityOption {
@@ -260,7 +261,7 @@ export function ExpenseEntryFormView({
           {COPY.participantsLabel}
         </legend>
         <div className="mt-1 flex flex-wrap gap-3">
-          {memberOptions.map(({ memberId, name }) => (
+          {memberOptions.map(({ memberId, name, nonAccount }) => (
             <label key={memberId} className="flex items-center gap-1.5 text-sm">
               <input
                 type="checkbox"
@@ -270,10 +271,15 @@ export function ExpenseEntryFormView({
                   handleParticipantToggle(memberId);
                 }}
               />
-              {name}
+              {nonAccount === true ? `${name}*` : name}
             </label>
           ))}
         </div>
+        {memberOptions.some((m) => m.nonAccount === true) && (
+          <p className="text-xs text-muted-foreground">
+            {COPY.nonAccountCaption}
+          </p>
+        )}
       </fieldset>
 
       <div className="flex flex-col gap-1.5">

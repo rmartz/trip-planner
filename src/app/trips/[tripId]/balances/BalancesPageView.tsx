@@ -9,6 +9,8 @@ export interface BalanceRow {
   currency: string;
   memberId: string;
   memberName: string;
+  nonAccount?: boolean;
+  proxyName?: string;
 }
 
 export interface TransferRow {
@@ -16,6 +18,7 @@ export interface TransferRow {
   currency: string;
   fromMemberId: string;
   fromMemberName: string;
+  proxiedMemberNames?: string[];
   toMemberId: string;
   toMemberName: string;
   transferId: string;
@@ -60,12 +63,22 @@ function BalanceRowItem({ balance }: BalanceRowItemProps) {
         ? "text-amber-600 dark:text-amber-400"
         : "text-zinc-500 dark:text-zinc-400";
 
+  const displayName =
+    balance.nonAccount === true ? `${balance.memberName}*` : balance.memberName;
+
   return (
     <li
       data-testid="balance-row"
       className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
     >
-      <span className="text-sm font-medium">{balance.memberName}</span>
+      <span className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium">{displayName}</span>
+        {balance.nonAccount === true && balance.proxyName !== undefined && (
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            {COPY.proxyLabel(balance.proxyName)}
+          </span>
+        )}
+      </span>
       <span className={`text-sm ${colorClass}`}>
         <span className="mr-1 text-xs text-zinc-500 dark:text-zinc-400">
           {label}
@@ -83,13 +96,22 @@ interface TransferRowItemProps {
 }
 
 function TransferRowItem({ transfer }: TransferRowItemProps) {
+  const fromLabel =
+    transfer.proxiedMemberNames !== undefined &&
+    transfer.proxiedMemberNames.length > 0
+      ? COPY.transferFromWithProxies(
+          transfer.fromMemberName,
+          transfer.proxiedMemberNames,
+        )
+      : transfer.fromMemberName;
+
   return (
     <li
       data-testid="transfer-row"
       className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
     >
       <span className="text-sm">
-        {transfer.fromMemberName} {COPY.transferConnector}{" "}
+        <span>{fromLabel}</span> {COPY.transferConnector}{" "}
         {transfer.toMemberName}
       </span>
       <span className="font-mono text-sm tabular-nums">

@@ -9,7 +9,10 @@ export const BALANCES_PAGE_COPY = {
   netOwedLabel: "owes",
   netSettledLabel: "is settled",
   pageTitle: "Balances",
+  proxyLabel: (proxyName: string) => `(${proxyName} proxy)`,
   transferConnector: "→",
+  transferFromWithProxies: (fromName: string, proxiedNames: string[]) =>
+    `${fromName} (${proxiedNames.join(", ")})`,
   transfersEmpty: "No transfers needed.",
   transfersHeading: "Recommended transfers",
 } as const;
