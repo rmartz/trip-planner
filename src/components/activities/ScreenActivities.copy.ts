@@ -1,12 +1,4 @@
-import { TimeOfDaySlot } from "@/lib/types/activity";
-
-const SLOT_LABELS: Record<TimeOfDaySlot, string> = {
-  [TimeOfDaySlot.Afternoon]: "Afternoon",
-  [TimeOfDaySlot.EarlyMorning]: "Early Morning",
-  [TimeOfDaySlot.Evening]: "Evening",
-  [TimeOfDaySlot.LateEvening]: "Late Evening",
-  [TimeOfDaySlot.Morning]: "Morning",
-};
+import { slotLabel } from "@/lib/activity-labels";
 
 export const SCREEN_ACTIVITIES_COPY = {
   activityMenuLabel: (name: string) => `Activity options for ${name}`,
@@ -29,7 +21,7 @@ export const SCREEN_ACTIVITIES_COPY = {
   pinToSlotOption: "Pin to time slot…",
   proposalFormTitle: "Propose an Activity",
   proposeButton: "+ Propose",
-  slotLabel: (slot: TimeOfDaySlot) => SLOT_LABELS[slot],
+  slotLabel,
   submitButton: "Propose",
   timeOfDayLabel: "Time of day",
   timeOfDayTypeLabel: "Must / Preferred",
