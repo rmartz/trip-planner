@@ -41,9 +41,7 @@ describe("ScheduleBuilderView — heading", () => {
         onPublish={vi.fn()}
       />,
     );
-    expect(
-      screen.getByText(SCHEDULE_BUILDER_COPY.stopLabel("Paris")),
-    ).toBeDefined();
+    expect(screen.getByText("Paris")).toBeDefined();
   });
 });
 

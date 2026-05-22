@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { InviteError } from "@/lib/types/invite";
 import { InvitePageView } from "./InvitePageView";
 
 interface InvitePageProps {
@@ -16,12 +17,21 @@ interface TripSummary {
   memberCount: number;
 }
 
+interface FetchTripSummaryResult {
+  trip?: TripSummary;
+  inviteError?: InviteError;
+}
+
 async function fetchTripSummary(
   token: string,
-): Promise<TripSummary | undefined> {
+): Promise<FetchTripSummaryResult> {
   const response = await fetch(`/api/invite/${token}`);
-  if (!response.ok) return undefined;
-  return (await response.json()) as TripSummary;
+  if (response.status === 410) {
+    const body = (await response.json()) as { inviteError: InviteError };
+    return { inviteError: body.inviteError };
+  }
+  if (!response.ok) return {};
+  return { trip: (await response.json()) as TripSummary };
 }
 
 interface JoinTripResult {
@@ -39,6 +49,7 @@ export default function InvitePage({ params }: InvitePageProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [trip, setTrip] = useState<TripSummary | undefined>();
+  const [inviteError, setInviteError] = useState<InviteError | undefined>();
   const [isJoining, setIsJoining] = useState(false);
   const [isAlreadyMember, setIsAlreadyMember] = useState(false);
   const [joinError, setJoinError] = useState(false);
@@ -48,8 +59,9 @@ export default function InvitePage({ params }: InvitePageProps) {
   useEffect(() => {
     void params.then(async ({ token: t }) => {
       setToken(t);
-      const summary = await fetchTripSummary(t);
-      setTrip(summary);
+      const result = await fetchTripSummary(t);
+      setTrip(result.trip);
+      setInviteError(result.inviteError);
       setLoaded(true);
     });
   }, [params]);
@@ -71,7 +83,7 @@ export default function InvitePage({ params }: InvitePageProps) {
     }
   }
 
-  if (!loaded || !trip) {
+  if (!loaded) {
     return null;
   }
 
@@ -84,6 +96,7 @@ export default function InvitePage({ params }: InvitePageProps) {
       trip={trip}
       isAuthenticated={user !== null}
       isAlreadyMember={isAlreadyMember}
+      inviteError={inviteError}
       joinError={joinError}
       onJoin={() => {
         void handleJoin();

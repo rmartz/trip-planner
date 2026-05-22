@@ -36,7 +36,12 @@ vi.mock("@/hooks/use-legs", () => ({
   useLegs: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-transport-summaries", () => ({
+  useTransportSummaries: vi.fn(),
+}));
+
 import { useLegs } from "@/hooks/use-legs";
+import { useTransportSummaries } from "@/hooks/use-transport-summaries";
 import TransportPage from "./page";
 
 afterEach(() => {
@@ -44,6 +49,19 @@ afterEach(() => {
   plannerOverviewSpy.mockReset();
   vi.clearAllMocks();
 });
+
+function makeLegEntry(legId = "leg-1") {
+  return {
+    legId,
+    tripId: "trip-1",
+    fromStopId: "stop-a",
+    toStopId: "stop-b",
+    name: "Leg A",
+    order: 0,
+    memberUids: ["uid-1"],
+    isActive: true,
+  };
+}
 
 function makeDemand(
   overrides: Partial<TransportLegDemand> = {},
@@ -83,25 +101,32 @@ function renderWithQueryClient() {
 describe("TransportPage — role gating", () => {
   it("renders the planner overview when role is Planner", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [],
-        role: TripRole.Planner,
-        legSummaries: {},
-      },
+      data: { legs: [], role: TripRole.Planner },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [],
+      isError: false,
+      isLoading: false,
     } as never);
 
     renderWithQueryClient();
 
     expect(screen.getByTestId("transport-planner-overview")).toBeDefined();
+    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1", {
+      enabled: true,
+    });
   });
 
   it("renders the planner-only message when role is Guest", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [],
-        role: TripRole.Guest,
-        legSummaries: null,
-      },
+      data: { legs: [], role: TripRole.Guest },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
     } as never);
 
     renderWithQueryClient();
@@ -110,47 +135,49 @@ describe("TransportPage — role gating", () => {
       screen.getByText(TRANSPORT_PAGE_COPY.plannerOnlyMessage),
     ).toBeDefined();
     expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
+    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1", {
+      enabled: false,
+    });
   });
 
-  it("renders the planner-only message when role is null", () => {
+  it("renders loading while legs data is not ready", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [],
-        role: null,
-        legSummaries: null,
-      },
+      data: undefined,
+      isLoading: true,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
     } as never);
 
     renderWithQueryClient();
 
-    expect(
-      screen.getByText(TRANSPORT_PAGE_COPY.plannerOnlyMessage),
-    ).toBeDefined();
+    expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
+    expect(useTransportSummaries).toHaveBeenCalledWith("trip-1", {
+      enabled: false,
+    });
   });
 });
 
 describe("TransportPage — demand and supply wiring", () => {
-  it("passes real demand from legSummaries to the planner overview", () => {
+  it("passes demand from summaries to the planner overview", () => {
     const demand = makeDemand({ driving: 2, needRide: 3 });
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-1",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Leg A",
-            order: 0,
-            memberUids: ["uid-1"],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {
-          "leg-1": { demand, supply: [] },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [
+        {
+          legId: "leg-1",
+          leg: makeLegEntry(),
+          demand,
+          supply: [],
         },
-      },
+      ],
+      isError: false,
+      isLoading: false,
     } as never);
 
     renderWithQueryClient();
@@ -169,27 +196,23 @@ describe("TransportPage — demand and supply wiring", () => {
     );
   });
 
-  it("passes real supply from legSummaries to the planner overview", () => {
+  it("passes supply from summaries to the planner overview", () => {
     const offer = makeOffer({ driverName: "Bob", seatCount: 4 });
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-1",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Leg A",
-            order: 0,
-            memberUids: ["uid-1"],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {
-          "leg-1": { demand: makeDemand(), supply: [offer] },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [
+        {
+          legId: "leg-1",
+          leg: makeLegEntry(),
+          demand: makeDemand(),
+          supply: [offer],
         },
-      },
+      ],
+      isError: false,
+      isLoading: false,
     } as never);
 
     renderWithQueryClient();
@@ -207,48 +230,24 @@ describe("TransportPage — demand and supply wiring", () => {
     );
   });
 
-  it("falls back to zero demand and empty supply when legSummaries is missing a leg", () => {
+  it("renders loading while summaries are being fetched for planners", () => {
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-missing",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Unknown Leg",
-            order: 0,
-            memberUids: [],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {},
-      },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
     } as never);
 
     renderWithQueryClient();
 
-    expect(plannerOverviewSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        legs: [
-          expect.objectContaining({
-            demand: {
-              driving: 0,
-              needRide: 0,
-              noReply: 0,
-              skipLeg: 0,
-            },
-            supply: [],
-          }),
-        ],
-      }),
-    );
+    expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
+    expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
   });
-});
 
-describe("TransportPage — transport status enum", () => {
-  it("builds leg summaries with DrivingWithSeats status from supply", () => {
+  it("passes InviteOnly supply with inviteeCount to the planner overview", () => {
     const offer = makeOffer({
       driverName: "Carol",
       routeName: "I-90",
@@ -257,27 +256,20 @@ describe("TransportPage — transport status enum", () => {
       inviteeCount: 1,
     });
     vi.mocked(useLegs).mockReturnValue({
-      data: {
-        legs: [
-          {
-            legId: "leg-1",
-            tripId: "trip-1",
-            fromStopId: "stop-a",
-            toStopId: "stop-b",
-            name: "Leg A",
-            order: 0,
-            memberUids: ["uid-carol", "uid-rider"],
-            isActive: true,
-          },
-        ],
-        role: TripRole.Planner,
-        legSummaries: {
-          "leg-1": {
-            demand: makeDemand({ driving: 1 }),
-            supply: [offer],
-          },
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: [
+        {
+          legId: "leg-1",
+          leg: makeLegEntry(),
+          demand: makeDemand({ driving: 1 }),
+          supply: [offer],
         },
-      },
+      ],
+      isError: false,
+      isLoading: false,
     } as never);
 
     renderWithQueryClient();
@@ -296,5 +288,24 @@ describe("TransportPage — transport status enum", () => {
         ],
       }),
     );
+  });
+
+  it("renders an error message when planner summaries fail to load", () => {
+    vi.mocked(useLegs).mockReturnValue({
+      data: { legs: [makeLegEntry()], role: TripRole.Planner },
+      isLoading: false,
+    } as never);
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+    } as never);
+
+    renderWithQueryClient();
+
+    expect(
+      screen.getByText(TRANSPORT_PAGE_COPY.summaryErrorMessage),
+    ).toBeDefined();
+    expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
   });
 });
