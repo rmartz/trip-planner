@@ -3,6 +3,31 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
+import {
+  GROUP_USE_TTL_DAYS,
+  type InviteLink,
+  InviteMode,
+  SINGLE_USE_TTL_DAYS,
+} from "@/lib/types/invite";
+import { FieldValue } from "firebase-admin/firestore";
+
+export class InviteLinkExpiredError extends Error {
+  constructor() {
+    super("This invite link has expired");
+  }
+}
+
+export class InviteLinkRevokedError extends Error {
+  constructor() {
+    super("This invite link is no longer active");
+  }
+}
+
+export class InviteLinkUsedError extends Error {
+  constructor() {
+    super("This invite has already been used");
+  }
+}
 
 function generateToken(): string {
   return randomBytes(8).toString("base64url");
@@ -63,4 +88,98 @@ export async function regenerateInviteToken(tripId: string): Promise<string> {
   const db = getAdminFirestore();
   await db.collection("trips").doc(tripId).update({ inviteToken: token });
   return token;
+}
+
+export async function createInviteLink(
+  tripId: string,
+  mode: InviteMode,
+): Promise<InviteLink> {
+  const token = generateToken();
+  const db = getAdminFirestore();
+  const ttlDays =
+    mode === InviteMode.SingleUse ? SINGLE_USE_TTL_DAYS : GROUP_USE_TTL_DAYS;
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + ttlDays * 24 * 60 * 60 * 1000);
+
+  await db.collection("invites").doc(token).set({
+    consumedAt: null,
+    createdAt: now,
+    expiresAt,
+    mode,
+    revokedAt: null,
+    tripId,
+  });
+
+  return { createdAt: now, expiresAt, mode, token, tripId };
+}
+
+interface InviteFirebaseData {
+  consumedAt: { toDate(): Date } | null;
+  expiresAt: { toDate(): Date };
+  mode: InviteMode;
+  revokedAt: { toDate(): Date } | null;
+  tripId: string;
+}
+
+function validateInviteData(data: InviteFirebaseData): void {
+  const now = new Date();
+  if (data.expiresAt.toDate() <= now) throw new InviteLinkExpiredError();
+  if (data.consumedAt != null) throw new InviteLinkUsedError();
+  if (data.revokedAt != null) throw new InviteLinkRevokedError();
+}
+
+export async function getTripByInviteLink(
+  token: string,
+): Promise<Trip | undefined> {
+  const db = getAdminFirestore();
+  const inviteSnap = await db.collection("invites").doc(token).get();
+  if (!inviteSnap.exists) return undefined;
+
+  const data = inviteSnap.data() as InviteFirebaseData;
+  validateInviteData(data);
+
+  const tripSnap = await db.collection("trips").doc(data.tripId).get();
+  if (!tripSnap.exists) return undefined;
+  const tripData = tripSnap.data();
+  if (!tripData) return undefined;
+  return firebaseToTrip(tripSnap.id, tripData);
+}
+
+export async function acceptInviteByLink(
+  token: string,
+  uid: string,
+): Promise<AcceptInviteResult> {
+  const db = getAdminFirestore();
+  const inviteRef = db.collection("invites").doc(token);
+
+  return db.runTransaction(async (txn) => {
+    const inviteSnap = await txn.get(inviteRef);
+    if (!inviteSnap.exists) throw new Error("Invalid invite token");
+
+    const data = inviteSnap.data() as InviteFirebaseData;
+    validateInviteData(data);
+
+    const { tripId, mode } = data;
+    const tripRef = db.collection("trips").doc(tripId);
+    const memberRef = tripRef.collection("members").doc(uid);
+
+    const memberSnap = await txn.get(memberRef);
+    if (memberSnap.exists) return { alreadyMember: true, tripId };
+
+    txn.set(memberRef, { joinedAt: new Date(), role: TripRole.Guest, uid });
+    txn.update(tripRef, { memberUids: FieldValue.arrayUnion(uid) });
+    if (mode === InviteMode.SingleUse) {
+      txn.update(inviteRef, { consumedAt: new Date() });
+    }
+
+    return { alreadyMember: false, tripId };
+  });
+}
+
+export async function revokeInviteLink(token: string): Promise<void> {
+  const db = getAdminFirestore();
+  const inviteRef = db.collection("invites").doc(token);
+  const snap = await inviteRef.get();
+  if (!snap.exists) throw new Error("Invite not found");
+  await inviteRef.update({ revokedAt: new Date() });
 }
