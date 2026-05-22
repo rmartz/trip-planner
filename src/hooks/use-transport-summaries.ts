@@ -37,11 +37,11 @@ async function fetchTransportSummaries(
 }
 
 export function useTransportSummaries(tripId: string) {
-  const { user } = useAuth();
+  const { loading, user } = useAuth();
 
   return useQuery({
     queryKey: ["transport-summaries", tripId, user?.uid],
     queryFn: () => fetchTransportSummaries(tripId),
-    enabled: tripId.length > 0,
+    enabled: tripId.length > 0 && !loading && !!user,
   });
 }
