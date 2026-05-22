@@ -6,6 +6,7 @@ import {
   type ExpenseEntryLinkedEntityOption,
   type ExpenseEntryMemberOption,
 } from "./ExpenseEntryFormView";
+import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 
 const MEMBERS: ExpenseEntryMemberOption[] = [
   { memberId: "member-alice", name: "Alice" },
@@ -67,5 +68,11 @@ export const WithPreFill: Story = {
 export const Submitting: Story = {
   args: {
     isSubmitting: true,
+  },
+};
+
+export const SubmitError: Story = {
+  args: {
+    submitError: EXPENSE_ENTRY_FORM_COPY.submitError,
   },
 };

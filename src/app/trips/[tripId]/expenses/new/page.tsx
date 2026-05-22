@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
+import { Button } from "@/components/ui/button";
 import { useActivities } from "@/hooks/use-activities";
 import { useCreateExpense } from "@/hooks/use-create-expense";
 import { useLegs } from "@/hooks/use-legs";
@@ -72,7 +73,11 @@ export default function NewExpensePage() {
       : undefined;
 
   const { data: trip } = useTrip(tripId);
-  const { data: members } = useTripMembers(tripId);
+  const {
+    data: members,
+    isError: membersError,
+    refetch: refetchMembers,
+  } = useTripMembers(tripId);
   const { data: stopsData } = useStops(tripId);
   const { data: legsData } = useLegs(tripId);
   const { data: activitiesData } = useActivities(tripId);
@@ -138,42 +143,66 @@ export default function NewExpensePage() {
         },
       }}
     >
-      <ExpenseEntryFormView
-        initialLinkedEntity={initialLinkedEntity}
-        initialParticipantIds={initialParticipantIds}
-        initialPayerId={initialPayerId}
-        isSubmitting={createExpense.isPending}
-        memberOptions={memberOptions}
-        linkedEntityOptions={linkedEntityOptions}
-        onSubmit={(input) => {
-          const trimmedDescription = input.description?.trim();
-          createExpense.mutate(
-            {
-              name:
-                trimmedDescription !== undefined && trimmedDescription !== ""
-                  ? trimmedDescription
-                  : "Expense",
-              amount: input.amountCents / 100,
-              currency: input.currency,
-              category: toExpenseCategory(input.category),
-              payerUid: input.payerMemberId,
-              participantUids: input.participantMemberIds,
-              splitMethod: ExpenseSplitMethod.Even,
-              ...(input.linkedEntity !== undefined
-                ? { linkedEntity: input.linkedEntity }
-                : {}),
-            },
-            {
-              onSuccess: () => {
-                router.push(`/trips/${tripId}/expenses`);
+      {membersError && (
+        <div className="flex flex-col gap-3 p-4">
+          <p className="text-sm text-destructive">
+            {EXPENSE_ENTRY_FORM_COPY.membersLoadError}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-fit"
+            onClick={() => {
+              void refetchMembers();
+            }}
+          >
+            {EXPENSE_ENTRY_FORM_COPY.retryMembersButton}
+          </Button>
+        </div>
+      )}
+      {!membersError && members !== undefined && (
+        <ExpenseEntryFormView
+          initialLinkedEntity={initialLinkedEntity}
+          initialParticipantIds={initialParticipantIds}
+          initialPayerId={initialPayerId}
+          isSubmitting={createExpense.isPending}
+          memberOptions={memberOptions}
+          linkedEntityOptions={linkedEntityOptions}
+          submitError={
+            createExpense.isError
+              ? EXPENSE_ENTRY_FORM_COPY.submitError
+              : undefined
+          }
+          onSubmit={(input) => {
+            const trimmedDescription = input.description?.trim();
+            createExpense.mutate(
+              {
+                name:
+                  trimmedDescription !== undefined && trimmedDescription !== ""
+                    ? trimmedDescription
+                    : "Expense",
+                amount: input.amountCents / 100,
+                currency: input.currency,
+                category: toExpenseCategory(input.category),
+                payerUid: input.payerMemberId,
+                participantUids: input.participantMemberIds,
+                splitMethod: ExpenseSplitMethod.Even,
+                ...(input.linkedEntity !== undefined
+                  ? { linkedEntity: input.linkedEntity }
+                  : {}),
               },
-            },
-          );
-        }}
-        onCancel={() => {
-          router.push(`/trips/${tripId}/expenses`);
-        }}
-      />
+              {
+                onSuccess: () => {
+                  router.push(`/trips/${tripId}/expenses`);
+                },
+              },
+            );
+          }}
+          onCancel={() => {
+            router.push(`/trips/${tripId}/expenses`);
+          }}
+        />
+      )}
     </AppShell>
   );
 }
