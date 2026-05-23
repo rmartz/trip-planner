@@ -1,6 +1,9 @@
-import type { TransportLegSummary } from "@/components/transport/TransportPlannerOverviewView";
+interface LegGapInput {
+  demand: { needRide: number };
+  supply: { seatCount: number }[];
+}
 
-export function computeTransportGapCount(legs: TransportLegSummary[]): number {
+export function computeTransportGapCount(legs: LegGapInput[]): number {
   return legs.reduce((total, { demand, supply }) => {
     const seats = supply.reduce((acc, offer) => acc + offer.seatCount, 0);
     const legGap = demand.needRide - seats;

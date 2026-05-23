@@ -1,13 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { addLeg, getLegsForTrip } from "@/services/legs";
-import {
-  computeLegSummary,
-  getTransportationEntriesForTrip,
-  resolveDriverDisplayNames,
-} from "@/services/transportation";
 import { getTripMemberRole } from "@/services/trips";
-import { TransportationStatus } from "@/lib/types/transportation";
-import { TripRole } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
@@ -28,40 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const legs = await getLegsForTrip(tripId);
-
-  if (role !== TripRole.Planner) {
-    return NextResponse.json({ legs, legSummaries: null, role });
-  }
-
-  const entries = await getTransportationEntriesForTrip(tripId);
-
-  const driverUids = [
-    ...new Set(
-      entries
-        .filter((e) => e.status === TransportationStatus.DrivingWithSeats)
-        .map((e) => e.uid),
-    ),
-  ];
-  const displayNameByUid = await resolveDriverDisplayNames(driverUids);
-
-  const entriesByLegId = new Map<string, typeof entries>();
-  for (const entry of entries) {
-    const bucket = entriesByLegId.get(entry.legId) ?? [];
-    bucket.push(entry);
-    entriesByLegId.set(entry.legId, bucket);
-  }
-
-  const legSummaries: Record<string, ReturnType<typeof computeLegSummary>> = {};
-  for (const leg of legs) {
-    const legEntries = entriesByLegId.get(leg.legId) ?? [];
-    legSummaries[leg.legId] = computeLegSummary(
-      leg.memberUids,
-      legEntries,
-      displayNameByUid,
-    );
-  }
-
-  return NextResponse.json({ legs, legSummaries, role });
+  return NextResponse.json({ legs, role });
 }
 
 export async function POST(request: NextRequest, { params }: RouteContext) {
