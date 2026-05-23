@@ -15,8 +15,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
   const { tripId } = await params;
 
-  const role = await getTripMemberRole(uid, tripId);
-  if (!role) {
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

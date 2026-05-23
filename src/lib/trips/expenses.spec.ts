@@ -44,8 +44,8 @@ describe("computeNetBalances — payer credits", () => {
       amount: 100,
     });
     const result = computeNetBalances([expense]);
-    // uid-a paid 100, owes 50 → net +50
-    expect(result.get("uid-a")).toBe(50);
+    // uid-a paid 10000 cents, owes 5000 cents → net +5000 cents
+    expect(result.get("uid-a")).toBe(5000);
   });
 
   it("uses the exact amount stored on the expense for the credit", () => {
@@ -55,8 +55,8 @@ describe("computeNetBalances — payer credits", () => {
       amount: 75,
     });
     const result = computeNetBalances([expense]);
-    // paid 75, owes 37.5 → net +37.5
-    expect(result.get("uid-a")).toBeCloseTo(37.5);
+    // paid 7500 cents, owes 3750 cents → net +3750 cents
+    expect(result.get("uid-a")).toBe(3750);
   });
 });
 
@@ -68,9 +68,9 @@ describe("computeNetBalances — even split debits", () => {
       amount: 90,
     });
     const result = computeNetBalances([expense]);
-    // uid-b and uid-c each owe 30
-    expect(result.get("uid-b")).toBe(-30);
-    expect(result.get("uid-c")).toBe(-30);
+    // uid-b and uid-c each owe 3000 cents
+    expect(result.get("uid-b")).toBe(-3000);
+    expect(result.get("uid-c")).toBe(-3000);
   });
 
   it("computes zero net balance for payer who is sole participant", () => {
@@ -99,10 +99,10 @@ describe("computeNetBalances — multiple expenses accumulate correctly", () => 
       amount: 60,
     });
     const result = computeNetBalances([exp1, exp2]);
-    // uid-a: paid 100, owes 50 (exp1) + 30 (exp2) = 80 → net +20
-    expect(result.get("uid-a")).toBeCloseTo(20);
-    // uid-b: paid 60, owes 50 (exp1) + 30 (exp2) = 80 → net -20
-    expect(result.get("uid-b")).toBeCloseTo(-20);
+    // uid-a: paid 10000 cents, owes 5000 (exp1) + 3000 (exp2) = 8000 → net +2000 cents
+    expect(result.get("uid-a")).toBe(2000);
+    // uid-b: paid 6000 cents, owes 5000 (exp1) + 3000 (exp2) = 8000 → net -2000 cents
+    expect(result.get("uid-b")).toBe(-2000);
   });
 
   it("includes a member in the result only for expenses they are involved in", () => {
@@ -121,8 +121,8 @@ describe("computeNetBalances — multiple expenses accumulate correctly", () => 
     const result = computeNetBalances([exp1, exp2]);
     expect(result.has("uid-b")).toBe(true);
     expect(result.has("uid-c")).toBe(true);
-    expect(result.get("uid-b")).toBeCloseTo(-50);
-    expect(result.get("uid-c")).toBeCloseTo(-30);
+    expect(result.get("uid-b")).toBe(-5000);
+    expect(result.get("uid-c")).toBe(-3000);
   });
 });
 
@@ -134,9 +134,23 @@ describe("computeNetBalances — non-participating payer", () => {
       amount: 60,
     });
     const result = computeNetBalances([expense]);
-    // uid-a paid 60, owes nothing → net +60
-    expect(result.get("uid-a")).toBeCloseTo(60);
-    expect(result.get("uid-b")).toBeCloseTo(-30);
-    expect(result.get("uid-c")).toBeCloseTo(-30);
+    // uid-a paid 6000 cents, owes nothing → net +6000 cents
+    expect(result.get("uid-a")).toBe(6000);
+    expect(result.get("uid-b")).toBe(-3000);
+    expect(result.get("uid-c")).toBe(-3000);
+  });
+});
+
+describe("computeNetBalances — rounding", () => {
+  it("distributes remainder cents so that all balances sum to zero", () => {
+    // $100 split 3 ways: 10000 cents / 3 = 3333 each + 1 cent remainder.
+    const expense = makeExpense({
+      payerUid: "uid-a",
+      participantUids: ["uid-a", "uid-b", "uid-c"],
+      amount: 100,
+    });
+    const result = computeNetBalances([expense]);
+    const total = Array.from(result.values()).reduce((sum, v) => sum + v, 0);
+    expect(total).toBe(0);
   });
 });

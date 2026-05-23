@@ -38,14 +38,14 @@ export default function BalancesPage() {
   );
 
   const netBalances = computeNetBalances(expenses ?? []);
-  const balances: BalanceRow[] = Array.from(netBalances.entries()).map(
-    ([uid, amount]) => ({
-      amountCents: Math.round(amount * 100),
+  const balances: BalanceRow[] = Array.from(netBalances.entries())
+    .map(([uid, amountCents]) => ({
+      amountCents,
       currency: "USD",
       memberId: uid,
       memberName: memberNameByUid.get(uid) ?? uid,
-    }),
-  );
+    }))
+    .sort((a, b) => b.amountCents - a.amountCents);
 
   return (
     <AppShell
