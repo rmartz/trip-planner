@@ -12,4 +12,3 @@ storybook-static
 next-env.d.ts
 terraform/terraform.tfvars
 .vercel
-pnpm-workspace.yaml

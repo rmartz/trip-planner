@@ -33,9 +33,9 @@ export function computeNetBalances(expenses: Expense[]): Map<string, number> {
 
       // Distribute any remainder cents deterministically to the first
       // `remainder` participants so that total debits equal total credits.
-      for (let i = 0; i < n; i++) {
+      for (const [i, uid] of participantUids.entries()) {
         const share = i < remainder ? baseShare + 1 : baseShare;
-        add(participantUids[i]!, -share);
+        add(uid, -share);
       }
     }
   }
