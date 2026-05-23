@@ -4,14 +4,23 @@ import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";
 
 const COPY = BALANCES_PAGE_COPY;
 
-export interface BalanceRow {
-  amountCents: number;
-  currency: string;
-  memberId: string;
-  memberName: string;
-  nonAccount?: boolean;
-  proxyName?: string;
-}
+export type BalanceRow =
+  | {
+      amountCents: number;
+      currency: string;
+      memberId: string;
+      memberName: string;
+      nonAccount?: false;
+      proxyName?: never;
+    }
+  | {
+      amountCents: number;
+      currency: string;
+      memberId: string;
+      memberName: string;
+      nonAccount: true;
+      proxyName: string;
+    };
 
 export interface TransferRow {
   amountCents: number;
@@ -73,7 +82,7 @@ function BalanceRowItem({ balance }: BalanceRowItemProps) {
     >
       <span className="flex flex-col gap-0.5">
         <span className="text-sm font-medium">{displayName}</span>
-        {balance.nonAccount === true && balance.proxyName !== undefined && (
+        {balance.nonAccount === true && (
           <span className="text-xs text-zinc-500 dark:text-zinc-400">
             {COPY.proxyLabel(balance.proxyName)}
           </span>

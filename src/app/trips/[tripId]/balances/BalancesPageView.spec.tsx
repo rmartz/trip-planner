@@ -16,7 +16,7 @@ function makeBalance(overrides: Partial<BalanceRow> = {}): BalanceRow {
     memberId: "member-alice",
     memberName: "Alice",
     ...overrides,
-  };
+  } as BalanceRow;
 }
 
 function makeTransfer(overrides: Partial<TransferRow> = {}): TransferRow {
