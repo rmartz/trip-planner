@@ -28,6 +28,16 @@ vi.mock("@/hooks/use-stops", () => ({
   useStops: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-expenses", () => ({
+  useExpenses: vi
+    .fn()
+    .mockReturnValue({ data: [], isLoading: false, isError: false }),
+}));
+
+vi.mock("@/hooks/use-trip-members", () => ({
+  useTripMembers: vi.fn().mockReturnValue({ data: [] }),
+}));
+
 import { useLegs } from "@/hooks/use-legs";
 import { useStops } from "@/hooks/use-stops";
 import { useTrip } from "@/hooks/use-trip";

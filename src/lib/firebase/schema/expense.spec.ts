@@ -202,6 +202,18 @@ describe("firebaseToExpense — deserializes Firestore data to Expense", () => {
     });
     expect(expense.amount).toBe(0);
   });
+
+  it("falls back to USD for currency when absent", () => {
+    const expense = firebaseToExpense("exp-1", "trip-1", {
+      name: "x",
+      amount: 10,
+      category: ExpenseCategory.Other,
+      payerUid: "uid-1",
+      participantUids: ["uid-1"],
+      splitMethod: ExpenseSplitMethod.Even,
+    });
+    expect(expense.currency).toBe("USD");
+  });
 });
 
 describe("expenseToFirebase — serializes Expense to Firestore data", () => {
@@ -209,6 +221,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "Airbnb",
       amount: 500,
+      currency: "USD",
       category: ExpenseCategory.Lodging,
       payerUid: "uid-1",
       participantUids: ["uid-1", "uid-2"],
@@ -221,6 +234,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 99.99,
+      currency: "USD",
       category: ExpenseCategory.Food,
       payerUid: "uid-1",
       participantUids: ["uid-1"],
@@ -233,6 +247,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 10,
+      currency: "USD",
       category: ExpenseCategory.Transport,
       payerUid: "uid-1",
       participantUids: ["uid-1"],
@@ -245,6 +260,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 10,
+      currency: "USD",
       category: ExpenseCategory.Other,
       payerUid: "uid-xyz",
       participantUids: ["uid-xyz"],
@@ -257,6 +273,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 10,
+      currency: "USD",
       category: ExpenseCategory.Other,
       payerUid: "uid-1",
       participantUids: ["uid-1", "uid-2"],
@@ -269,6 +286,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 10,
+      currency: "USD",
       category: ExpenseCategory.Activity,
       payerUid: "uid-1",
       participantUids: ["uid-1"],
@@ -282,6 +300,7 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 10,
+      currency: "USD",
       category: ExpenseCategory.Lodging,
       payerUid: "uid-1",
       participantUids: ["uid-1"],
@@ -295,11 +314,25 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
     const data = expenseToFirebase({
       name: "x",
       amount: 10,
+      currency: "USD",
       category: ExpenseCategory.Other,
       payerUid: "uid-1",
       participantUids: ["uid-1"],
       splitMethod: ExpenseSplitMethod.Even,
     });
     expect("linkedEntity" in data).toBe(false);
+  });
+
+  it("maps currency", () => {
+    const data = expenseToFirebase({
+      name: "x",
+      amount: 10,
+      currency: "EUR",
+      category: ExpenseCategory.Other,
+      payerUid: "uid-1",
+      participantUids: ["uid-1"],
+      splitMethod: ExpenseSplitMethod.Even,
+    });
+    expect(data.currency).toBe("EUR");
   });
 });
