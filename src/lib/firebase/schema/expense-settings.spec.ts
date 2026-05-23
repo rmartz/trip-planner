@@ -55,11 +55,11 @@ describe("firebaseToExpenseSettings — defaults when document is empty", () => 
     );
   });
 
-  it("returns empty defaultParticipantMemberIds when not stored", () => {
+  it("returns null for defaultParticipantMemberIds when not stored", () => {
     const result = firebaseToExpenseSettings({});
     expect(
       result[ExpenseSettingsCategory.Food].defaultParticipantMemberIds,
-    ).toEqual([]);
+    ).toBeNull();
   });
 });
 
@@ -83,6 +83,24 @@ describe("firebaseToExpenseSettings — reads stored values", () => {
     expect(
       result[ExpenseSettingsCategory.Lodging].defaultParticipantMemberIds,
     ).toEqual(["uid-x", "uid-y"]);
+  });
+
+  it("returns empty array when stored defaultParticipantMemberIds is []", () => {
+    const result = firebaseToExpenseSettings({
+      food: { unitModel: "shared_bucket", defaultParticipantMemberIds: [] },
+    });
+    expect(
+      result[ExpenseSettingsCategory.Food].defaultParticipantMemberIds,
+    ).toEqual([]);
+  });
+
+  it("returns null when defaultParticipantMemberIds field is absent from stored entry", () => {
+    const result = firebaseToExpenseSettings({
+      food: { unitModel: "shared_bucket" },
+    });
+    expect(
+      result[ExpenseSettingsCategory.Food].defaultParticipantMemberIds,
+    ).toBeNull();
   });
 
   it("falls back to default unitModel for invalid stored value", () => {
@@ -121,5 +139,39 @@ describe("expenseSettingsToFirebase", () => {
       unitModel: "shared_bucket",
       defaultParticipantMemberIds: ["uid-2", "uid-3"],
     });
+  });
+
+  it("omits defaultParticipantMemberIds field when value is null", () => {
+    const settings = {
+      [ExpenseSettingsCategory.Food]: makeSettings({
+        defaultParticipantMemberIds: null,
+      }),
+      [ExpenseSettingsCategory.Lodging]: makeSettings(),
+      [ExpenseSettingsCategory.Activities]: makeSettings(),
+      [ExpenseSettingsCategory.Other]: makeSettings(),
+      [ExpenseSettingsCategory.Transport]: makeSettings(),
+    };
+
+    const result = expenseSettingsToFirebase(settings);
+
+    expect(result["food"]).toEqual({ unitModel: "shared_bucket" });
+    expect(result["food"]).not.toHaveProperty("defaultParticipantMemberIds");
+  });
+
+  it("only writes known ExpenseSettingsCategory keys", () => {
+    const settings = {
+      [ExpenseSettingsCategory.Food]: makeSettings(),
+      [ExpenseSettingsCategory.Lodging]: makeSettings(),
+      [ExpenseSettingsCategory.Activities]: makeSettings(),
+      [ExpenseSettingsCategory.Other]: makeSettings(),
+      [ExpenseSettingsCategory.Transport]: makeSettings(),
+    };
+
+    const result = expenseSettingsToFirebase(settings);
+
+    const knownKeys = new Set(Object.values(ExpenseSettingsCategory));
+    for (const key of Object.keys(result)) {
+      expect(knownKeys.has(key as ExpenseSettingsCategory)).toBe(true);
+    }
   });
 });

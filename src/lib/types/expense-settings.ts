@@ -13,7 +13,7 @@ export enum ExpenseUnitModel {
 }
 
 export interface ExpenseCategorySettings {
-  defaultParticipantMemberIds: string[];
+  defaultParticipantMemberIds: string[] | null;
   unitModel: ExpenseUnitModel;
 }
 

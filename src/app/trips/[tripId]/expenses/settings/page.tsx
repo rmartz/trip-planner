@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
@@ -41,10 +42,12 @@ export default function ExpenseSettingsPage() {
   const tripId = params.tripId;
 
   const { data: trip } = useTrip(tripId);
-  const { data: members } = useTripMembers(tripId);
+  const { data: members, isLoading: isMembersLoading } = useTripMembers(tripId);
   const { data: settings, isLoading, isError } = useExpenseSettings(tripId);
   const { mutateAsync: updateSettings, isPending: isSubmitting } =
     useUpdateExpenseSettings(tripId);
+
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const memberOptions: ExpenseSettingsMemberOption[] =
     members?.map((m) => ({
@@ -61,13 +64,14 @@ export default function ExpenseSettingsPage() {
         category,
         categoryLabel: CATEGORY_LABELS[category],
         unitModel: stored?.unitModel ?? ExpenseUnitModel.SharedBucket,
+        // null means "inherit all members"; [] means explicitly no participants
         defaultParticipantMemberIds:
-          stored !== undefined && stored.defaultParticipantMemberIds.length > 0
-            ? stored.defaultParticipantMemberIds
-            : allMemberIds,
+          stored?.defaultParticipantMemberIds ?? allMemberIds,
       };
     },
   );
+
+  const isPageLoading = isLoading || isMembersLoading;
 
   return (
     <AppShell
@@ -79,11 +83,13 @@ export default function ExpenseSettingsPage() {
         },
       }}
     >
-      {isLoading && (
+      {isPageLoading && (
         <p className="p-4 text-sm text-zinc-500">{COPY.loadingText}</p>
       )}
-      {isError && <p className="p-4 text-sm text-red-500">{COPY.errorText}</p>}
-      {!isLoading && !isError && (
+      {isError && !isPageLoading && (
+        <p className="p-4 text-sm text-red-500">{COPY.errorText}</p>
+      )}
+      {!isPageLoading && !isError && (
         <ExpenseSettingsPageView
           initialCategories={initialCategories}
           isSubmitting={isSubmitting}
@@ -98,14 +104,23 @@ export default function ExpenseSettingsPage() {
                 },
               ]),
             ) as Parameters<typeof updateSettings>[0];
-            void updateSettings(settingsMap).then(() => {
-              router.push(`/trips/${tripId}/expenses`);
-            });
+            setSaveError(null);
+            updateSettings(settingsMap).then(
+              () => {
+                router.push(`/trips/${tripId}/expenses`);
+              },
+              () => {
+                setSaveError(COPY.saveErrorText);
+              },
+            );
           }}
           onCancel={() => {
             router.push(`/trips/${tripId}/expenses`);
           }}
         />
+      )}
+      {saveError !== null && (
+        <p className="p-4 text-sm text-red-500">{saveError}</p>
       )}
     </AppShell>
   );

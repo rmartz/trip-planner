@@ -13,6 +13,7 @@ export const EXPENSE_SETTINGS_PAGE_COPY = {
   pageHeading: "Expense settings",
   pageTitle: "Expense settings",
   saveButton: "Save settings",
+  saveErrorText: "Couldn't save expense settings. Please try again.",
   unitModelColumnHeading: "Unit model",
   unitModelOptionPerUnit: "Per unit",
   unitModelOptionSharedBucket: "Shared bucket",

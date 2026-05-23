@@ -4,12 +4,69 @@ import {
   setExpenseSettings,
 } from "@/services/expense-settings";
 import { getTripMemberRole } from "@/services/trips";
+import {
+  ExpenseSettingsCategory,
+  ExpenseUnitModel,
+} from "@/lib/types/expense-settings";
 import type { ExpenseSettingsMap } from "@/lib/types/expense-settings";
 import { TripRole } from "@/lib/types/trip";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 interface RouteContext {
   params: Promise<{ tripId: string }>;
+}
+
+const KNOWN_CATEGORIES = new Set<string>(
+  Object.values(ExpenseSettingsCategory),
+);
+const KNOWN_UNIT_MODELS = new Set<string>(Object.values(ExpenseUnitModel));
+
+function parseCategories(raw: unknown): ExpenseSettingsMap | null {
+  if (
+    raw === null ||
+    raw === undefined ||
+    typeof raw !== "object" ||
+    Array.isArray(raw)
+  ) {
+    return null;
+  }
+  const input = raw as Record<string, unknown>;
+  for (const key of Object.keys(input)) {
+    if (!KNOWN_CATEGORIES.has(key)) return null;
+  }
+  const result = {} as ExpenseSettingsMap;
+  for (const category of Object.values(ExpenseSettingsCategory)) {
+    const value = input[category];
+    if (
+      value === null ||
+      value === undefined ||
+      typeof value !== "object" ||
+      Array.isArray(value)
+    ) {
+      return null;
+    }
+    const entry = value as Record<string, unknown>;
+    const unitModel = entry["unitModel"];
+    if (typeof unitModel !== "string" || !KNOWN_UNIT_MODELS.has(unitModel)) {
+      return null;
+    }
+    const ids = entry["defaultParticipantMemberIds"];
+    let participantIds: string[] | null = null;
+    if (ids !== null && ids !== undefined) {
+      if (
+        !Array.isArray(ids) ||
+        !ids.every((id): id is string => typeof id === "string")
+      ) {
+        return null;
+      }
+      participantIds = ids;
+    }
+    result[category] = {
+      unitModel: unitModel as ExpenseUnitModel,
+      defaultParticipantMemberIds: participantIds,
+    };
+  }
+  return result;
 }
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -41,9 +98,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Bad Request" }, { status: 400 });
   }
 
-  if (body.categories === undefined || body.categories === null) {
+  const categories = parseCategories(body.categories);
+  if (categories === null) {
     return NextResponse.json(
-      { error: "categories is required" },
+      { error: "categories is required and must be a valid settings map" },
       { status: 400 },
     );
   }
@@ -58,6 +116,6 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  await setExpenseSettings(tripId, body.categories as ExpenseSettingsMap);
+  await setExpenseSettings(tripId, categories);
   return NextResponse.json({ ok: true });
 }

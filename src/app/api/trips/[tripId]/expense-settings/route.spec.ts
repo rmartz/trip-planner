@@ -217,4 +217,109 @@ describe("POST /api/trips/[tripId]/expense-settings", () => {
     });
     expect(response.status).toBe(400);
   });
+
+  it("returns 400 when categories is a string", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await POST(
+      makePostRequest("uid-planner", { categories: "a string" }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when categories is an array", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await POST(
+      makePostRequest("uid-planner", { categories: [] }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when categories contains an unknown key", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await POST(
+      makePostRequest("uid-planner", {
+        categories: { ...STUB_SETTINGS, unknownCategory: {} },
+      }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when a category entry has an invalid unitModel", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await POST(
+      makePostRequest("uid-planner", {
+        categories: {
+          ...STUB_SETTINGS,
+          [ExpenseSettingsCategory.Food]: {
+            unitModel: null,
+            defaultParticipantMemberIds: [],
+          },
+        },
+      }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when a category entry has a non-array defaultParticipantMemberIds", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await POST(
+      makePostRequest("uid-planner", {
+        categories: {
+          ...STUB_SETTINGS,
+          [ExpenseSettingsCategory.Food]: {
+            unitModel: ExpenseUnitModel.SharedBucket,
+            defaultParticipantMemberIds: "not-an-array",
+          },
+        },
+      }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when defaultParticipantMemberIds contains a non-string element", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+
+    const response = await POST(
+      makePostRequest("uid-planner", {
+        categories: {
+          ...STUB_SETTINGS,
+          [ExpenseSettingsCategory.Food]: {
+            unitModel: ExpenseUnitModel.SharedBucket,
+            defaultParticipantMemberIds: [42],
+          },
+        },
+      }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 200 when defaultParticipantMemberIds is null", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(setExpenseSettings).mockResolvedValue(undefined);
+
+    const response = await POST(
+      makePostRequest("uid-planner", {
+        categories: {
+          ...STUB_SETTINGS,
+          [ExpenseSettingsCategory.Food]: {
+            unitModel: ExpenseUnitModel.SharedBucket,
+            defaultParticipantMemberIds: null,
+          },
+        },
+      }),
+      { params: Promise.resolve({ tripId: "trip-1" }) },
+    );
+    expect(response.status).toBe(200);
+  });
 });
