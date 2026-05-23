@@ -109,7 +109,8 @@ export default function ExpenseSettingsPage() {
               () => {
                 router.push(`/trips/${tripId}/expenses`);
               },
-              () => {
+              (err: unknown) => {
+                console.error("Failed to save expense settings", err);
                 setSaveError(COPY.saveErrorText);
               },
             );
