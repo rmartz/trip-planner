@@ -115,9 +115,7 @@ export function ScheduleBuilderView({
       return;
     }
     const next = [...unpinnedOrder];
-    const [moved] = next.splice(fromIndex, 1);
-    if (moved === undefined) return;
-    next.splice(toIndex, 0, moved);
+    next.splice(toIndex, 0, ...next.splice(fromIndex, 1));
     setUnpinnedOrder(next);
     onReorder(next.map((a) => a.activityId));
   }
