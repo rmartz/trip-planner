@@ -111,6 +111,18 @@ describe("firebaseToTrip", () => {
     expect(trip.gapCount).toBeUndefined();
   });
 
+  it("returns gapCount as undefined when null", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-x",
+      gapCount: null,
+    });
+    expect(trip.gapCount).toBeUndefined();
+  });
+
   it("maps transportGapCount when present", () => {
     const trip = firebaseToTrip("t1", {
       name: "x",
@@ -130,6 +142,18 @@ describe("firebaseToTrip", () => {
       endDate: makeTimestamp(END),
       createdAt: makeTimestamp(CREATED_AT),
       createdBy: "uid-x",
+    });
+    expect(trip.transportGapCount).toBeUndefined();
+  });
+
+  it("returns transportGapCount as undefined when null", () => {
+    const trip = firebaseToTrip("t1", {
+      name: "x",
+      startDate: makeTimestamp(START),
+      endDate: makeTimestamp(END),
+      createdAt: makeTimestamp(CREATED_AT),
+      createdBy: "uid-x",
+      transportGapCount: null,
     });
     expect(trip.transportGapCount).toBeUndefined();
   });
