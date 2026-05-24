@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { softDeleteLeg, updateLeg } from "@/services/legs";
+import {
+  getLegById,
+  softDeleteLeg,
+  updateLeg,
+  writeNotificationsForLegDeletion,
+} from "@/services/legs";
 import { PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
@@ -77,7 +82,9 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
   const { tripId, legId } = await params;
 
   try {
+    const leg = await getLegById(tripId, legId);
     await softDeleteLeg(uid, tripId, legId);
+    await writeNotificationsForLegDeletion(tripId, legId, leg?.name ?? "");
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof PlannerOnlyError) {

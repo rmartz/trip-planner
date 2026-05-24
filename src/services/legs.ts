@@ -1,5 +1,7 @@
+import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToLeg } from "@/lib/firebase/schema/trip";
+import { NotificationType } from "@/lib/types/notification";
 import { TripRole } from "@/lib/types/trip";
 import type { Leg } from "@/lib/types/trip";
 import { PlannerOnlyError } from "./errors";
@@ -195,4 +197,46 @@ export async function getAllLegsForTrip(tripId: string): Promise<Leg[]> {
     .orderBy("order")
     .get();
   return snapshot.docs.map((doc) => firebaseToLeg(doc.id, tripId, doc.data()));
+}
+
+export async function getLegById(
+  tripId: string,
+  legId: string,
+): Promise<Leg | undefined> {
+  const db = getAdminFirestore();
+  const doc = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("legs")
+    .doc(legId)
+    .get();
+  const data = doc.data();
+  if (!data) return undefined;
+  return firebaseToLeg(doc.id, tripId, data);
+}
+
+export async function writeNotificationsForLegDeletion(
+  tripId: string,
+  legId: string,
+  legName: string,
+): Promise<void> {
+  const affectedUids = await getAffectedGuestsForLeg(tripId, legId);
+  if (affectedUids.length === 0) return;
+
+  const db = getAdminFirestore();
+  await Promise.all(
+    affectedUids.map(async (uid) => {
+      const userRef = db.collection("users").doc(uid);
+      await userRef.collection("notifications").add({
+        createdAt: FieldValue.serverTimestamp(),
+        read: false,
+        title: legName,
+        tripId,
+        triggerType: NotificationType.LegSoftDeleted,
+        type: NotificationType.LegSoftDeleted,
+        uid,
+      });
+      await userRef.update({ unreadCount: FieldValue.increment(1) });
+    }),
+  );
 }
