@@ -106,6 +106,14 @@ export function ScheduleBuilderView({
   );
 
   function moveActivity(fromIndex: number, toIndex: number) {
+    if (
+      fromIndex < 0 ||
+      fromIndex >= unpinnedOrder.length ||
+      toIndex < 0 ||
+      toIndex >= unpinnedOrder.length
+    ) {
+      return;
+    }
     const next = [...unpinnedOrder];
     const [moved] = next.splice(fromIndex, 1);
     if (moved === undefined) return;

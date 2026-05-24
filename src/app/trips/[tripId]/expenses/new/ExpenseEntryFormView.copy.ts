@@ -16,10 +16,13 @@ export const EXPENSE_ENTRY_FORM_COPY = {
   formHeading: "Add expense",
   linkedEntityLabel: "Linked to",
   linkedEntityNoneOption: "(none)",
+  membersLoadError: "Could not load trip members. Please try again.",
   nonAccountCaption: "* non-account members included",
   pageTitle: "Add expense",
   participantsLabel: "Participants",
   payerLabel: "Paid by",
   payerPlaceholder: "Select a member",
+  retryMembersButton: "Retry",
   submitButton: "Save expense",
+  submitError: "Something went wrong. Please try again.",
 } as const;

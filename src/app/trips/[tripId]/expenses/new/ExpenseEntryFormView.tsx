@@ -52,6 +52,7 @@ export interface ExpenseEntryFormViewProps {
   memberOptions: ExpenseEntryMemberOption[];
   onCancel: () => void;
   onSubmit: (input: ExpenseEntryInput) => void;
+  submitError?: string;
 }
 
 const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
@@ -79,6 +80,7 @@ export function ExpenseEntryFormView({
   memberOptions,
   onCancel,
   onSubmit,
+  submitError,
 }: ExpenseEntryFormViewProps) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
@@ -322,6 +324,9 @@ export function ExpenseEntryFormView({
           {COPY.cancelButton}
         </Button>
       </div>
+      {submitError !== undefined && (
+        <p className="text-sm text-destructive">{submitError}</p>
+      )}
     </form>
   );
 }
