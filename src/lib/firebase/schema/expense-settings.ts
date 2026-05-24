@@ -32,7 +32,9 @@ function parseCategorySettings(
     : defaultModel;
   const rawIds = obj["defaultParticipantMemberIds"];
   const defaultParticipantMemberIds =
-    rawIds === undefined || rawIds === null ? null : toUids(rawIds);
+    rawIds === undefined || rawIds === null || !Array.isArray(rawIds)
+      ? null
+      : toUids(rawIds);
   return { unitModel, defaultParticipantMemberIds };
 }
 

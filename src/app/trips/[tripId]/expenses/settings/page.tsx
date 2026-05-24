@@ -95,14 +95,21 @@ export default function ExpenseSettingsPage() {
           isSubmitting={isSubmitting}
           memberOptions={memberOptions}
           onSave={(categories) => {
+            const allMemberIdSet = new Set(allMemberIds);
             const settingsMap = Object.fromEntries(
-              categories.map((c) => [
-                c.category,
-                {
-                  defaultParticipantMemberIds: c.defaultParticipantMemberIds,
-                  unitModel: c.unitModel,
-                },
-              ]),
+              categories.map((c) => {
+                const ids = c.defaultParticipantMemberIds;
+                const isAllMembers =
+                  ids.length === allMemberIdSet.size &&
+                  ids.every((id) => allMemberIdSet.has(id));
+                return [
+                  c.category,
+                  {
+                    defaultParticipantMemberIds: isAllMembers ? null : ids,
+                    unitModel: c.unitModel,
+                  },
+                ];
+              }),
             ) as Parameters<typeof updateSettings>[0];
             setSaveError(null);
             updateSettings(settingsMap).then(

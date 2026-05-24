@@ -111,6 +111,15 @@ describe("firebaseToExpenseSettings — reads stored values", () => {
       ExpenseUnitModel.SharedBucket,
     );
   });
+
+  it("returns null when defaultParticipantMemberIds is a non-array value", () => {
+    const result = firebaseToExpenseSettings({
+      food: { unitModel: "shared_bucket", defaultParticipantMemberIds: "all" },
+    });
+    expect(
+      result[ExpenseSettingsCategory.Food].defaultParticipantMemberIds,
+    ).toBeNull();
+  });
 });
 
 describe("expenseSettingsToFirebase", () => {
