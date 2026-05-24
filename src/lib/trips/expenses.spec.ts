@@ -9,6 +9,7 @@ function makeExpense(overrides: Partial<Expense> = {}): Expense {
     tripId: "trip-1",
     name: "Dinner",
     amount: 100,
+    currency: "USD",
     category: ExpenseCategory.Food,
     payerUid: "uid-a",
     participantUids: ["uid-a"],

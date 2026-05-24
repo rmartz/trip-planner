@@ -38,6 +38,7 @@ export function firebaseToExpense(
     tripId,
     name: (data["name"] as string | undefined) ?? "",
     amount: (data["amount"] as number | undefined) ?? 0,
+    currency: (data["currency"] as string | undefined) ?? "USD",
     category:
       (data["category"] as ExpenseCategory | undefined) ??
       ExpenseCategory.Other,
@@ -55,6 +56,7 @@ export function expenseToFirebase(
 ): {
   name: string;
   amount: number;
+  currency: string;
   category: ExpenseCategory;
   payerUid: string;
   participantUids: string[];
@@ -64,6 +66,7 @@ export function expenseToFirebase(
   return {
     name: expense.name,
     amount: expense.amount,
+    currency: expense.currency,
     category: expense.category,
     payerUid: expense.payerUid,
     participantUids: expense.participantUids,
