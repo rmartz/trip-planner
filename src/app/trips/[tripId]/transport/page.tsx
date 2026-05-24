@@ -21,6 +21,7 @@ export default function TransportPage({ params }: TransportPageProps) {
     data: summariesData,
     isError: isSummariesError,
     isLoading: isSummariesLoading,
+    isPending: isSummariesPending,
   } = useTransportSummaries(tripId);
 
   // haveOwn is not yet computed by the transport service (future work).
@@ -42,7 +43,7 @@ export default function TransportPage({ params }: TransportPageProps) {
         },
       }}
     >
-      {isSummariesLoading ? (
+      {isSummariesLoading || isSummariesPending ? (
         <p className="p-4 text-sm text-muted-foreground">
           {TRANSPORT_PAGE_COPY.loadingMessage}
         </p>

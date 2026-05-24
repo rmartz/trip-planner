@@ -39,9 +39,11 @@ async function fetchTransportSummaries(
 export function useTransportSummaries(tripId: string) {
   const { loading, user } = useAuth();
 
-  return useQuery({
+  const { data, isError, isLoading, isPending } = useQuery({
     queryKey: ["transport-summaries", tripId, user?.uid],
     queryFn: () => fetchTransportSummaries(tripId),
     enabled: tripId.length > 0 && !loading && !!user,
   });
+
+  return { data, isError, isLoading, isPending };
 }

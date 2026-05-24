@@ -99,7 +99,8 @@ describe("TransportPage — role gating", () => {
       data: { summaries: [], role: TripRole.Planner },
       isError: false,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
@@ -111,7 +112,8 @@ describe("TransportPage — role gating", () => {
       data: undefined,
       isError: false,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
@@ -126,11 +128,29 @@ describe("TransportPage — role gating", () => {
       data: undefined,
       isError: false,
       isLoading: true,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
     expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
+  });
+
+  it("renders loading while the query is pending (auth still initializing)", () => {
+    vi.mocked(useTransportSummaries).mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
+      isPending: true,
+    });
+
+    renderWithQueryClient();
+
+    expect(screen.getByText(TRANSPORT_PAGE_COPY.loadingMessage)).toBeDefined();
+    expect(screen.queryByTestId("transport-planner-overview")).toBeNull();
+    expect(
+      screen.queryByText(TRANSPORT_PAGE_COPY.plannerOnlyMessage),
+    ).toBeNull();
   });
 
   it("renders an error message when summaries fail to load", () => {
@@ -138,7 +158,8 @@ describe("TransportPage — role gating", () => {
       data: undefined,
       isError: true,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
@@ -153,7 +174,8 @@ describe("TransportPage — role gating", () => {
       data: undefined,
       isError: false,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
@@ -178,7 +200,8 @@ describe("TransportPage — demand and supply wiring", () => {
       },
       isError: false,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
@@ -212,7 +235,8 @@ describe("TransportPage — demand and supply wiring", () => {
       },
       isError: false,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
@@ -251,7 +275,8 @@ describe("TransportPage — demand and supply wiring", () => {
       },
       isError: false,
       isLoading: false,
-    } as never);
+      isPending: false,
+    });
 
     renderWithQueryClient();
 
