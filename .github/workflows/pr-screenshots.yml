@@ -2,7 +2,6 @@ name: PR Screenshots
 
 on:
   pull_request:
-    branches: [main]
 
 # Requires contents:write to push to gh-screenshots branch.
 # Forks get a read-only token regardless of this block, so the job is skipped
