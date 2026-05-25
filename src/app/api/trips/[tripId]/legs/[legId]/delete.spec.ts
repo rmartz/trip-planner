@@ -95,6 +95,52 @@ describe("DELETE /api/trips/[tripId]/legs/[legId]", () => {
     );
   });
 
+  it("uses a fallback leg name when the leg cannot be loaded", async () => {
+    vi.mocked(getLegById).mockResolvedValue(undefined);
+    vi.mocked(softDeleteLeg).mockResolvedValue(undefined);
+    vi.mocked(writeNotificationsForLegDeletion).mockResolvedValue(undefined);
+
+    const request = makeDeleteRequest("uid-planner");
+    await DELETE(request, {
+      params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
+    });
+
+    expect(vi.mocked(writeNotificationsForLegDeletion)).toHaveBeenCalledWith(
+      "trip-1",
+      "leg-1",
+      "A leg was removed",
+    );
+  });
+
+  it("returns 200 when notification writing fails after soft-delete", async () => {
+    vi.mocked(getLegById).mockResolvedValue({
+      legId: "leg-1",
+      tripId: "trip-1",
+      name: "Lyon → Marseille",
+      fromStopId: "stop-a",
+      toStopId: "stop-b",
+      order: 0,
+      memberUids: [],
+      isActive: true,
+    });
+    vi.mocked(softDeleteLeg).mockResolvedValue(undefined);
+    vi.mocked(writeNotificationsForLegDeletion).mockRejectedValue(
+      new Error("notification write failed"),
+    );
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    const request = makeDeleteRequest("uid-planner");
+    const response = await DELETE(request, {
+      params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+
   it("returns 403 when user is not a Planner", async () => {
     vi.mocked(softDeleteLeg).mockRejectedValue(
       new PlannerOnlyError("Only Planners can remove legs"),

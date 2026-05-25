@@ -83,8 +83,20 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
   try {
     const leg = await getLegById(tripId, legId);
+    const legName =
+      leg === undefined
+        ? "A leg was removed"
+        : leg.name.trim() || "A leg was removed";
     await softDeleteLeg(uid, tripId, legId);
-    await writeNotificationsForLegDeletion(tripId, legId, leg?.name ?? "");
+    try {
+      await writeNotificationsForLegDeletion(tripId, legId, legName);
+    } catch (notificationError) {
+      console.error(
+        "Failed to write leg deletion notifications",
+        notificationError,
+      );
+      return NextResponse.json({ success: true });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof PlannerOnlyError) {

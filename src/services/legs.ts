@@ -156,8 +156,26 @@ export async function getAffectedGuestsForLeg(
     .where("legId", "==", legId)
     .get();
 
-  const uids = snapshot.docs.map((doc) => doc.data()["uid"] as string);
-  return [...new Set(uids)];
+  const uniqueUids = [
+    ...new Set(
+      snapshot.docs
+        .map((doc) => doc.data()["uid"] as string | undefined)
+        .filter((uid): uid is string => !!uid),
+    ),
+  ];
+  if (uniqueUids.length === 0) return [];
+
+  const tripMembersRef = db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members");
+  const memberDocs = await Promise.all(
+    uniqueUids.map((uid) => tripMembersRef.doc(uid).get()),
+  );
+
+  return memberDocs
+    .filter((memberDoc) => memberDoc.data()?.["role"] === TripRole.Guest)
+    .map((memberDoc) => memberDoc.id);
 }
 
 export async function hardDeleteLeg(
@@ -227,16 +245,23 @@ export async function writeNotificationsForLegDeletion(
   await Promise.all(
     affectedUids.map(async (uid) => {
       const userRef = db.collection("users").doc(uid);
-      await userRef.collection("notifications").add({
+      const notificationRef = userRef.collection("notifications").doc();
+      const batch = db.batch();
+      batch.set(notificationRef, {
         createdAt: FieldValue.serverTimestamp(),
         read: false,
         title: legName,
         tripId,
-        triggerType: NotificationType.LegSoftDeleted,
-        type: NotificationType.LegSoftDeleted,
+        triggerType: NotificationType.LegRemoved,
+        type: NotificationType.LegRemoved,
         uid,
       });
-      await userRef.update({ unreadCount: FieldValue.increment(1) });
+      batch.set(
+        userRef,
+        { unreadCount: FieldValue.increment(1) },
+        { merge: true },
+      );
+      await batch.commit();
     }),
   );
 }

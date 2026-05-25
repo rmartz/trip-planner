@@ -1,5 +1,5 @@
 export enum NotificationType {
-  LegSoftDeleted = "leg_soft_deleted",
+  LegRemoved = "leg_removed",
   TripInvite = "trip_invite",
   VoteReceived = "vote_received",
 }

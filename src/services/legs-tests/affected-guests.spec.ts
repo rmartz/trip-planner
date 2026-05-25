@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { TripRole } from "@/lib/types/trip";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
 
@@ -13,13 +14,31 @@ interface MockDocSnapshot {
 describe("getAffectedGuestsForLeg", () => {
   const whereGet = vi.fn();
   const where = vi.fn(() => ({ get: whereGet }));
-  const transportationCollection = vi.fn(() => ({ where }));
-  const tripDoc = vi.fn(() => ({ collection: transportationCollection }));
+  const memberGet =
+    vi.fn<
+      (uid: string) => Promise<{ id: string; data: () => { role: TripRole } }>
+    >();
+  const memberDoc = vi.fn((uid: string) => ({
+    get: () => memberGet(uid),
+    id: uid,
+  }));
+  const tripCollection = vi.fn((name: string) => {
+    if (name === "transportation") return { where };
+    if (name === "members") return { doc: memberDoc };
+    return {};
+  });
+  const tripDoc = vi.fn(() => ({ collection: tripCollection }));
   const tripsCollection = vi.fn(() => ({ doc: tripDoc }));
   const mockDb = { collection: tripsCollection };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    memberGet.mockImplementation((uid: string) =>
+      Promise.resolve({
+        id: uid,
+        data: () => ({ role: TripRole.Guest }),
+      }),
+    );
     vi.mocked(getAdminFirestore).mockReturnValue(
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
@@ -32,7 +51,7 @@ describe("getAffectedGuestsForLeg", () => {
 
     expect(tripsCollection).toHaveBeenCalledWith("trips");
     expect(tripDoc).toHaveBeenCalledWith("trip-1");
-    expect(transportationCollection).toHaveBeenCalledWith("transportation");
+    expect(tripCollection).toHaveBeenCalledWith("transportation");
     expect(where).toHaveBeenCalledWith("legId", "==", "leg-1");
   });
 
@@ -53,9 +72,7 @@ describe("getAffectedGuestsForLeg", () => {
 
     const result = await getAffectedGuestsForLeg("trip-1", "leg-1");
 
-    expect(result).toContain("uid-alice");
-    expect(result).toContain("uid-bob");
-    expect(result).toHaveLength(2);
+    expect(result).toEqual(["uid-alice", "uid-bob"]);
   });
 
   it("deduplicates uids when same user has multiple entries", async () => {
@@ -68,5 +85,25 @@ describe("getAffectedGuestsForLeg", () => {
     const result = await getAffectedGuestsForLeg("trip-1", "leg-1");
 
     expect(result).toEqual(["uid-alice"]);
+  });
+
+  it("filters out non-guest members", async () => {
+    const docs: MockDocSnapshot[] = [
+      { id: "t-1", data: () => ({ uid: "uid-guest", legId: "leg-1" }) },
+      { id: "t-2", data: () => ({ uid: "uid-planner", legId: "leg-1" }) },
+    ];
+    whereGet.mockResolvedValue({ docs });
+    memberGet.mockImplementation((uid: string) =>
+      Promise.resolve({
+        id: uid,
+        data: () => ({
+          role: uid === "uid-guest" ? TripRole.Guest : TripRole.Planner,
+        }),
+      }),
+    );
+
+    const result = await getAffectedGuestsForLeg("trip-1", "leg-1");
+
+    expect(result).toEqual(["uid-guest"]);
   });
 });
