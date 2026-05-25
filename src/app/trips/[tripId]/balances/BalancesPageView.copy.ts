@@ -5,6 +5,7 @@ export const BALANCES_PAGE_COPY = {
   heading: "Balances",
   headingSubtext: "Net per-member balances and recommended transfers",
   loadingText: "Loading balances…",
+  markPaidLabel: "Mark paid",
   netCreditedLabel: "is owed",
   netOwedLabel: "owes",
   netSettledLabel: "is settled",
