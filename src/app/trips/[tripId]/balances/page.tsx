@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
+import { minimizeTransfers } from "@/lib/trips/settlement";
 import {
   type BalanceRow,
   BalancesPageView,
@@ -31,26 +33,28 @@ const STUB_BALANCES: BalanceRow[] = [
   },
 ];
 
-const STUB_TRANSFERS: TransferRow[] = [
-  {
-    amountCents: 6000,
-    currency: "USD",
-    fromMemberId: "member-bob",
-    fromMemberName: "Bob",
-    toMemberId: "member-alice",
-    toMemberName: "Alice",
-    transferId: "stub-transfer-1",
-  },
-  {
-    amountCents: 2500,
-    currency: "USD",
-    fromMemberId: "member-carol",
-    fromMemberName: "Carol",
-    toMemberId: "member-alice",
-    toMemberName: "Alice",
-    transferId: "stub-transfer-2",
-  },
-];
+function buildTransfers(
+  balances: BalanceRow[],
+  settledIds: Set<string>,
+): TransferRow[] {
+  const memberNameByUid = new Map(
+    balances.map((b) => [b.memberId, b.memberName]),
+  );
+  const balanceDollars = new Map(
+    balances.map((b) => [b.memberId, b.amountCents / 100]),
+  );
+  return minimizeTransfers(balanceDollars)
+    .map((t) => ({
+      amountCents: Math.round(t.amount * 100),
+      currency: "USD",
+      fromMemberId: t.fromUid,
+      fromMemberName: memberNameByUid.get(t.fromUid) ?? t.fromUid,
+      toMemberId: t.toUid,
+      toMemberName: memberNameByUid.get(t.toUid) ?? t.toUid,
+      transferId: `${t.fromUid}-${t.toUid}`,
+    }))
+    .filter((t) => !settledIds.has(t.transferId));
+}
 
 export default function BalancesPage() {
   const params = useParams<{ tripId: string }>();
@@ -58,6 +62,14 @@ export default function BalancesPage() {
   const tripId = params.tripId;
 
   const { data: trip, isLoading, isError } = useTrip(tripId);
+
+  const [settledIds, setSettledIds] = useState<Set<string>>(new Set());
+
+  const transfers = buildTransfers(STUB_BALANCES, settledIds);
+
+  function handleSettle(transferId: string) {
+    setSettledIds((prev) => new Set([...prev, transferId]));
+  }
 
   return (
     <AppShell
@@ -71,9 +83,10 @@ export default function BalancesPage() {
     >
       <BalancesPageView
         balances={STUB_BALANCES}
-        transfers={STUB_TRANSFERS}
-        isLoading={isLoading}
         isError={isError}
+        isLoading={isLoading}
+        onSettleTransfer={handleSettle}
+        transfers={transfers}
       />
     </AppShell>
   );
