@@ -94,23 +94,29 @@ export async function createInviteLink(
   tripId: string,
   mode: InviteMode,
 ): Promise<InviteLink> {
-  const token = generateToken();
   const db = getAdminFirestore();
   const ttlDays =
     mode === InviteMode.SingleUse ? SINGLE_USE_TTL_DAYS : GROUP_USE_TTL_DAYS;
   const now = new Date();
   const expiresAt = new Date(now.getTime() + ttlDays * 24 * 60 * 60 * 1000);
 
-  await db.collection("invites").doc(token).set({
-    consumedAt: null,
-    createdAt: now,
-    expiresAt,
-    mode,
-    revokedAt: null,
-    tripId,
-  });
-
-  return { createdAt: now, expiresAt, mode, token, tripId };
+  for (;;) {
+    const token = generateToken();
+    try {
+      await db.collection("invites").doc(token).create({
+        consumedAt: null,
+        createdAt: now,
+        expiresAt,
+        mode,
+        revokedAt: null,
+        tripId,
+      });
+      return { createdAt: now, expiresAt, mode, token, tripId };
+    } catch (err) {
+      if ((err as { code?: number }).code !== 6) throw err;
+      // token collision — retry with a new token
+    }
+  }
 }
 
 interface InviteFirebaseData {
