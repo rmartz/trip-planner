@@ -35,5 +35,8 @@ export interface Expense {
   payerUid: string;
   participantUids: string[];
   splitMethod: ExpenseSplitMethod;
+  participantAmounts?: Record<string, number>;
+  participantShares?: Record<string, number>;
+  confirmedParticipantUids?: string[];
   linkedEntity?: ExpenseLinkedEntity;
 }
