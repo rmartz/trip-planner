@@ -1,14 +1,21 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { X_USER_ID_HEADER } from "@/lib/constants";
-import { TripRole } from "@/lib/types/trip";
-import { ExpenseCategory, ExpenseSplitMethod } from "@/lib/types/expense";
+import {
+  ExpenseCategory,
+  ExpenseLinkedEntityType,
+  ExpenseSplitMethod,
+} from "@/lib/types/expense";
 import type { Expense } from "@/lib/types/expense";
+import { TripRole } from "@/lib/types/trip";
 
 vi.mock("@/services/expenses", () => ({
   addExpense: vi.fn(),
   getExpenseMemberRole: vi.fn(),
   getExpensesForTrip: vi.fn(),
+}));
+vi.mock("@/services/trips", () => ({
+  getTripMemberUids: vi.fn(),
 }));
 
 import {
@@ -16,7 +23,13 @@ import {
   getExpenseMemberRole,
   getExpensesForTrip,
 } from "@/services/expenses";
+import { getTripMemberUids } from "@/services/trips";
 import { GET, POST } from "./route";
+
+beforeEach(() => {
+  vi.mocked(getExpenseMemberRole).mockResolvedValue(TripRole.Guest);
+  vi.mocked(getTripMemberUids).mockResolvedValue(["uid-alice", "uid-bob"]);
+});
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -191,6 +204,76 @@ describe("POST /api/trips/[tripId]/expenses", () => {
     expect(data.error).toBe("name is required");
   });
 
+  it.each([0, -5])("returns 400 when amount is %s", async (amount) => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      amount,
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("amount must be greater than 0");
+  });
+
+  it("returns 400 when currency is not an ISO-4217 code", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      currency: "FAKE",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("currency must be a valid ISO 4217 code");
+  });
+
+  it("returns 400 when category is not supported", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      category: "unknown",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("category must be a valid expense category");
+  });
+
+  it("returns 400 when splitMethod is not supported", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      splitMethod: "unknown",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("splitMethod must be a valid expense split method");
+  });
+
+  it("returns 400 when participantUids is empty", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      participantUids: [],
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("participantUids must include at least one member");
+  });
+
   it("returns 403 when user is not a member", async () => {
     vi.mocked(getExpenseMemberRole).mockResolvedValue(null);
 
@@ -201,6 +284,54 @@ describe("POST /api/trips/[tripId]/expenses", () => {
     expect(response.status).toBe(403);
     const data = (await response.json()) as { error: string };
     expect(data.error).toBe("Forbidden");
+  });
+
+  it("returns 400 when payerUid is not a trip member", async () => {
+    vi.mocked(getTripMemberUids).mockResolvedValue(["uid-alice", "uid-bob"]);
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      payerUid: "uid-stranger",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("payerUid must be a trip member");
+  });
+
+  it("returns 400 when any participantUid is not a trip member", async () => {
+    vi.mocked(getTripMemberUids).mockResolvedValue(["uid-alice"]);
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      participantUids: ["uid-alice", "uid-bob"],
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("participantUids must all be trip members");
+  });
+
+  it("returns 400 when linkedEntity.type is invalid", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      linkedEntity: {
+        type: "unknown",
+        entityId: "stop-1",
+        label: "Main stop",
+      },
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("linkedEntity.type must be a valid linked entity type");
   });
 
   it("does not call addExpense for non-members", async () => {
@@ -242,6 +373,34 @@ describe("POST /api/trips/[tripId]/expenses", () => {
         currency: "USD",
         category: ExpenseCategory.Lodging,
         payerUid: "uid-alice",
+      }),
+    );
+  });
+
+  it("passes linkedEntity when type is supported", async () => {
+    vi.mocked(addExpense).mockResolvedValue("exp-new");
+
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      linkedEntity: {
+        type: ExpenseLinkedEntityType.Stop,
+        entityId: "stop-1",
+        label: "Main stop",
+      },
+    });
+    await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(vi.mocked(addExpense)).toHaveBeenCalledWith(
+      "uid-alice",
+      "trip-1",
+      expect.objectContaining({
+        linkedEntity: {
+          type: ExpenseLinkedEntityType.Stop,
+          entityId: "stop-1",
+          label: "Main stop",
+        },
       }),
     );
   });
