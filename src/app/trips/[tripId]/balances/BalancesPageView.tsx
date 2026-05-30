@@ -4,12 +4,24 @@ import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";
 
 const COPY = BALANCES_PAGE_COPY;
 
-export interface BalanceRow {
+interface BaseBalanceRow {
   amountCents: number;
   currency: string;
   memberId: string;
   memberName: string;
 }
+
+type AccountBalanceRow = BaseBalanceRow & {
+  nonAccount?: false;
+  proxyName?: undefined;
+};
+
+type NonAccountBalanceRow = BaseBalanceRow & {
+  nonAccount: true;
+  proxyName: string;
+};
+
+export type BalanceRow = AccountBalanceRow | NonAccountBalanceRow;
 
 export interface TransferRow {
   amountCents: number;

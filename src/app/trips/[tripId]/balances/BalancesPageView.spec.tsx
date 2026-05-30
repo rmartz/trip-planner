@@ -9,12 +9,39 @@ import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";
 
 afterEach(cleanup);
 
-function makeBalance(overrides: Partial<BalanceRow> = {}): BalanceRow {
+type AccountBalanceFixture = Omit<
+  Extract<BalanceRow, { nonAccount?: false }>,
+  "nonAccount" | "proxyName"
+>;
+
+type NonAccountBalanceFixture = Omit<
+  Extract<BalanceRow, { nonAccount: true }>,
+  "nonAccount" | "proxyName"
+>;
+
+function makeAccountBalance(
+  overrides: Partial<AccountBalanceFixture> = {},
+): BalanceRow {
   return {
     amountCents: 2500,
     currency: "USD",
     memberId: "member-alice",
     memberName: "Alice",
+    ...overrides,
+  };
+}
+
+function makeNonAccountBalance(
+  proxyName: string,
+  overrides: Partial<NonAccountBalanceFixture> = {},
+): BalanceRow {
+  return {
+    amountCents: 2500,
+    currency: "USD",
+    memberId: "member-alice",
+    memberName: "Alice",
+    nonAccount: true,
+    proxyName,
     ...overrides,
   };
 }
@@ -48,7 +75,7 @@ describe("BalancesPageView — loading state", () => {
   it("does not render the balance list when loading", () => {
     const { container } = render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[]}
         isLoading={true}
         isError={false}
@@ -106,9 +133,12 @@ describe("BalancesPageView — balance list", () => {
     const { container } = render(
       <BalancesPageView
         balances={[
-          makeBalance({ memberId: "m-1", memberName: "Alice" }),
-          makeBalance({ memberId: "m-2", memberName: "Bob" }),
-          makeBalance({ memberId: "m-3", memberName: "Carol" }),
+          makeAccountBalance({ memberId: "m-1", memberName: "Alice" }),
+          makeAccountBalance({ memberId: "m-2", memberName: "Bob" }),
+          makeNonAccountBalance("Carol", {
+            memberId: "m-3",
+            memberName: "Carol",
+          }),
         ]}
         transfers={[]}
         isLoading={false}
@@ -123,8 +153,8 @@ describe("BalancesPageView — balance list", () => {
     render(
       <BalancesPageView
         balances={[
-          makeBalance({ memberId: "m-1", memberName: "Alice" }),
-          makeBalance({ memberId: "m-2", memberName: "Bob" }),
+          makeAccountBalance({ memberId: "m-1", memberName: "Alice" }),
+          makeAccountBalance({ memberId: "m-2", memberName: "Bob" }),
         ]}
         transfers={[]}
         isLoading={false}
@@ -138,7 +168,7 @@ describe("BalancesPageView — balance list", () => {
   it("renders the 'is owed' label for positive balances", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance({ amountCents: 5000 })]}
+        balances={[makeAccountBalance({ amountCents: 5000 })]}
         transfers={[]}
         isLoading={false}
         isError={false}
@@ -150,7 +180,7 @@ describe("BalancesPageView — balance list", () => {
   it("renders the 'owes' label for negative balances", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance({ amountCents: -3000 })]}
+        balances={[makeAccountBalance({ amountCents: -3000 })]}
         transfers={[]}
         isLoading={false}
         isError={false}
@@ -162,7 +192,7 @@ describe("BalancesPageView — balance list", () => {
   it("renders the 'is settled' label for zero balances", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance({ amountCents: 0 })]}
+        balances={[makeAccountBalance({ amountCents: 0 })]}
         transfers={[]}
         isLoading={false}
         isError={false}
@@ -174,7 +204,7 @@ describe("BalancesPageView — balance list", () => {
   it("formats the absolute amount", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance({ amountCents: -4250, currency: "USD" })]}
+        balances={[makeAccountBalance({ amountCents: -4250, currency: "USD" })]}
         transfers={[]}
         isLoading={false}
         isError={false}
@@ -188,7 +218,7 @@ describe("BalancesPageView — transfers section", () => {
   it("renders one row per transfer", () => {
     const { container } = render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[
           makeTransfer({ transferId: "t-1" }),
           makeTransfer({ transferId: "t-2" }),
@@ -204,7 +234,7 @@ describe("BalancesPageView — transfers section", () => {
   it("renders both member names per transfer", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[
           makeTransfer({
             transferId: "t-1",
@@ -223,7 +253,7 @@ describe("BalancesPageView — transfers section", () => {
   it("renders the transfer amount", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[makeTransfer({ amountCents: 1500, currency: "USD" })]}
         isLoading={false}
         isError={false}
@@ -235,7 +265,7 @@ describe("BalancesPageView — transfers section", () => {
   it("renders empty message when balances are present but no transfers needed", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance({ amountCents: 0 })]}
+        balances={[makeAccountBalance({ amountCents: 0 })]}
         transfers={[]}
         isLoading={false}
         isError={false}
@@ -249,7 +279,7 @@ describe("BalancesPageView — mark transfer paid", () => {
   it("renders a Mark paid button for each transfer", () => {
     const { container } = render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[
           makeTransfer({ transferId: "t-1" }),
           makeTransfer({ transferId: "t-2" }),
@@ -268,7 +298,7 @@ describe("BalancesPageView — mark transfer paid", () => {
     const onSettle = vi.fn();
     render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[makeTransfer({ transferId: "t-99" })]}
         isLoading={false}
         isError={false}
@@ -282,7 +312,7 @@ describe("BalancesPageView — mark transfer paid", () => {
   it("renders Mark paid button label from copy", () => {
     render(
       <BalancesPageView
-        balances={[makeBalance()]}
+        balances={[makeAccountBalance()]}
         transfers={[makeTransfer()]}
         isLoading={false}
         isError={false}
