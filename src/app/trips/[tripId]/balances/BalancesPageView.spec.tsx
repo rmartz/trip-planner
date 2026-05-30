@@ -135,7 +135,7 @@ describe("BalancesPageView — balance list", () => {
         balances={[
           makeAccountBalance({ memberId: "m-1", memberName: "Alice" }),
           makeAccountBalance({ memberId: "m-2", memberName: "Bob" }),
-          makeNonAccountBalance("Carol", {
+          makeNonAccountBalance("Carol Proxy", {
             memberId: "m-3",
             memberName: "Carol",
           }),
