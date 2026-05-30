@@ -3,6 +3,8 @@ import { fn } from "storybook/test";
 import {
   ExpenseCategory,
   type ExpenseListItem,
+  type ExpensePreFillOption,
+  ExpensePreFillType,
   ExpensesListPageView,
 } from "./ExpensesListPageView";
 
@@ -52,7 +54,7 @@ const meta: Meta<typeof ExpensesListPageView> = {
         expenseId: "e-4",
         title: "Museum tickets",
         amountCents: 2500,
-        category: ExpenseCategory.Activities,
+        category: ExpenseCategory.Activity,
         payerName: "Alice",
       }),
     ],
@@ -85,5 +87,39 @@ export const Error: Story = {
   args: {
     expenses: [],
     isError: true,
+  },
+};
+
+const STUB_PREFILL_OPTIONS: ExpensePreFillOption[] = [
+  {
+    entityId: "activity-welcome-breakfast",
+    label: "Welcome breakfast",
+    participantMemberIds: ["member-alice", "member-carol"],
+    type: ExpensePreFillType.ActivityRsvp,
+  },
+  {
+    entityId: "lodging-lyon",
+    label: "Lyon Hotel",
+    participantMemberIds: ["member-alice", "member-bob"],
+    type: ExpensePreFillType.LodgingUnit,
+  },
+  {
+    entityId: "leg-paris-lyon",
+    label: "Paris → Lyon train",
+    participantMemberIds: ["member-alice", "member-bob", "member-carol"],
+    type: ExpensePreFillType.TransportLeg,
+  },
+  {
+    entityId: "stop-paris",
+    label: "Paris stop",
+    participantMemberIds: ["member-alice", "member-bob", "member-carol"],
+    type: ExpensePreFillType.StopAttendance,
+  },
+];
+
+export const WithPreFillShortcuts: Story = {
+  args: {
+    preFillOptions: STUB_PREFILL_OPTIONS,
+    onAddExpenseWithPrefill: fn(),
   },
 };

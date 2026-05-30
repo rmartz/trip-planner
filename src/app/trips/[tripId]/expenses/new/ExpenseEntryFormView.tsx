@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type {
+  ExpenseLinkedEntity,
+  ExpenseLinkedEntityType,
+} from "@/lib/types/expense";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 
 const COPY = EXPENSE_ENTRY_FORM_COPY;
@@ -25,6 +29,7 @@ export interface ExpenseEntryMemberOption {
 export interface ExpenseEntryLinkedEntityOption {
   entityId: string;
   label: string;
+  type: ExpenseLinkedEntityType;
 }
 
 export interface ExpenseEntryInput {
@@ -32,18 +37,21 @@ export interface ExpenseEntryInput {
   category: ExpenseEntryCategory;
   currency: string;
   description?: string;
-  linkedEntityId?: string;
+  linkedEntity?: ExpenseLinkedEntity;
   participantMemberIds: string[];
   payerMemberId: string;
 }
 
 export interface ExpenseEntryFormViewProps {
+  initialLinkedEntity?: Pick<ExpenseLinkedEntity, "entityId" | "type">;
+  initialParticipantIds?: string[];
   initialPayerId?: string;
   isSubmitting?: boolean;
   linkedEntityOptions: ExpenseEntryLinkedEntityOption[];
   memberOptions: ExpenseEntryMemberOption[];
   onCancel: () => void;
   onSubmit: (input: ExpenseEntryInput) => void;
+  submitError?: string;
 }
 
 const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
@@ -63,12 +71,15 @@ const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
 const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "JPY"];
 
 export function ExpenseEntryFormView({
+  initialLinkedEntity,
+  initialParticipantIds,
   initialPayerId,
   isSubmitting = false,
   linkedEntityOptions,
   memberOptions,
   onCancel,
   onSubmit,
+  submitError,
 }: ExpenseEntryFormViewProps) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
@@ -76,11 +87,31 @@ export function ExpenseEntryFormView({
     ExpenseEntryCategory.Food,
   );
   const [payerMemberId, setPayerMemberId] = useState(initialPayerId ?? "");
+  const validMemberIds = new Set(memberOptions.map((m) => m.memberId));
   const [participantIds, setParticipantIds] = useState<string[]>(
-    memberOptions.map((m) => m.memberId),
+    initialParticipantIds !== undefined
+      ? [
+          ...new Set(
+            initialParticipantIds.filter((id) => validMemberIds.has(id)),
+          ),
+        ]
+      : memberOptions.map((m) => m.memberId),
   );
   const [description, setDescription] = useState("");
-  const [linkedEntityId, setLinkedEntityId] = useState("");
+  const linkedEntityByKey = new Map(
+    linkedEntityOptions.map((option) => [
+      `${option.type}:${option.entityId}`,
+      option,
+    ]),
+  );
+  const [linkedEntityKey, setLinkedEntityKey] = useState(
+    initialLinkedEntity !== undefined &&
+      linkedEntityByKey.has(
+        `${initialLinkedEntity.type}:${initialLinkedEntity.entityId}`,
+      )
+      ? `${initialLinkedEntity.type}:${initialLinkedEntity.entityId}`
+      : "",
+  );
   const [amountError, setAmountError] = useState<string | undefined>();
   const [payerError, setPayerError] = useState<string | undefined>();
 
@@ -121,12 +152,22 @@ export function ExpenseEntryFormView({
 
     const amountCents = Math.round(Number(amount) * 100);
 
+    const selectedLinkedEntity = linkedEntityByKey.get(linkedEntityKey);
+
     onSubmit({
       amountCents,
       category,
       currency,
       ...(description.trim() !== "" ? { description: description.trim() } : {}),
-      ...(linkedEntityId !== "" ? { linkedEntityId } : {}),
+      ...(selectedLinkedEntity !== undefined
+        ? {
+            linkedEntity: {
+              entityId: selectedLinkedEntity.entityId,
+              label: selectedLinkedEntity.label,
+              type: selectedLinkedEntity.type,
+            },
+          }
+        : {}),
       participantMemberIds: participantIds,
       payerMemberId,
     });
@@ -254,15 +295,15 @@ export function ExpenseEntryFormView({
         <Label htmlFor="expense-linked-entity">{COPY.linkedEntityLabel}</Label>
         <select
           id="expense-linked-entity"
-          value={linkedEntityId}
+          value={linkedEntityKey}
           onChange={(e) => {
-            setLinkedEntityId(e.target.value);
+            setLinkedEntityKey(e.target.value);
           }}
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >
           <option value="">{COPY.linkedEntityNoneOption}</option>
-          {linkedEntityOptions.map(({ entityId, label }) => (
-            <option key={entityId} value={entityId}>
+          {linkedEntityOptions.map(({ entityId, label, type }) => (
+            <option key={`${type}:${entityId}`} value={`${type}:${entityId}`}>
               {label}
             </option>
           ))}
@@ -277,6 +318,9 @@ export function ExpenseEntryFormView({
           {COPY.cancelButton}
         </Button>
       </div>
+      {submitError !== undefined && (
+        <p className="text-sm text-destructive">{submitError}</p>
+      )}
     </form>
   );
 }
