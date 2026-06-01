@@ -1,12 +1,4 @@
-import { TimeOfDaySlot } from "@/lib/types/activity";
-
-const SLOT_LABELS: Record<TimeOfDaySlot, string> = {
-  [TimeOfDaySlot.Afternoon]: "Afternoon",
-  [TimeOfDaySlot.EarlyMorning]: "Early Morning",
-  [TimeOfDaySlot.Evening]: "Evening",
-  [TimeOfDaySlot.LateEvening]: "Late Evening",
-  [TimeOfDaySlot.Morning]: "Morning",
-};
+import { slotLabel } from "@/lib/activity-labels";
 
 export const SCHEDULE_BUILDER_COPY = {
   draftBadge: "Draft",
@@ -18,5 +10,5 @@ export const SCHEDULE_BUILDER_COPY = {
   pinnedSectionHeading: "Required (pinned)",
   proposedSectionHeading: "Proposed activities",
   publishButton: "Publish schedule",
-  slotLabel: (slot: TimeOfDaySlot) => SLOT_LABELS[slot],
+  slotLabel,
 } as const;

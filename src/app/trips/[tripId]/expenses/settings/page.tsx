@@ -1,8 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
+import { useTripMembers } from "@/hooks/use-trip-members";
+import {
+  useExpenseSettings,
+  useUpdateExpenseSettings,
+} from "@/hooks/use-expense-settings";
 import {
   ExpenseSettingsCategory,
   type ExpenseSettingsCategoryConfig,
@@ -12,43 +18,22 @@ import {
 } from "./ExpenseSettingsPageView";
 import { EXPENSE_SETTINGS_PAGE_COPY } from "./ExpenseSettingsPageView.copy";
 
-const STUB_MEMBERS: ExpenseSettingsMemberOption[] = [
-  { memberId: "member-alice", name: "Alice" },
-  { memberId: "member-bob", name: "Bob" },
-  { memberId: "member-carol", name: "Carol" },
-];
+const COPY = EXPENSE_SETTINGS_PAGE_COPY;
 
-const STUB_CATEGORIES: ExpenseSettingsCategoryConfig[] = [
-  {
-    category: ExpenseSettingsCategory.Activities,
-    categoryLabel: "Activities",
-    defaultParticipantMemberIds: ["member-alice", "member-bob", "member-carol"],
-    unitModel: ExpenseUnitModel.UsageShare,
-  },
-  {
-    category: ExpenseSettingsCategory.Food,
-    categoryLabel: "Food",
-    defaultParticipantMemberIds: ["member-alice", "member-bob", "member-carol"],
-    unitModel: ExpenseUnitModel.SharedBucket,
-  },
-  {
-    category: ExpenseSettingsCategory.Lodging,
-    categoryLabel: "Lodging",
-    defaultParticipantMemberIds: ["member-alice", "member-bob"],
-    unitModel: ExpenseUnitModel.PerUnit,
-  },
-  {
-    category: ExpenseSettingsCategory.Other,
-    categoryLabel: "Other",
-    defaultParticipantMemberIds: ["member-alice", "member-bob", "member-carol"],
-    unitModel: ExpenseUnitModel.SharedBucket,
-  },
-  {
-    category: ExpenseSettingsCategory.Transport,
-    categoryLabel: "Transport",
-    defaultParticipantMemberIds: ["member-alice"],
-    unitModel: ExpenseUnitModel.UsageShare,
-  },
+const CATEGORY_LABELS: Record<ExpenseSettingsCategory, string> = {
+  [ExpenseSettingsCategory.Activities]: COPY.categoryLabelActivities,
+  [ExpenseSettingsCategory.Food]: COPY.categoryLabelFood,
+  [ExpenseSettingsCategory.Lodging]: COPY.categoryLabelLodging,
+  [ExpenseSettingsCategory.Other]: COPY.categoryLabelOther,
+  [ExpenseSettingsCategory.Transport]: COPY.categoryLabelTransport,
+};
+
+const CATEGORY_ORDER: ExpenseSettingsCategory[] = [
+  ExpenseSettingsCategory.Activities,
+  ExpenseSettingsCategory.Food,
+  ExpenseSettingsCategory.Lodging,
+  ExpenseSettingsCategory.Other,
+  ExpenseSettingsCategory.Transport,
 ];
 
 export default function ExpenseSettingsPage() {
@@ -57,29 +42,94 @@ export default function ExpenseSettingsPage() {
   const tripId = params.tripId;
 
   const { data: trip } = useTrip(tripId);
+  const { data: members, isLoading: isMembersLoading } = useTripMembers(tripId);
+  const { data: settings, isLoading, isError } = useExpenseSettings(tripId);
+  const { mutateAsync: updateSettings, isPending: isSubmitting } =
+    useUpdateExpenseSettings(tripId);
+
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const memberOptions: ExpenseSettingsMemberOption[] =
+    members?.map((m) => ({
+      memberId: m.uid,
+      name: m.displayName ?? m.uid,
+    })) ?? [];
+
+  const allMemberIds = memberOptions.map((m) => m.memberId);
+
+  const initialCategories: ExpenseSettingsCategoryConfig[] = CATEGORY_ORDER.map(
+    (category) => {
+      const stored = settings?.[category];
+      return {
+        category,
+        categoryLabel: CATEGORY_LABELS[category],
+        unitModel: stored?.unitModel ?? ExpenseUnitModel.SharedBucket,
+        // null means "inherit all members"; [] means explicitly no participants
+        defaultParticipantMemberIds:
+          stored?.defaultParticipantMemberIds ?? allMemberIds,
+      };
+    },
+  );
+
+  const isPageLoading = isLoading || isMembersLoading;
 
   return (
     <AppShell
       header={{
         variant: "drilled",
-        title: trip?.name ?? EXPENSE_SETTINGS_PAGE_COPY.pageTitle,
+        title: trip?.name ?? COPY.pageTitle,
         onBack: () => {
           router.push(`/trips/${tripId}/expenses`);
         },
       }}
     >
-      <ExpenseSettingsPageView
-        initialCategories={STUB_CATEGORIES}
-        memberOptions={STUB_MEMBERS}
-        onSave={(categories) => {
-          // Persistence is out of scope for this scaffold (#60).
-          void categories;
-          router.push(`/trips/${tripId}/expenses`);
-        }}
-        onCancel={() => {
-          router.push(`/trips/${tripId}/expenses`);
-        }}
-      />
+      {isPageLoading && (
+        <p className="p-4 text-sm text-zinc-500">{COPY.loadingText}</p>
+      )}
+      {isError && !isPageLoading && (
+        <p className="p-4 text-sm text-red-500">{COPY.errorText}</p>
+      )}
+      {!isPageLoading && !isError && (
+        <ExpenseSettingsPageView
+          initialCategories={initialCategories}
+          isSubmitting={isSubmitting}
+          memberOptions={memberOptions}
+          onSave={(categories) => {
+            const allMemberIdSet = new Set(allMemberIds);
+            const settingsMap = Object.fromEntries(
+              categories.map((c) => {
+                const ids = c.defaultParticipantMemberIds;
+                const isAllMembers =
+                  ids.length === allMemberIdSet.size &&
+                  ids.every((id) => allMemberIdSet.has(id));
+                return [
+                  c.category,
+                  {
+                    defaultParticipantMemberIds: isAllMembers ? null : ids,
+                    unitModel: c.unitModel,
+                  },
+                ];
+              }),
+            ) as Parameters<typeof updateSettings>[0];
+            setSaveError(null);
+            updateSettings(settingsMap).then(
+              () => {
+                router.push(`/trips/${tripId}/expenses`);
+              },
+              (err: unknown) => {
+                console.error("Failed to save expense settings", err);
+                setSaveError(COPY.saveErrorText);
+              },
+            );
+          }}
+          onCancel={() => {
+            router.push(`/trips/${tripId}/expenses`);
+          }}
+        />
+      )}
+      {saveError !== null && (
+        <p className="p-4 text-sm text-red-500">{saveError}</p>
+      )}
     </AppShell>
   );
 }
