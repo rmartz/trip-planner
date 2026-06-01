@@ -9,7 +9,12 @@ vi.mock("@/services/members", () => ({
   addNonAccountMember: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  getTripMemberRole: vi.fn(),
+}));
+
 import { addNonAccountMember, getMembersForTrip } from "@/services/members";
+import { getTripMemberRole } from "@/services/trips";
 import { GET, POST } from "./route";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
@@ -80,7 +85,18 @@ describe("GET /api/trips/[tripId]/members", () => {
     expect(response.status).toBe(401);
   });
 
+  it("returns 403 when the caller is not a member of the trip", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
+
+    const request = makeGetRequest("non-member-uid");
+    const response = await GET(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+    expect(response.status).toBe(403);
+  });
+
   it("returns account members and non-account members for a trip", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     const member = makeTripMember({ role: TripRole.Planner });
     const nonAccount = makeNonAccountMember();
     vi.mocked(getMembersForTrip).mockResolvedValue({
@@ -103,6 +119,7 @@ describe("GET /api/trips/[tripId]/members", () => {
   });
 
   it("calls getMembersForTrip with the tripId from path params", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(getMembersForTrip).mockResolvedValue({
       accountMembers: [],
       nonAccountMembers: [],
