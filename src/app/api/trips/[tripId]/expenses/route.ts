@@ -73,6 +73,13 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { tripId } = await params;
+
+  const role = await getExpenseMemberRole(uid, tripId);
+  if (role === null) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -138,7 +145,9 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  if (!EXPENSE_SPLIT_METHOD_VALUES.has(body.splitMethod as ExpenseSplitMethod)) {
+  if (
+    !EXPENSE_SPLIT_METHOD_VALUES.has(body.splitMethod as ExpenseSplitMethod)
+  ) {
     return NextResponse.json(
       { error: "splitMethod must be a valid expense split method" },
       { status: 400 },
@@ -164,13 +173,6 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  const { tripId } = await params;
-
-  const role = await getExpenseMemberRole(uid, tripId);
-  if (role === null) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   const tripMemberUids = new Set(await getTripMemberUids(tripId));
   if (!tripMemberUids.has(body.payerUid)) {
     return NextResponse.json(
@@ -179,17 +181,30 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  if (!body.participantUids.every((participantUid) => tripMemberUids.has(participantUid))) {
+  if (
+    !body.participantUids.every((participantUid) =>
+      tripMemberUids.has(participantUid),
+    )
+  ) {
     return NextResponse.json(
       { error: "participantUids must all be trip members" },
       { status: 400 },
     );
   }
 
-  const linkedEntityRaw =
+  if (
     body.linkedEntity !== undefined &&
     body.linkedEntity !== null &&
-    typeof body.linkedEntity === "object"
+    typeof body.linkedEntity !== "object"
+  ) {
+    return NextResponse.json(
+      { error: "linkedEntity must be an object" },
+      { status: 400 },
+    );
+  }
+
+  const linkedEntityRaw =
+    body.linkedEntity !== undefined && body.linkedEntity !== null
       ? (body.linkedEntity as Record<string, unknown>)
       : undefined;
 
@@ -207,7 +222,9 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       typeof linkedEntityRaw["label"] !== "string"
     ) {
       return NextResponse.json(
-        { error: "linkedEntity must include type, entityId, and label strings" },
+        {
+          error: "linkedEntity must include type, entityId, and label strings",
+        },
         { status: 400 },
       );
     }

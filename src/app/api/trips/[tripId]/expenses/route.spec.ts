@@ -274,6 +274,21 @@ describe("POST /api/trips/[tripId]/expenses", () => {
     expect(data.error).toBe("participantUids must include at least one member");
   });
 
+  it("returns 400 when participantUids contains a non-string entry", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      participantUids: ["uid-alice", 123],
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("participantUids must be an array of strings");
+    expect(vi.mocked(addExpense)).not.toHaveBeenCalled();
+  });
+
   it("returns 403 when user is not a member", async () => {
     vi.mocked(getExpenseMemberRole).mockResolvedValue(null);
 
@@ -331,7 +346,44 @@ describe("POST /api/trips/[tripId]/expenses", () => {
 
     expect(response.status).toBe(400);
     const data = (await response.json()) as { error: string };
-    expect(data.error).toBe("linkedEntity.type must be a valid linked entity type");
+    expect(data.error).toBe(
+      "linkedEntity.type must be a valid linked entity type",
+    );
+  });
+
+  it("returns 400 when linkedEntity is missing a required field", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      linkedEntity: {
+        type: ExpenseLinkedEntityType.Stop,
+        entityId: "stop-1",
+      },
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe(
+      "linkedEntity must include type, entityId, and label strings",
+    );
+    expect(vi.mocked(addExpense)).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when linkedEntity is not an object", async () => {
+    const request = makePostRequest("uid-alice", {
+      ...VALID_BODY,
+      linkedEntity: "stop-1",
+    });
+    const response = await POST(request, {
+      params: Promise.resolve({ tripId: "trip-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    const data = (await response.json()) as { error: string };
+    expect(data.error).toBe("linkedEntity must be an object");
+    expect(vi.mocked(addExpense)).not.toHaveBeenCalled();
   });
 
   it("does not call addExpense for non-members", async () => {
