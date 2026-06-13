@@ -174,7 +174,11 @@ export async function getAffectedGuestsForLeg(
   );
 
   return memberDocs
-    .filter((memberDoc) => memberDoc.data()?.["role"] === TripRole.Guest)
+    .filter(
+      (memberDoc) =>
+        ((memberDoc.data()?.["role"] as TripRole | undefined) ??
+          TripRole.Guest) === TripRole.Guest,
+    )
     .map((memberDoc) => memberDoc.id);
 }
 
