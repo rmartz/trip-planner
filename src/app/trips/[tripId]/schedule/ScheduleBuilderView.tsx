@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { TimeOfDaySlot } from "@/lib/types/activity";
 import { SCHEDULE_BUILDER_COPY as COPY } from "./ScheduleBuilderView.copy";
@@ -104,6 +104,27 @@ export function ScheduleBuilderView({
   const [unpinnedOrder, setUnpinnedOrder] = useState(() =>
     [...activities.filter((a) => !a.pinned)].sort((a, b) => a.order - b.order),
   );
+
+  const unpinnedIdsRef = useRef(
+    new Set(activities.filter((a) => !a.pinned).map((a) => a.activityId)),
+  );
+
+  useEffect(() => {
+    const newIds = new Set(
+      activities.filter((a) => !a.pinned).map((a) => a.activityId),
+    );
+    const prev = unpinnedIdsRef.current;
+    const setsMatch =
+      newIds.size === prev.size && [...newIds].every((id) => prev.has(id));
+    if (!setsMatch) {
+      unpinnedIdsRef.current = newIds;
+      setUnpinnedOrder(
+        [...activities.filter((a) => !a.pinned)].sort(
+          (a, b) => a.order - b.order,
+        ),
+      );
+    }
+  }, [activities]);
 
   function moveActivity(fromIndex: number, toIndex: number) {
     if (

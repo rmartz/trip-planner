@@ -19,6 +19,7 @@ jobs:
   screenshots:
     name: Storybook screenshots
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot push to
     # gh-screenshots regardless of the permissions block above.
     if: github.event.pull_request.head.repo.full_name == github.repository
