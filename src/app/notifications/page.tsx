@@ -81,9 +81,9 @@ export default function NotificationsPage() {
           );
           if (
             notification?.type === NotificationType.LegRemoved &&
-            notification.tripId !== undefined
+            notification.tripId
           ) {
-            router.push(`/trips/${notification.tripId}/legs`);
+            router.push(`/trips/${notification.tripId}/archive`);
           }
         }}
       />

@@ -35,7 +35,7 @@ describe("notification click handler — LegRemoved with tripId navigates to leg
     expect(button).toBeDefined();
     fireEvent.click(button!);
     expect(mockPush).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/trips\/.+\/legs$/),
+      expect.stringMatching(/^\/trips\/.+\/archive$/),
     );
   });
 });
