@@ -28,7 +28,12 @@ function toLinkedEntity(value: unknown): ExpenseLinkedEntity | undefined {
 }
 
 function toNumericRecord(value: unknown): Record<string, number> | undefined {
-  if (value === null || value === undefined || typeof value !== "object") {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== "object" ||
+    Array.isArray(value)
+  ) {
     return undefined;
   }
 
@@ -70,7 +75,9 @@ export function firebaseToExpense(
       ExpenseSplitMethod.Even,
     ...(participantAmounts !== undefined ? { participantAmounts } : {}),
     ...(participantShares !== undefined ? { participantShares } : {}),
-    ...(confirmedParticipantUids.length > 0 ? { confirmedParticipantUids } : {}),
+    ...(confirmedParticipantUids.length > 0
+      ? { confirmedParticipantUids }
+      : {}),
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
   };
 }
