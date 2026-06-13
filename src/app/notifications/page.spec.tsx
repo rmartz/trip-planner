@@ -28,8 +28,8 @@ function findRowByText(text: string): HTMLElement | undefined {
     );
 }
 
-describe("notification click handler — LegRemoved with tripId navigates to legs view", () => {
-  it("calls router.push with the trip legs route when a LegRemoved notification is clicked", async () => {
+describe("notification click handler — LegRemoved with tripId navigates to archive view", () => {
+  it("calls router.push with the trip archive route when a LegRemoved notification is clicked", async () => {
     await renderPage();
     const button = findRowByText("Leg removed")?.querySelector("button");
     expect(button).toBeDefined();
