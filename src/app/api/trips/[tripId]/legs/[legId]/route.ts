@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { softDeleteLeg, updateLeg } from "@/services/legs";
+import {
+  getLegById,
+  softDeleteLeg,
+  updateLeg,
+  writeNotificationsForLegDeletion,
+} from "@/services/legs";
 import { PlannerOnlyError } from "@/services/errors";
 import { recomputeTransportGapCount } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
@@ -85,7 +90,20 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
   const { tripId, legId } = await params;
 
   try {
+    const leg = await getLegById(tripId, legId);
+    const legName =
+      leg === undefined
+        ? "A leg was removed"
+        : leg.name.trim() || "A leg was removed";
     await softDeleteLeg(uid, tripId, legId);
+    try {
+      await writeNotificationsForLegDeletion(tripId, legId, legName);
+    } catch (notificationError) {
+      console.error(
+        "Failed to write leg deletion notifications",
+        notificationError,
+      );
+    }
   } catch (error) {
     if (error instanceof PlannerOnlyError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
