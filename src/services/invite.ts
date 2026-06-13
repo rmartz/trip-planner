@@ -181,7 +181,7 @@ export async function revokeInviteLink(token: string): Promise<void> {
   try {
     await db.collection("invites").doc(token).update({ revokedAt: new Date() });
   } catch (err) {
-    if ((err as { code?: number }).code === 5) {
+    if ((err as { code?: number }).code === 5 /* gRPC NOT_FOUND */) {
       throw new Error("Invite not found", { cause: err });
     }
     throw err;
