@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { addNonAccountMember, getMembersForTrip } from "@/services/members";
 import { PlannerOnlyError } from "@/services/errors";
 import { X_USER_ID_HEADER } from "@/lib/constants";
+import { getTripMemberRole } from "@/services/trips";
 
 interface RouteContext {
   params: Promise<{ tripId: string }>;
@@ -14,6 +15,11 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { accountMembers, nonAccountMembers } = await getMembersForTrip(tripId);
 
   return NextResponse.json({
