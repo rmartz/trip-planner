@@ -3,10 +3,5 @@ dist
 .next
 .git-worktrees
 src/components/ui
-.claude
-
-# Lockfiles are auto-generated — never format or validate them
 pnpm-lock.yaml
-package-lock.json
-yarn.lock
-bun.lockb
+.claude
