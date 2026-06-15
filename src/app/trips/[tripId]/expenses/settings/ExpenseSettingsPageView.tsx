@@ -2,23 +2,15 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  ExpenseSettingsCategory,
+  ExpenseUnitModel,
+} from "@/lib/types/expense-settings";
 import { EXPENSE_SETTINGS_PAGE_COPY } from "./ExpenseSettingsPageView.copy";
 
+export { ExpenseSettingsCategory, ExpenseUnitModel };
+
 const COPY = EXPENSE_SETTINGS_PAGE_COPY;
-
-export enum ExpenseSettingsCategory {
-  Activities = "activities",
-  Food = "food",
-  Lodging = "lodging",
-  Other = "other",
-  Transport = "transport",
-}
-
-export enum ExpenseUnitModel {
-  PerUnit = "per_unit",
-  SharedBucket = "shared_bucket",
-  UsageShare = "usage_share",
-}
 
 export interface ExpenseSettingsMemberOption {
   memberId: string;

@@ -59,5 +59,5 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     return { legId: leg.legId, leg, demand, supply };
   });
 
-  return NextResponse.json({ summaries });
+  return NextResponse.json({ role, summaries });
 }
