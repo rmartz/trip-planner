@@ -168,6 +168,8 @@ describe("createInviteLink — token collision retry", () => {
     await createInviteLink("trip-1", InviteMode.GroupUse);
 
     expect(createFn).toHaveBeenCalledTimes(2);
+    const docCalls = docFn.mock.calls as unknown as [string][];
+    expect(docCalls[0]?.[0]).not.toBe(docCalls[1]?.[0]);
   });
 
   it("re-throws non-collision errors from create()", async () => {
@@ -184,9 +186,9 @@ describe("createInviteLink — token collision retry", () => {
       >,
     );
 
-    await expect(
-      createInviteLink("trip-1", InviteMode.GroupUse),
-    ).rejects.toThrow("Database unavailable");
+    await expect(createInviteLink("trip-1", InviteMode.GroupUse)).rejects.toBe(
+      dbError,
+    );
     expect(createFn).toHaveBeenCalledTimes(1);
   });
 });

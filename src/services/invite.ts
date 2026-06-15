@@ -100,7 +100,8 @@ export async function createInviteLink(
   const now = new Date();
   const expiresAt = new Date(now.getTime() + ttlDays * 24 * 60 * 60 * 1000);
 
-  for (;;) {
+  const MAX_ATTEMPTS = 5;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const token = generateToken();
     try {
       await db.collection("invites").doc(token).create({
@@ -117,6 +118,7 @@ export async function createInviteLink(
       // token collision — retry with a new token
     }
   }
+  throw new Error("Failed to create invite link: too many token collisions");
 }
 
 interface InviteFirebaseData {
