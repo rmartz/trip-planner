@@ -78,6 +78,27 @@ describe("computeNetBalances", () => {
     expect(balances.get("uid-c")).toBe(-450);
   });
 
+  it("deduplicates participant UIDs in Even split", () => {
+    const balances = computeNetBalances([
+      makeExpense({ amount: 9, participantUids: ["uid-a", "uid-b", "uid-a"] }),
+    ]);
+    expect(balances.get("uid-a")).toBe(450);
+    expect(balances.get("uid-b")).toBe(-450);
+  });
+
+  it("aggregates weights for duplicate UIDs in Riders split", () => {
+    const balances = computeNetBalances([
+      makeExpense({
+        amount: 10,
+        participantShares: { "uid-a": 1, "uid-b": 3 },
+        participantUids: ["uid-a", "uid-b", "uid-a"],
+        splitMethod: ExpenseSplitMethod.Riders,
+      }),
+    ]);
+    expect(balances.get("uid-a")).toBe(600);
+    expect(balances.get("uid-b")).toBe(-600);
+  });
+
   it("ignores expenses where a split method has no effective participants", () => {
     const balances = computeNetBalances([
       makeExpense({ participantUids: [] }),

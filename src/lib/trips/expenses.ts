@@ -25,10 +25,18 @@ function allocateProportionally(
   const result = new Map<string, number>();
   if (totalCents <= 0 || participants.length === 0) return result;
 
-  const totalWeight = participants.reduce((sum, p) => sum + p.weight, 0);
+  const weightByUid = new Map<string, number>();
+  for (const { uid, weight } of participants) {
+    weightByUid.set(uid, (weightByUid.get(uid) ?? 0) + weight);
+  }
+  const dedupedParticipants = [...weightByUid.entries()].map(
+    ([uid, weight]) => ({ uid, weight }),
+  );
+
+  const totalWeight = dedupedParticipants.reduce((sum, p) => sum + p.weight, 0);
   if (totalWeight <= 0) return result;
 
-  const allocations = participants.map((participant, index) => {
+  const allocations = dedupedParticipants.map((participant, index) => {
     const raw = (totalCents * participant.weight) / totalWeight;
     const base = Math.floor(raw);
     return { base, index, remainder: raw - base, uid: participant.uid };
@@ -80,7 +88,7 @@ function allocateEvenSplit(
 ): Map<string, number> {
   return allocateProportionally(
     toCents(expense.amount),
-    participantUids.map((uid) => ({ uid, weight: 1 })),
+    [...new Set(participantUids)].map((uid) => ({ uid, weight: 1 })),
   );
 }
 
@@ -93,16 +101,19 @@ function allocateRiders(expense: Expense): Map<string, number> {
       ? expense.participantUids
       : Object.keys(shareMap);
 
-  const weightedParticipants: WeightedParticipant[] = [];
+  const aggregated = new Map<string, number>();
   for (const uid of preferredOrder) {
     const share = shareMap[uid];
     if (typeof share !== "number" || !Number.isFinite(share) || share <= 0) {
       continue;
     }
-    weightedParticipants.push({ uid, weight: share });
+    aggregated.set(uid, (aggregated.get(uid) ?? 0) + share);
   }
 
-  return allocateProportionally(toCents(expense.amount), weightedParticipants);
+  return allocateProportionally(
+    toCents(expense.amount),
+    [...aggregated.entries()].map(([uid, weight]) => ({ uid, weight })),
+  );
 }
 
 function allocateRsvp(expense: Expense): Map<string, number> {
