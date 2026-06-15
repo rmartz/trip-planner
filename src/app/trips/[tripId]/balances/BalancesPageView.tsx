@@ -123,8 +123,7 @@ function TransferRowItem({ onSettle, transfer }: TransferRowItemProps) {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm">
-          {fromLabel} {COPY.transferConnector}{" "}
-          {transfer.toMemberName}
+          {fromLabel} {COPY.transferConnector} {transfer.toMemberName}
         </span>
         <span className="font-mono text-sm tabular-nums">
           {formatAmount(transfer.amountCents, transfer.currency)}

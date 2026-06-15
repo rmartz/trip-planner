@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   type BalanceRow,
   BalancesPageView,
@@ -316,11 +316,10 @@ describe("BalancesPageView — transfer row shows proxy member names when presen
         isError={false}
       />,
     );
-    expect(
-      screen.getByText(
-        BALANCES_PAGE_COPY.transferFromWithProxies("Marco", ["Ben", "Sam"]),
-      ),
-    ).toBeDefined();
+    const transferRow = screen.getByTestId("transfer-row");
+    expect(transferRow.textContent).toContain(
+      BALANCES_PAGE_COPY.transferFromWithProxies("Marco", ["Ben", "Sam"]),
+    );
   });
 
   it("does not render a parenthetical from-label when proxiedMemberNames is absent", () => {
