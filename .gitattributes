@@ -1,0 +1,5 @@
+# Lockfiles are auto-generated. Mark them as binary-like to suppress noisy diffs.
+pnpm-lock.yaml linguist-generated=true -diff
+package-lock.json linguist-generated=true -diff
+yarn.lock linguist-generated=true -diff
+bun.lockb linguist-generated=true -diff binary
