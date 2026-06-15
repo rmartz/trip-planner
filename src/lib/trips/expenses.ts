@@ -6,7 +6,11 @@ interface WeightedParticipant {
   weight: number;
 }
 
-function addToBalance(balances: Map<string, number>, uid: string, deltaCents: number) {
+function addToBalance(
+  balances: Map<string, number>,
+  uid: string,
+  deltaCents: number,
+) {
   balances.set(uid, (balances.get(uid) ?? 0) + deltaCents);
 }
 
@@ -70,7 +74,10 @@ function allocateCustomAmounts(expense: Expense): Map<string, number> {
   return result;
 }
 
-function allocateEvenSplit(expense: Expense, participantUids: string[]): Map<string, number> {
+function allocateEvenSplit(
+  expense: Expense,
+  participantUids: string[],
+): Map<string, number> {
   return allocateProportionally(
     toCents(expense.amount),
     participantUids.map((uid) => ({ uid, weight: 1 })),

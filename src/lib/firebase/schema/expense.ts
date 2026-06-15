@@ -70,7 +70,9 @@ export function firebaseToExpense(
       ExpenseSplitMethod.Even,
     ...(participantAmounts !== undefined ? { participantAmounts } : {}),
     ...(participantShares !== undefined ? { participantShares } : {}),
-    ...(confirmedParticipantUids.length > 0 ? { confirmedParticipantUids } : {}),
+    ...(confirmedParticipantUids.length > 0
+      ? { confirmedParticipantUids }
+      : {}),
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
   };
 }
