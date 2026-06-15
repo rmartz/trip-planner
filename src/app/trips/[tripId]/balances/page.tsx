@@ -1,13 +1,42 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useExpenses } from "@/hooks/use-expenses";
 import { useTrip } from "@/hooks/use-trip";
 import { useTripMembers } from "@/hooks/use-trip-members";
 import { computeNetBalances } from "@/lib/trips/expenses";
-import { type BalanceRow, BalancesPageView } from "./BalancesPageView";
+import { minimizeTransfers } from "@/lib/trips/settlement";
+import {
+  type BalanceRow,
+  BalancesPageView,
+  type TransferRow,
+} from "./BalancesPageView";
 import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";
+
+function buildTransfers(
+  balances: BalanceRow[],
+  settledIds: Set<string>,
+): TransferRow[] {
+  const memberNameByUid = new Map(
+    balances.map((b) => [b.memberId, b.memberName]),
+  );
+  const balanceDollars = new Map(
+    balances.map((b) => [b.memberId, b.amountCents / 100]),
+  );
+  return minimizeTransfers(balanceDollars)
+    .map((t) => ({
+      amountCents: Math.round(t.amount * 100),
+      currency: "USD",
+      fromMemberId: t.fromUid,
+      fromMemberName: memberNameByUid.get(t.fromUid) ?? t.fromUid,
+      toMemberId: t.toUid,
+      toMemberName: memberNameByUid.get(t.toUid) ?? t.toUid,
+      transferId: `${t.fromUid}-${t.toUid}`,
+    }))
+    .filter((t) => !settledIds.has(t.transferId));
+}
 
 export default function BalancesPage() {
   const params = useParams<{ tripId: string }>();
@@ -47,6 +76,14 @@ export default function BalancesPage() {
     }))
     .sort((a, b) => b.amountCents - a.amountCents);
 
+  const [settledIds, setSettledIds] = useState<Set<string>>(new Set());
+
+  const transfers = buildTransfers(balances, settledIds);
+
+  function handleSettle(transferId: string) {
+    setSettledIds((prev) => new Set([...prev, transferId]));
+  }
+
   return (
     <AppShell
       header={{
@@ -59,9 +96,10 @@ export default function BalancesPage() {
     >
       <BalancesPageView
         balances={balances}
-        transfers={[]}
-        isLoading={isLoading}
         isError={isError}
+        isLoading={isLoading}
+        onSettleTransfer={handleSettle}
+        transfers={transfers}
       />
     </AppShell>
   );

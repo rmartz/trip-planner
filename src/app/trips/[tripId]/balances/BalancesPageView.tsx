@@ -25,6 +25,7 @@ export interface BalancesPageViewProps {
   balances: BalanceRow[];
   isError: boolean;
   isLoading: boolean;
+  onSettleTransfer?: (transferId: string) => void;
   transfers: TransferRow[];
 }
 
@@ -79,22 +80,33 @@ function BalanceRowItem({ balance }: BalanceRowItemProps) {
 }
 
 interface TransferRowItemProps {
+  onSettle?: (transferId: string) => void;
   transfer: TransferRow;
 }
 
-function TransferRowItem({ transfer }: TransferRowItemProps) {
+function TransferRowItem({ onSettle, transfer }: TransferRowItemProps) {
   return (
     <li
       data-testid="transfer-row"
-      className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+      className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
     >
-      <span className="text-sm">
-        {transfer.fromMemberName} {COPY.transferConnector}{" "}
-        {transfer.toMemberName}
-      </span>
-      <span className="font-mono text-sm tabular-nums">
-        {formatAmount(transfer.amountCents, transfer.currency)}
-      </span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm">
+          {transfer.fromMemberName} {COPY.transferConnector}{" "}
+          {transfer.toMemberName}
+        </span>
+        <span className="font-mono text-sm tabular-nums">
+          {formatAmount(transfer.amountCents, transfer.currency)}
+        </span>
+      </div>
+      <button
+        className="w-full rounded border border-zinc-300 py-1 text-xs text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"
+        data-testid="mark-paid-button"
+        onClick={() => onSettle?.(transfer.transferId)}
+        type="button"
+      >
+        {COPY.markPaidLabel}
+      </button>
     </li>
   );
 }
@@ -103,6 +115,7 @@ export function BalancesPageView({
   balances,
   isError,
   isLoading,
+  onSettleTransfer,
   transfers,
 }: BalancesPageViewProps) {
   const showBalances = !isLoading && !isError && balances.length > 0;
@@ -163,7 +176,11 @@ export function BalancesPageView({
             ) : (
               <ul data-testid="transfer-list" className="flex flex-col gap-2">
                 {transfers.map((t) => (
-                  <TransferRowItem key={t.transferId} transfer={t} />
+                  <TransferRowItem
+                    key={t.transferId}
+                    onSettle={onSettleTransfer}
+                    transfer={t}
+                  />
                 ))}
               </ul>
             )}
