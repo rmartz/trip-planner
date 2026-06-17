@@ -166,6 +166,23 @@ describe("firebaseToExpense — deserializes Firestore data to Expense", () => {
     expect(expense.splitMethod).toBe(ExpenseSplitMethod.Custom);
   });
 
+  it("maps split-method participant fields when present", () => {
+    const expense = firebaseToExpense("exp-1", "trip-1", {
+      amount: 10,
+      category: ExpenseCategory.Other,
+      confirmedParticipantUids: ["uid-1"],
+      name: "x",
+      participantAmounts: { "uid-1": 6.25 },
+      participantShares: { "uid-1": 2, "uid-2": 1 },
+      participantUids: ["uid-1", "uid-2"],
+      payerUid: "uid-1",
+      splitMethod: ExpenseSplitMethod.Custom,
+    });
+    expect(expense.participantAmounts).toEqual({ "uid-1": 6.25 });
+    expect(expense.participantShares).toEqual({ "uid-1": 2, "uid-2": 1 });
+    expect(expense.confirmedParticipantUids).toEqual(["uid-1"]);
+  });
+
   it("maps optional linkedEntity when present", () => {
     const linked = makeLinkedEntity();
     const expense = firebaseToExpense("exp-1", "trip-1", {
@@ -293,6 +310,24 @@ describe("expenseToFirebase — serializes Expense to Firestore data", () => {
       splitMethod: ExpenseSplitMethod.Rsvp,
     });
     expect(data.splitMethod).toBe(ExpenseSplitMethod.Rsvp);
+  });
+
+  it("maps split-method participant fields", () => {
+    const data = expenseToFirebase({
+      amount: 10,
+      category: ExpenseCategory.Other,
+      confirmedParticipantUids: ["uid-1"],
+      currency: "USD",
+      name: "x",
+      participantAmounts: { "uid-1": 6.25 },
+      participantShares: { "uid-1": 2, "uid-2": 1 },
+      participantUids: ["uid-1", "uid-2"],
+      payerUid: "uid-1",
+      splitMethod: ExpenseSplitMethod.Custom,
+    });
+    expect(data.participantAmounts).toEqual({ "uid-1": 6.25 });
+    expect(data.participantShares).toEqual({ "uid-1": 2, "uid-2": 1 });
+    expect(data.confirmedParticipantUids).toEqual(["uid-1"]);
   });
 
   it("includes linkedEntity when provided", () => {

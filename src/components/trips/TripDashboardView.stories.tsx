@@ -33,6 +33,19 @@ const activeTrip2: Trip = {
   inviteToken: "tok-2",
 };
 
+const activeTripCombinedGaps: Trip = {
+  tripId: "trip-active-3",
+  name: "Berlin Weekend",
+  startDate: new Date("2026-11-01T12:00:00Z"),
+  endDate: new Date("2026-11-03T12:00:00Z"),
+  createdAt: new Date("2026-01-01T12:00:00Z"),
+  createdBy: "uid-a",
+  memberUids: ["uid-a", "uid-b", "uid-c"],
+  gapCount: 1,
+  transportGapCount: 2,
+  inviteToken: "tok-4",
+};
+
 const pastTrip: Trip = {
   tripId: "trip-past-1",
   name: "Paris Last Summer",
@@ -69,5 +82,12 @@ export const ActiveAndPast: Story = {
   args: {
     activeTrips: [activeTrip, activeTrip2],
     pastTrips: [pastTrip],
+  },
+};
+
+export const WithCombinedGapPill: Story = {
+  args: {
+    activeTrips: [activeTripCombinedGaps],
+    pastTrips: [],
   },
 };

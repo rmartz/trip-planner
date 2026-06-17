@@ -4,18 +4,30 @@ import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";
 
 const COPY = BALANCES_PAGE_COPY;
 
-export interface BalanceRow {
-  amountCents: number;
-  currency: string;
-  memberId: string;
-  memberName: string;
-}
+export type BalanceRow =
+  | {
+      amountCents: number;
+      currency: string;
+      memberId: string;
+      memberName: string;
+      nonAccount?: false;
+      proxyName?: never;
+    }
+  | {
+      amountCents: number;
+      currency: string;
+      memberId: string;
+      memberName: string;
+      nonAccount: true;
+      proxyName: string;
+    };
 
 export interface TransferRow {
   amountCents: number;
   currency: string;
   fromMemberId: string;
   fromMemberName: string;
+  proxiedMemberNames?: string[];
   toMemberId: string;
   toMemberName: string;
   transferId: string;
@@ -61,12 +73,22 @@ function BalanceRowItem({ balance }: BalanceRowItemProps) {
         ? "text-amber-600 dark:text-amber-400"
         : "text-zinc-500 dark:text-zinc-400";
 
+  const displayName =
+    balance.nonAccount === true ? `${balance.memberName}*` : balance.memberName;
+
   return (
     <li
       data-testid="balance-row"
       className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
     >
-      <span className="text-sm font-medium">{balance.memberName}</span>
+      <span className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium">{displayName}</span>
+        {balance.nonAccount === true && (
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            {COPY.proxyLabel(balance.proxyName)}
+          </span>
+        )}
+      </span>
       <span className={`text-sm ${colorClass}`}>
         <span className="mr-1 text-xs text-zinc-500 dark:text-zinc-400">
           {label}
@@ -85,6 +107,15 @@ interface TransferRowItemProps {
 }
 
 function TransferRowItem({ onSettle, transfer }: TransferRowItemProps) {
+  const fromLabel =
+    transfer.proxiedMemberNames !== undefined &&
+    transfer.proxiedMemberNames.length > 0
+      ? COPY.transferFromWithProxies(
+          transfer.fromMemberName,
+          transfer.proxiedMemberNames,
+        )
+      : transfer.fromMemberName;
+
   return (
     <li
       data-testid="transfer-row"
@@ -92,8 +123,7 @@ function TransferRowItem({ onSettle, transfer }: TransferRowItemProps) {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm">
-          {transfer.fromMemberName} {COPY.transferConnector}{" "}
-          {transfer.toMemberName}
+          {fromLabel} {COPY.transferConnector} {transfer.toMemberName}
         </span>
         <span className="font-mono text-sm tabular-nums">
           {formatAmount(transfer.amountCents, transfer.currency)}
