@@ -29,6 +29,7 @@ export interface NotificationListItem {
   occurredAt: Date;
   read: boolean;
   title: string;
+  tripId?: string;
   type: NotificationType;
 }
 
