@@ -19,6 +19,7 @@ export interface Trip {
   createdBy: string;
   memberUids: string[];
   gapCount?: number;
+  transportGapCount?: number;
   inviteToken: string;
   /**
    * When set, the trip has been manually marked as settled. When set, and the
