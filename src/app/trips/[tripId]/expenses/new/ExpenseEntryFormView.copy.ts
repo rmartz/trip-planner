@@ -17,6 +17,7 @@ export const EXPENSE_ENTRY_FORM_COPY = {
   linkedEntityLabel: "Linked to",
   linkedEntityNoneOption: "(none)",
   membersLoadError: "Could not load trip members. Please try again.",
+  nonAccountCaption: "* non-account members included",
   pageTitle: "Add expense",
   participantsLabel: "Participants",
   payerLabel: "Paid by",
