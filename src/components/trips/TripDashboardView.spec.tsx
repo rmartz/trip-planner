@@ -125,13 +125,45 @@ describe("Trip cards surface phase pill, date range with countdown, and avatar s
   it("renders the gap-count pill when gapCount is provided", () => {
     const trip = makeTrip({ gapCount: 2 });
     render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
-    expect(screen.getByText("2 gaps")).toBeDefined();
+    expect(
+      screen.getByText(TRIP_DASHBOARD_COPY.gapCountLabel(2)),
+    ).toBeDefined();
+  });
+
+  it("renders singular gap label when combined count is 1", () => {
+    const trip = makeTrip({ gapCount: 1 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(
+      screen.getByText(TRIP_DASHBOARD_COPY.gapCountLabel(1)),
+    ).toBeDefined();
+  });
+
+  it("renders the gap-count pill when only transportGapCount is provided", () => {
+    const trip = makeTrip({ transportGapCount: 3 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(
+      screen.getByText(TRIP_DASHBOARD_COPY.gapCountLabel(3)),
+    ).toBeDefined();
+  });
+
+  it("sums gapCount and transportGapCount for the pill label", () => {
+    const trip = makeTrip({ gapCount: 2, transportGapCount: 3 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(
+      screen.getByText(TRIP_DASHBOARD_COPY.gapCountLabel(5)),
+    ).toBeDefined();
+  });
+
+  it("does not render a gap-count pill when both gapCount and transportGapCount are 0", () => {
+    const trip = makeTrip({ gapCount: 0, transportGapCount: 0 });
+    render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
+    expect(screen.queryByText(TRIP_DASHBOARD_COPY.gapCountLabel(0))).toBeNull();
   });
 
   it("does not render a gap-count pill when gapCount is 0", () => {
     const trip = makeTrip({ gapCount: 0 });
     render(<TripDashboardView activeTrips={[trip]} pastTrips={[]} />);
-    expect(screen.queryByText("0 gaps")).toBeNull();
+    expect(screen.queryByText(TRIP_DASHBOARD_COPY.gapCountLabel(0))).toBeNull();
   });
 });
 
