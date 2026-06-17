@@ -7,7 +7,12 @@ vi.mock("@/services/legs", () => ({
   updateLeg: vi.fn(),
 }));
 
+vi.mock("@/services/trips", () => ({
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
+}));
+
 import { updateLeg } from "@/services/legs";
+import { recomputeTransportGapCount } from "@/services/trips";
 import { PATCH } from "./route";
 
 function makePatchRequest(
@@ -82,6 +87,19 @@ describe("PATCH /api/trips/[tripId]/legs/[legId]", () => {
       {
         toStopId: "stop-4",
       },
+    );
+  });
+
+  it("calls recomputeTransportGapCount with the tripId on success", async () => {
+    vi.mocked(updateLeg).mockResolvedValue(undefined);
+
+    const request = makePatchRequest("uid-1", { fromStopId: "stop-3" });
+    await PATCH(request, {
+      params: Promise.resolve({ tripId: "trip-1", legId: "leg-1" }),
+    });
+
+    expect(vi.mocked(recomputeTransportGapCount)).toHaveBeenCalledWith(
+      "trip-1",
     );
   });
 
