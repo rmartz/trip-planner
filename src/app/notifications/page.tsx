@@ -43,6 +43,7 @@ function makeStubNotifications(): NotificationListItem[] {
       occurredAt: new Date(now - 3 * 24 * 60 * 60 * 1000),
       read: true,
       title: "Leg removed",
+      tripId: "stub-trip-1",
       type: NotificationType.LegRemoved,
     },
   ];
@@ -70,11 +71,20 @@ export default function NotificationsPage() {
           setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
         }}
         onNotificationClick={(notificationId) => {
+          const notification = notifications.find(
+            (n) => n.notificationId === notificationId,
+          );
           setNotifications((prev) =>
             prev.map((n) =>
               n.notificationId === notificationId ? { ...n, read: true } : n,
             ),
           );
+          if (
+            notification?.type === NotificationType.LegRemoved &&
+            notification.tripId
+          ) {
+            router.push(`/trips/${notification.tripId}/archive`);
+          }
         }}
       />
     </AppShell>
