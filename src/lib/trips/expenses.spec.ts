@@ -1,157 +1,124 @@
 import { describe, expect, it } from "vitest";
-import { ExpenseCategory, ExpenseSplitMethod } from "@/lib/types/expense";
-import type { Expense } from "@/lib/types/expense";
-import { computeNetBalances } from "./expenses";
+import { computeNetBalances } from "@/lib/trips/expenses";
+import {
+  type Expense,
+  ExpenseCategory,
+  ExpenseSplitMethod,
+} from "@/lib/types/expense";
 
 function makeExpense(overrides: Partial<Expense> = {}): Expense {
   return {
-    expenseId: "exp-1",
-    tripId: "trip-1",
-    name: "Dinner",
-    amount: 100,
+    amount: 12,
+    category: ExpenseCategory.Other,
     currency: "USD",
-    category: ExpenseCategory.Food,
+    expenseId: "expense-1",
+    name: "Expense",
+    participantUids: ["uid-a", "uid-b", "uid-c"],
     payerUid: "uid-a",
-    participantUids: ["uid-a"],
     splitMethod: ExpenseSplitMethod.Even,
+    tripId: "trip-1",
     ...overrides,
   };
 }
 
-describe("computeNetBalances — empty expense list", () => {
-  it("returns an empty map when there are no expenses", () => {
-    const result = computeNetBalances([]);
-    expect(result.size).toBe(0);
-  });
-});
-
-describe("computeNetBalances — single expense, payer is sole participant", () => {
-  it("gives the payer zero net balance when they are the only participant", () => {
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-a"],
-      amount: 100,
-    });
-    const result = computeNetBalances([expense]);
-    expect(result.get("uid-a")).toBe(0);
-  });
-});
-
-describe("computeNetBalances — payer credits", () => {
-  it("credits the payer with the full expense amount", () => {
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-b"],
-      amount: 100,
-    });
-    const result = computeNetBalances([expense]);
-    // uid-a paid 10000 cents, owes 5000 cents → net +5000 cents
-    expect(result.get("uid-a")).toBe(5000);
+describe("computeNetBalances", () => {
+  it("applies Even split with deterministic remainder-cent distribution", () => {
+    const balances = computeNetBalances([makeExpense({ amount: 10.01 })]);
+    expect(balances.get("uid-a")).toBe(667);
+    expect(balances.get("uid-b")).toBe(-334);
+    expect(balances.get("uid-c")).toBe(-333);
   });
 
-  it("uses the exact amount stored on the expense for the credit", () => {
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-b"],
-      amount: 75,
-    });
-    const result = computeNetBalances([expense]);
-    // paid 7500 cents, owes 3750 cents → net +3750 cents
-    expect(result.get("uid-a")).toBe(3750);
-  });
-});
+  it("applies Custom split using per-participant custom amounts", () => {
+    const balances = computeNetBalances([
+      makeExpense({
+        amount: 999,
+        participantAmounts: {
+          "uid-a": 3.75,
+          "uid-b": 2.25,
+        },
+        participantUids: ["uid-a", "uid-b"],
+        splitMethod: ExpenseSplitMethod.Custom,
+      }),
+    ]);
 
-describe("computeNetBalances — even split debits", () => {
-  it("debits each participant their equal share", () => {
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-b", "uid-c"],
-      amount: 90,
-    });
-    const result = computeNetBalances([expense]);
-    // uid-b and uid-c each owe 3000 cents
-    expect(result.get("uid-b")).toBe(-3000);
-    expect(result.get("uid-c")).toBe(-3000);
+    expect(balances.get("uid-a")).toBe(225);
+    expect(balances.get("uid-b")).toBe(-225);
   });
 
-  it("computes zero net balance for payer who is sole participant", () => {
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-a"],
-      amount: 60,
-    });
-    const result = computeNetBalances([expense]);
-    expect(result.get("uid-a")).toBe(0);
-  });
-});
+  it("applies Riders split proportionally to usage shares", () => {
+    const balances = computeNetBalances([
+      makeExpense({
+        amount: 10,
+        participantShares: {
+          "uid-a": 2,
+          "uid-b": 1,
+          "uid-c": 1,
+        },
+        splitMethod: ExpenseSplitMethod.Riders,
+      }),
+    ]);
 
-describe("computeNetBalances — multiple expenses accumulate correctly", () => {
-  it("sums credits and debits across multiple expenses", () => {
-    const exp1 = makeExpense({
-      expenseId: "exp-1",
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-b"],
-      amount: 100,
-    });
-    const exp2 = makeExpense({
-      expenseId: "exp-2",
-      payerUid: "uid-b",
-      participantUids: ["uid-a", "uid-b"],
-      amount: 60,
-    });
-    const result = computeNetBalances([exp1, exp2]);
-    // uid-a: paid 10000 cents, owes 5000 (exp1) + 3000 (exp2) = 8000 → net +2000 cents
-    expect(result.get("uid-a")).toBe(2000);
-    // uid-b: paid 6000 cents, owes 5000 (exp1) + 3000 (exp2) = 8000 → net -2000 cents
-    expect(result.get("uid-b")).toBe(-2000);
+    expect(balances.get("uid-a")).toBe(500);
+    expect(balances.get("uid-b")).toBe(-250);
+    expect(balances.get("uid-c")).toBe(-250);
   });
 
-  it("includes a member in the result only for expenses they are involved in", () => {
-    const exp1 = makeExpense({
-      expenseId: "exp-1",
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-b"],
-      amount: 100,
-    });
-    const exp2 = makeExpense({
-      expenseId: "exp-2",
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-c"],
-      amount: 60,
-    });
-    const result = computeNetBalances([exp1, exp2]);
-    expect(result.has("uid-b")).toBe(true);
-    expect(result.has("uid-c")).toBe(true);
-    expect(result.get("uid-b")).toBe(-5000);
-    expect(result.get("uid-c")).toBe(-3000);
-  });
-});
+  it("applies Rsvp split to confirmed participants only", () => {
+    const balances = computeNetBalances([
+      makeExpense({
+        amount: 9,
+        confirmedParticipantUids: ["uid-a", "uid-c"],
+        splitMethod: ExpenseSplitMethod.Rsvp,
+      }),
+    ]);
 
-describe("computeNetBalances — non-participating payer", () => {
-  it("credits the payer even when they are not a participant", () => {
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-b", "uid-c"],
-      amount: 60,
-    });
-    const result = computeNetBalances([expense]);
-    // uid-a paid 6000 cents, owes nothing → net +6000 cents
-    expect(result.get("uid-a")).toBe(6000);
-    expect(result.get("uid-b")).toBe(-3000);
-    expect(result.get("uid-c")).toBe(-3000);
+    expect(balances.get("uid-a")).toBe(450);
+    expect(balances.get("uid-b")).toBeUndefined();
+    expect(balances.get("uid-c")).toBe(-450);
   });
-});
 
-describe("computeNetBalances — rounding", () => {
-  it("distributes remainder cents so that all balances sum to zero", () => {
-    // $100 split 3 ways: 10000 cents / 3 = 3333 each + 1 cent remainder.
-    const expense = makeExpense({
-      payerUid: "uid-a",
-      participantUids: ["uid-a", "uid-b", "uid-c"],
-      amount: 100,
-    });
-    const result = computeNetBalances([expense]);
-    const total = Array.from(result.values()).reduce((sum, v) => sum + v, 0);
-    expect(total).toBe(0);
+  it("deduplicates participant UIDs in Even split", () => {
+    const balances = computeNetBalances([
+      makeExpense({ amount: 9, participantUids: ["uid-a", "uid-b", "uid-a"] }),
+    ]);
+    expect(balances.get("uid-a")).toBe(450);
+    expect(balances.get("uid-b")).toBe(-450);
+  });
+
+  it("aggregates weights for duplicate UIDs in Riders split", () => {
+    const balances = computeNetBalances([
+      makeExpense({
+        amount: 10,
+        participantShares: { "uid-a": 1, "uid-b": 3 },
+        participantUids: ["uid-a", "uid-b", "uid-a"],
+        splitMethod: ExpenseSplitMethod.Riders,
+      }),
+    ]);
+    expect(balances.get("uid-a")).toBe(600);
+    expect(balances.get("uid-b")).toBe(-600);
+  });
+
+  it("ignores expenses where a split method has no effective participants", () => {
+    const balances = computeNetBalances([
+      makeExpense({ participantUids: [] }),
+      makeExpense({
+        amount: 10,
+        participantShares: { "uid-a": 0, "uid-b": 0, "uid-c": 0 },
+        splitMethod: ExpenseSplitMethod.Riders,
+      }),
+      makeExpense({
+        amount: 10,
+        confirmedParticipantUids: [],
+        splitMethod: ExpenseSplitMethod.Rsvp,
+      }),
+      makeExpense({
+        amount: 10,
+        participantAmounts: {},
+        splitMethod: ExpenseSplitMethod.Custom,
+      }),
+    ]);
+
+    expect(balances.size).toBe(0);
   });
 });

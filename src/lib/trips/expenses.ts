@@ -1,42 +1,160 @@
+import { ExpenseSplitMethod } from "@/lib/types/expense";
 import type { Expense } from "@/lib/types/expense";
 
+interface WeightedParticipant {
+  uid: string;
+  weight: number;
+}
+
+function addToBalance(
+  balances: Map<string, number>,
+  uid: string,
+  deltaCents: number,
+) {
+  balances.set(uid, (balances.get(uid) ?? 0) + deltaCents);
+}
+
+function toCents(amount: number): number {
+  return Math.round(amount * 100);
+}
+
+function allocateProportionally(
+  totalCents: number,
+  participants: WeightedParticipant[],
+): Map<string, number> {
+  const result = new Map<string, number>();
+  if (totalCents <= 0 || participants.length === 0) return result;
+
+  const weightByUid = new Map<string, number>();
+  for (const { uid, weight } of participants) {
+    weightByUid.set(uid, (weightByUid.get(uid) ?? 0) + weight);
+  }
+  const dedupedParticipants = [...weightByUid.entries()].map(
+    ([uid, weight]) => ({ uid, weight }),
+  );
+
+  const totalWeight = dedupedParticipants.reduce((sum, p) => sum + p.weight, 0);
+  if (totalWeight <= 0) return result;
+
+  const allocations = dedupedParticipants.map((participant, index) => {
+    const raw = (totalCents * participant.weight) / totalWeight;
+    const base = Math.floor(raw);
+    return { base, index, remainder: raw - base, uid: participant.uid };
+  });
+
+  let allocated = allocations.reduce((sum, item) => sum + item.base, 0);
+  allocations.sort((a, b) => {
+    if (b.remainder !== a.remainder) return b.remainder - a.remainder;
+    return a.index - b.index;
+  });
+
+  for (const item of allocations) {
+    let amount = item.base;
+    if (allocated < totalCents) {
+      amount += 1;
+      allocated += 1;
+    }
+    if (amount > 0) result.set(item.uid, amount);
+  }
+
+  return result;
+}
+
+function allocateCustomAmounts(expense: Expense): Map<string, number> {
+  const result = new Map<string, number>();
+  const amountMap = expense.participantAmounts;
+  if (amountMap === undefined) return result;
+
+  const preferredOrder =
+    expense.participantUids.length > 0
+      ? expense.participantUids
+      : Object.keys(amountMap);
+
+  for (const uid of preferredOrder) {
+    const amount = amountMap[uid];
+    if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
+      continue;
+    }
+    const cents = toCents(amount);
+    if (cents > 0) result.set(uid, cents);
+  }
+
+  return result;
+}
+
+function allocateEvenSplit(
+  expense: Expense,
+  participantUids: string[],
+): Map<string, number> {
+  return allocateProportionally(
+    toCents(expense.amount),
+    [...new Set(participantUids)].map((uid) => ({ uid, weight: 1 })),
+  );
+}
+
+function allocateRiders(expense: Expense): Map<string, number> {
+  const shareMap = expense.participantShares;
+  if (shareMap === undefined) return new Map();
+
+  const preferredOrder =
+    expense.participantUids.length > 0
+      ? expense.participantUids
+      : Object.keys(shareMap);
+
+  const aggregated = new Map<string, number>();
+  for (const uid of preferredOrder) {
+    const share = shareMap[uid];
+    if (typeof share !== "number" || !Number.isFinite(share) || share <= 0) {
+      continue;
+    }
+    aggregated.set(uid, (aggregated.get(uid) ?? 0) + share);
+  }
+
+  return allocateProportionally(
+    toCents(expense.amount),
+    [...aggregated.entries()].map(([uid, weight]) => ({ uid, weight })),
+  );
+}
+
+function allocateRsvp(expense: Expense): Map<string, number> {
+  const confirmed = new Set(expense.confirmedParticipantUids ?? []);
+  const confirmedParticipants = expense.participantUids.filter((uid) =>
+    confirmed.has(uid),
+  );
+  return allocateEvenSplit(expense, confirmedParticipants);
+}
+
+function computeExpenseDebits(expense: Expense): Map<string, number> {
+  if (expense.splitMethod === ExpenseSplitMethod.Custom) {
+    return allocateCustomAmounts(expense);
+  }
+  if (expense.splitMethod === ExpenseSplitMethod.Riders) {
+    return allocateRiders(expense);
+  }
+  if (expense.splitMethod === ExpenseSplitMethod.Rsvp) {
+    return allocateRsvp(expense);
+  }
+  return allocateEvenSplit(expense, expense.participantUids);
+}
+
 /**
- * Computes per-user net balance across a list of expenses.
- *
- * For each expense, the payer is credited the full amount and each participant
- * is debited their equal share (even split). Any indivisible remainder cents are
- * distributed deterministically to the first participants in each expense's list.
- * Returns a Map from member UID to net balance in integer cents (positive = owed
- * to this member by others; negative = this member owes others).
+ * Computes net balances in cents from expenses.
+ * Positive = member is owed money, negative = member owes money.
  */
 export function computeNetBalances(expenses: Expense[]): Map<string, number> {
   const balances = new Map<string, number>();
 
-  function add(uid: string, delta: number) {
-    balances.set(uid, (balances.get(uid) ?? 0) + delta);
-  }
-
   for (const expense of expenses) {
-    const { amount, payerUid, participantUids } = expense;
+    const debits = computeExpenseDebits(expense);
+    const totalDebitCents = [...debits.values()].reduce(
+      (sum, cents) => sum + cents,
+      0,
+    );
+    if (totalDebitCents <= 0) continue;
 
-    // Work in integer cents to avoid floating-point drift.
-    const amountCents = Math.round(amount * 100);
-
-    // Credit the payer for the full amount they paid.
-    add(payerUid, amountCents);
-
-    // Debit each participant their equal share.
-    if (participantUids.length > 0) {
-      const n = participantUids.length;
-      const baseShare = Math.floor(amountCents / n);
-      const remainder = amountCents - baseShare * n;
-
-      // Distribute any remainder cents deterministically to the first
-      // `remainder` participants so that total debits equal total credits.
-      for (const [i, uid] of participantUids.entries()) {
-        const share = i < remainder ? baseShare + 1 : baseShare;
-        add(uid, -share);
-      }
+    addToBalance(balances, expense.payerUid, totalDebitCents);
+    for (const [uid, debitCents] of debits) {
+      addToBalance(balances, uid, -debitCents);
     }
   }
 
