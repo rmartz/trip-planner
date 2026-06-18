@@ -2,7 +2,14 @@ import { describe, expect, it } from "vitest";
 import { buildTransfers } from "./buildTransfers";
 import type { BalanceRow } from "./BalancesPageView";
 
-function makeBalance(overrides: Partial<BalanceRow> = {}): BalanceRow {
+function makeBalance(
+  overrides: {
+    amountCents?: number;
+    currency?: string;
+    memberId?: string;
+    memberName?: string;
+  } = {},
+): BalanceRow {
   return {
     amountCents: 5000,
     currency: "USD",
