@@ -17,6 +17,11 @@ function toMemberUids(value: unknown): string[] {
 
 export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
   const settledAtRaw = data["settledAt"] as Timestamp | null | undefined;
+  const gapCountRaw = data["gapCount"] as number | null | undefined;
+  const transportGapCountRaw = data["transportGapCount"] as
+    | number
+    | null
+    | undefined;
   return {
     tripId,
     name: (data["name"] as string | undefined) ?? "",
@@ -26,6 +31,10 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
     createdBy: (data["createdBy"] as string | undefined) ?? "",
     memberUids: toMemberUids(data["memberUids"]),
     inviteToken: (data["inviteToken"] as string | undefined) ?? "",
+    ...(typeof gapCountRaw === "number" && { gapCount: gapCountRaw }),
+    ...(typeof transportGapCountRaw === "number" && {
+      transportGapCount: transportGapCountRaw,
+    }),
     ...(settledAtRaw != null && { settledAt: settledAtRaw.toDate() }),
   };
 }
@@ -38,6 +47,8 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
   createdBy: string;
   memberUids: string[];
   inviteToken: string;
+  gapCount?: number;
+  transportGapCount?: number;
   settledAt?: Timestamp;
 } {
   return {
@@ -48,6 +59,10 @@ export function tripToFirebase(trip: Omit<Trip, "tripId">): {
     createdBy: trip.createdBy,
     memberUids: trip.memberUids,
     inviteToken: trip.inviteToken,
+    ...(trip.gapCount !== undefined && { gapCount: trip.gapCount }),
+    ...(trip.transportGapCount !== undefined && {
+      transportGapCount: trip.transportGapCount,
+    }),
     ...(trip.settledAt !== undefined && {
       settledAt: Timestamp.fromDate(trip.settledAt),
     }),
