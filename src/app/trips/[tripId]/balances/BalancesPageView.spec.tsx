@@ -275,6 +275,99 @@ describe("BalancesPageView — transfers section", () => {
   });
 });
 
+describe("BalancesPageView — non-account member balance row shows * suffix and proxy attribution", () => {
+  it("renders the member name with * suffix for a non-account balance row", () => {
+    render(
+      <BalancesPageView
+        balances={[
+          makeNonAccountBalance("Marco", {
+            memberId: "m-sam",
+            memberName: "Sam",
+          }),
+        ]}
+        transfers={[]}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    expect(screen.getByText("Sam*")).toBeDefined();
+  });
+
+  it("renders proxy attribution for a non-account balance row", () => {
+    render(
+      <BalancesPageView
+        balances={[
+          makeNonAccountBalance("Marco", {
+            memberId: "m-sam",
+            memberName: "Sam",
+          }),
+        ]}
+        transfers={[]}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    expect(
+      screen.getByText(BALANCES_PAGE_COPY.proxyLabel("Marco")),
+    ).toBeDefined();
+  });
+
+  it("does not render proxy attribution for a regular member balance row", () => {
+    render(
+      <BalancesPageView
+        balances={[
+          makeAccountBalance({ memberId: "m-alice", memberName: "Alice" }),
+        ]}
+        transfers={[]}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    expect(
+      screen.queryByText(BALANCES_PAGE_COPY.proxyLabel("Alice")),
+    ).toBeNull();
+  });
+});
+
+describe("BalancesPageView — transfer row shows proxy member names when present", () => {
+  it("shows proxied member names in the from-member label of a transfer row", () => {
+    render(
+      <BalancesPageView
+        balances={[makeAccountBalance()]}
+        transfers={[
+          makeTransfer({
+            fromMemberName: "Marco",
+            proxiedMemberNames: ["Ben", "Sam"],
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    const transferRow = screen.getByTestId("transfer-row");
+    expect(transferRow.textContent).toContain(
+      BALANCES_PAGE_COPY.transferFromWithProxies("Marco", ["Ben", "Sam"]),
+    );
+  });
+
+  it("does not render a parenthetical from-label when proxiedMemberNames is absent", () => {
+    render(
+      <BalancesPageView
+        balances={[makeAccountBalance()]}
+        transfers={[
+          makeTransfer({
+            fromMemberName: "Zara",
+            toMemberName: "Alice",
+          }),
+        ]}
+        isLoading={false}
+        isError={false}
+      />,
+    );
+    expect(screen.queryByText(/Zara \(/)).toBeNull();
+  });
+});
+
 describe("BalancesPageView — mark transfer paid", () => {
   it("renders a Mark paid button for each transfer", () => {
     const { container } = render(
