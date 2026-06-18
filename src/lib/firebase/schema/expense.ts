@@ -27,12 +27,38 @@ function toLinkedEntity(value: unknown): ExpenseLinkedEntity | undefined {
   return { type, entityId, label };
 }
 
+function toNumericRecord(value: unknown): Record<string, number> | undefined {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== "object" ||
+    Array.isArray(value)
+  ) {
+    return undefined;
+  }
+
+  const record: Record<string, number> = {};
+  for (const [key, recordValue] of Object.entries(
+    value as Record<string, unknown>,
+  )) {
+    if (typeof recordValue === "number" && Number.isFinite(recordValue)) {
+      record[key] = recordValue;
+    }
+  }
+  return Object.keys(record).length > 0 ? record : undefined;
+}
+
 export function firebaseToExpense(
   expenseId: string,
   tripId: string,
   data: DocumentData,
 ): Expense {
   const linkedEntity = toLinkedEntity(data["linkedEntity"]);
+  const participantAmounts = toNumericRecord(data["participantAmounts"]);
+  const participantShares = toNumericRecord(data["participantShares"]);
+  const confirmedParticipantUids = toParticipantUids(
+    data["confirmedParticipantUids"],
+  );
   return {
     expenseId,
     tripId,
@@ -47,6 +73,11 @@ export function firebaseToExpense(
     splitMethod:
       (data["splitMethod"] as ExpenseSplitMethod | undefined) ??
       ExpenseSplitMethod.Even,
+    ...(participantAmounts !== undefined ? { participantAmounts } : {}),
+    ...(participantShares !== undefined ? { participantShares } : {}),
+    ...(confirmedParticipantUids.length > 0
+      ? { confirmedParticipantUids }
+      : {}),
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
   };
 }
@@ -61,6 +92,9 @@ export function expenseToFirebase(
   payerUid: string;
   participantUids: string[];
   splitMethod: ExpenseSplitMethod;
+  participantAmounts?: Record<string, number>;
+  participantShares?: Record<string, number>;
+  confirmedParticipantUids?: string[];
   linkedEntity?: ExpenseLinkedEntity;
 } {
   return {
@@ -71,6 +105,15 @@ export function expenseToFirebase(
     payerUid: expense.payerUid,
     participantUids: expense.participantUids,
     splitMethod: expense.splitMethod,
+    ...(expense.participantAmounts !== undefined
+      ? { participantAmounts: expense.participantAmounts }
+      : {}),
+    ...(expense.participantShares !== undefined
+      ? { participantShares: expense.participantShares }
+      : {}),
+    ...(expense.confirmedParticipantUids !== undefined
+      ? { confirmedParticipantUids: expense.confirmedParticipantUids }
+      : {}),
     ...(expense.linkedEntity !== undefined
       ? { linkedEntity: expense.linkedEntity }
       : {}),
