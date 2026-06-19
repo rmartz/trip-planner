@@ -1,3 +1,9 @@
+# In a linked worktree (.git is a file), delegate to the agent hook.
+# The agent hook skips lint-staged: PostToolUse formatters handle formatting on every edit.
+if [ -f ".git" ]; then
+  exec ./claude/hooks/pre-commit
+fi
+
 pnpm exec lint-staged
 pnpm run secrets-check
 ./scripts/check-file-length.sh --staged

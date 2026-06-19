@@ -1,0 +1,6 @@
+#!/bin/sh
+# Agent pre-commit hook — runs in linked worktrees (where .git is a file).
+# Skips lint-staged: the PostToolUse formatter hook handles formatting on every edit.
+set -e
+pnpm run secrets-check
+./scripts/check-file-length.sh --staged
