@@ -4,22 +4,6 @@ import {
   firebaseToExpense,
 } from "@/lib/firebase/schema/expense";
 import type { Expense } from "@/lib/types/expense";
-import { TripRole } from "@/lib/types/trip";
-
-export async function getExpenseMemberRole(
-  uid: string,
-  tripId: string,
-): Promise<TripRole | null> {
-  const db = getAdminFirestore();
-  const memberDoc = await db
-    .collection("trips")
-    .doc(tripId)
-    .collection("members")
-    .doc(uid)
-    .get();
-  if (!memberDoc.exists) return null;
-  return (memberDoc.data()?.["role"] as TripRole | undefined) ?? TripRole.Guest;
-}
 
 export async function getExpensesForTrip(tripId: string): Promise<Expense[]> {
   const db = getAdminFirestore();
