@@ -34,6 +34,7 @@ timestamp: 2026-06-18
 | `type`   | Meaning                                                                      |
 | -------- | ---------------------------------------------------------------------------- |
 | `Index`  | A directory listing (this page).                                             |
+| `Log`    | A dated change-history file (per OKF's reserved `log.md` convention).        |
 | `Script` | An executable helper in `scripts/`.                                          |
 | `System` | A cross-cutting subsystem spanning several files (a pipeline, a data layer). |
 
