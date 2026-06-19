@@ -7,15 +7,15 @@ import type { Expense } from "@/lib/types/expense";
 
 vi.mock("@/services/expenses", () => ({
   addExpense: vi.fn(),
-  getExpenseMemberRole: vi.fn(),
   getExpensesForTrip: vi.fn(),
 }));
 
-import {
-  addExpense,
-  getExpenseMemberRole,
-  getExpensesForTrip,
-} from "@/services/expenses";
+vi.mock("@/services/trips", () => ({
+  getTripMemberRole: vi.fn(),
+}));
+
+import { addExpense, getExpensesForTrip } from "@/services/expenses";
+import { getTripMemberRole } from "@/services/trips";
 import { GET, POST } from "./route";
 
 afterEach(() => {
@@ -88,7 +88,7 @@ describe("GET /api/trips/[tripId]/expenses", () => {
   });
 
   it("returns 403 when user is not a member", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
 
     const request = makeGetRequest("uid-stranger");
     const response = await GET(request, {
@@ -100,7 +100,7 @@ describe("GET /api/trips/[tripId]/expenses", () => {
   });
 
   it("does not fetch expenses for non-members", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
 
     const request = makeGetRequest("uid-stranger");
     await GET(request, { params: Promise.resolve({ tripId: "trip-1" }) });
@@ -109,7 +109,7 @@ describe("GET /api/trips/[tripId]/expenses", () => {
   });
 
   it("returns expenses for a trip member", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(getExpensesForTrip).mockResolvedValue([makeExpense()]);
 
     const request = makeGetRequest("uid-alice");
@@ -127,16 +127,16 @@ describe("GET /api/trips/[tripId]/expenses", () => {
     expect(data.expenses[0]!["currency"]).toBe("USD");
   });
 
-  it("calls getExpenseMemberRole with uid and tripId", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(TripRole.Guest);
+  it("calls getTripMemberRole with tripId and uid", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(getExpensesForTrip).mockResolvedValue([]);
 
     const request = makeGetRequest("uid-alice", "trip-abc");
     await GET(request, { params: Promise.resolve({ tripId: "trip-abc" }) });
 
-    expect(vi.mocked(getExpenseMemberRole)).toHaveBeenCalledWith(
-      "uid-alice",
+    expect(vi.mocked(getTripMemberRole)).toHaveBeenCalledWith(
       "trip-abc",
+      "uid-alice",
     );
   });
 });
@@ -192,7 +192,7 @@ describe("POST /api/trips/[tripId]/expenses", () => {
   });
 
   it("returns 403 when user is not a member", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
 
     const request = makePostRequest("uid-stranger", VALID_BODY);
     const response = await POST(request, {
@@ -204,7 +204,7 @@ describe("POST /api/trips/[tripId]/expenses", () => {
   });
 
   it("does not call addExpense for non-members", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(null);
+    vi.mocked(getTripMemberRole).mockResolvedValue(undefined);
 
     const request = makePostRequest("uid-stranger", VALID_BODY);
     await POST(request, { params: Promise.resolve({ tripId: "trip-1" }) });
@@ -213,7 +213,7 @@ describe("POST /api/trips/[tripId]/expenses", () => {
   });
 
   it("returns expenseId on success", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(TripRole.Guest);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Guest);
     vi.mocked(addExpense).mockResolvedValue("exp-new");
 
     const request = makePostRequest("uid-alice", VALID_BODY);
@@ -227,7 +227,7 @@ describe("POST /api/trips/[tripId]/expenses", () => {
   });
 
   it("calls addExpense with uid, tripId, and expense fields", async () => {
-    vi.mocked(getExpenseMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
     vi.mocked(addExpense).mockResolvedValue("exp-new");
 
     const request = makePostRequest("uid-alice", VALID_BODY, "trip-abc");
