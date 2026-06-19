@@ -4,6 +4,7 @@ if [ -f ".git" ]; then
   exec ./claude/hooks/pre-commit
 fi
 
+./scripts/check-conflict-markers.sh --staged
 pnpm exec lint-staged
 pnpm run secrets-check
 ./scripts/check-file-length.sh --staged
