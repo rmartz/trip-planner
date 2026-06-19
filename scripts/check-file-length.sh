@@ -45,7 +45,11 @@ while IFS= read -r file; do
   lines=$(wc -l < "$file")
 
   if [ "$lines" -ge "$limit" ]; then
-    echo "ERROR: $file — $lines lines ($kind limit: $limit)"
+    if [ "${GITHUB_ACTIONS}" = "true" ]; then
+      echo "::error file=$file,title=File too long::$file — $lines lines ($kind limit: $limit)"
+    else
+      echo "ERROR: $file — $lines lines ($kind limit: $limit)"
+    fi
     failed=1
   fi
 done <<< "$file_list"
