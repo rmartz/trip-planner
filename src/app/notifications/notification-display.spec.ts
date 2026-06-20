@@ -57,6 +57,13 @@ describe("notificationToListItem — maps domain type to a view display category
     expect(item.type).toBe(ViewNotificationType.TransportOffer);
   });
 
+  it("maps SchedulePublished to the ActivityScheduled display category", () => {
+    const item = notificationToListItem(
+      makeNotification({ type: NotificationType.SchedulePublished }),
+    );
+    expect(item.type).toBe(ViewNotificationType.ActivityScheduled);
+  });
+
   it("carries the createdAt timestamp through as occurredAt", () => {
     const createdAt = new Date("2026-05-11T10:00:00Z");
     const item = notificationToListItem(makeNotification({ createdAt }));
@@ -97,6 +104,16 @@ describe("notificationLinkPath — resolves the linked in-app route", () => {
       }),
     );
     expect(path).toBe("/trips/trip-7/transport");
+  });
+
+  it("links a SchedulePublished notification to the trip schedule view", () => {
+    const path = notificationLinkPath(
+      makeNotification({
+        type: NotificationType.SchedulePublished,
+        tripId: "trip-7",
+      }),
+    );
+    expect(path).toBe("/trips/trip-7/schedule");
   });
 
   it("returns undefined when the notification has no tripId", () => {
