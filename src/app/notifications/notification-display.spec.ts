@@ -43,6 +43,20 @@ describe("notificationToListItem — maps domain type to a view display category
     expect(item.type).toBe(ViewNotificationType.ActivityScheduled);
   });
 
+  it("maps LodgingOffer to the LodgingOffer display category", () => {
+    const item = notificationToListItem(
+      makeNotification({ type: NotificationType.LodgingOffer }),
+    );
+    expect(item.type).toBe(ViewNotificationType.LodgingOffer);
+  });
+
+  it("maps TransportOffer to the TransportOffer display category", () => {
+    const item = notificationToListItem(
+      makeNotification({ type: NotificationType.TransportOffer }),
+    );
+    expect(item.type).toBe(ViewNotificationType.TransportOffer);
+  });
+
   it("carries the createdAt timestamp through as occurredAt", () => {
     const createdAt = new Date("2026-05-11T10:00:00Z");
     const item = notificationToListItem(makeNotification({ createdAt }));
@@ -63,6 +77,26 @@ describe("notificationLinkPath — resolves the linked in-app route", () => {
       makeNotification({ type: NotificationType.TripInvite, tripId: "trip-3" }),
     );
     expect(path).toBe("/trips/trip-3");
+  });
+
+  it("links a LodgingOffer notification to the trip lodging view", () => {
+    const path = notificationLinkPath(
+      makeNotification({
+        type: NotificationType.LodgingOffer,
+        tripId: "trip-7",
+      }),
+    );
+    expect(path).toBe("/trips/trip-7/lodging");
+  });
+
+  it("links a TransportOffer notification to the trip transport view", () => {
+    const path = notificationLinkPath(
+      makeNotification({
+        type: NotificationType.TransportOffer,
+        tripId: "trip-7",
+      }),
+    );
+    expect(path).toBe("/trips/trip-7/transport");
   });
 
   it("returns undefined when the notification has no tripId", () => {

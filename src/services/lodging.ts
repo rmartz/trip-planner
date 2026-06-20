@@ -6,6 +6,7 @@ import type { LodgingRecord } from "@/lib/types/lodging";
 import { TripRole } from "@/lib/types/trip";
 import { NotFoundError, PlannerOnlyError } from "./errors";
 import { getLegMemberRole } from "./legs";
+import { writeNotificationsForLodgingOffer } from "./notify-offer";
 
 export interface LodgingInviteeCandidates {
   candidateUids: string[];
@@ -121,7 +122,8 @@ export async function setLodgingInvitees(
 ): Promise<void> {
   const tripRef = await getTripRefForMember(hostUid, tripId);
   const stopRef = tripRef.collection("stops").doc(stopId);
-  await getInviteableHostData(hostUid, stopRef);
+  const hostData = await getInviteableHostData(hostUid, stopRef);
+  const previousInvitedUids = new Set(getInvitedUidsFromHostData(hostData));
 
   const uniqueInvitedUidSet = new Set(invitedUids);
   const uniqueInvitedUids = Array.from(uniqueInvitedUidSet);
@@ -145,6 +147,23 @@ export async function setLodgingInvitees(
     invitedUids: uniqueInvitedUids,
     updatedAt: FieldValue.serverTimestamp(),
   });
+
+  const newlyInvitedUids = uniqueInvitedUids.filter(
+    (inviteeUid) => !previousInvitedUids.has(inviteeUid),
+  );
+  if (newlyInvitedUids.length > 0) {
+    const stopSnap = await stopRef.get();
+    const stopName = (stopSnap.data()?.["name"] as string | undefined) ?? "";
+    try {
+      await writeNotificationsForLodgingOffer(
+        tripId,
+        stopName,
+        newlyInvitedUids,
+      );
+    } catch {
+      // A notification failure must never break the invitee update itself.
+    }
+  }
 }
 
 async function getTripRefForMember(uid: string, tripId: string) {
@@ -208,9 +227,8 @@ async function getInviteableHostData(
   return hostData;
 }
 
-function getFilteredInvitedUids(
+function getInvitedUidsFromHostData(
   hostData: Record<string, unknown>,
-  candidateUids: Set<string>,
 ): string[] {
   const invitedUids = hostData["invitedUids"];
 
@@ -223,5 +241,14 @@ function getFilteredInvitedUids(
     return [];
   }
 
-  return invitedUids.filter((inviteeUid) => candidateUids.has(inviteeUid));
+  return invitedUids;
+}
+
+function getFilteredInvitedUids(
+  hostData: Record<string, unknown>,
+  candidateUids: Set<string>,
+): string[] {
+  return getInvitedUidsFromHostData(hostData).filter((inviteeUid) =>
+    candidateUids.has(inviteeUid),
+  );
 }

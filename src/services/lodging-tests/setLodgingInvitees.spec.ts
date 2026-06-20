@@ -50,6 +50,7 @@ describe("setLodgingInvitees", () => {
 
         return undefined;
       },
+      get: vi.fn().mockResolvedValue({ data: () => ({ name: "Reykjavik" }) }),
     });
     lodgingDoc.mockReturnValue({
       get: hostGet,
