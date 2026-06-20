@@ -1,5 +1,7 @@
 export enum NotificationType {
   LegRemoved = "leg_removed",
+  LodgingOffer = "lodging_offer",
+  TransportOffer = "transport_offer",
   TripInvite = "trip_invite",
   VoteReceived = "vote_received",
 }

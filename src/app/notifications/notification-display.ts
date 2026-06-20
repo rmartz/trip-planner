@@ -16,6 +16,8 @@ const DOMAIN_TO_VIEW_TYPE: Record<
   ViewNotificationType
 > = {
   [DomainNotificationType.LegRemoved]: ViewNotificationType.LegRemoved,
+  [DomainNotificationType.LodgingOffer]: ViewNotificationType.LodgingOffer,
+  [DomainNotificationType.TransportOffer]: ViewNotificationType.TransportOffer,
   [DomainNotificationType.TripInvite]: ViewNotificationType.TripInvitation,
   [DomainNotificationType.VoteReceived]: ViewNotificationType.ActivityScheduled,
 };
@@ -45,6 +47,10 @@ export function notificationLinkPath(
   switch (notification.type) {
     case DomainNotificationType.LegRemoved:
       return `/trips/${notification.tripId}/archive`;
+    case DomainNotificationType.LodgingOffer:
+      return `/trips/${notification.tripId}/lodging`;
+    case DomainNotificationType.TransportOffer:
+      return `/trips/${notification.tripId}/transport`;
     case DomainNotificationType.TripInvite:
     case DomainNotificationType.VoteReceived:
       return `/trips/${notification.tripId}`;
