@@ -1,9 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import {
-  addExpense,
-  getExpenseMemberRole,
-  getExpensesForTrip,
-} from "@/services/expenses";
+import { addExpense, getExpensesForTrip } from "@/services/expenses";
+import { getTripMemberRole } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import {
   ExpenseCategory,
@@ -22,8 +19,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
-  const role = await getExpenseMemberRole(uid, tripId);
-  if (role === null) {
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -88,8 +85,8 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
   const { tripId } = await params;
 
-  const role = await getExpenseMemberRole(uid, tripId);
-  if (role === null) {
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

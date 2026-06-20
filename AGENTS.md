@@ -82,6 +82,14 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
 ## Documentation
 
 - Keep documentation in sync with the code — outdated docs are worse than no docs.
+- Reference docs live in `docs/`, structured per Google's Open Knowledge Format
+  (OKF): one concept per markdown file with YAML frontmatter, cross-linked and
+  indexed by [`docs/README.md`](docs/README.md). Read the index before a task to
+  retrieve relevant context (scripts, subsystems).
+- When you add a `docs/` page, give it OKF frontmatter (`type` is required;
+  `title`, `description`, `resource`, `tags` recommended), use a `type` from the
+  vocabulary table in `docs/README.md`, link it from the index, and add a dated
+  entry to `docs/log.md`.
 
 ## React / Next.js Standards
 
