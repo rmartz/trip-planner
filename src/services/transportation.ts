@@ -1,3 +1,4 @@
+import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTransportationEntry } from "@/lib/firebase/schema/transportation";
 import {
@@ -7,6 +8,9 @@ import {
   type TransportLegDemand,
   TransportOfferVisibility,
 } from "@/lib/types/transportation";
+import { NotFoundError } from "./errors";
+import { getLegById } from "./legs";
+import { writeNotificationsForTransportOffer } from "./notify-offer";
 
 export async function getTransportationEntriesForTrip(
   tripId: string,
@@ -89,4 +93,138 @@ export function computeLegSummary(
     });
 
   return { demand, supply };
+}
+
+export interface SeatOfferCandidates {
+  candidateUids: string[];
+  offeredToUids: string[];
+}
+
+export async function getSeatOfferCandidates(
+  driverUid: string,
+  tripId: string,
+  legId: string,
+): Promise<SeatOfferCandidates> {
+  const { data } = await getSeatOfferingEntry(driverUid, tripId, legId);
+  const candidateUids = await getEligibleOffereeUids(driverUid, tripId, legId);
+
+  return {
+    candidateUids: Array.from(candidateUids),
+    offeredToUids: getOfferedUidsFromEntry(data).filter((uid) =>
+      candidateUids.has(uid),
+    ),
+  };
+}
+
+export async function setSeatOffer(
+  driverUid: string,
+  tripId: string,
+  legId: string,
+  offeredToUids: string[],
+): Promise<void> {
+  const { ref, data } = await getSeatOfferingEntry(driverUid, tripId, legId);
+  const previousOfferedUids = new Set(getOfferedUidsFromEntry(data));
+
+  const uniqueOfferedUids = Array.from(new Set(offeredToUids));
+  const eligibleOffereeUids = await getEligibleOffereeUids(
+    driverUid,
+    tripId,
+    legId,
+  );
+
+  if (!uniqueOfferedUids.every((uid) => eligibleOffereeUids.has(uid))) {
+    throw new Error(
+      "All offered guests must be trip members who need transportation for this leg.",
+    );
+  }
+
+  await ref.update({
+    offeredToUids: uniqueOfferedUids,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  const newlyOfferedUids = uniqueOfferedUids.filter(
+    (uid) => !previousOfferedUids.has(uid),
+  );
+  if (newlyOfferedUids.length > 0) {
+    const leg = await getLegById(tripId, legId);
+    try {
+      await writeNotificationsForTransportOffer(
+        tripId,
+        leg?.name ?? "",
+        newlyOfferedUids,
+      );
+    } catch {
+      // A notification failure must never break the seat-offer update itself.
+    }
+  }
+}
+
+async function getSeatOfferingEntry(
+  driverUid: string,
+  tripId: string,
+  legId: string,
+): Promise<{
+  ref: FirebaseFirestore.DocumentReference;
+  data: Record<string, unknown>;
+}> {
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("transportation")
+    .where("legId", "==", legId)
+    .where("uid", "==", driverUid)
+    .get();
+
+  const doc = snapshot.docs[0];
+  if (!doc) {
+    throw new NotFoundError("Transportation entry not found for this driver.");
+  }
+
+  const data = doc.data();
+  if (data["status"] !== TransportationStatus.DrivingWithSeats) {
+    throw new Error(
+      "Only drivers offering seats can surface availability to guests.",
+    );
+  }
+
+  return { ref: doc.ref, data };
+}
+
+async function getEligibleOffereeUids(
+  driverUid: string,
+  tripId: string,
+  legId: string,
+): Promise<Set<string>> {
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("transportation")
+    .where("legId", "==", legId)
+    .get();
+
+  return new Set(
+    snapshot.docs
+      .filter(
+        (doc) =>
+          doc.data()["status"] === TransportationStatus.NeedTransportation,
+      )
+      .map((doc) => doc.data()["uid"] as string)
+      .filter((uid) => uid !== driverUid),
+  );
+}
+
+function getOfferedUidsFromEntry(data: Record<string, unknown>): string[] {
+  const offeredToUids = data["offeredToUids"];
+
+  if (
+    !Array.isArray(offeredToUids) ||
+    !offeredToUids.every((uid): uid is string => typeof uid === "string")
+  ) {
+    return [];
+  }
+
+  return offeredToUids;
 }
