@@ -1,49 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server";
-import {
-  addExpense,
-  getExpenseMemberRole,
-  getExpensesForTrip,
-} from "@/services/expenses";
-import { getTripMemberUids } from "@/services/trips";
+import { addExpense, getExpensesForTrip } from "@/services/expenses";
+import { getTripMemberRole, getTripMemberUids } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import {
   ExpenseCategory,
   ExpenseLinkedEntityType,
   ExpenseSplitMethod,
 } from "@/lib/types/expense";
+import {
+  EXPENSE_CATEGORY_VALUES,
+  EXPENSE_LINKED_ENTITY_TYPE_VALUES,
+  EXPENSE_SPLIT_METHOD_VALUES,
+  isValidCurrencyCode,
+} from "./expense-validation";
 
 interface RouteContext {
   params: Promise<{ tripId: string }>;
-}
-
-const EXPENSE_CATEGORY_VALUES = new Set(Object.values(ExpenseCategory));
-const EXPENSE_SPLIT_METHOD_VALUES = new Set(Object.values(ExpenseSplitMethod));
-const EXPENSE_LINKED_ENTITY_TYPE_VALUES = new Set(
-  Object.values(ExpenseLinkedEntityType),
-);
-const SUPPORTED_CURRENCY_CODES =
-  typeof Intl.supportedValuesOf === "function"
-    ? new Set(Intl.supportedValuesOf("currency"))
-    : null;
-
-function isValidCurrencyCode(currency: string): boolean {
-  if (!/^[A-Z]{3}$/.test(currency)) {
-    return false;
-  }
-
-  if (SUPPORTED_CURRENCY_CODES !== null) {
-    return SUPPORTED_CURRENCY_CODES.has(currency);
-  }
-
-  try {
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(0);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -53,8 +25,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   const { tripId } = await params;
-  const role = await getExpenseMemberRole(uid, tripId);
-  if (role === null) {
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -75,8 +47,8 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
   const { tripId } = await params;
 
-  const role = await getExpenseMemberRole(uid, tripId);
-  if (role === null) {
+  const role = await getTripMemberRole(tripId, uid);
+  if (role === undefined) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
