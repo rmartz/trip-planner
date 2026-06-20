@@ -206,4 +206,18 @@ describe("setSeatOffer — transport offer notifications", () => {
       expect.objectContaining({ offeredToUids: ["uid-new"] }),
     );
   });
+
+  it("still writes the offer when getLegById fails", async () => {
+    driverEntry({ status: TransportationStatus.DrivingWithSeats });
+    legEntries([
+      { uid: "uid-new", status: TransportationStatus.NeedTransportation },
+    ]);
+    vi.mocked(getLegById).mockRejectedValueOnce(new Error("firestore down"));
+
+    await setSeatOffer("uid-driver", "trip-1", "leg-1", ["uid-new"]);
+
+    expect(driverEntryUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ offeredToUids: ["uid-new"] }),
+    );
+  });
 });

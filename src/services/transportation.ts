@@ -147,8 +147,8 @@ export async function setSeatOffer(
     (uid) => !previousOfferedUids.has(uid),
   );
   if (newlyOfferedUids.length > 0) {
-    const leg = await getLegById(tripId, legId);
     try {
+      const leg = await getLegById(tripId, legId);
       await writeNotificationsForTransportOffer(
         tripId,
         leg?.name ?? "",
