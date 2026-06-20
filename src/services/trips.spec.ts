@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Trip } from "@/lib/types/trip";
+import { TripRole } from "@/lib/types/trip";
 import {
   TransportationStatus,
   TransportOfferVisibility,
@@ -21,6 +22,7 @@ import {
   getTransportationEntriesForTrip,
 } from "./transportation";
 import {
+  getTripMemberRole,
   getTripMemberUids,
   getTripsForUser,
   recomputeTransportGapCount,
@@ -174,6 +176,54 @@ describe("getTripMemberUids", () => {
       "uid-1",
       "uid-2",
     ]);
+  });
+});
+
+describe("getTripMemberRole", () => {
+  const memberDocGet = vi.fn();
+  const membersDoc = vi.fn(() => ({ get: memberDocGet }));
+  const membersCollection = vi.fn(() => ({ doc: membersDoc }));
+  const tripDoc = vi.fn(() => ({ collection: membersCollection }));
+  const collection = vi.fn(() => ({ doc: tripDoc }));
+
+  const mockDb = { collection };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+  });
+
+  it("returns the stored role when the membership document has a role", async () => {
+    memberDocGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ role: TripRole.Planner }),
+    });
+
+    await expect(getTripMemberRole("trip-1", "uid-1")).resolves.toBe(
+      TripRole.Planner,
+    );
+  });
+
+  it("defaults missing role to Guest for legacy membership documents", async () => {
+    memberDocGet.mockResolvedValue({
+      exists: true,
+      data: () => ({}),
+    });
+
+    await expect(getTripMemberRole("trip-1", "uid-1")).resolves.toBe(
+      TripRole.Guest,
+    );
+  });
+
+  it("returns undefined when no membership document exists", async () => {
+    memberDocGet.mockResolvedValue({
+      exists: false,
+      data: () => undefined,
+    });
+
+    await expect(getTripMemberRole("trip-1", "uid-1")).resolves.toBeUndefined();
   });
 });
 
