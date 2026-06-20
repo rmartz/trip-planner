@@ -5,6 +5,7 @@ import {
   InviteLinkExpiredError,
   InviteLinkRevokedError,
   InviteLinkUsedError,
+  writeNotificationForTripInvite,
 } from "@/services/invite";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 import { InviteError } from "@/lib/types/invite";
@@ -65,6 +66,16 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
   try {
     const { tripId, alreadyMember } = await acceptInviteByLink(token, uid);
+    if (!alreadyMember) {
+      try {
+        await writeNotificationForTripInvite(tripId, uid);
+      } catch (notificationError) {
+        console.error(
+          "Failed to write trip invite notification",
+          notificationError,
+        );
+      }
+    }
     return NextResponse.json({ tripId, alreadyMember });
   } catch (err) {
     if (err instanceof InviteLinkExpiredError) {
