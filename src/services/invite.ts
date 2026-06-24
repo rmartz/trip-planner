@@ -181,10 +181,14 @@ export async function acceptInviteByLink(
 
 export async function revokeInviteLink(token: string): Promise<void> {
   const db = getAdminFirestore();
-  const inviteRef = db.collection("invites").doc(token);
-  const snap = await inviteRef.get();
-  if (!snap.exists) throw new Error("Invite not found");
-  await inviteRef.update({ revokedAt: new Date() });
+  try {
+    await db.collection("invites").doc(token).update({ revokedAt: new Date() });
+  } catch (err) {
+    if ((err as { code?: number }).code === 5 /* gRPC NOT_FOUND */) {
+      throw new Error("Invite not found", { cause: err });
+    }
+    throw err;
+  }
 }
 
 export async function writeNotificationForTripInvite(
