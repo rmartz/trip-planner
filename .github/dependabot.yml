@@ -14,16 +14,20 @@ updates:
     # Group only minor/patch bumps; major bumps fall outside the groups and get
     # individual PRs, since they are more likely to need code changes.
     groups:
-      npm-production:
-        dependency-type: "production"
+      dev-dependencies:
+        dependency-type: development
         update-types:
           - "minor"
           - "patch"
-      npm-development:
-        dependency-type: "development"
+        patterns:
+          - "*"
+      production-dependencies:
+        dependency-type: production
         update-types:
           - "minor"
           - "patch"
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directory: /
@@ -36,3 +40,8 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # Group all GitHub Actions updates together (no patch/minor split).
+    groups:
+      github-actions:
+        patterns:
+          - "*"
