@@ -11,10 +11,14 @@ vi.mock("@/services/legs", () => ({
 
 vi.mock("@/services/trips", () => ({
   getTripMemberRole: vi.fn(),
+  recomputeTransportGapCount: vi.fn(() => Promise.resolve()),
 }));
 
 import { addLeg, getLegsForTrip } from "@/services/legs";
-import { getTripMemberRole } from "@/services/trips";
+import {
+  getTripMemberRole,
+  recomputeTransportGapCount,
+} from "@/services/trips";
 import { GET, POST } from "./route";
 
 function makeLeg(overrides: Partial<Leg> = {}): Leg {
@@ -240,6 +244,22 @@ describe("POST /api/trips/[tripId]/legs", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as { legId: string };
     expect(body.legId).toBe("leg-xyz");
+  });
+
+  it("calls recomputeTransportGapCount with the tripId on success", async () => {
+    vi.mocked(getTripMemberRole).mockResolvedValue(TripRole.Planner);
+    vi.mocked(addLeg).mockResolvedValue("leg-xyz");
+
+    const request = makePostRequest("uid-1", {
+      fromStopId: "stop-1",
+      toStopId: "stop-2",
+      name: "London to Paris",
+    });
+    await POST(request, { params: Promise.resolve({ tripId: "trip-1" }) });
+
+    expect(vi.mocked(recomputeTransportGapCount)).toHaveBeenCalledWith(
+      "trip-1",
+    );
   });
 
   it("calls addLeg with uid, tripId, fromStopId, toStopId, and name", async () => {

@@ -4,6 +4,7 @@
   "description": "Template repository for Next.js projects built on Firebase",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,16 +20,9 @@
     "prepare": "husky",
     "env:pull": "generate-local-env",
     "env:validate": "node scripts/validate-config.mjs",
+    "backfill:transport-gap-count": "node scripts/backfill-transport-gap-count.mjs",
     "migrate:member-uids": "node scripts/migrate-member-uids.mjs",
     "secrets-check": "pnpm run env:validate && secrets-check --config .gitleaks.toml"
-  },
-  "lint-staged": {
-    "*.{js,mjs,cjs,ts,tsx,jsx}": [
-      "eslint --fix --max-warnings 0 --no-warn-ignored"
-    ],
-    "*.{js,mjs,cjs,ts,tsx,jsx,json,md,yml,yaml}": [
-      "prettier --write"
-    ]
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

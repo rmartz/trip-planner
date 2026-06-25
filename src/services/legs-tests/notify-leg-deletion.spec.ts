@@ -2,10 +2,27 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NotificationType } from "@/lib/types/notification";
 import { TripRole } from "@/lib/types/trip";
 
-vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
+vi.mock("@/lib/firebase/admin", () => ({
+  getAdminDatabase: vi.fn(),
+  getAdminFirestore: vi.fn(),
+}));
 
-import { getAdminFirestore } from "@/lib/firebase/admin";
+import { getAdminDatabase, getAdminFirestore } from "@/lib/firebase/admin";
 import { writeNotificationsForLegDeletion } from "../legs";
+
+function setupDatabaseMock() {
+  const setCalls: { path: string; value: unknown }[] = [];
+  const ref = vi.fn((path: string) => ({
+    set: (value: unknown) => {
+      setCalls.push({ path, value });
+      return Promise.resolve();
+    },
+  }));
+  vi.mocked(getAdminDatabase).mockReturnValue({ ref } as unknown as ReturnType<
+    typeof getAdminDatabase
+  >);
+  return { setCalls };
+}
 
 function setupFirestoreMock({
   rolesByUid = {},
@@ -68,6 +85,7 @@ function setupFirestoreMock({
 describe("writeNotificationsForLegDeletion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setupDatabaseMock();
   });
 
   it("writes no notifications when no transportation entries reference the leg", async () => {
@@ -146,6 +164,24 @@ describe("writeNotificationsForLegDeletion", () => {
           expect.objectContaining({ unreadCount: expect.anything() }),
           { merge: true },
         ]),
+      ]),
+    );
+  });
+
+  it("mirrors the unread count increment to the RTDB path for each guest", async () => {
+    setupFirestoreMock({ transportationUids: ["guest-a", "guest-b"] });
+    const { setCalls } = setupDatabaseMock();
+
+    await writeNotificationsForLegDeletion(
+      "trip-1",
+      "leg-1",
+      "Lyon → Marseille",
+    );
+
+    expect(setCalls.map((call) => call.path)).toEqual(
+      expect.arrayContaining([
+        "users/guest-a/unreadCount",
+        "users/guest-b/unreadCount",
       ]),
     );
   });

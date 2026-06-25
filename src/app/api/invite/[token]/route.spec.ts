@@ -22,6 +22,7 @@ vi.mock("@/services/invite", () => ({
   },
   acceptInviteByLink: vi.fn(),
   getTripByInviteLink: vi.fn(),
+  writeNotificationForTripInvite: vi.fn(),
 }));
 
 import {
@@ -30,6 +31,7 @@ import {
   InviteLinkExpiredError,
   InviteLinkRevokedError,
   InviteLinkUsedError,
+  writeNotificationForTripInvite,
 } from "@/services/invite";
 import { GET, POST } from "./route";
 
@@ -186,6 +188,33 @@ describe("POST /api/invite/[token] — authenticated, valid token", () => {
       "tok-abc",
       "uid-new",
     );
+  });
+
+  it("writes a trip invite notification for a newly added member", async () => {
+    vi.mocked(acceptInviteByLink).mockResolvedValue({
+      tripId: "trip-1",
+      alreadyMember: false,
+    });
+
+    await POST(makePostRequest("uid-new"), {
+      params: Promise.resolve({ token: "tok-abc" }),
+    });
+    expect(vi.mocked(writeNotificationForTripInvite)).toHaveBeenCalledWith(
+      "trip-1",
+      "uid-new",
+    );
+  });
+
+  it("does not write a notification when the user was already a member", async () => {
+    vi.mocked(acceptInviteByLink).mockResolvedValue({
+      tripId: "trip-1",
+      alreadyMember: true,
+    });
+
+    await POST(makePostRequest("uid-existing"), {
+      params: Promise.resolve({ token: "tok-abc" }),
+    });
+    expect(vi.mocked(writeNotificationForTripInvite)).not.toHaveBeenCalled();
   });
 });
 
