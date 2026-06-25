@@ -20,6 +20,10 @@ pnpm run env:validate # Validate deployment config files against schema
 pnpm run secrets-check # Config validation + gitleaks scan (also runs pre-commit)
 ```
 
+## Worktree Setup
+
+After creating a git worktree (`git worktree add .git-worktrees/<name> -b <branch> origin/main`), run `pnpm install --frozen-lockfile` inside it before invoking any build or test commands. pnpm's `node-modules` linker creates per-directory `node_modules` trees; a fresh worktree has none. The global store is already populated so this step only creates hardlinks — it takes a few seconds and requires no network access.
+
 ## Deployment Config
 
 Public (non-secret) environment config lives in `deployment/{env}.yml` and is validated against `deployment/schema.yml`. Only `NEXT_PUBLIC_*` and explicitly allowlisted keys are permitted; patterns matching `*SECRET*`, `*_TOKEN*`, or `*PRIVATE_KEY*` are hard-denied.
@@ -82,6 +86,14 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
 ## Documentation
 
 - Keep documentation in sync with the code — outdated docs are worse than no docs.
+- Reference docs live in `docs/`, structured per Google's Open Knowledge Format
+  (OKF): one concept per markdown file with YAML frontmatter, cross-linked and
+  indexed by [`docs/README.md`](docs/README.md). Read the index before a task to
+  retrieve relevant context (scripts, subsystems).
+- When you add a `docs/` page, give it OKF frontmatter (`type` is required;
+  `title`, `description`, `resource`, `tags` recommended), use a `type` from the
+  vocabulary table in `docs/README.md`, link it from the index, and add a dated
+  entry to `docs/log.md`.
 
 ## React / Next.js Standards
 

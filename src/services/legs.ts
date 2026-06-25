@@ -1,5 +1,9 @@
-import { getAdminFirestore } from "@/lib/firebase/admin";
+import { ServerValue } from "firebase-admin/database";
+import { FieldValue } from "firebase-admin/firestore";
+import { getAdminDatabase, getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToLeg } from "@/lib/firebase/schema/trip";
+import { getUnreadCountPath } from "@/lib/firebase/schema/unread-count";
+import { NotificationType } from "@/lib/types/notification";
 import { TripRole } from "@/lib/types/trip";
 import type { Leg } from "@/lib/types/trip";
 import { PlannerOnlyError } from "./errors";
@@ -154,8 +158,30 @@ export async function getAffectedGuestsForLeg(
     .where("legId", "==", legId)
     .get();
 
-  const uids = snapshot.docs.map((doc) => doc.data()["uid"] as string);
-  return [...new Set(uids)];
+  const uniqueUids = [
+    ...new Set(
+      snapshot.docs
+        .map((doc) => doc.data()["uid"] as string | undefined)
+        .filter((uid): uid is string => !!uid),
+    ),
+  ];
+  if (uniqueUids.length === 0) return [];
+
+  const tripMembersRef = db
+    .collection("trips")
+    .doc(tripId)
+    .collection("members");
+  const memberDocs = await Promise.all(
+    uniqueUids.map((uid) => tripMembersRef.doc(uid).get()),
+  );
+
+  return memberDocs
+    .filter(
+      (memberDoc) =>
+        ((memberDoc.data()?.["role"] as TripRole | undefined) ??
+          TripRole.Guest) === TripRole.Guest,
+    )
+    .map((memberDoc) => memberDoc.id);
 }
 
 export async function hardDeleteLeg(
@@ -195,4 +221,55 @@ export async function getAllLegsForTrip(tripId: string): Promise<Leg[]> {
     .orderBy("order")
     .get();
   return snapshot.docs.map((doc) => firebaseToLeg(doc.id, tripId, doc.data()));
+}
+
+export async function getLegById(
+  tripId: string,
+  legId: string,
+): Promise<Leg | undefined> {
+  const db = getAdminFirestore();
+  const doc = await db
+    .collection("trips")
+    .doc(tripId)
+    .collection("legs")
+    .doc(legId)
+    .get();
+  const data = doc.data();
+  if (!data) return undefined;
+  return firebaseToLeg(doc.id, tripId, data);
+}
+
+export async function writeNotificationsForLegDeletion(
+  tripId: string,
+  legId: string,
+  legName: string,
+): Promise<void> {
+  const affectedUids = await getAffectedGuestsForLeg(tripId, legId);
+  if (affectedUids.length === 0) return;
+
+  const db = getAdminFirestore();
+  const rtdb = getAdminDatabase();
+  await Promise.all(
+    affectedUids.map(async (uid) => {
+      const userRef = db.collection("users").doc(uid);
+      const notificationRef = userRef.collection("notifications").doc();
+      const batch = db.batch();
+      batch.set(notificationRef, {
+        createdAt: FieldValue.serverTimestamp(),
+        read: false,
+        title: legName,
+        tripId,
+        triggerType: NotificationType.LegRemoved,
+        type: NotificationType.LegRemoved,
+        uid,
+      });
+      batch.set(
+        userRef,
+        { unreadCount: FieldValue.increment(1) },
+        { merge: true },
+      );
+      await batch.commit();
+      await rtdb.ref(getUnreadCountPath(uid)).set(ServerValue.increment(1));
+    }),
+  );
 }

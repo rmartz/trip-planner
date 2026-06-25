@@ -4,16 +4,28 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Let new releases age 7 days before opening update PRs, reducing exposure
+    # to supply-chain attacks where a malicious version is published then yanked.
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: "chore"
       include: "scope"
+    # Group only minor/patch bumps; major bumps fall outside the groups and get
+    # individual PRs, since they are more likely to need code changes.
     groups:
       dev-dependencies:
         dependency-type: development
+        update-types:
+          - "minor"
+          - "patch"
         patterns:
           - "*"
       production-dependencies:
         dependency-type: production
+        update-types:
+          - "minor"
+          - "patch"
         patterns:
           - "*"
 
@@ -21,6 +33,15 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Let new releases age 7 days before opening update PRs, reducing exposure
+    # to supply-chain attacks where a malicious version is published then yanked.
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: "chore"
       include: "scope"
+    # Group all GitHub Actions updates together (no patch/minor split).
+    groups:
+      github-actions:
+        patterns:
+          - "*"

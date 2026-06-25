@@ -4,13 +4,9 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useTrip } from "@/hooks/use-trip";
-import { minimizeTransfers } from "@/lib/trips/settlement";
-import {
-  type BalanceRow,
-  BalancesPageView,
-  type TransferRow,
-} from "./BalancesPageView";
+import { type BalanceRow, BalancesPageView } from "./BalancesPageView";
 import { BALANCES_PAGE_COPY } from "./BalancesPageView.copy";
+import { buildTransfers } from "./buildTransfers";
 
 const STUB_BALANCES: BalanceRow[] = [
   {
@@ -32,29 +28,6 @@ const STUB_BALANCES: BalanceRow[] = [
     memberName: "Carol",
   },
 ];
-
-function buildTransfers(
-  balances: BalanceRow[],
-  settledIds: Set<string>,
-): TransferRow[] {
-  const memberNameByUid = new Map(
-    balances.map((b) => [b.memberId, b.memberName]),
-  );
-  const balanceDollars = new Map(
-    balances.map((b) => [b.memberId, b.amountCents / 100]),
-  );
-  return minimizeTransfers(balanceDollars)
-    .map((t) => ({
-      amountCents: Math.round(t.amount * 100),
-      currency: "USD",
-      fromMemberId: t.fromUid,
-      fromMemberName: memberNameByUid.get(t.fromUid) ?? t.fromUid,
-      toMemberId: t.toUid,
-      toMemberName: memberNameByUid.get(t.toUid) ?? t.toUid,
-      transferId: `${t.fromUid}-${t.toUid}`,
-    }))
-    .filter((t) => !settledIds.has(t.transferId));
-}
 
 export default function BalancesPage() {
   const params = useParams<{ tripId: string }>();
