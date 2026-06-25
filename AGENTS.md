@@ -15,9 +15,7 @@ pnpm test             # Run tests with Vitest
 pnpm tsc              # Type check
 pnpm storybook        # Start Storybook dev server (port 6006)
 pnpm build-storybook  # Build static Storybook
-pnpm run env:pull     # Pull .env.local from Vercel
 pnpm run env:validate # Validate deployment config files against schema
-pnpm run secrets-check # Config validation + gitleaks scan (also runs pre-commit)
 ```
 
 ## Worktree Setup
@@ -32,7 +30,7 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
 - To update and immediately push to Vercel: `scripts/update-config.sh --env=<env> KEY=value --sync`
 - To push current YAML values to Vercel without modifying YAML: `scripts/deploy-config.sh --env=<env>`
 - To rotate all secrets (Firebase + Sentry + Vercel): `scripts/rotate-keys.sh --env=<env>`
-- Secrets checks run automatically on every commit via `.husky/pre-commit`; also enforced in CI via `.github/workflows/secret-scan.yml`
+- Deployment config is validated on every commit via `.husky/pre-commit` and in CI via `.github/workflows/validate-config.yml` (`scripts/validate-config.mjs`).
 
 ## TypeScript
 
