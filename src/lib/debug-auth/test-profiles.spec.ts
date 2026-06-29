@@ -13,7 +13,9 @@ describe("test profiles use the reserved synthetic prefix", () => {
   });
 
   it("gives every seeded profile a synthetic-prefixed uid", () => {
-    expect(TEST_PROFILES.every((profile) => hasSyntheticPrefix(profile.uid)));
+    expect(
+      TEST_PROFILES.every((profile) => hasSyntheticPrefix(profile.uid)),
+    ).toBe(true);
     expect(TEST_PROFILES.length).toBeGreaterThan(0);
     for (const profile of TEST_PROFILES) {
       expect(profile.uid.startsWith(SYNTHETIC_UID_PREFIX)).toBe(true);

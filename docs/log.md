@@ -12,6 +12,10 @@ timestamp: 2026-06-18
   synthetic-profile sign-in without OAuth, gated by environment, reserved uid
   prefix, an allowlist, a `synthetic` token claim, and the
   `NEXT_PUBLIC_ENABLE_DEBUG_AUTH` flag. (#379)
+- **2026-06-24** — Removed the gitleaks secret-scan from the deployment-config
+  pipeline along with the `vercel-deploy-scripts` dependency; config validation
+  (`env:validate`) is retained. Updated the `validate-config` and
+  deployment-config pages accordingly. (#377)
 - **2026-06-23** — Added the `backfill-transport-gap-count` Script page for the
   one-off migration that backfills the computed `transportGapCount` field onto
   existing trip documents. (#257)

@@ -14,7 +14,7 @@ export function DebugUserSwitcher() {
   // Public flag set only in deployment/preview.yml, so the switcher is absent
   // from the production bundle.
   if (process.env["NEXT_PUBLIC_ENABLE_DEBUG_AUTH"] !== "true") {
-    return undefined;
+    return null;
   }
 
   async function handleSelect(uid: string) {
