@@ -1,0 +1,20 @@
+{
+  "reservedPrefix": "synthetic:",
+  "profiles": [
+    {
+      "uid": "synthetic:planner",
+      "displayName": "Pat Planner",
+      "email": "pat.planner@synthetic.test"
+    },
+    {
+      "uid": "synthetic:guest",
+      "displayName": "Gabby Guest",
+      "email": "gabby.guest@synthetic.test"
+    },
+    {
+      "uid": "synthetic:driver",
+      "displayName": "Drew Driver",
+      "email": "drew.driver@synthetic.test"
+    }
+  ]
+}

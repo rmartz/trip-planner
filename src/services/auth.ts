@@ -4,6 +4,7 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   sendPasswordResetEmail,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
@@ -39,6 +40,29 @@ export async function signInWithApple() {
     getClientAuth(),
     new OAuthProvider("apple.com"),
   );
+  try {
+    await createSession(await credential.user.getIdToken());
+  } catch (err) {
+    await firebaseSignOut(getClientAuth());
+    throw err;
+  }
+}
+
+/**
+ * Staging/preview debug auth: mint a custom token for a synthetic test uid and
+ * sign in with it. The endpoint is 404 in production, so this path is inert
+ * there. Mirrors signInWithGoogle's session handshake so the synthetic session
+ * authorizes exactly like a real one.
+ */
+export async function signInWithSyntheticProfile(uid: string) {
+  const response = await fetch("/api/debug/impersonate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ uid }),
+  });
+  if (!response.ok) throw new Error("Failed to impersonate profile");
+  const { customToken } = (await response.json()) as { customToken: string };
+  const credential = await signInWithCustomToken(getClientAuth(), customToken);
   try {
     await createSession(await credential.user.getIdToken());
   } catch (err) {

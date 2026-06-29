@@ -10,6 +10,7 @@ import {
   signInWithApple,
   signInWithGoogle,
 } from "@/services/auth";
+import { DebugUserSwitcher } from "@/components/debug/DebugUserSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -152,6 +153,7 @@ export default function SignInForm() {
           </Link>
         </span>
       </div>
+      <DebugUserSwitcher />
     </div>
   );
 }

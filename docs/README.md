@@ -49,6 +49,9 @@ but the table should stay authoritative.
 
 - [Deployment Config Pipeline](systems/deployment-config.md) — how public config
   flows from `deployment/{env}.yml` to Vercel, and how secrets are rotated.
+- [Debug Auth (Staging/Preview Impersonation)](systems/debug-auth.md) — the
+  staging-only custom-token sign-in mode for synthetic profiles, and its
+  defense-in-depth safety layers.
 
 ### Scripts
 
@@ -62,5 +65,7 @@ but the table should stay authoritative.
   `memberUids` array on trip documents.
 - [backfill-transport-gap-count](scripts/backfill-transport-gap-count.md) —
   backfill the computed `transportGapCount` field on trip documents.
+- [seed-test-profiles](scripts/seed-test-profiles.md) — idempotent seeder for the
+  synthetic debug-auth profiles in the staging Firebase project.
 
 See [log.md](log.md) for the change history.
