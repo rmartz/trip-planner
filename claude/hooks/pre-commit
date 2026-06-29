@@ -3,5 +3,5 @@
 # Skips lint-staged: the PostToolUse formatter hook handles formatting on every edit.
 set -e
 ./scripts/check-conflict-markers.sh --staged
-pnpm run secrets-check
+pnpm run env:validate
 ./scripts/check-file-length.sh --staged

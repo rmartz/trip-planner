@@ -39,8 +39,8 @@ edit deployment/{env}.yml  ──update-config.sh──▶  validated YAML
 - **Write a value**: [`update-config.sh`](../scripts/update-config.md) edits the
   YAML (and with `--sync`, immediately pushes to Vercel).
 - **Validate**: [`validate-config.mjs`](../scripts/validate-config.md) (`pnpm run
-env:validate`) checks every key against `schema.yml`. Runs in CI and on every
-  commit via the secrets-check pre-commit hook.
+env:validate`) checks every key against `schema.yml`. Runs in CI (the
+  `validate-config` workflow) and on every commit via the pre-commit hook.
 - **Push to Vercel**: [`deploy-config.sh`](../scripts/deploy-config.md) upserts
   the YAML's `variables:` block to the corresponding Vercel environment.
 - **Rotate secrets**: [`rotate-keys.sh`](../scripts/rotate-keys.md) rotates
@@ -51,8 +51,7 @@ env:validate`) checks every key against `schema.yml`. Runs in CI and on every
 ## Guardrails
 
 - Secrets must never be added to `deployment/{env}.yml`; the denied-pattern rules
-  in `schema.yml` reject them, and `pnpm run secrets-check` (config validation +
-  gitleaks) runs on every commit.
+  in `schema.yml` reject them, and `pnpm run env:validate` runs on every commit.
 - Sensitive values must never be passed as `KEY=value` arguments to
   `update-config.sh` — they would leak into shell history and `ps` output. Use
   `pnpm exec vercel env add` for secrets instead.
