@@ -140,6 +140,30 @@ async function captureScreenshots() {
 // Push screenshots to gh-screenshots branch
 // ---------------------------------------------------------------------------
 
+// A concurrent PR can advance gh-screenshots between our fetch and push,
+// rejecting ours as non-fast-forward. Each PR only writes its own pr-<N>/
+// subdir, so fetching the latest branch and rebasing our commit onto it applies
+// cleanly (no clobber); retry a few times before giving up.
+const PUSH_ATTEMPTS = 3;
+
+function pushBranchWithRetry(tmpDir) {
+  for (let attempt = 1; attempt <= PUSH_ATTEMPTS; attempt++) {
+    try {
+      execSync(`git -C ${tmpDir} push origin ${SCREENSHOTS_BRANCH}`, {
+        stdio: "pipe",
+      });
+      return;
+    } catch (error) {
+      if (attempt === PUSH_ATTEMPTS) throw error;
+      console.log(
+        `Push to ${SCREENSHOTS_BRANCH} rejected (attempt ${attempt}/${PUSH_ATTEMPTS}); rebasing onto the latest branch and retrying.`,
+      );
+      execSync(`git -C ${tmpDir} fetch origin ${SCREENSHOTS_BRANCH}`);
+      execSync(`git -C ${tmpDir} rebase FETCH_HEAD`);
+    }
+  }
+}
+
 function pushScreenshots(screenshots) {
   const shortSha = PR_HEAD_SHA.slice(0, 7);
   const tmpDir = "/tmp/gh-screenshots-worktree";
@@ -188,7 +212,7 @@ function pushScreenshots(screenshots) {
     execSync(
       `git -C ${tmpDir} commit -m "Add screenshots for PR #${PR_NUMBER} (${shortSha})"`,
     );
-    execSync(`git -C ${tmpDir} push origin ${SCREENSHOTS_BRANCH}`);
+    pushBranchWithRetry(tmpDir);
   } else {
     console.log("Screenshots unchanged — skipping commit.");
   }
