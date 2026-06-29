@@ -26,11 +26,9 @@ After creating a git worktree (`git worktree add .git-worktrees/<name> -b <branc
 
 Public (non-secret) environment config lives in `deployment/{env}.yml` and is validated against `deployment/schema.yml`. Only `NEXT_PUBLIC_*` and explicitly allowlisted keys are permitted; patterns matching `*SECRET*`, `*_TOKEN*`, or `*PRIVATE_KEY*` are hard-denied.
 
-- To update a public config value (YAML only): `scripts/update-config.sh --env=<env> KEY=value`
-- To update and immediately push to Vercel: `scripts/update-config.sh --env=<env> KEY=value --sync`
-- To push current YAML values to Vercel without modifying YAML: `scripts/deploy-config.sh --env=<env>`
-- To rotate all secrets (Firebase + Sentry + Vercel): `scripts/rotate-keys.sh --env=<env>`
+- To edit a value, update the relevant `deployment/{env}.yml` by hand (only `NEXT_PUBLIC_*` / allowlisted keys).
 - Deployment config is validated on every commit via `.husky/pre-commit` and in CI via `.github/workflows/validate-config.yml` (`scripts/validate-config.mjs`).
+- Local tooling to push config to Vercel and rotate secrets (formerly `deploy-config.sh` / `update-config.sh` / `rotate-keys.sh`) is being replaced by the planned `envctl` CLI; those scripts were removed once `vercel-deploy-scripts` (which transitively provided the `vercel` CLI) was dropped.
 
 ## TypeScript
 

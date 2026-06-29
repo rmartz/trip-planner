@@ -21,9 +21,9 @@ recommended:
 ```yaml
 ---
 type: Script # the type vocabulary below
-title: update-config
+title: validate-config
 description: One-line summary of what this documents.
-resource: scripts/update-config.sh # repo-relative path to the documented file
+resource: scripts/validate-config.mjs # repo-relative path to the documented file
 tags: [deployment, config]
 timestamp: 2026-06-18
 ---
@@ -48,17 +48,13 @@ but the table should stay authoritative.
 ### Systems
 
 - [Deployment Config Pipeline](systems/deployment-config.md) — how public config
-  flows from `deployment/{env}.yml` to Vercel, and how secrets are rotated.
+  in `deployment/{env}.yml` is structured and validated against the schema.
 - [Debug Auth (Staging/Preview Impersonation)](systems/debug-auth.md) — the
   staging-only custom-token sign-in mode for synthetic profiles, and its
   defense-in-depth safety layers.
 
 ### Scripts
 
-- [update-config](scripts/update-config.md) — write public config to
-  `deployment/{env}.yml`, optionally syncing to Vercel.
-- [deploy-config](scripts/deploy-config.md) — push a deployment YAML to Vercel.
-- [rotate-keys](scripts/rotate-keys.md) — rotate Firebase / Sentry secrets.
 - [validate-config](scripts/validate-config.md) — validate config against
   `deployment/schema.yml`.
 - [migrate-member-uids](scripts/migrate-member-uids.md) — backfill the

@@ -1,17 +1,19 @@
 ---
 type: System
 title: Deployment Config Pipeline
-description: How public (non-secret) environment config flows from deployment/{env}.yml through validation to Vercel, and how secrets are rotated.
+description: How public (non-secret) environment config in deployment/{env}.yml is structured and validated against the schema.
 resource: deployment/schema.yml
-tags: [deployment, config, vercel, secrets, firebase]
+tags: [deployment, config, firebase]
 timestamp: 2026-06-18
 ---
 
 # Deployment Config Pipeline
 
 Public, non-secret environment configuration lives in version-controlled YAML
-under `deployment/` and is pushed to Vercel by helper scripts. Secrets never live
-in these files — they are managed directly in Vercel and rotated out-of-band.
+under `deployment/`, validated against a schema. Secrets never live in these
+files — they are managed directly in Vercel. Local tooling to push config to
+Vercel and rotate secrets is being replaced by the planned `envctl` CLI; until it
+lands, those steps are performed manually against the Vercel dashboard/CLI.
 
 ## Files
 
@@ -29,29 +31,24 @@ in these files — they are managed directly in Vercel and rotated out-of-band.
 ## Flow
 
 ```
-edit deployment/{env}.yml  ──update-config.sh──▶  validated YAML
-        │                                              │
-        │                                       deploy-config.sh
-        ▼                                              ▼
-  validate-config.mjs  ◀──pnpm run env:validate──   Vercel env
+edit deployment/{env}.yml  ──pnpm run env:validate──▶  validate-config.mjs
+                                                            (schema check)
 ```
 
-- **Write a value**: [`update-config.sh`](../scripts/update-config.md) edits the
-  YAML (and with `--sync`, immediately pushes to Vercel).
+- **Write a value**: hand-edit the relevant `deployment/{env}.yml` (only
+  `NEXT_PUBLIC_*` / allowlisted keys).
 - **Validate**: [`validate-config.mjs`](../scripts/validate-config.md) (`pnpm run
 env:validate`) checks every key against `schema.yml`. Runs in CI (the
   `validate-config` workflow) and on every commit via the pre-commit hook.
-- **Push to Vercel**: [`deploy-config.sh`](../scripts/deploy-config.md) upserts
-  the YAML's `variables:` block to the corresponding Vercel environment.
-- **Rotate secrets**: [`rotate-keys.sh`](../scripts/rotate-keys.md) rotates
-  Firebase service-account keys and Sentry auth tokens — these are _not_ in the
-  YAML; they are pushed straight to Vercel and the old credentials decommissioned
-  after a healthy deployment.
+- **Push to Vercel / rotate secrets**: pending the planned `envctl` CLI. The
+  former `deploy-config.sh` / `rotate-keys.sh` helpers were removed when
+  `vercel-deploy-scripts` (which transitively supplied the `vercel` CLI they
+  used) was dropped; perform these steps manually via the Vercel dashboard/CLI in
+  the meantime.
 
 ## Guardrails
 
 - Secrets must never be added to `deployment/{env}.yml`; the denied-pattern rules
   in `schema.yml` reject them, and `pnpm run env:validate` runs on every commit.
-- Sensitive values must never be passed as `KEY=value` arguments to
-  `update-config.sh` — they would leak into shell history and `ps` output. Use
-  `pnpm exec vercel env add` for secrets instead.
+- Secrets belong in Vercel's encrypted env settings (or `vercel env add`), never
+  in the version-controlled YAML.

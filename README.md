@@ -92,10 +92,7 @@ project-root/
 │   ├── preview.yml             # Public env config for preview (staging)
 │   └── production.yml          # Public env config for production
 ├── scripts/
-│   ├── validate-config.mjs     # Validates deployment YAMLs against schema
-│   ├── update-config.sh        # Update a deployment YAML (optionally sync to Vercel)
-│   ├── deploy-config.sh        # Push deployment YAML values to Vercel
-│   └── rotate-keys.sh          # Zero-downtime Firebase + Sentry + Vercel key rotation
+│   └── validate-config.mjs     # Validates deployment YAMLs against schema
 ├── .storybook/                 # Storybook configuration
 ├── .github/
 │   ├── actions/setup/          # Composite action: pnpm + Node.js + install
@@ -122,26 +119,9 @@ project-root/
 
 Public, non-secret environment config (Firebase project IDs, Sentry org/project, `NEXT_PUBLIC_*` keys) lives in `deployment/{env}.yml` and is validated against `deployment/schema.yml` on every commit and in CI. Secrets never go in these files.
 
-To update a public config value and sync it to Vercel:
+To change a value, edit the relevant `deployment/{env}.yml` by hand (only `NEXT_PUBLIC_*` / allowlisted keys) and run `pnpm run env:validate`.
 
-```bash
-scripts/update-config.sh --env=preview NEXT_PUBLIC_FIREBASE_PROJECT_ID=my-project-id
-# or from a Firebase console JSON download:
-scripts/update-config.sh --env=preview --firebase-config=~/Downloads/firebase-config.json
-# to also push to Vercel immediately:
-scripts/update-config.sh --env=preview --firebase-config=~/Downloads/firebase-config.json --sync
-```
-
-### Secret Rotation
-
-To rotate all secrets (Firebase service account, Sentry token, Vercel env) with zero downtime:
-
-```bash
-# Prereqs: gcloud auth login && pnpm exec vercel login && sentry-cli login
-scripts/rotate-keys.sh --env=preview
-```
-
-The script creates the new credential, deploys it, waits for a healthy response, then decommissions the old one. No master rotation keys are stored in Vercel.
+Local tooling to push config to Vercel and rotate secrets is being replaced by the planned `envctl` CLI. The former `update-config.sh` / `deploy-config.sh` / `rotate-keys.sh` helpers were removed when `vercel-deploy-scripts` (which transitively supplied the `vercel` CLI they used) was dropped; until `envctl` lands, push and secret rotation are done manually via the Vercel dashboard/CLI.
 
 ### GitHub Actions
 
