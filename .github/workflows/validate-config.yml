@@ -1,9 +1,30 @@
 name: Validate Config
 
+# Run only when the deployment config or its validator changes.
+#
+# An allowlist (run-when) is safe here because this check has a CLOSED input set:
+# its result depends solely on the paths below — the per-env YAMLs and schema, the
+# validator script, this workflow, and the setup composite. Nothing outside that
+# set can change whether the config is valid, so the allowlist cannot hide a real
+# failure. This intentionally differs from #392, which uses a documentation
+# denylist for the heavy test/build jobs: those have an OPEN input set (almost
+# anything can affect them), so a run-when allowlist there could skip a real
+# failure. This is a standalone single-job workflow with no sibling jobs to
+# preserve, so a workflow-level `paths` filter is the clean fit.
 on:
   pull_request:
+    paths:
+      - "deployment/**"
+      - "scripts/validate-config.mjs"
+      - ".github/workflows/validate-config.yml"
+      - ".github/actions/setup/**"
   push:
     branches: [main]
+    paths:
+      - "deployment/**"
+      - "scripts/validate-config.mjs"
+      - ".github/workflows/validate-config.yml"
+      - ".github/actions/setup/**"
 
 permissions:
   contents: read
