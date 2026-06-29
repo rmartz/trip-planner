@@ -59,7 +59,7 @@ jobs:
 
       - name: Install Playwright chromium
         if: steps.stories.outputs.found == 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        uses: ./.github/actions/playwright
 
       - name: Build Storybook
         if: steps.stories.outputs.found == 'true'
