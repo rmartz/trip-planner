@@ -34,6 +34,19 @@ jobs:
       - name: Fetch base branch
         run: git fetch origin ${{ github.base_ref }}
 
+      # Screenshot generation is intentionally gated on changed *.stories.tsx
+      # files only. With @storybook/addon-vitest's storybookTest(), the story
+      # files ARE the Storybook test suite, so a changed *.stories.tsx file
+      # means the *intended* appearance/behavior changed — the screenshots
+      # exist for a human to confirm the new result is what was wanted.
+      #
+      # Non-story edits (a component, hook, CSS, or util) deliberately do NOT
+      # trigger screenshot generation here: an *unintended* visual/behavioral
+      # regression from such an edit is caught instead by the always-run
+      # `storybook-tests` job in ci-actions.yml. Test EXECUTION is the
+      # always-on regression net; screenshot GENERATION is the "did we mean to
+      # change this?" validation that fires only when the expectation changed.
+      # See issue #391 for the full rationale.
       - name: Detect changed story files
         id: stories
         run: |
@@ -50,7 +63,7 @@ jobs:
 
       - name: Install Playwright chromium
         if: steps.stories.outputs.found == 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        uses: ./.github/actions/playwright
 
       - name: Build Storybook
         if: steps.stories.outputs.found == 'true'
