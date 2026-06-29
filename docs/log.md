@@ -7,6 +7,11 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-06-28** — Added the Debug Auth System page and the `seed-test-profiles`
+  Script page for the staging/preview-only custom-token impersonation mode:
+  synthetic-profile sign-in without OAuth, gated by environment, reserved uid
+  prefix, an allowlist, a `synthetic` token claim, and the
+  `NEXT_PUBLIC_ENABLE_DEBUG_AUTH` flag. (#379)
 - **2026-06-23** — Added the `backfill-transport-gap-count` Script page for the
   one-off migration that backfills the computed `transportGapCount` field onto
   existing trip documents. (#257)
