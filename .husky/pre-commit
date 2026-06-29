@@ -6,5 +6,5 @@ fi
 
 ./scripts/check-conflict-markers.sh --staged
 pnpm exec lint-staged
-pnpm run secrets-check
+pnpm run env:validate
 ./scripts/check-file-length.sh --staged

@@ -62,9 +62,7 @@ pnpm test             # Run tests with Vitest
 pnpm tsc              # Type check
 pnpm storybook        # Start Storybook dev server (port 6006)
 pnpm build-storybook  # Build static Storybook
-pnpm run env:pull     # Pull .env.local from Vercel (replaces manual cp .env.example)
-pnpm run env:validate # Validate deployment config files against schema
-pnpm run secrets-check # Run config validation + gitleaks scan (also runs on every commit)
+pnpm run env:validate # Validate deployment config files against schema (also runs on every commit)
 ```
 
 ## Project Structure
@@ -95,11 +93,9 @@ project-root/
 │   └── production.yml          # Public env config for production
 ├── scripts/
 │   ├── validate-config.mjs     # Validates deployment YAMLs against schema
-│   ├── secrets-check.mjs       # Pre-commit: config validation + gitleaks
 │   ├── update-config.sh        # Update a deployment YAML (optionally sync to Vercel)
 │   ├── deploy-config.sh        # Push deployment YAML values to Vercel
-│   ├── rotate-keys.sh          # Zero-downtime Firebase + Sentry + Vercel key rotation
-│   └── generate-local-env.sh   # Pull .env.local via vercel env pull
+│   └── rotate-keys.sh          # Zero-downtime Firebase + Sentry + Vercel key rotation
 ├── .storybook/                 # Storybook configuration
 ├── .github/
 │   ├── actions/setup/          # Composite action: pnpm + Node.js + install
@@ -153,7 +149,7 @@ CI runs automatically on every PR with four parallel checks: tests, lint, format
 
 Additional workflows:
 
-- **Secret Scan** — Runs gitleaks and validates deployment config on every PR and push to `main`
+- **Validate Config** — Validates deployment config against the schema on every PR and push to `main`
 - **Claude Code** — Enables `@claude` mentions in issues and PRs (requires `ANTHROPIC_API_KEY` secret)
 
 ## License
