@@ -54,6 +54,15 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm tsc
 
+  # PROTECTED INVARIANT: this job must run on every code-touching PR with no
+  # `on.pull_request.paths` / `paths-ignore` filter and no path-based `if:`
+  # gate. The story files ARE the Storybook test suite (storybookTest()), so
+  # running them unconditionally is the always-on regression net that catches a
+  # visual/behavioral regression introduced by a *non-Storybook* edit (a
+  # component, hook, CSS, or util) — an edit that, by design, does NOT trigger
+  # screenshot generation in pr-screenshots.yml. Do NOT path-filter this job to
+  # "optimize" CI: that would let such a regression sneak past. See issue #391.
+  # (Documentation-only PRs skip the heavy jobs — see #392.)
   storybook-tests:
     name: Storybook Tests
     runs-on: ubuntu-latest
