@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-06-28** — Removed the `update-config`, `deploy-config`, and `rotate-keys`
+  Script pages and trimmed the deployment-config System page: those scripts were
+  deleted because the `vercel` CLI they used is gone after dropping
+  `vercel-deploy-scripts`; their role is slated for the planned `envctl` CLI.
+  Config validation (`validate-config` / `env:validate`) and the YAML configs are
+  retained. (#381)
 - **2026-06-28** — Added the Debug Auth System page and the `seed-test-profiles`
   Script page for the staging/preview-only custom-token impersonation mode:
   synthetic-profile sign-in without OAuth, gated by environment, reserved uid
