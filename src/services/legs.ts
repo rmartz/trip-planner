@@ -1,6 +1,8 @@
+import { ServerValue } from "firebase-admin/database";
 import { FieldValue } from "firebase-admin/firestore";
-import { getAdminFirestore } from "@/lib/firebase/admin";
+import { getAdminDatabase, getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToLeg } from "@/lib/firebase/schema/trip";
+import { getUnreadCountPath } from "@/lib/firebase/schema/unread-count";
 import { NotificationType } from "@/lib/types/notification";
 import { TripRole } from "@/lib/types/trip";
 import type { Leg } from "@/lib/types/trip";
@@ -246,6 +248,7 @@ export async function writeNotificationsForLegDeletion(
   if (affectedUids.length === 0) return;
 
   const db = getAdminFirestore();
+  const rtdb = getAdminDatabase();
   await Promise.all(
     affectedUids.map(async (uid) => {
       const userRef = db.collection("users").doc(uid);
@@ -266,6 +269,7 @@ export async function writeNotificationsForLegDeletion(
         { merge: true },
       );
       await batch.commit();
+      await rtdb.ref(getUnreadCountPath(uid)).set(ServerValue.increment(1));
     }),
   );
 }

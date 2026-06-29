@@ -60,5 +60,7 @@ but the table should stay authoritative.
   `deployment/schema.yml`.
 - [migrate-member-uids](scripts/migrate-member-uids.md) — backfill the
   `memberUids` array on trip documents.
+- [backfill-transport-gap-count](scripts/backfill-transport-gap-count.md) —
+  backfill the computed `transportGapCount` field on trip documents.
 
 See [log.md](log.md) for the change history.

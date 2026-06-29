@@ -10,8 +10,8 @@ timestamp: 2026-06-18
 # validate-config.mjs
 
 Validates every environment's `deployment/{env}.yml` against
-`deployment/schema.yml`. Exposed as `pnpm run env:validate` and run in CI and via
-the secrets-check pre-commit hook. Part of the
+`deployment/schema.yml`. Exposed as `pnpm run env:validate` and run in CI (the
+`validate-config` workflow) and via the pre-commit hook. Part of the
 [Deployment Config Pipeline](../systems/deployment-config.md).
 
 ## Usage

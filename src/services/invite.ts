@@ -1,6 +1,9 @@
 import { randomBytes } from "crypto";
-import { getAdminFirestore } from "@/lib/firebase/admin";
+import { ServerValue } from "firebase-admin/database";
+import { getAdminDatabase, getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
+import { getUnreadCountPath } from "@/lib/firebase/schema/unread-count";
+import { NotificationType } from "@/lib/types/notification";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 import {
@@ -94,23 +97,31 @@ export async function createInviteLink(
   tripId: string,
   mode: InviteMode,
 ): Promise<InviteLink> {
-  const token = generateToken();
   const db = getAdminFirestore();
   const ttlDays =
     mode === InviteMode.SingleUse ? SINGLE_USE_TTL_DAYS : GROUP_USE_TTL_DAYS;
   const now = new Date();
   const expiresAt = new Date(now.getTime() + ttlDays * 24 * 60 * 60 * 1000);
 
-  await db.collection("invites").doc(token).set({
-    consumedAt: null,
-    createdAt: now,
-    expiresAt,
-    mode,
-    revokedAt: null,
-    tripId,
-  });
-
-  return { createdAt: now, expiresAt, mode, token, tripId };
+  const MAX_ATTEMPTS = 5;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const token = generateToken();
+    try {
+      await db.collection("invites").doc(token).create({
+        consumedAt: null,
+        createdAt: now,
+        expiresAt,
+        mode,
+        revokedAt: null,
+        tripId,
+      });
+      return { createdAt: now, expiresAt, mode, token, tripId };
+    } catch (err) {
+      if ((err as { code?: number }).code !== 6) throw err;
+      // token collision — retry with a new token
+    }
+  }
+  throw new Error("Failed to create invite link: too many token collisions");
 }
 
 interface InviteFirebaseData {
@@ -178,8 +189,39 @@ export async function acceptInviteByLink(
 
 export async function revokeInviteLink(token: string): Promise<void> {
   const db = getAdminFirestore();
-  const inviteRef = db.collection("invites").doc(token);
-  const snap = await inviteRef.get();
-  if (!snap.exists) throw new Error("Invite not found");
-  await inviteRef.update({ revokedAt: new Date() });
+  try {
+    await db.collection("invites").doc(token).update({ revokedAt: new Date() });
+  } catch (err) {
+    if ((err as { code?: number }).code === 5 /* gRPC NOT_FOUND */) {
+      throw new Error("Invite not found", { cause: err });
+    }
+    throw err;
+  }
+}
+
+export async function writeNotificationForTripInvite(
+  tripId: string,
+  uid: string,
+): Promise<void> {
+  const db = getAdminFirestore();
+  const rtdb = getAdminDatabase();
+
+  const tripSnap = await db.collection("trips").doc(tripId).get();
+  const title = (tripSnap.data()?.["name"] as string | undefined) ?? "";
+
+  const userRef = db.collection("users").doc(uid);
+  const notificationRef = userRef.collection("notifications").doc();
+  const batch = db.batch();
+  batch.set(notificationRef, {
+    createdAt: FieldValue.serverTimestamp(),
+    read: false,
+    title,
+    tripId,
+    triggerType: NotificationType.TripInvite,
+    type: NotificationType.TripInvite,
+    uid,
+  });
+  batch.set(userRef, { unreadCount: FieldValue.increment(1) }, { merge: true });
+  await batch.commit();
+  await rtdb.ref(getUnreadCountPath(uid)).set(ServerValue.increment(1));
 }

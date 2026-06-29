@@ -11,55 +11,9 @@ jobs:
     name: Check file lengths
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Check changed file lengths
-        run: |
-          # Thresholds from CLAUDE.md — 2× the recommended max (hard CI cap at +100%)
-          # Source files: recommended max ~200 lines → CI fails at 400+
-          # Test files:   recommended max ~300 lines → CI fails at 600+
-          SOURCE_LIMIT=400
-          TEST_LIMIT=600
-
-          failed=0
-
-          while IFS= read -r file; do
-            # Skip deleted files
-            [ -f "$file" ] || continue
-
-            # Only check TypeScript source files
-            case "$file" in
-              *.ts|*.tsx) ;;
-              *) continue ;;
-            esac
-
-            # Determine limit by file type
-            case "$file" in
-              *.spec.ts|*.spec.tsx|*.test.ts|*.test.tsx|*-tests/*.ts|*-tests/*.tsx)
-                limit=$TEST_LIMIT
-                kind="test"
-                ;;
-              *)
-                limit=$SOURCE_LIMIT
-                kind="source"
-                ;;
-            esac
-
-            lines=$(wc -l < "$file")
-
-            if [ "$lines" -ge "$limit" ]; then
-              echo "::error file=$file,title=File too long::$file — $lines lines ($kind limit: $limit)"
-              failed=1
-            fi
-          done < <(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
-
-          if [ "$failed" -ne 0 ]; then
-            echo ""
-            echo "One or more files exceed the maximum allowed line count."
-            echo "  Source files: recommended max ~200 lines, CI fails at ${SOURCE_LIMIT}+"
-            echo "  Test files:   recommended max ~300 lines, CI fails at ${TEST_LIMIT}+"
-            echo "Split large files by logical concern before merging."
-            exit 1
-          fi
+        run: ./scripts/check-file-length.sh --base "origin/${{ github.base_ref }}"

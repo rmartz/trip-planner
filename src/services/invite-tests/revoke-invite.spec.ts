@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { InviteMode } from "@/lib/types/invite";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
 
@@ -10,25 +9,16 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function makeRevokeDb() {
-  const updateFn = vi.fn().mockResolvedValue(undefined);
-  const getFn = vi.fn().mockResolvedValue({
-    exists: true,
-    data: () => ({
-      tripId: "trip-1",
-      mode: InviteMode.GroupUse,
-      expiresAt: { toDate: () => new Date(Date.now() + 86400000) },
-      revokedAt: null,
-    }),
-  });
-  const docFn = vi.fn(() => ({ get: getFn, update: updateFn }));
+function makeRevokeDb(updateFn: ReturnType<typeof vi.fn> = vi.fn()) {
+  const docFn = vi.fn(() => ({ update: updateFn }));
   const colFn = vi.fn(() => ({ doc: docFn }));
   return { db: { collection: colFn }, updateFn };
 }
 
 describe("revokeInviteLink — manual revocation", () => {
-  it("sets revokedAt on the invite document", async () => {
-    const { db, updateFn } = makeRevokeDb();
+  it("sets revokedAt on the invite document without a prior read", async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    const { db } = makeRevokeDb(updateFn);
     vi.mocked(getAdminFirestore).mockReturnValue(
       db as unknown as ReturnType<typeof getAdminFirestore>,
     );
@@ -40,16 +30,43 @@ describe("revokeInviteLink — manual revocation", () => {
     );
   });
 
-  it("throws when the invite token does not exist", async () => {
-    const updateFn = vi.fn();
-    const getFn = vi.fn().mockResolvedValue({ exists: false });
+  it("does not call get() before calling update()", async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    const getFn = vi.fn();
     const docFn = vi.fn(() => ({ get: getFn, update: updateFn }));
     const colFn = vi.fn(() => ({ doc: docFn }));
     vi.mocked(getAdminFirestore).mockReturnValue({
       collection: colFn,
     } as unknown as ReturnType<typeof getAdminFirestore>);
 
-    await expect(revokeInviteLink("bad-token")).rejects.toThrow();
-    expect(updateFn).not.toHaveBeenCalled();
+    await revokeInviteLink("tok-abc");
+
+    expect(getFn).not.toHaveBeenCalled();
+  });
+
+  it("throws 'Invite not found' when update fails with gRPC NOT_FOUND (code 5)", async () => {
+    const notFoundError = Object.assign(new Error("NOT_FOUND"), { code: 5 });
+    const updateFn = vi.fn().mockRejectedValue(notFoundError);
+    const { db } = makeRevokeDb(updateFn);
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      db as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(revokeInviteLink("bad-token")).rejects.toThrow(
+      "Invite not found",
+    );
+  });
+
+  it("re-throws unexpected errors from update()", async () => {
+    const dbError = new Error("Database unavailable");
+    const updateFn = vi.fn().mockRejectedValue(dbError);
+    const { db } = makeRevokeDb(updateFn);
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      db as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await expect(revokeInviteLink("tok-abc")).rejects.toThrow(
+      "Database unavailable",
+    );
   });
 });
