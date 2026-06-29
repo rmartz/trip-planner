@@ -19,6 +19,10 @@ jobs:
     name: Storybook screenshots
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Advisory job: best-effort preview screenshots for human UAT, not a
+    # correctness gate. continue-on-error keeps a flaky Playwright/CDN/build/
+    # comment-API failure from blocking the PR.
+    continue-on-error: true
     # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot push to
     # gh-screenshots regardless of the permissions block above.
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -59,7 +63,7 @@ jobs:
 
       - name: Install Playwright chromium
         if: steps.stories.outputs.found == 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        uses: ./.github/actions/playwright
 
       - name: Build Storybook
         if: steps.stories.outputs.found == 'true'
