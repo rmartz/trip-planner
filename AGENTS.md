@@ -4,6 +4,10 @@
 
 - Always use `pnpm`. Never `npm` or `yarn`.
 
+### Dependency pins
+
+- **Full version pins.** Every dependency in `package.json` must specify the full `major.minor.patch` version, with a range annotation (`^`/`~`) allowed — e.g. `^4.1.13`, never `^4` or `^4.1`. This makes every Dependabot bump (including minor/patch) show up as a `package.json` diff instead of landing only in `pnpm-lock.yaml`, where a tooling bump (e.g. Prettier) can silently change formatting or behavior. Exact pins (`16.2.7`) are also fine — the requirement is that the full version is present.
+
 ## Common Commands
 
 ```bash
