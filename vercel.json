@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "node scripts/vercel-ignore-build.mjs",
   "env": {
     "SENTRY_RELEASE": "$VERCEL_GIT_COMMIT_SHA",
     "NEXT_PUBLIC_SENTRY_RELEASE": "$VERCEL_GIT_COMMIT_SHA"

@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-06-30** — Added the `vercel-ignore-build` Script page for the Vercel
+  Ignored Build Step gate (`vercel.json` `ignoreCommand`) that builds previews
+  only for `feat:`/`fix:` PR titles, always builds production, and fails open on
+  any uncertainty. Reads the PR title from the public GitHub REST API (no token);
+  a richer label-based design is deferred to #410. Documents the counterintuitive
+  exit-code semantics (exit 0 = skip, exit 1 = build).
 - **2026-06-30** — Added the `check-package-pins` Script page for the CI ratchet
   that enforces the full `major.minor.patch` dependency-pin rule on
   `package.json`. The `Package pins` workflow is gated to package-changing PRs

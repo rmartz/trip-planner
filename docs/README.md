@@ -68,5 +68,7 @@ but the table should stay authoritative.
   backfill the computed `transportGapCount` field on trip documents.
 - [seed-test-profiles](scripts/seed-test-profiles.md) — idempotent seeder for the
   synthetic debug-auth profiles in the staging Firebase project.
+- [vercel-ignore-build](scripts/vercel-ignore-build.md) — Vercel Ignored Build
+  Step gate that deploys previews only for `feat:`/`fix:` PRs.
 
 See [log.md](log.md) for the change history.
