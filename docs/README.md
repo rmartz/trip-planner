@@ -58,6 +58,8 @@ but the table should stay authoritative.
 
 ### Scripts
 
+- [check-package-pins](scripts/check-package-pins.md) — enforce full
+  `major.minor.patch` dependency pins in `package.json`.
 - [validate-config](scripts/validate-config.md) — validate config against
   `deployment/schema.yml`.
 - [migrate-member-uids](scripts/migrate-member-uids.md) — backfill the
