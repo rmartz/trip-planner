@@ -7,6 +7,11 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-06-29** — Added the Storybook Screenshot Previews System page. Moved PR
+  screenshots off the single shared `gh-screenshots` branch (written by every
+  PR under a `pr-<N>/` subdir) to a per-PR orphan branch `gh-screenshots-pr-<N>`
+  that is force-pushed each run and deleted on PR close — concurrency-safe by
+  construction, no new deps or secrets. (#399)
 - **2026-06-28** — Removed the `update-config`, `deploy-config`, and `rotate-keys`
   Script pages and trimmed the deployment-config System page: those scripts were
   deleted because the `vercel` CLI they used is gone after dropping

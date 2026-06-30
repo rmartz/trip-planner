@@ -3,7 +3,10 @@ name: PR Screenshots
 on:
   pull_request:
 
-# Requires contents:write to push to gh-screenshots branch.
+# Requires contents:write to push to the per-PR gh-screenshots-pr-<N> branch
+# (derived from PR_NUMBER inside the capture script; the branch is owned solely
+# by this PR and force-pushed each run, so it is concurrency-safe by
+# construction). pr-screenshots-cleanup.yml deletes the branch on PR close.
 # Forks get a read-only token regardless of this block, so the job is skipped
 # for forked PRs (see the `if:` condition on the job below).
 permissions:
@@ -19,8 +22,12 @@ jobs:
     name: Storybook screenshots
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Advisory job: best-effort preview screenshots for human UAT, not a
+    # correctness gate. continue-on-error keeps a flaky Playwright/CDN/build/
+    # comment-API failure from blocking the PR.
+    continue-on-error: true
     # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot push to
-    # gh-screenshots regardless of the permissions block above.
+    # the per-PR screenshots branch regardless of the permissions block above.
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v7
@@ -59,7 +66,7 @@ jobs:
 
       - name: Install Playwright chromium
         if: steps.stories.outputs.found == 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        uses: ./.github/actions/playwright
 
       - name: Build Storybook
         if: steps.stories.outputs.found == 'true'

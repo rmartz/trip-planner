@@ -1,0 +1,18 @@
+name: "Install Playwright Chromium"
+description: "Cache the Playwright browser binaries and install Chromium (+ system deps) with retry on transient failures."
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    - run: |
+        for attempt in 1 2 3; do
+          pnpm exec playwright install --with-deps chromium && exit 0
+          echo "playwright install failed (attempt ${attempt}/3); retrying in 15s..." >&2
+          sleep 15
+        done
+        exit 1
+      shell: bash
