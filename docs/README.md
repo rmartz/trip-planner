@@ -52,6 +52,9 @@ but the table should stay authoritative.
 - [Debug Auth (Staging/Preview Impersonation)](systems/debug-auth.md) — the
   staging-only custom-token sign-in mode for synthetic profiles, and its
   defense-in-depth safety layers.
+- [Storybook Screenshot Previews](systems/storybook-screenshots.md) — how PR
+  Storybook screenshots are captured, hosted on a per-PR branch, posted as a
+  sticky comment, and cleaned up.
 
 ### Scripts
 

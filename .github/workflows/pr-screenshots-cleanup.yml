@@ -1,0 +1,28 @@
+name: PR Screenshots Cleanup
+
+# Deletes the per-PR gh-screenshots-pr-<N> branch when a PR closes (merged or
+# not) so the per-PR screenshot branches don't accumulate. The capture workflow
+# (pr-screenshots.yml) creates these branches; this one tears them down.
+
+on:
+  pull_request:
+    types: [closed]
+
+# Requires contents:write to delete the per-PR screenshots branch.
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    name: Delete PR screenshots branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot delete a
+    # branch regardless of the permissions block above.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Delete gh-screenshots-pr-${{ github.event.pull_request.number }}
+        run: |
+          git push origin --delete gh-screenshots-pr-${{ github.event.pull_request.number }} || echo "no screenshots branch"

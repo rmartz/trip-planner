@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 /**
  * Captures Playwright screenshots for every Storybook story whose source file
- * changed in the PR, pushes them to the `gh-screenshots` branch, and posts (or
- * updates) a PR comment with an inline gallery.
+ * changed in the PR, pushes them to a per-PR `gh-screenshots-pr-<N>` branch,
+ * and posts (or updates) a PR comment with an inline gallery.
+ *
+ * The per-PR branch is owned solely by this PR, so it is concurrency-safe by
+ * construction — no PR ever writes another PR's branch. Each run rebuilds the
+ * branch from a fresh orphan commit and force-pushes it, giving clean
+ * latest-only semantics with no fetch/merge/branch-exists/retry complexity. A
+ * companion `pr-screenshots-cleanup.yml` workflow deletes the branch when the
+ * PR closes so branches don't accumulate.
  *
  * Expected environment variables:
  *   GITHUB_TOKEN  – token with contents:write and pull-requests:write
@@ -16,7 +23,7 @@ import { chromium } from "playwright";
 import { createServer } from "http";
 import { execSync } from "child_process";
 import { extname, join } from "path";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN ?? "";
 const REPO = process.env.REPO ?? "";
@@ -25,7 +32,7 @@ const CHANGED_FILES = process.env.CHANGED_FILES ?? "";
 const PR_HEAD_SHA = process.env.PR_HEAD_SHA ?? "";
 
 const COMMENT_MARKER = "<!-- storybook-screenshots-bot -->";
-const SCREENSHOTS_BRANCH = "gh-screenshots";
+const SCREENSHOTS_BRANCH = `gh-screenshots-pr-${PR_NUMBER}`;
 const STORYBOOK_PORT = 6006;
 
 const MIME_TYPES = {
@@ -137,7 +144,7 @@ async function captureScreenshots() {
 }
 
 // ---------------------------------------------------------------------------
-// Push screenshots to gh-screenshots branch
+// Push screenshots to the per-PR gh-screenshots-pr-<N> branch
 // ---------------------------------------------------------------------------
 
 function pushScreenshots(screenshots) {
@@ -149,49 +156,22 @@ function pushScreenshots(screenshots) {
   );
   execSync('git config user.name "github-actions[bot]"');
 
-  // Fetch remote branch if it exists, creating a local tracking ref
-  let branchExists = false;
-  try {
-    execSync(
-      `git fetch origin ${SCREENSHOTS_BRANCH}:refs/heads/${SCREENSHOTS_BRANCH}`,
-      { stdio: "pipe" },
-    );
-    branchExists = true;
-  } catch {
-    // Branch doesn't exist yet — will be created as orphan below
-  }
-
-  if (branchExists) {
-    execSync(`git worktree add ${tmpDir} ${SCREENSHOTS_BRANCH}`);
-  } else {
-    execSync(`git worktree add --orphan -b ${SCREENSHOTS_BRANCH} ${tmpDir}`);
-  }
-
-  const prDir = `${tmpDir}/pr-${PR_NUMBER}`;
-  // Clear stale screenshots from previous runs before writing the new set
-  rmSync(prDir, { recursive: true, force: true });
-  mkdirSync(prDir, { recursive: true });
+  // The per-PR branch is owned solely by this PR, so we always rebuild it from
+  // a fresh orphan commit and force-push — no fetch/merge/branch-exists logic.
+  execSync(`git worktree add --orphan -b ${SCREENSHOTS_BRANCH} ${tmpDir}`);
 
   const fileNames = screenshots.map(({ story, buffer }) => {
     const safeName = story.id.replace(/[^a-zA-Z0-9-]/g, "-");
     const fileName = `${safeName}.png`;
-    writeFileSync(`${prDir}/${fileName}`, buffer);
+    writeFileSync(`${tmpDir}/${fileName}`, buffer);
     return { story, fileName };
   });
 
   execSync(`git -C ${tmpDir} add -A`);
-
-  const status = execSync(`git -C ${tmpDir} status --porcelain`, {
-    encoding: "utf8",
-  }).trim();
-  if (status) {
-    execSync(
-      `git -C ${tmpDir} commit -m "Add screenshots for PR #${PR_NUMBER} (${shortSha})"`,
-    );
-    execSync(`git -C ${tmpDir} push origin ${SCREENSHOTS_BRANCH}`);
-  } else {
-    console.log("Screenshots unchanged — skipping commit.");
-  }
+  execSync(
+    `git -C ${tmpDir} commit -m "Screenshots for PR #${PR_NUMBER} (${shortSha})"`,
+  );
+  execSync(`git -C ${tmpDir} push --force origin ${SCREENSHOTS_BRANCH}`);
 
   execSync(`git worktree remove --force ${tmpDir}`);
   return fileNames;
@@ -202,7 +182,7 @@ function pushScreenshots(screenshots) {
 // ---------------------------------------------------------------------------
 
 function buildRawUrl(fileName) {
-  return `https://raw.githubusercontent.com/${REPO}/${SCREENSHOTS_BRANCH}/pr-${PR_NUMBER}/${fileName}`;
+  return `https://raw.githubusercontent.com/${REPO}/${SCREENSHOTS_BRANCH}/${fileName}`;
 }
 
 function buildCommentBody(fileNames) {
