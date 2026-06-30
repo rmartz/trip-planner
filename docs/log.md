@@ -7,6 +7,11 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-06-30** — Added the `check-package-pins` Script page for the CI ratchet
+  that enforces the full `major.minor.patch` dependency-pin rule on
+  `package.json`. The `Package pins` workflow is gated to package-changing PRs
+  with a closed-input `paths` allowlist (contrast the documentation denylist used
+  for open-input test jobs).
 - **2026-06-29** — Added the Storybook Screenshot Previews System page. Moved PR
   screenshots off the single shared `gh-screenshots` branch (written by every
   PR under a `pr-<N>/` subdir) to a per-PR orphan branch `gh-screenshots-pr-<N>`

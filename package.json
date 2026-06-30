@@ -19,6 +19,7 @@
     "test:storybook": "vitest run --config vitest.storybook.config.ts",
     "prepare": "husky",
     "env:validate": "node scripts/validate-config.mjs",
+    "pins:check": "node scripts/check-package-pins.mjs",
     "backfill:transport-gap-count": "node scripts/backfill-transport-gap-count.mjs",
     "migrate:member-uids": "node scripts/migrate-member-uids.mjs"
   },
