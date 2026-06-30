@@ -9,10 +9,81 @@ permissions:
   contents: read
 
 jobs:
+  # Decide whether the heavy code-validation jobs (Tests, Storybook Tests, Build,
+  # Typecheck) need to run for this event. The rule is a DENYLIST, never an
+  # allowlist: run the full suite by default and skip only when EVERY changed
+  # file is provably-inert documentation. A new or unanticipated file type
+  # therefore fails *safe* (runs the suite) rather than *open* (skips it). See
+  # issue #392. Pushes to main always run (post-merge: don't try to be clever).
+  detect-changes:
+    name: Detect code changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      code_changed: ${{ steps.detect.outputs.code_changed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: detect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+
+          # Non-PR events (push to main) always run the full suite.
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "Event '$EVENT_NAME' is not a pull_request; running full suite."
+            echo "code_changed=true" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          changed="$(git diff --name-only "origin/$BASE_REF"...HEAD)"
+
+          if [ -z "$changed" ]; then
+            echo "No changed files detected; running full suite (fail safe)."
+            echo "code_changed=true" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$changed"
+
+          # A file is inert (skippable docs) only if it matches one of these.
+          # Anything else flips code_changed=true.
+          is_inert() {
+            case "$1" in
+              LICENSE) return 0 ;;
+              docs/*) return 0 ;;
+              *.md) return 0 ;;
+              *.txt) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          code_changed=false
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            if ! is_inert "$file"; then
+              echo "Non-inert file triggers full suite: $file"
+              code_changed=true
+              break
+            fi
+          done <<EOF
+          $changed
+          EOF
+
+          echo "code_changed=$code_changed"
+          echo "code_changed=$code_changed" >>"$GITHUB_OUTPUT"
+
   tests:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code_changed == 'true'
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
@@ -40,6 +111,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code_changed == 'true'
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
@@ -49,24 +122,33 @@ jobs:
     name: Typecheck
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code_changed == 'true'
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm tsc
 
-  # PROTECTED INVARIANT: this job must run on every code-touching PR with no
-  # `on.pull_request.paths` / `paths-ignore` filter and no path-based `if:`
-  # gate. The story files ARE the Storybook test suite (storybookTest()), so
-  # running them unconditionally is the always-on regression net that catches a
-  # visual/behavioral regression introduced by a *non-Storybook* edit (a
-  # component, hook, CSS, or util) — an edit that, by design, does NOT trigger
-  # screenshot generation in pr-screenshots.yml. Do NOT path-filter this job to
-  # "optimize" CI: that would let such a regression sneak past. See issue #391.
-  # (Documentation-only PRs skip the heavy jobs — see #392.)
+  # PROTECTED INVARIANT: this job must run on every CODE-touching PR with no
+  # `on.pull_request.paths` / `paths-ignore` filter. The story files ARE the
+  # Storybook test suite (storybookTest()), so running them on every code change
+  # is the always-on regression net that catches a visual/behavioral regression
+  # introduced by a *non-Storybook* edit (a component, hook, CSS, or util) — an
+  # edit that, by design, does NOT trigger screenshot generation in
+  # pr-screenshots.yml. Do NOT path-filter this job to "optimize" CI: that would
+  # let such a regression sneak past. See issue #391.
+  #
+  # The ONLY permitted skip is the documentation-only gate (#392): a doc-only PR
+  # changes no code, so there is nothing the suite could regress. That gate is
+  # the `if: needs.detect-changes.outputs.code_changed == 'true'` below — a
+  # job-level condition, NOT an `on.pull_request.paths` filter — so the
+  # always-on-for-code invariant holds.
   storybook-tests:
     name: Storybook Tests
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code_changed == 'true'
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
