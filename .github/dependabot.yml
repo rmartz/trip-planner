@@ -14,6 +14,17 @@ updates:
     # Group only minor/patch bumps; major bumps fall outside the groups and get
     # individual PRs, since they are more likely to need code changes.
     groups:
+      # Prettier major/minor bumps can reformat code (see trip-split#114), so
+      # isolate them into their own PR for standalone review. Listed first to win
+      # group precedence; patch bumps don't match update-types here and fall
+      # through to dev-dependencies, so trivial Prettier patches still ride along
+      # with the normal grouped minor/patch updates.
+      prettier:
+        patterns:
+          - "prettier"
+        update-types:
+          - "major"
+          - "minor"
       dev-dependencies:
         dependency-type: development
         update-types:
