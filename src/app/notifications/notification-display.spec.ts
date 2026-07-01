@@ -86,6 +86,16 @@ describe("notificationLinkPath — resolves the linked in-app route", () => {
     expect(path).toBe("/trips/trip-3");
   });
 
+  it("links a VoteReceived notification to the trip overview", () => {
+    const path = notificationLinkPath(
+      makeNotification({
+        type: NotificationType.VoteReceived,
+        tripId: "trip-5",
+      }),
+    );
+    expect(path).toBe("/trips/trip-5");
+  });
+
   it("links a LodgingOffer notification to the trip lodging view", () => {
     const path = notificationLinkPath(
       makeNotification({
