@@ -7,7 +7,7 @@ vi.mock("./notify-schedule", () => ({
 }));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { publishSchedule } from "./schedule";
+import { publishSchedule, PublishScheduleForbiddenError } from "./schedule";
 import { writeNotificationsForSchedulePublish } from "./notify-schedule";
 
 interface StopState {
@@ -82,7 +82,7 @@ describe("publishSchedule restricts publishing to Planners", () => {
 
     await expect(
       publishSchedule("guest-1", "trip-1", "stop-1", ["activity-a"]),
-    ).rejects.toThrow();
+    ).rejects.toThrow(PublishScheduleForbiddenError);
   });
 
   it("throws when the actor is not a member", async () => {
@@ -90,7 +90,7 @@ describe("publishSchedule restricts publishing to Planners", () => {
 
     await expect(
       publishSchedule("stranger-1", "trip-1", "stop-1", ["activity-a"]),
-    ).rejects.toThrow();
+    ).rejects.toThrow(PublishScheduleForbiddenError);
   });
 });
 
