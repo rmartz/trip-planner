@@ -82,14 +82,12 @@ describe("LodgingHostGuestPicker", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Alice")).toBeDefined();
+      const checkbox = screen.getByLabelText("Alice");
+      if (!(checkbox instanceof HTMLInputElement)) {
+        throw new Error("Expected Alice checkbox to be an input.");
+      }
+      expect(checkbox.checked).toBe(true);
     });
-
-    const checkbox = screen.getByLabelText("Alice");
-    if (!(checkbox instanceof HTMLInputElement)) {
-      throw new Error("Expected Alice checkbox to be an input.");
-    }
-    expect(checkbox.checked).toBe(true);
   });
 
   it("saves the selected invitees through the PUT endpoint", async () => {
