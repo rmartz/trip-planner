@@ -33,18 +33,21 @@ export async function publishSchedule(
   }
 
   const stopRef = tripRef.collection("stops").doc(stopId);
-  const stopSnap = await stopRef.get();
-  const previousStatus = stopSnap.data()?.["scheduleStatus"] as
-    | ScheduleStatus
-    | undefined;
 
-  await stopRef.update({
-    scheduleActivityOrder: orderedActivityIds,
-    schedulePublishedAt: FieldValue.serverTimestamp(),
-    scheduleStatus: "published",
+  const wasAlreadyPublished = await db.runTransaction(async (transaction) => {
+    const stopSnap = await transaction.get(stopRef);
+    const previousStatus = stopSnap.data()?.["scheduleStatus"] as
+      | ScheduleStatus
+      | undefined;
+    transaction.update(stopRef, {
+      scheduleActivityOrder: orderedActivityIds,
+      schedulePublishedAt: FieldValue.serverTimestamp(),
+      scheduleStatus: "published",
+    });
+    return previousStatus === "published";
   });
 
-  if (previousStatus === "published") return;
+  if (wasAlreadyPublished) return;
 
   try {
     await writeNotificationsForSchedulePublish(publisherUid, tripId, stopId);

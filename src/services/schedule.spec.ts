@@ -18,11 +18,12 @@ function setupFirestoreMock(
   memberRole: TripRole | undefined,
   stopState: StopState,
 ) {
-  const stopUpdate = vi.fn().mockResolvedValue(undefined);
-  const stopDoc = vi.fn(() => ({
+  const transactionUpdate = vi.fn();
+  const transaction = {
     get: vi.fn().mockResolvedValue({ data: () => stopState }),
-    update: stopUpdate,
-  }));
+    update: transactionUpdate,
+  };
+  const stopDoc = vi.fn(() => ({}));
   const memberDoc = vi.fn(() => ({
     get: vi.fn().mockResolvedValue({
       data: () => (memberRole ? { role: memberRole } : undefined),
@@ -41,11 +42,15 @@ function setupFirestoreMock(
       if (name === "trips") return { doc: tripDoc };
       return {};
     }),
+    runTransaction: vi.fn(
+      async (callback: (tx: typeof transaction) => Promise<boolean>) =>
+        callback(transaction),
+    ),
   };
   vi.mocked(getAdminFirestore).mockReturnValue(
     db as unknown as ReturnType<typeof getAdminFirestore>,
   );
-  return { stopUpdate };
+  return { stopUpdate: transactionUpdate };
 }
 
 describe("publishSchedule persists the published schedule and transitions status", () => {
@@ -63,7 +68,10 @@ describe("publishSchedule persists the published schedule and transitions status
       "activity-a",
     ]);
 
-    const [updates] = stopUpdate.mock.calls[0] as [Record<string, unknown>];
+    const [, updates] = stopUpdate.mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
     expect(updates["scheduleActivityOrder"]).toEqual([
       "activity-b",
       "activity-a",
