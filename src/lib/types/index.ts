@@ -20,6 +20,8 @@ export { LodgingStatus } from "./lodging";
 export type { LodgingRecord } from "./lodging";
 export type { NonAccountMember } from "./non-account-member";
 export { NotificationType } from "./notification";
+export { SCHEDULE_STATUSES } from "./schedule";
+export type { ScheduleStatus } from "./schedule";
 export type { Notification } from "./notification";
 export {
   TransportationStatus,
