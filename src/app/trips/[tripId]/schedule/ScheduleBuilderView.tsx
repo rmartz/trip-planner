@@ -17,7 +17,10 @@ export interface ScheduleBuilderViewProps {
   stopName: string;
   activities: ProposedActivityItem[];
   onReorder: (orderedIds: string[]) => void;
-  onPublish: () => void;
+  onPublish: (orderedActivityIds: string[]) => void;
+  isPublishing?: boolean;
+  isPublished?: boolean;
+  errorMessage?: string;
 }
 
 interface PinnedActivityRowProps {
@@ -97,6 +100,9 @@ export function ScheduleBuilderView({
   activities,
   onReorder,
   onPublish,
+  isPublishing = false,
+  isPublished = false,
+  errorMessage,
 }: ScheduleBuilderViewProps) {
   const pinnedActivities = [...activities.filter((a) => a.pinned)].sort(
     (a, b) => a.order - b.order,
@@ -142,6 +148,14 @@ export function ScheduleBuilderView({
   }
 
   const isEmpty = pinnedActivities.length === 0 && unpinnedOrder.length === 0;
+  const orderedActivityIds = [...pinnedActivities, ...unpinnedOrder].map(
+    (a) => a.activityId,
+  );
+  const publishButtonLabel = isPublishing
+    ? COPY.publishingButton
+    : isPublished
+      ? COPY.rePublishButton
+      : COPY.publishButton;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -149,7 +163,7 @@ export function ScheduleBuilderView({
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-semibold">{COPY.heading}</h1>
           <span className="rounded-full border px-2 py-0.5 text-xs font-medium text-muted-foreground">
-            {COPY.draftBadge}
+            {isPublished ? COPY.publishedBadge : COPY.draftBadge}
           </span>
         </div>
         <p className="font-mono text-xs text-muted-foreground">
@@ -206,14 +220,21 @@ export function ScheduleBuilderView({
         )}
       </main>
 
-      <footer className="border-t p-4">
+      <footer className="flex flex-col gap-2 border-t p-4">
+        {errorMessage !== undefined && (
+          <p role="alert" className="text-sm text-destructive">
+            {errorMessage}
+          </p>
+        )}
         <Button
           type="button"
           className="w-full"
-          disabled={isEmpty}
-          onClick={onPublish}
+          disabled={isEmpty || isPublishing}
+          onClick={() => {
+            onPublish(orderedActivityIds);
+          }}
         >
-          {COPY.publishButton}
+          {publishButtonLabel}
         </Button>
       </footer>
     </div>
