@@ -55,6 +55,9 @@ but the table should stay authoritative.
 - [Storybook Screenshot Previews](systems/storybook-screenshots.md) — how PR
   Storybook screenshots are captured, hosted on a per-PR branch, posted as a
   sticky comment, and cleaned up.
+- [memberUids Fan-Out Invariant](systems/member-uids-fan-out.md) — how the
+  denormalized `memberUids` array is kept in sync across every trip-scoped
+  document on membership changes, and why it is a security requirement.
 
 ### Scripts
 

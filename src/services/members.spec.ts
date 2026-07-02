@@ -9,8 +9,10 @@ vi.mock("@/lib/firebase/schema/trip", () => ({
 vi.mock("@/lib/firebase/schema/non-account-member", () => ({
   firebaseToNonAccountMember: vi.fn(),
 }));
+vi.mock("./member-uids", () => ({ syncTripMemberUids: vi.fn() }));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
+import { syncTripMemberUids } from "./member-uids";
 import { firebaseToTripMember } from "@/lib/firebase/schema/trip";
 import { firebaseToNonAccountMember } from "@/lib/firebase/schema/non-account-member";
 import {
@@ -349,6 +351,35 @@ describe("removeGuest", () => {
     await removeGuest("planner-uid", "trip-1", "target-uid");
 
     expect(memberDocDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it("fans out memberUids after deleting so the ex-member is dropped", async () => {
+    const { mockDb, memberDocGet, memberDocDelete } = makeMockDb();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    let syncedBeforeDelete = false;
+    vi.mocked(syncTripMemberUids).mockImplementation(() => {
+      if (!memberDocDelete.mock.calls.length) syncedBeforeDelete = true;
+      return Promise.resolve();
+    });
+
+    memberDocGet
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ role: TripRole.Planner }),
+      })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ role: TripRole.Guest }),
+      });
+    memberDocDelete.mockResolvedValue(undefined);
+
+    await removeGuest("planner-uid", "trip-1", "target-uid");
+
+    expect(syncTripMemberUids).toHaveBeenCalledWith(mockDb, "trip-1");
+    expect(syncedBeforeDelete).toBe(false);
   });
 
   it("throws when target member does not exist or is not a Guest", async () => {

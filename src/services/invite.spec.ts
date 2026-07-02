@@ -1,19 +1,23 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
 vi.mock("@/lib/firebase/schema/trip", () => ({ firebaseToTrip: vi.fn() }));
+vi.mock("./member-uids", () => ({ syncTripMemberUids: vi.fn() }));
 vi.mock("crypto", () => ({ randomBytes: vi.fn() }));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToTrip } from "@/lib/firebase/schema/trip";
+import { syncTripMemberUids } from "./member-uids";
 import { randomBytes } from "crypto";
 import {
   acceptInvite,
   getTripByInviteToken,
   regenerateInviteToken,
 } from "./invite";
+
+beforeEach(() => vi.clearAllMocks());
 
 function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return {
@@ -110,6 +114,39 @@ describe("acceptInvite — new member", () => {
     expect(memberSetFn).toHaveBeenCalledWith(
       expect.objectContaining({ uid: "uid-new", role: TripRole.Guest }),
     );
+    expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
+  });
+});
+
+describe("acceptInvite — fans out memberUids after adding a member", () => {
+  it("syncs the memberUids invariant only after writing the member doc", async () => {
+    vi.mocked(syncTripMemberUids).mockClear();
+    let syncedBeforeSet = false;
+    const memberSetFn = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(syncTripMemberUids).mockImplementation(() => {
+      if (!memberSetFn.mock.calls.length) syncedBeforeSet = true;
+      return Promise.resolve();
+    });
+    const memberGetFn = vi.fn().mockResolvedValue({ exists: false });
+    const memberDocFn = vi.fn(() => ({ get: memberGetFn, set: memberSetFn }));
+    const membersColFn = vi.fn(() => ({ doc: memberDocFn }));
+
+    const snapshot = {
+      id: "trip-1",
+      exists: true,
+      data: () => ({ name: "Paris Trip", inviteToken: "tok-abc" }),
+    };
+    const { db } = makeTripsCollectionWithDoc(
+      { empty: false, docs: [snapshot] },
+      { collection: membersColFn },
+    );
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      db as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await acceptInvite("tok-abc", "uid-new");
+    expect(syncedBeforeSet).toBe(false);
+    expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
   });
 });
 
@@ -137,6 +174,7 @@ describe("acceptInvite — already a member", () => {
     const result = await acceptInvite("tok-abc", "uid-existing");
     expect(result).toEqual({ tripId: "trip-1", alreadyMember: true });
     expect(memberSetFn).not.toHaveBeenCalled();
+    expect(syncTripMemberUids).not.toHaveBeenCalled();
   });
 });
 

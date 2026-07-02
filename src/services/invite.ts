@@ -6,6 +6,7 @@ import { getUnreadCountPath } from "@/lib/firebase/schema/unread-count";
 import { NotificationType } from "@/lib/types/notification";
 import { TripRole } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
+import { syncTripMemberUids } from "./member-uids";
 import {
   GROUP_USE_TTL_DAYS,
   type InviteLink,
@@ -83,6 +84,7 @@ export async function acceptInvite(
   if (existing.exists) return { tripId, alreadyMember: true };
 
   await memberRef.set({ uid, role: TripRole.Guest, joinedAt: new Date() });
+  await syncTripMemberUids(db, tripId);
   return { tripId, alreadyMember: false };
 }
 
@@ -163,7 +165,7 @@ export async function acceptInviteByLink(
   const db = getAdminFirestore();
   const inviteRef = db.collection("invites").doc(token);
 
-  return db.runTransaction(async (txn) => {
+  const result = await db.runTransaction(async (txn) => {
     const inviteSnap = await txn.get(inviteRef);
     if (!inviteSnap.exists) throw new Error("Invalid invite token");
 
@@ -185,6 +187,15 @@ export async function acceptInviteByLink(
 
     return { alreadyMember: false, tripId };
   });
+
+  // Fan the new member's uid out to every stops/legs document so the
+  // memberUids invariant holds across all trip-scoped docs, not just the
+  // trip document that the transaction's arrayUnion already covered.
+  if (!result.alreadyMember) {
+    await syncTripMemberUids(db, result.tripId);
+  }
+
+  return result;
 }
 
 export async function revokeInviteLink(token: string): Promise<void> {

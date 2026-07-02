@@ -4,6 +4,7 @@ import { firebaseToTripMember } from "@/lib/firebase/schema/trip";
 import { firebaseToNonAccountMember } from "@/lib/firebase/schema/non-account-member";
 import { TripRole } from "@/lib/types/trip";
 import { NotFoundError, PlannerOnlyError } from "./errors";
+import { syncTripMemberUids } from "./member-uids";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
 
@@ -150,6 +151,7 @@ export async function removeGuest(
   }
 
   await tripRef.collection("members").doc(targetUid).delete();
+  await syncTripMemberUids(db, tripId);
 }
 
 export function generateClaimToken(): string {
