@@ -5,12 +5,28 @@ runs:
   using: "composite"
   steps:
     - uses: actions/cache@v4
+      id: cache
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        # The browser set (chromium) is part of the key so a job installing a
+        # different set can't collide under one key and thrash. The coarse
+        # restore-key gives partial reuse when a Playwright bump busts the exact
+        # hash — only the changed browser re-downloads.
+        key: playwright-${{ runner.os }}-chromium-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          playwright-${{ runner.os }}-chromium-
     - run: |
+        # On an exact cache hit the browser binary is already present, so only
+        # the OS libraries need installing (install-deps) — skip the ~130 MB
+        # download. Otherwise do the full download-and-deps install. Either path
+        # is retried, as the network step is a known flake source.
+        if [ "${{ steps.cache.outputs.cache-hit }}" = "true" ]; then
+          install_cmd="pnpm exec playwright install-deps chromium"
+        else
+          install_cmd="pnpm exec playwright install --with-deps chromium"
+        fi
         for attempt in 1 2 3; do
-          pnpm exec playwright install --with-deps chromium && exit 0
+          ${install_cmd} && exit 0
           echo "playwright install failed (attempt ${attempt}/3); retrying in 15s..." >&2
           sleep 15
         done

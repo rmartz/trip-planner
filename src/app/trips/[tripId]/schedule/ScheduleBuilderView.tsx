@@ -107,13 +107,21 @@ export function ScheduleBuilderView({
   const pinnedActivities = [...activities.filter((a) => a.pinned)].sort(
     (a, b) => a.order - b.order,
   );
-  const [unpinnedOrder, setUnpinnedOrder] = useState(() =>
-    [...activities.filter((a) => !a.pinned)].sort((a, b) => a.order - b.order),
+  const unpinnedById = new Map(
+    activities.filter((a) => !a.pinned).map((a) => [a.activityId, a]),
   );
 
-  const unpinnedIdsRef = useRef(
-    new Set(activities.filter((a) => !a.pinned).map((a) => a.activityId)),
+  // Track ordering by stable activity IDs only; the full objects are
+  // re-derived from the current `activities` prop at render time so field
+  // updates (name, timeOfDaySlot, …) are always reflected even when the local
+  // reorder is preserved across re-renders with the same ID set.
+  const [unpinnedOrderIds, setUnpinnedOrderIds] = useState(() =>
+    [...activities.filter((a) => !a.pinned)]
+      .sort((a, b) => a.order - b.order)
+      .map((a) => a.activityId),
   );
+
+  const unpinnedIdsRef = useRef(new Set(unpinnedById.keys()));
 
   useEffect(() => {
     const newIds = new Set(
@@ -124,31 +132,36 @@ export function ScheduleBuilderView({
       newIds.size === prev.size && [...newIds].every((id) => prev.has(id));
     if (!setsMatch) {
       unpinnedIdsRef.current = newIds;
-      setUnpinnedOrder(
-        [...activities.filter((a) => !a.pinned)].sort(
-          (a, b) => a.order - b.order,
-        ),
+      setUnpinnedOrderIds(
+        [...activities.filter((a) => !a.pinned)]
+          .sort((a, b) => a.order - b.order)
+          .map((a) => a.activityId),
       );
     }
   }, [activities]);
 
+  const unpinnedActivities = unpinnedOrderIds
+    .map((id) => unpinnedById.get(id))
+    .filter((a): a is ProposedActivityItem => a !== undefined);
+
   function moveActivity(fromIndex: number, toIndex: number) {
     if (
       fromIndex < 0 ||
-      fromIndex >= unpinnedOrder.length ||
+      fromIndex >= unpinnedOrderIds.length ||
       toIndex < 0 ||
-      toIndex >= unpinnedOrder.length
+      toIndex >= unpinnedOrderIds.length
     ) {
       return;
     }
-    const next = [...unpinnedOrder];
+    const next = [...unpinnedOrderIds];
     next.splice(toIndex, 0, ...next.splice(fromIndex, 1));
-    setUnpinnedOrder(next);
-    onReorder(next.map((a) => a.activityId));
+    setUnpinnedOrderIds(next);
+    onReorder(next);
   }
 
-  const isEmpty = pinnedActivities.length === 0 && unpinnedOrder.length === 0;
-  const orderedActivityIds = [...pinnedActivities, ...unpinnedOrder].map(
+  const isEmpty =
+    pinnedActivities.length === 0 && unpinnedActivities.length === 0;
+  const orderedActivityIds = [...pinnedActivities, ...unpinnedActivities].map(
     (a) => a.activityId,
   );
   const publishButtonLabel = isPublishing
@@ -193,18 +206,18 @@ export function ScheduleBuilderView({
               </section>
             )}
 
-            {unpinnedOrder.length > 0 && (
+            {unpinnedActivities.length > 0 && (
               <section className="flex flex-col gap-3">
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {COPY.proposedSectionHeading}
                 </h2>
                 <ol className="flex flex-col gap-2">
-                  {unpinnedOrder.map((activity, index) => (
+                  {unpinnedActivities.map((activity, index) => (
                     <ProposedActivityRow
                       key={activity.activityId}
                       activity={activity}
                       isFirst={index === 0}
-                      isLast={index === unpinnedOrder.length - 1}
+                      isLast={index === unpinnedActivities.length - 1}
                       onMoveUp={() => {
                         moveActivity(index, index - 1);
                       }}
