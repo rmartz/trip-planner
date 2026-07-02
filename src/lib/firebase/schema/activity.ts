@@ -91,7 +91,9 @@ export function firebaseToActivity(
 
 export function activityToFirebase(
   activity: Omit<Activity, "activityId" | "stopId" | "tripId">,
+  tripId: string,
 ): {
+  tripId: string;
   name: string;
   estimatedDurationMinutes: number;
   description?: string;
@@ -103,6 +105,7 @@ export function activityToFirebase(
   pinnedSlot?: TimeOfDaySlot;
 } {
   return {
+    tripId,
     name: activity.name,
     estimatedDurationMinutes: activity.estimatedDurationMinutes,
     ...(activity.description !== undefined
