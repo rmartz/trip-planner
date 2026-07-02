@@ -7,10 +7,12 @@ import {
   ExpenseLinkedEntityType,
   ExpenseSplitMethod,
 } from "@/lib/types/expense";
+import { ExpenseUnitModel } from "@/lib/types/expense-settings";
 import {
   EXPENSE_CATEGORY_VALUES,
   EXPENSE_LINKED_ENTITY_TYPE_VALUES,
   EXPENSE_SPLIT_METHOD_VALUES,
+  EXPENSE_UNIT_MODEL_VALUES,
   isValidCurrencyCode,
 } from "./expense-validation";
 
@@ -72,6 +74,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     participantUids: unknown;
     splitMethod: unknown;
     linkedEntity?: unknown;
+    unitModel?: unknown;
   };
 
   if (
@@ -219,6 +222,17 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     };
   }
 
+  let unitModel: ExpenseUnitModel | undefined;
+  if (body.unitModel !== undefined && body.unitModel !== null) {
+    if (!EXPENSE_UNIT_MODEL_VALUES.has(body.unitModel as ExpenseUnitModel)) {
+      return NextResponse.json(
+        { error: "unitModel must be a valid expense unit model" },
+        { status: 400 },
+      );
+    }
+    unitModel = body.unitModel as ExpenseUnitModel;
+  }
+
   const expenseId = await addExpense(uid, tripId, {
     name: body.name.trim(),
     amount: body.amount,
@@ -228,6 +242,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     participantUids: body.participantUids,
     splitMethod: body.splitMethod as ExpenseSplitMethod,
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
+    ...(unitModel !== undefined ? { unitModel } : {}),
   });
 
   return NextResponse.json({ expenseId });

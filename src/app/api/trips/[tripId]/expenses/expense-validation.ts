@@ -3,6 +3,7 @@ import {
   ExpenseLinkedEntityType,
   ExpenseSplitMethod,
 } from "@/lib/types/expense";
+import { ExpenseUnitModel } from "@/lib/types/expense-settings";
 
 export const EXPENSE_CATEGORY_VALUES = new Set(Object.values(ExpenseCategory));
 export const EXPENSE_LINKED_ENTITY_TYPE_VALUES = new Set(
@@ -10,6 +11,9 @@ export const EXPENSE_LINKED_ENTITY_TYPE_VALUES = new Set(
 );
 export const EXPENSE_SPLIT_METHOD_VALUES = new Set(
   Object.values(ExpenseSplitMethod),
+);
+export const EXPENSE_UNIT_MODEL_VALUES = new Set(
+  Object.values(ExpenseUnitModel),
 );
 
 const SUPPORTED_CURRENCY_CODES =

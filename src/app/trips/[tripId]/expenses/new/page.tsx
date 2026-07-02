@@ -190,6 +190,9 @@ export default function NewExpensePage() {
                 ...(input.linkedEntity !== undefined
                   ? { linkedEntity: input.linkedEntity }
                   : {}),
+                ...(input.unitModel !== undefined
+                  ? { unitModel: input.unitModel }
+                  : {}),
               },
               {
                 onSuccess: () => {

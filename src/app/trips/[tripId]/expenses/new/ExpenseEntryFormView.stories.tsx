@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import { ExpenseLinkedEntityType } from "@/lib/types/expense";
+import { ExpenseUnitModel } from "@/lib/types/expense-settings";
 import {
   ExpenseEntryFormView,
   type ExpenseEntryLinkedEntityOption,
@@ -74,5 +75,11 @@ export const Submitting: Story = {
 export const SubmitError: Story = {
   args: {
     submitError: EXPENSE_ENTRY_FORM_COPY.submitError,
+  },
+};
+
+export const WithUnitModelOverride: Story = {
+  args: {
+    initialUnitModel: ExpenseUnitModel.SharedBucket,
   },
 };

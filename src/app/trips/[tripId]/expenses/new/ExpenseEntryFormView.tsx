@@ -9,6 +9,7 @@ import type {
   ExpenseLinkedEntity,
   ExpenseLinkedEntityType,
 } from "@/lib/types/expense";
+import { ExpenseUnitModel } from "@/lib/types/expense-settings";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 
 const COPY = EXPENSE_ENTRY_FORM_COPY;
@@ -41,12 +42,14 @@ export interface ExpenseEntryInput {
   linkedEntity?: ExpenseLinkedEntity;
   participantMemberIds: string[];
   payerMemberId: string;
+  unitModel?: ExpenseUnitModel;
 }
 
 export interface ExpenseEntryFormViewProps {
   initialLinkedEntity?: Pick<ExpenseLinkedEntity, "entityId" | "type">;
   initialParticipantIds?: string[];
   initialPayerId?: string;
+  initialUnitModel?: ExpenseUnitModel;
   isSubmitting?: boolean;
   linkedEntityOptions: ExpenseEntryLinkedEntityOption[];
   memberOptions: ExpenseEntryMemberOption[];
@@ -71,10 +74,22 @@ const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
 
 const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "JPY"];
 
+const UNIT_MODEL_OPTIONS: { label: string; value: ExpenseUnitModel }[] = [
+  { label: COPY.unitModelOptionPerUnit, value: ExpenseUnitModel.PerUnit },
+  {
+    label: COPY.unitModelOptionSharedBucket,
+    value: ExpenseUnitModel.SharedBucket,
+  },
+  { label: COPY.unitModelOptionUsageShare, value: ExpenseUnitModel.UsageShare },
+];
+
+const UNIT_MODEL_CATEGORY_DEFAULT = "";
+
 export function ExpenseEntryFormView({
   initialLinkedEntity,
   initialParticipantIds,
   initialPayerId,
+  initialUnitModel,
   isSubmitting = false,
   linkedEntityOptions,
   memberOptions,
@@ -112,6 +127,9 @@ export function ExpenseEntryFormView({
       )
       ? `${initialLinkedEntity.type}:${initialLinkedEntity.entityId}`
       : "",
+  );
+  const [unitModelValue, setUnitModelValue] = useState<string>(
+    initialUnitModel ?? UNIT_MODEL_CATEGORY_DEFAULT,
   );
   const [amountError, setAmountError] = useState<string | undefined>();
   const [payerError, setPayerError] = useState<string | undefined>();
@@ -171,6 +189,9 @@ export function ExpenseEntryFormView({
         : {}),
       participantMemberIds: participantIds,
       payerMemberId,
+      ...(unitModelValue !== UNIT_MODEL_CATEGORY_DEFAULT
+        ? { unitModel: unitModelValue as ExpenseUnitModel }
+        : {}),
     });
   }
 
@@ -234,6 +255,28 @@ export function ExpenseEntryFormView({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="expense-unit-model">{COPY.unitModelLabel}</Label>
+        <select
+          id="expense-unit-model"
+          value={unitModelValue}
+          onChange={(e) => {
+            setUnitModelValue(e.target.value);
+          }}
+          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+        >
+          <option value={UNIT_MODEL_CATEGORY_DEFAULT}>
+            {COPY.unitModelCategoryDefaultOption}
+          </option>
+          {UNIT_MODEL_OPTIONS.map(({ label, value }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted-foreground">{COPY.unitModelHint}</p>
       </div>
 
       <div className="flex flex-col gap-1.5">

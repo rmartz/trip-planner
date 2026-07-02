@@ -5,6 +5,15 @@ import type {
   ExpenseLinkedEntity,
   ExpenseLinkedEntityType,
 } from "@/lib/types/expense";
+import { ExpenseUnitModel } from "@/lib/types/expense-settings";
+
+const EXPENSE_UNIT_MODEL_VALUES = new Set(Object.values(ExpenseUnitModel));
+
+function toUnitModel(value: unknown): ExpenseUnitModel | undefined {
+  return EXPENSE_UNIT_MODEL_VALUES.has(value as ExpenseUnitModel)
+    ? (value as ExpenseUnitModel)
+    : undefined;
+}
 
 function toParticipantUids(value: unknown): string[] {
   if (!Array.isArray(value)) {
@@ -59,6 +68,7 @@ export function firebaseToExpense(
   const confirmedParticipantUids = toParticipantUids(
     data["confirmedParticipantUids"],
   );
+  const unitModel = toUnitModel(data["unitModel"]);
   return {
     expenseId,
     tripId,
@@ -79,6 +89,7 @@ export function firebaseToExpense(
       ? { confirmedParticipantUids }
       : {}),
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
+    ...(unitModel !== undefined ? { unitModel } : {}),
   };
 }
 
@@ -96,6 +107,7 @@ export function expenseToFirebase(
   participantShares?: Record<string, number>;
   confirmedParticipantUids?: string[];
   linkedEntity?: ExpenseLinkedEntity;
+  unitModel?: ExpenseUnitModel;
 } {
   return {
     name: expense.name,
@@ -116,6 +128,9 @@ export function expenseToFirebase(
       : {}),
     ...(expense.linkedEntity !== undefined
       ? { linkedEntity: expense.linkedEntity }
+      : {}),
+    ...(expense.unitModel !== undefined
+      ? { unitModel: expense.unitModel }
       : {}),
   };
 }
