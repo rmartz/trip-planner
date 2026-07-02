@@ -118,6 +118,28 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm build
 
+  # Gating compile check for the PRODUCTION Storybook bundle. This is a distinct
+  # render surface from the two jobs above: `build` (`pnpm build`) is the Next.js
+  # bundler, and `storybook-tests` renders stories through Vitest's transform —
+  # neither exercises `build-storybook`. Without this job, `pnpm build-storybook`
+  # runs ONLY in pr-screenshots.yml's advisory `screenshots` job, where it is both
+  # story-gated (skipped for non-story changes) and under job-level
+  # `continue-on-error` (a break reports neutral). A change that breaks the
+  # Storybook build — a `.storybook/` preset, a preview decorator, an addon/MDX
+  # config — would therefore ship green. Gating it here on the broad `code_changed`
+  # denylist closes both holes. See rmartz/ai discussion #6 and
+  # docs/guidance/storybook-screenshot-ci.md.
+  build-storybook:
+    name: Build Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code_changed == 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm build-storybook
+
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest

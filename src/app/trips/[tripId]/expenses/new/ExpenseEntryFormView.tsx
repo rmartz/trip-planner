@@ -9,7 +9,12 @@ import type {
   ExpenseLinkedEntity,
   ExpenseLinkedEntityType,
 } from "@/lib/types/expense";
+import { ExpenseUnitModel } from "@/lib/types/expense-settings";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
+import {
+  ExpenseUnitModelField,
+  UNIT_MODEL_CATEGORY_DEFAULT,
+} from "./ExpenseUnitModelField";
 
 const COPY = EXPENSE_ENTRY_FORM_COPY;
 
@@ -41,12 +46,14 @@ export interface ExpenseEntryInput {
   linkedEntity?: ExpenseLinkedEntity;
   participantMemberIds: string[];
   payerMemberId: string;
+  unitModel?: ExpenseUnitModel;
 }
 
 export interface ExpenseEntryFormViewProps {
   initialLinkedEntity?: Pick<ExpenseLinkedEntity, "entityId" | "type">;
   initialParticipantIds?: string[];
   initialPayerId?: string;
+  initialUnitModel?: ExpenseUnitModel;
   isSubmitting?: boolean;
   linkedEntityOptions: ExpenseEntryLinkedEntityOption[];
   memberOptions: ExpenseEntryMemberOption[];
@@ -75,6 +82,7 @@ export function ExpenseEntryFormView({
   initialLinkedEntity,
   initialParticipantIds,
   initialPayerId,
+  initialUnitModel,
   isSubmitting = false,
   linkedEntityOptions,
   memberOptions,
@@ -112,6 +120,9 @@ export function ExpenseEntryFormView({
       )
       ? `${initialLinkedEntity.type}:${initialLinkedEntity.entityId}`
       : "",
+  );
+  const [unitModelValue, setUnitModelValue] = useState<string>(
+    initialUnitModel ?? UNIT_MODEL_CATEGORY_DEFAULT,
   );
   const [amountError, setAmountError] = useState<string | undefined>();
   const [payerError, setPayerError] = useState<string | undefined>();
@@ -171,6 +182,9 @@ export function ExpenseEntryFormView({
         : {}),
       participantMemberIds: participantIds,
       payerMemberId,
+      ...(unitModelValue !== UNIT_MODEL_CATEGORY_DEFAULT
+        ? { unitModel: unitModelValue as ExpenseUnitModel }
+        : {}),
     });
   }
 
@@ -235,6 +249,11 @@ export function ExpenseEntryFormView({
           ))}
         </select>
       </div>
+
+      <ExpenseUnitModelField
+        value={unitModelValue}
+        onChange={setUnitModelValue}
+      />
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="expense-payer">{COPY.payerLabel}</Label>
