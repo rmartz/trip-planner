@@ -22,19 +22,25 @@ describe("pinned field", () => {
   });
 
   it("activityToFirebase includes pinned when true", () => {
-    const data = activityToFirebase({
-      name: "Birthday dinner",
-      estimatedDurationMinutes: 90,
-      pinned: true,
-    });
+    const data = activityToFirebase(
+      {
+        name: "Birthday dinner",
+        estimatedDurationMinutes: 90,
+        pinned: true,
+      },
+      "trip-1",
+    );
     expect(data.pinned).toBe(true);
   });
 
   it("activityToFirebase omits pinned when undefined", () => {
-    const data = activityToFirebase({
-      name: "Birthday dinner",
-      estimatedDurationMinutes: 90,
-    });
+    const data = activityToFirebase(
+      {
+        name: "Birthday dinner",
+        estimatedDurationMinutes: 90,
+      },
+      "trip-1",
+    );
     expect("pinned" in data).toBe(false);
   });
 });
@@ -60,29 +66,38 @@ describe("pinnedSlot field", () => {
   });
 
   it("activityToFirebase includes pinnedSlot when present", () => {
-    const data = activityToFirebase({
-      name: "Birthday dinner",
-      estimatedDurationMinutes: 90,
-      pinned: true,
-      pinnedSlot: TimeOfDaySlot.Evening,
-    });
+    const data = activityToFirebase(
+      {
+        name: "Birthday dinner",
+        estimatedDurationMinutes: 90,
+        pinned: true,
+        pinnedSlot: TimeOfDaySlot.Evening,
+      },
+      "trip-1",
+    );
     expect(data.pinnedSlot).toBe(TimeOfDaySlot.Evening);
   });
 
   it("activityToFirebase omits pinnedSlot when undefined", () => {
-    const data = activityToFirebase({
-      name: "Birthday dinner",
-      estimatedDurationMinutes: 90,
-      pinned: true,
-    });
+    const data = activityToFirebase(
+      {
+        name: "Birthday dinner",
+        estimatedDurationMinutes: 90,
+        pinned: true,
+      },
+      "trip-1",
+    );
     expect("pinnedSlot" in data).toBe(false);
   });
 
   it("activityToFirebase omits pinnedSlot when activity is not pinned", () => {
-    const data = activityToFirebase({
-      name: "Birthday dinner",
-      estimatedDurationMinutes: 90,
-    });
+    const data = activityToFirebase(
+      {
+        name: "Birthday dinner",
+        estimatedDurationMinutes: 90,
+      },
+      "trip-1",
+    );
     expect("pinnedSlot" in data).toBe(false);
   });
 });
