@@ -1,3 +1,5 @@
+import type { ExpenseUnitModel } from "./expense-settings";
+
 export enum ExpenseCategory {
   Activity = "activity",
   Food = "food",
@@ -39,4 +41,5 @@ export interface Expense {
   participantShares?: Record<string, number>;
   confirmedParticipantUids?: string[];
   linkedEntity?: ExpenseLinkedEntity;
+  unitModel?: ExpenseUnitModel;
 }
