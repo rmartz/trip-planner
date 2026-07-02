@@ -11,6 +11,10 @@ import type {
 } from "@/lib/types/expense";
 import { ExpenseUnitModel } from "@/lib/types/expense-settings";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
+import {
+  ExpenseUnitModelField,
+  UNIT_MODEL_CATEGORY_DEFAULT,
+} from "./ExpenseUnitModelField";
 
 const COPY = EXPENSE_ENTRY_FORM_COPY;
 
@@ -73,17 +77,6 @@ const CATEGORY_OPTIONS: { label: string; value: ExpenseEntryCategory }[] = [
 ];
 
 const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "JPY"];
-
-const UNIT_MODEL_OPTIONS: { label: string; value: ExpenseUnitModel }[] = [
-  { label: COPY.unitModelOptionPerUnit, value: ExpenseUnitModel.PerUnit },
-  {
-    label: COPY.unitModelOptionSharedBucket,
-    value: ExpenseUnitModel.SharedBucket,
-  },
-  { label: COPY.unitModelOptionUsageShare, value: ExpenseUnitModel.UsageShare },
-];
-
-const UNIT_MODEL_CATEGORY_DEFAULT = "";
 
 export function ExpenseEntryFormView({
   initialLinkedEntity,
@@ -257,27 +250,10 @@ export function ExpenseEntryFormView({
         </select>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="expense-unit-model">{COPY.unitModelLabel}</Label>
-        <select
-          id="expense-unit-model"
-          value={unitModelValue}
-          onChange={(e) => {
-            setUnitModelValue(e.target.value);
-          }}
-          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
-        >
-          <option value={UNIT_MODEL_CATEGORY_DEFAULT}>
-            {COPY.unitModelCategoryDefaultOption}
-          </option>
-          {UNIT_MODEL_OPTIONS.map(({ label, value }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-muted-foreground">{COPY.unitModelHint}</p>
-      </div>
+      <ExpenseUnitModelField
+        value={unitModelValue}
+        onChange={setUnitModelValue}
+      />
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="expense-payer">{COPY.payerLabel}</Label>

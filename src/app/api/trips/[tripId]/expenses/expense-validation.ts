@@ -16,6 +16,21 @@ export const EXPENSE_UNIT_MODEL_VALUES = new Set(
   Object.values(ExpenseUnitModel),
 );
 
+export function parseUnitModel(
+  raw: unknown,
+): ExpenseUnitModel | undefined | Response {
+  if (raw === undefined || raw === null) {
+    return undefined;
+  }
+  if (!EXPENSE_UNIT_MODEL_VALUES.has(raw as ExpenseUnitModel)) {
+    return Response.json(
+      { error: "unitModel must be a valid expense unit model" },
+      { status: 400 },
+    );
+  }
+  return raw as ExpenseUnitModel;
+}
+
 const SUPPORTED_CURRENCY_CODES =
   typeof Intl.supportedValuesOf === "function"
     ? new Set(Intl.supportedValuesOf("currency"))
