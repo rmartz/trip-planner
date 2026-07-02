@@ -6,6 +6,7 @@ import type {
   ExpenseLinkedEntity,
   ExpenseSplitMethod,
 } from "@/lib/types/expense";
+import type { ExpenseUnitModel } from "@/lib/types/expense-settings";
 
 interface CreateExpenseInput {
   amount: number;
@@ -16,6 +17,7 @@ interface CreateExpenseInput {
   participantUids: string[];
   splitMethod: ExpenseSplitMethod;
   linkedEntity?: ExpenseLinkedEntity;
+  unitModel?: ExpenseUnitModel;
 }
 
 async function createExpense(

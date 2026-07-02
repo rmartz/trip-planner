@@ -21,74 +21,69 @@ function makeActivity(overrides: Partial<Activity> = {}): Activity {
   };
 }
 
-interface MockDocSnapshot {
+interface MockActivityDoc {
   id: string;
   data: () => Record<string, unknown>;
-  ref?: {
-    collection: (name: string) => { get: () => Promise<MockQuerySnapshot> };
-  };
+  ref: { parent: { parent: { id: string } } };
 }
 
 interface MockQuerySnapshot {
-  docs: MockDocSnapshot[];
+  docs: MockActivityDoc[];
+}
+
+function makeActivityDoc(
+  id: string,
+  stopId: string,
+  data: Record<string, unknown>,
+): MockActivityDoc {
+  return {
+    id,
+    data: () => data,
+    ref: { parent: { parent: { id: stopId } } },
+  };
 }
 
 describe("getActivitiesForTrip", () => {
-  const activitiesByStop = new Map<string, MockQuerySnapshot>();
-  const stopsGet = vi.fn();
-  const stopsCollection = vi.fn();
-  const tripDoc = vi.fn();
-  const tripsCollection = vi.fn();
-  const mockDb = { collection: tripsCollection };
+  const groupGet = vi.fn();
+  const groupWhere = vi.fn();
+  const collectionGroup = vi.fn();
+  const mockDb = { collectionGroup };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    activitiesByStop.clear();
     vi.mocked(getAdminFirestore).mockReturnValue(
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
     );
-    tripsCollection.mockReturnValue({ doc: tripDoc });
-    tripDoc.mockReturnValue({ collection: stopsCollection });
-    stopsCollection.mockReturnValue({ get: stopsGet });
+    collectionGroup.mockReturnValue({ where: groupWhere });
+    groupWhere.mockReturnValue({ get: groupGet });
   });
 
-  it("returns an empty array when trip has no stops", async () => {
-    stopsGet.mockResolvedValue({ docs: [] } satisfies MockQuerySnapshot);
+  it("issues a single collection-group query filtered by tripId", async () => {
+    groupGet.mockResolvedValue({ docs: [] } satisfies MockQuerySnapshot);
+
+    await getActivitiesForTrip("trip-1");
+
+    expect(collectionGroup).toHaveBeenCalledTimes(1);
+    expect(collectionGroup).toHaveBeenCalledWith("activities");
+    expect(groupWhere).toHaveBeenCalledWith("tripId", "==", "trip-1");
+    expect(groupGet).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns an empty array when the trip has no activities", async () => {
+    groupGet.mockResolvedValue({ docs: [] } satisfies MockQuerySnapshot);
 
     const activities = await getActivitiesForTrip("trip-1");
 
     expect(activities).toEqual([]);
   });
 
-  it("maps activities from multiple stops", async () => {
-    const stopDocs: MockDocSnapshot[] = [
-      {
-        id: "stop-1",
-        data: () => ({ name: "Paris" }),
-        ref: {
-          collection: () => ({
-            get: () => Promise.resolve(activitiesByStop.get("stop-1")!),
-          }),
-        },
-      },
-      {
-        id: "stop-2",
-        data: () => ({ name: "Rome" }),
-        ref: {
-          collection: () => ({
-            get: () => Promise.resolve(activitiesByStop.get("stop-2")!),
-          }),
-        },
-      },
-    ];
-
-    activitiesByStop.set("stop-1", {
-      docs: [{ id: "act-1", data: () => ({ name: "Louvre" }) }],
-    });
-    activitiesByStop.set("stop-2", {
-      docs: [{ id: "act-2", data: () => ({ name: "Colosseum" }) }],
-    });
-    stopsGet.mockResolvedValue({ docs: stopDocs } satisfies MockQuerySnapshot);
+  it("maps activities from the collection-group snapshot", async () => {
+    groupGet.mockResolvedValue({
+      docs: [
+        makeActivityDoc("act-1", "stop-1", { name: "Louvre" }),
+        makeActivityDoc("act-2", "stop-2", { name: "Colosseum" }),
+      ],
+    } satisfies MockQuerySnapshot);
     vi.mocked(firebaseToActivity)
       .mockReturnValueOnce(
         makeActivity({ activityId: "act-1", stopId: "stop-1" }),

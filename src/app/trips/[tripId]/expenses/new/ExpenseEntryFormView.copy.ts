@@ -25,4 +25,10 @@ export const EXPENSE_ENTRY_FORM_COPY = {
   retryMembersButton: "Retry",
   submitButton: "Save expense",
   submitError: "Something went wrong. Please try again.",
+  unitModelCategoryDefaultOption: "Use category default",
+  unitModelHint: "Overrides the trip's category default for this expense only",
+  unitModelLabel: "Unit model",
+  unitModelOptionPerUnit: "Per unit",
+  unitModelOptionSharedBucket: "Shared bucket",
+  unitModelOptionUsageShare: "Usage share",
 } as const;

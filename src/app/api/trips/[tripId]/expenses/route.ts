@@ -12,6 +12,7 @@ import {
   EXPENSE_LINKED_ENTITY_TYPE_VALUES,
   EXPENSE_SPLIT_METHOD_VALUES,
   isValidCurrencyCode,
+  parseUnitModel,
 } from "./expense-validation";
 
 interface RouteContext {
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     participantUids: unknown;
     splitMethod: unknown;
     linkedEntity?: unknown;
+    unitModel?: unknown;
   };
 
   if (
@@ -219,6 +221,12 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     };
   }
 
+  const unitModelResult = parseUnitModel(body.unitModel);
+  if (unitModelResult instanceof Response) {
+    return unitModelResult;
+  }
+  const unitModel = unitModelResult;
+
   const expenseId = await addExpense(uid, tripId, {
     name: body.name.trim(),
     amount: body.amount,
@@ -228,6 +236,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     participantUids: body.participantUids,
     splitMethod: body.splitMethod as ExpenseSplitMethod,
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
+    ...(unitModel !== undefined ? { unitModel } : {}),
   });
 
   return NextResponse.json({ expenseId });
