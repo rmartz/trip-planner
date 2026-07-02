@@ -1,6 +1,7 @@
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToActivity } from "@/lib/firebase/schema/activity";
 import type { Activity } from "@/lib/types/activity";
+import { MalformedActivityError } from "./errors";
 
 export async function getActivitiesForTrip(
   tripId: string,
@@ -11,12 +12,16 @@ export async function getActivitiesForTrip(
     .where("tripId", "==", tripId)
     .get();
 
-  return activitiesSnapshot.docs.map((activityDoc) =>
-    firebaseToActivity(
+  return activitiesSnapshot.docs.map((activityDoc) => {
+    const stopId = activityDoc.ref.parent.parent?.id;
+    if (!stopId) {
+      throw new MalformedActivityError(activityDoc.id);
+    }
+    return firebaseToActivity(
       activityDoc.id,
-      activityDoc.ref.parent.parent?.id ?? "",
+      stopId,
       tripId,
       activityDoc.data(),
-    ),
-  );
+    );
+  });
 }
