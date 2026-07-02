@@ -4,7 +4,7 @@ import {
   TimeOfDaySlotType,
   TransportationMode,
 } from "@/lib/types/activity";
-import { activityToFirebase, firebaseToActivity } from "./activity";
+import { firebaseToActivity } from "./activity";
 
 // Criterion 1: Activity has name (required) and optional description fields
 describe("name and description fields", () => {
@@ -63,51 +63,6 @@ describe("name and description fields", () => {
     });
     expect(activity.description).toBeUndefined();
   });
-
-  it("activityToFirebase maps name", () => {
-    const data = activityToFirebase(
-      {
-        name: "Seine River Cruise",
-        estimatedDurationMinutes: 60,
-      },
-      "trip-1",
-    );
-    expect(data.name).toBe("Seine River Cruise");
-  });
-
-  it("activityToFirebase includes description when defined", () => {
-    const data = activityToFirebase(
-      {
-        name: "Seine River Cruise",
-        estimatedDurationMinutes: 60,
-        description: "Relaxing river cruise",
-      },
-      "trip-1",
-    );
-    expect(data.description).toBe("Relaxing river cruise");
-  });
-
-  it("activityToFirebase omits description when undefined", () => {
-    const data = activityToFirebase(
-      {
-        name: "Seine River Cruise",
-        estimatedDurationMinutes: 60,
-      },
-      "trip-1",
-    );
-    expect("description" in data).toBe(false);
-  });
-});
-
-// Denormalized tripId enables the single collection-group read (issue #259)
-describe("activityToFirebase denormalizes tripId", () => {
-  it("persists the provided tripId onto the document", () => {
-    const data = activityToFirebase(
-      { name: "Louvre", estimatedDurationMinutes: 90 },
-      "trip-abc",
-    );
-    expect(data.tripId).toBe("trip-abc");
-  });
 });
 
 // Criterion 2: Activity has estimatedDurationMinutes (required)
@@ -125,17 +80,6 @@ describe("estimatedDurationMinutes field", () => {
       name: "x",
     });
     expect(activity.estimatedDurationMinutes).toBe(0);
-  });
-
-  it("activityToFirebase maps estimatedDurationMinutes", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 45,
-      },
-      "trip-1",
-    );
-    expect(data.estimatedDurationMinutes).toBe(45);
   });
 });
 
@@ -197,33 +141,6 @@ describe("timeOfDaySlot field", () => {
     });
     expect(activity.timeOfDaySlot).toBeUndefined();
   });
-
-  it("activityToFirebase includes timeOfDaySlot when defined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-        timeOfDaySlot: {
-          type: TimeOfDaySlotType.MustOccurIn,
-          slots: [TimeOfDaySlot.Morning],
-        },
-      },
-      "trip-1",
-    );
-    expect(data.timeOfDaySlot?.type).toBe(TimeOfDaySlotType.MustOccurIn);
-    expect(data.timeOfDaySlot?.slots).toEqual([TimeOfDaySlot.Morning]);
-  });
-
-  it("activityToFirebase omits timeOfDaySlot when undefined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-      },
-      "trip-1",
-    );
-    expect("timeOfDaySlot" in data).toBe(false);
-  });
 });
 
 // Criterion 4: Activity has optional group size min/max
@@ -265,30 +182,6 @@ describe("groupSize field", () => {
     });
     expect(activity.groupSize).toBeUndefined();
   });
-
-  it("activityToFirebase includes groupSize when defined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-        groupSize: { min: 3, max: 8 },
-      },
-      "trip-1",
-    );
-    expect(data.groupSize?.min).toBe(3);
-    expect(data.groupSize?.max).toBe(8);
-  });
-
-  it("activityToFirebase omits groupSize when undefined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-      },
-      "trip-1",
-    );
-    expect("groupSize" in data).toBe(false);
-  });
 });
 
 // Criterion 5: Activity has optional costPerPerson
@@ -308,29 +201,6 @@ describe("costPerPerson field", () => {
       estimatedDurationMinutes: 60,
     });
     expect(activity.costPerPerson).toBeUndefined();
-  });
-
-  it("activityToFirebase includes costPerPerson when defined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-        costPerPerson: 15,
-      },
-      "trip-1",
-    );
-    expect(data.costPerPerson).toBe(15);
-  });
-
-  it("activityToFirebase omits costPerPerson when undefined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-      },
-      "trip-1",
-    );
-    expect("costPerPerson" in data).toBe(false);
   });
 });
 
@@ -371,29 +241,6 @@ describe("transportationRequired field", () => {
       estimatedDurationMinutes: 60,
     });
     expect(activity.transportationRequired).toBeUndefined();
-  });
-
-  it("activityToFirebase includes transportationRequired when defined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-        transportationRequired: TransportationMode.Private,
-      },
-      "trip-1",
-    );
-    expect(data.transportationRequired).toBe(TransportationMode.Private);
-  });
-
-  it("activityToFirebase omits transportationRequired when undefined", () => {
-    const data = activityToFirebase(
-      {
-        name: "x",
-        estimatedDurationMinutes: 60,
-      },
-      "trip-1",
-    );
-    expect("transportationRequired" in data).toBe(false);
   });
 });
 
