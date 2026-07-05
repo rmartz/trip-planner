@@ -174,7 +174,7 @@ describe("acceptInvite — already a member", () => {
     const result = await acceptInvite("tok-abc", "uid-existing");
     expect(result).toEqual({ tripId: "trip-1", alreadyMember: true });
     expect(memberSetFn).not.toHaveBeenCalled();
-    expect(syncTripMemberUids).not.toHaveBeenCalled();
+    expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
   });
 });
 

@@ -208,7 +208,7 @@ describe("acceptInviteByLink — group-use multiple joins", () => {
     expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
   });
 
-  it("skips the fan-out when the user is already a member", async () => {
+  it("fans out memberUids even when the user is already a member", async () => {
     const inviteDoc = makeInviteDoc({ mode: InviteMode.GroupUse });
     const { db } = makeTransactionDb(inviteDoc, true);
     vi.mocked(getAdminFirestore).mockReturnValue(
@@ -217,6 +217,6 @@ describe("acceptInviteByLink — group-use multiple joins", () => {
 
     await acceptInviteByLink("tok-abc", "uid-existing");
 
-    expect(syncTripMemberUids).not.toHaveBeenCalled();
+    expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
   });
 });

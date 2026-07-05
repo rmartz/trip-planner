@@ -81,11 +81,11 @@ export async function acceptInvite(
     .doc(uid);
 
   const existing = await memberRef.get();
-  if (existing.exists) return { tripId, alreadyMember: true };
-
-  await memberRef.set({ uid, role: TripRole.Guest, joinedAt: new Date() });
+  if (!existing.exists) {
+    await memberRef.set({ uid, role: TripRole.Guest, joinedAt: new Date() });
+  }
   await syncTripMemberUids(db, tripId);
-  return { tripId, alreadyMember: false };
+  return { tripId, alreadyMember: existing.exists };
 }
 
 export async function regenerateInviteToken(tripId: string): Promise<string> {
@@ -188,12 +188,7 @@ export async function acceptInviteByLink(
     return { alreadyMember: false, tripId };
   });
 
-  // Fan the new member's uid out to every stops/legs document so the
-  // memberUids invariant holds across all trip-scoped docs, not just the
-  // trip document that the transaction's arrayUnion already covered.
-  if (!result.alreadyMember) {
-    await syncTripMemberUids(db, result.tripId);
-  }
+  await syncTripMemberUids(db, result.tripId);
 
   return result;
 }
