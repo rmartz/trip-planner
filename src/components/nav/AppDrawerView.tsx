@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import type { Trip } from "@/lib/types/trip";
+import { PhasePill } from "@/components/trips/PhasePill";
+import { getTripPhase } from "@/lib/trips/phase";
 import { APP_DRAWER_COPY } from "./AppDrawer.copy";
 
 interface NavItemProps {
@@ -62,8 +64,9 @@ export function AppDrawerView(props: AppDrawerViewProps) {
       </div>
 
       {props.scope === "trip" && (
-        <div className="border-b border-border px-3 py-3">
+        <div className="flex items-start justify-between gap-2 border-b border-border px-3 py-3">
           <p className="text-sm font-semibold">{props.activeTrip.name}</p>
+          <PhasePill phase={getTripPhase(props.activeTrip)} />
         </div>
       )}
 

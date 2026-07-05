@@ -68,6 +68,25 @@ export const TripScopeNoOtherTrips: Story = {
   },
 };
 
+export const TripScopeCoordinationPhase: Story = {
+  args: {
+    scope: "trip",
+    userEmail: "traveler@example.com",
+    activeTrip: {
+      tripId: "trip-1",
+      name: "Alps Adventure 2099",
+      startDate: new Date("2099-06-01"),
+      endDate: new Date("2099-06-14"),
+      createdAt: new Date("2099-01-01"),
+      createdBy: "uid-1",
+      memberUids: ["uid-1", "uid-2", "uid-3"],
+      inviteToken: "tok-1",
+    },
+    otherTrips: [],
+    onSignOut: fn(),
+  },
+};
+
 export const TripScopeWithOtherTrips: Story = {
   args: {
     scope: "trip",
