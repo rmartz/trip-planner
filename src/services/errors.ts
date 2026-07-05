@@ -11,3 +11,12 @@ export class NotFoundError extends Error {
     this.name = "NotFoundError";
   }
 }
+
+export class MalformedActivityError extends Error {
+  constructor(activityId: string) {
+    super(
+      `Activity ${activityId} is malformed: its document is not nested under a stop`,
+    );
+    this.name = "MalformedActivityError";
+  }
+}
