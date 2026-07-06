@@ -9,10 +9,13 @@ vi.mock("@/lib/firebase/schema/non-account-member", () => ({
 vi.mock("@/lib/firebase/schema/trip", () => ({
   firebaseToTripMember: vi.fn(),
 }));
-vi.mock("../member-uids", () => ({ syncTripMemberUids: vi.fn() }));
+vi.mock("../member-uids", () => ({
+  removeMemberAndSyncUids: vi.fn(),
+  syncTripMemberUids: vi.fn(),
+}));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { syncTripMemberUids } from "../member-uids";
+import { removeMemberAndSyncUids } from "../member-uids";
 import { removeGuest } from "../members";
 
 function makeMockDb() {
@@ -123,7 +126,7 @@ describe("removeGuest", () => {
     ).rejects.toThrow(PlannerOnlyError);
   });
 
-  it("deletes the target guest member doc", async () => {
+  it("removes the ex-member atomically via removeMemberAndSyncUids", async () => {
     const { mockDb, memberDocGet, memberDocDelete } = makeMockDb();
     vi.mocked(getAdminFirestore).mockReturnValue(
       mockDb as unknown as ReturnType<typeof getAdminFirestore>,
@@ -139,40 +142,16 @@ describe("removeGuest", () => {
         data: () => ({ role: TripRole.Guest }),
       });
 
-    memberDocDelete.mockResolvedValue(undefined);
-
     await removeGuest("planner-uid", "trip-1", "target-uid");
 
-    expect(memberDocDelete).toHaveBeenCalledTimes(1);
-  });
-
-  it("fans out memberUids after deleting so the ex-member is dropped", async () => {
-    const { mockDb, memberDocGet, memberDocDelete } = makeMockDb();
-    vi.mocked(getAdminFirestore).mockReturnValue(
-      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    // removeGuest delegates the delete + fan-out to the single atomic helper;
+    // it must not delete the member doc as a separate, non-atomic step.
+    expect(removeMemberAndSyncUids).toHaveBeenCalledWith(
+      mockDb,
+      "trip-1",
+      "target-uid",
     );
-
-    let syncedBeforeDelete = false;
-    vi.mocked(syncTripMemberUids).mockImplementation(() => {
-      if (!memberDocDelete.mock.calls.length) syncedBeforeDelete = true;
-      return Promise.resolve();
-    });
-
-    memberDocGet
-      .mockResolvedValueOnce({
-        exists: true,
-        data: () => ({ role: TripRole.Planner }),
-      })
-      .mockResolvedValueOnce({
-        exists: true,
-        data: () => ({ role: TripRole.Guest }),
-      });
-    memberDocDelete.mockResolvedValue(undefined);
-
-    await removeGuest("planner-uid", "trip-1", "target-uid");
-
-    expect(syncTripMemberUids).toHaveBeenCalledWith(mockDb, "trip-1");
-    expect(syncedBeforeDelete).toBe(false);
+    expect(memberDocDelete).not.toHaveBeenCalled();
   });
 
   it("throws when target member does not exist or is not a Guest", async () => {

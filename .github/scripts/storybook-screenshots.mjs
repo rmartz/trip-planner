@@ -11,12 +11,21 @@
  * companion `pr-screenshots-cleanup.yml` workflow deletes the branch when the
  * PR closes so branches don't accumulate.
  *
+ * Fail fast, don't time out: capture is bounded by an internal wall-clock
+ * deadline (CAPTURE_DEADLINE_MS, default 4 min) kept below the job's
+ * `timeout-minutes`. A hung or overrunning render exits non-zero *before* the
+ * job cap, so the check reports a `failure` (agent-fixable → fix-review)
+ * rather than a `cancelled` (which requires human escalation). Per-story
+ * navigation waits for `domcontentloaded` (not `networkidle`, which can hang
+ * on animations/polling) so no single story can stall the run.
+ *
  * Expected environment variables:
- *   GITHUB_TOKEN  – token with contents:write and pull-requests:write
- *   REPO          – "owner/repo"
- *   PR_NUMBER     – pull request number
- *   CHANGED_FILES – newline-separated list of changed *.stories.tsx paths
- *   PR_HEAD_SHA   – HEAD SHA of the PR branch
+ *   GITHUB_TOKEN        – token with contents:write and pull-requests:write
+ *   REPO                – "owner/repo"
+ *   PR_NUMBER           – pull request number
+ *   CHANGED_FILES       – newline-separated list of changed *.stories.tsx paths
+ *   PR_HEAD_SHA         – HEAD SHA of the PR branch
+ *   CAPTURE_DEADLINE_MS – optional wall-clock budget for capture (default 240000)
  */
 
 import { chromium } from "playwright";
@@ -34,6 +43,12 @@ const PR_HEAD_SHA = process.env.PR_HEAD_SHA ?? "";
 const COMMENT_MARKER = "<!-- storybook-screenshots-bot -->";
 const SCREENSHOTS_BRANCH = `gh-screenshots-pr-${PR_NUMBER}`;
 const STORYBOOK_PORT = 6006;
+
+// Wall-clock budget for the whole capture pass. Kept below the job's
+// `timeout-minutes` (5 min) so an overrun fails fast (non-zero exit → job
+// `failure` → fix-review) instead of being cancelled at the job cap (→ human
+// escalation). Overridable so a test can force a fast deadline.
+const CAPTURE_DEADLINE_MS = Number(process.env.CAPTURE_DEADLINE_MS ?? "240000");
 
 const MIME_TYPES = {
   ".css": "text/css",
@@ -121,11 +136,14 @@ async function captureScreenshots() {
       await page.setViewportSize({ width: 1280, height: 720 });
 
       const url = `http://localhost:${STORYBOOK_PORT}/iframe.html?id=${story.id}&viewMode=story`;
-      await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
+      // `domcontentloaded` (not `networkidle`) so a story with ongoing
+      // animation/polling can't hold the load open; the visibility wait below
+      // is what confirms the story actually rendered.
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15_000 });
       await page
         .waitForSelector("#storybook-root", {
           state: "visible",
-          timeout: 10_000,
+          timeout: 8_000,
         })
         .catch(() => {
           // Some stories render outside #storybook-root; continue anyway
@@ -273,7 +291,31 @@ async function postPrComment(fileNames) {
 // Main
 // ---------------------------------------------------------------------------
 
-const screenshots = await captureScreenshots();
+let deadlineTimer;
+const deadline = new Promise((_, reject) => {
+  deadlineTimer = setTimeout(() => {
+    reject(
+      new Error(
+        `capture exceeded CAPTURE_DEADLINE_MS=${CAPTURE_DEADLINE_MS}ms before finishing ${matchingStories.length} stories`,
+      ),
+    );
+  }, CAPTURE_DEADLINE_MS);
+  // Note: the timer is intentionally NOT unref'd — it must keep the event loop
+  // alive so the deadline reliably fires even if capture stalls with no other
+  // active handles. The success path clears it below.
+});
+
+let screenshots;
+try {
+  screenshots = await Promise.race([captureScreenshots(), deadline]);
+} catch (err) {
+  console.error(
+    `Screenshot capture failed fast: ${err.message}. Exiting non-zero so this ` +
+      `routes to fix-review (a failure) instead of a job-timeout cancellation.`,
+  );
+  process.exit(1);
+}
+clearTimeout(deadlineTimer);
 
 if (screenshots.length === 0) {
   console.log("No screenshots captured — skipping.");
