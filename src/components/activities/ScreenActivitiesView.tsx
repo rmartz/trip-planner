@@ -38,8 +38,7 @@ interface ScreenActivitiesWithoutPinProps extends ScreenActivitiesBaseProps {
 }
 
 export type ScreenActivitiesViewProps =
-  | ScreenActivitiesWithPinProps
-  | ScreenActivitiesWithoutPinProps;
+  ScreenActivitiesWithPinProps | ScreenActivitiesWithoutPinProps;
 
 export function ScreenActivitiesView(props: ScreenActivitiesViewProps) {
   const {

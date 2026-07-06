@@ -238,12 +238,13 @@ Flat config (`eslint.config.js`) with:
 ```
 
 **CI checks** (run on every PR):
-| Job | Command | Purpose |
-|---|---|---|
-| Tests | `pnpm test` | Vitest across all projects |
-| Lint | `pnpm lint` | ESLint with zero warnings |
-| Format | `pnpm format:check` | Prettier check |
-| Build | `pnpm build` | Next.js production build |
+
+| Job    | Command             | Purpose                    |
+| ------ | ------------------- | -------------------------- |
+| Tests  | `pnpm test`         | Vitest across all projects |
+| Lint   | `pnpm lint`         | ESLint with zero warnings  |
+| Format | `pnpm format:check` | Prettier check             |
+| Build  | `pnpm build`        | Next.js production build   |
 
 **Claude Code** (`issue_comment`, `pull_request_review_comment`, `issues`): Optional — runs Claude Code action when `@claude` is mentioned in issues/PRs. Requires `ANTHROPIC_API_KEY` secret.
 

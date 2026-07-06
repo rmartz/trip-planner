@@ -32,8 +32,7 @@ interface DestinationFormViewEditProps {
 }
 
 export type DestinationFormViewProps =
-  | DestinationFormViewCreateProps
-  | DestinationFormViewEditProps;
+  DestinationFormViewCreateProps | DestinationFormViewEditProps;
 
 export function DestinationFormView({
   mode,

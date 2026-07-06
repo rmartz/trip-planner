@@ -72,8 +72,7 @@ export async function shareDestinationToUser(
   }
 
   const recipientRole = recipientMemberDoc.data()?.["role"] as
-    | string
-    | undefined;
+    string | undefined;
   if (recipientRole !== TripRole.Planner) {
     throw new PlannerOnlyError("Destinations can only be shared with Planners");
   }
