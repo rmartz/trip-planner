@@ -19,9 +19,7 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
   const settledAtRaw = data["settledAt"] as Timestamp | null | undefined;
   const gapCountRaw = data["gapCount"] as number | null | undefined;
   const transportGapCountRaw = data["transportGapCount"] as
-    | number
-    | null
-    | undefined;
+    number | null | undefined;
   return {
     tripId,
     name: (data["name"] as string | undefined) ?? "",

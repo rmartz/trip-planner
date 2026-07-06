@@ -37,8 +37,7 @@ export async function publishSchedule(
   const wasAlreadyPublished = await db.runTransaction(async (transaction) => {
     const stopSnap = await transaction.get(stopRef);
     const previousStatus = stopSnap.data()?.["scheduleStatus"] as
-      | ScheduleStatus
-      | undefined;
+      ScheduleStatus | undefined;
     transaction.update(stopRef, {
       scheduleActivityOrder: orderedActivityIds,
       schedulePublishedAt: FieldValue.serverTimestamp(),
