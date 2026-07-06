@@ -126,6 +126,8 @@ trips/{tripId}/expenses/{expenseId}            # Expense records
 
 Security rules scope all reads and writes to the authenticated `uid`. Trip-scoped data is readable by members of that trip.
 
+**memberUids fan-out invariant.** Trip membership is authorized by a denormalized `memberUids` array that must be kept **identical** on the `trips/{tripId}` document and on every one of its `members`, `stops`, and `legs` documents (the security rules read `resource.data.memberUids`). Whenever membership changes, the Admin SDK write path must fan the updated set out to all of those documents atomically — otherwise a removed member's UID lingers on the subcollection documents and they retain read access. This is centralized behind `syncTripMemberUids()` in `src/services/member-uids.ts`, which every membership mutation calls; see [docs/systems/member-uids-fan-out.md](docs/systems/member-uids-fan-out.md) for the full contract.
+
 Before deploying rules that authorize via `memberUids`, run `pnpm migrate:member-uids` (or `pnpm migrate:member-uids -- --dry-run` first) to backfill `memberUids` on existing `trips/{tripId}`, `members`, `stops`, and `legs` documents.
 
 ### Serialization layer

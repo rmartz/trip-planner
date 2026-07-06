@@ -90,8 +90,14 @@ export async function createTripForUser(
     createdAt: now,
     createdBy: uid,
     inviteToken,
+    memberUids: [uid],
   });
-  batch.set(memberRef, { uid, role: TripRole.Planner, joinedAt: now });
+  batch.set(memberRef, {
+    uid,
+    role: TripRole.Planner,
+    joinedAt: now,
+    memberUids: [uid],
+  });
   await batch.commit();
 
   return tripRef.id;

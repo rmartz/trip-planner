@@ -9,6 +9,7 @@ vi.mock("@/lib/firebase/schema/activity", () => ({
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { firebaseToActivity } from "@/lib/firebase/schema/activity";
 import { getActivitiesForTrip } from "./activities";
+import { MalformedActivityError } from "./errors";
 
 function makeActivity(overrides: Partial<Activity> = {}): Activity {
   return {
@@ -24,7 +25,7 @@ function makeActivity(overrides: Partial<Activity> = {}): Activity {
 interface MockActivityDoc {
   id: string;
   data: () => Record<string, unknown>;
-  ref: { parent: { parent: { id: string } } };
+  ref: { parent: { parent: { id: string } | undefined } };
 }
 
 interface MockQuerySnapshot {
@@ -40,6 +41,17 @@ function makeActivityDoc(
     id,
     data: () => data,
     ref: { parent: { parent: { id: stopId } } },
+  };
+}
+
+function makeOrphanedActivityDoc(
+  id: string,
+  data: Record<string, unknown>,
+): MockActivityDoc {
+  return {
+    id,
+    data: () => data,
+    ref: { parent: { parent: undefined } },
   };
 }
 
@@ -111,5 +123,42 @@ describe("getActivitiesForTrip", () => {
       },
     );
     expect(activities).toHaveLength(2);
+  });
+
+  it("throws MalformedActivityError when an activity doc has no parent stop", async () => {
+    groupGet.mockResolvedValue({
+      docs: [makeOrphanedActivityDoc("orphan-1", { name: "Orphaned" })],
+    } satisfies MockQuerySnapshot);
+
+    await expect(getActivitiesForTrip("trip-1")).rejects.toBeInstanceOf(
+      MalformedActivityError,
+    );
+  });
+
+  it("includes the orphaned activity id in the error", async () => {
+    groupGet.mockResolvedValue({
+      docs: [makeOrphanedActivityDoc("orphan-1", { name: "Orphaned" })],
+    } satisfies MockQuerySnapshot);
+
+    await expect(getActivitiesForTrip("trip-1")).rejects.toThrow("orphan-1");
+  });
+
+  it("does not map a well-formed doc when a sibling doc is orphaned", async () => {
+    groupGet.mockResolvedValue({
+      docs: [
+        makeActivityDoc("act-1", "stop-1", { name: "Louvre" }),
+        makeOrphanedActivityDoc("orphan-1", { name: "Orphaned" }),
+      ],
+    } satisfies MockQuerySnapshot);
+
+    await expect(getActivitiesForTrip("trip-1")).rejects.toBeInstanceOf(
+      MalformedActivityError,
+    );
+    expect(firebaseToActivity).not.toHaveBeenCalledWith(
+      "orphan-1",
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
   });
 });

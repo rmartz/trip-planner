@@ -22,6 +22,7 @@ import {
   getTransportationEntriesForTrip,
 } from "./transportation";
 import {
+  createTripForUser,
   getTripMemberRole,
   getTripMemberUids,
   getTripsForUser,
@@ -337,5 +338,39 @@ describe("recomputeTransportGapCount", () => {
     await recomputeTransportGapCount("trip-1");
 
     expect(update).toHaveBeenCalledWith({ transportGapCount: 0 });
+  });
+});
+
+describe("createTripForUser — seeds the memberUids invariant", () => {
+  const batchSet = vi.fn();
+  const batchCommit = vi.fn();
+  const memberDoc = vi.fn(() => ({ id: "creator-uid" }));
+  const membersCollection = vi.fn(() => ({ doc: memberDoc }));
+  const tripRef = { id: "new-trip-id", collection: membersCollection };
+  const mockDb = {
+    collection: vi.fn(() => ({ doc: vi.fn(() => tripRef) })),
+    batch: vi.fn(() => ({ set: batchSet, commit: batchCommit })),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+    batchCommit.mockResolvedValue(undefined);
+  });
+
+  it("writes the creator uid into memberUids on the trip document", async () => {
+    await createTripForUser(
+      "creator-uid",
+      "Alps Trip",
+      new Date("2025-07-01T00:00:00Z"),
+      new Date("2025-07-08T00:00:00Z"),
+    );
+
+    const tripWrite = batchSet.mock.calls.find((call) => call[0] === tripRef);
+    expect(tripWrite?.[1]).toEqual(
+      expect.objectContaining({ memberUids: ["creator-uid"] }),
+    );
   });
 });

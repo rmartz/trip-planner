@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { AppDrawerView } from "./AppDrawerView";
 import { APP_DRAWER_COPY } from "./AppDrawer.copy";
+import { PHASE_PILL_COPY } from "@/components/trips/PhasePill.copy";
+import { TripPhase } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 
 afterEach(() => {
@@ -163,5 +165,53 @@ describe("AppDrawer trip scope renders trip navigation", () => {
       />,
     );
     expect(screen.getByText("Japan Trip")).toBeDefined();
+  });
+});
+
+describe("AppDrawer trip scope renders the active trip phase pill", () => {
+  it("renders the phase copy for a planning-phase active trip", () => {
+    render(
+      <AppDrawerView
+        scope="trip"
+        userEmail="user@example.com"
+        activeTrip={makeTrip({
+          endDate: new Date("2999-06-08T12:00:00Z"),
+          memberUids: ["uid-x"],
+        })}
+        otherTrips={[]}
+        onSignOut={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(PHASE_PILL_COPY[TripPhase.Planning])).toBeDefined();
+  });
+
+  it("renders the phase copy for a settling-up active trip", () => {
+    render(
+      <AppDrawerView
+        scope="trip"
+        userEmail="user@example.com"
+        activeTrip={makeTrip({
+          endDate: new Date("2000-06-08T12:00:00Z"),
+          settledAt: undefined,
+        })}
+        otherTrips={[]}
+        onSignOut={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByText(PHASE_PILL_COPY[TripPhase.SettlingUp]),
+    ).toBeDefined();
+  });
+
+  it("does not render a phase pill in user scope", () => {
+    render(
+      <AppDrawerView
+        scope="user"
+        userEmail="user@example.com"
+        recentTrips={[]}
+        onSignOut={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText(PHASE_PILL_COPY[TripPhase.Planning])).toBeNull();
   });
 });

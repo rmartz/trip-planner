@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-07-02** — Added the memberUids Fan-Out Invariant System page documenting
+  that the denormalized `memberUids` array must stay identical across the trip
+  document and every `members`/`stops`/`legs` document on membership changes, and
+  centralized the fan-out behind `syncTripMemberUids` so add (invite acceptance /
+  trip creation) and remove (`removeGuest`) paths maintain it atomically —
+  removal now drops the ex-member UID so read access is revoked. (#97)
 - **2026-06-30** — Added the `vercel-ignore-build` Script page for the Vercel
   Ignored Build Step gate (`vercel.json` `ignoreCommand`) that builds previews
   only for `feat:`/`fix:` PR titles, always builds production, and fails open on

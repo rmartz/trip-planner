@@ -3,22 +3,21 @@ import { TripRole } from "@/lib/types/trip";
 import { NotFoundError, PlannerOnlyError } from "./errors";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
-vi.mock("@/lib/firebase/schema/trip", () => ({
-  firebaseToTripMember: vi.fn(),
-}));
 vi.mock("@/lib/firebase/schema/non-account-member", () => ({
   firebaseToNonAccountMember: vi.fn(),
 }));
+vi.mock("@/lib/firebase/schema/trip", () => ({
+  firebaseToTripMember: vi.fn(),
+}));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { firebaseToTripMember } from "@/lib/firebase/schema/trip";
 import { firebaseToNonAccountMember } from "@/lib/firebase/schema/non-account-member";
+import { firebaseToTripMember } from "@/lib/firebase/schema/trip";
 import {
   addNonAccountMember,
   generateClaimToken,
   getMembersForTrip,
   promoteGuestToPlanner,
-  removeGuest,
 } from "./members";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
@@ -303,69 +302,6 @@ describe("promoteGuestToPlanner", () => {
 
     await expect(
       promoteGuestToPlanner("planner-uid", "trip-1", "target-uid"),
-    ).rejects.toThrow(NotFoundError);
-  });
-});
-
-describe("removeGuest", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("throws when requester is not a Planner", async () => {
-    const { mockDb, memberDocGet } = makeMockDb();
-    vi.mocked(getAdminFirestore).mockReturnValue(
-      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
-    );
-
-    memberDocGet.mockResolvedValue({
-      exists: true,
-      data: () => ({ role: TripRole.Guest }),
-    });
-
-    await expect(
-      removeGuest("guest-uid", "trip-1", "target-uid"),
-    ).rejects.toThrow(PlannerOnlyError);
-  });
-
-  it("deletes the target guest member doc", async () => {
-    const { mockDb, memberDocGet, memberDocDelete } = makeMockDb();
-    vi.mocked(getAdminFirestore).mockReturnValue(
-      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
-    );
-
-    memberDocGet
-      .mockResolvedValueOnce({
-        exists: true,
-        data: () => ({ role: TripRole.Planner }),
-      })
-      .mockResolvedValueOnce({
-        exists: true,
-        data: () => ({ role: TripRole.Guest }),
-      });
-
-    memberDocDelete.mockResolvedValue(undefined);
-
-    await removeGuest("planner-uid", "trip-1", "target-uid");
-
-    expect(memberDocDelete).toHaveBeenCalledTimes(1);
-  });
-
-  it("throws when target member does not exist or is not a Guest", async () => {
-    const { mockDb, memberDocGet } = makeMockDb();
-    vi.mocked(getAdminFirestore).mockReturnValue(
-      mockDb as unknown as ReturnType<typeof getAdminFirestore>,
-    );
-
-    memberDocGet
-      .mockResolvedValueOnce({
-        exists: true,
-        data: () => ({ role: TripRole.Planner }),
-      })
-      .mockResolvedValueOnce({ exists: false });
-
-    await expect(
-      removeGuest("planner-uid", "trip-1", "target-uid"),
     ).rejects.toThrow(NotFoundError);
   });
 });

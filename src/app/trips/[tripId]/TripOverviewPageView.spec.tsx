@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
+import { TripPhase } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
+import { PHASE_PILL_COPY } from "@/components/trips/PhasePill.copy";
 import { TripOverviewPageView } from "./TripOverviewPageView";
 import { TRIP_OVERVIEW_PAGE_COPY } from "./TripOverviewPageView.copy";
 
@@ -86,20 +88,23 @@ describe("TripOverviewPageView — header", () => {
     expect(header?.textContent ?? "").toMatch(/2026/);
   });
 
-  it("renders a phase pill for the loaded trip", () => {
+  it("renders the phase pill copy in the header for the loaded trip", () => {
     const { container } = render(
       <TripOverviewPageView
-        trip={makeTrip()}
+        trip={makeTrip({
+          endDate: new Date("2999-08-14T00:00:00"),
+          memberUids: ["uid-1", "uid-2", "uid-3"],
+        })}
         isLoading={false}
         isError={false}
       />,
     );
-    // PhasePill renders a span with the phase copy. Just verify a header
-    // element exists with a phase indicator child.
     const header = container.querySelector(
       "[data-testid=trip-overview-header]",
     );
-    expect(header?.querySelectorAll("span").length).toBeGreaterThan(0);
+    expect(header?.textContent ?? "").toContain(
+      PHASE_PILL_COPY[TripPhase.Coordination],
+    );
   });
 });
 
