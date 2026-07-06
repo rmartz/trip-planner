@@ -255,6 +255,27 @@ describe("removeMemberAndSyncUids — atomic delete + fan-out", () => {
     ).not.toContain("bob");
   });
 
+  it("does not call batchUpdate on the removed member's ref (delete and update are mutually exclusive)", async () => {
+    const stopDoc = makeDoc("stops", "stop-1");
+    const removedMemberDoc = makeDoc("members", "removed", "removed");
+    const { db, memberDocRef, batchUpdate } = makeDb(
+      [removedMemberDoc, makeDoc("members", "amy", "amy")],
+      [stopDoc],
+      [],
+    );
+
+    await removeMemberAndSyncUids(
+      db as unknown as Parameters<typeof removeMemberAndSyncUids>[0],
+      "trip-1",
+      "removed",
+    );
+
+    const updatedPaths = batchUpdate.mock.calls.map(
+      (call) => (call[0] as { path: string }).path,
+    );
+    expect(updatedPaths).not.toContain(memberDocRef.path);
+  });
+
   it("does not commit the delete separately from the fan-out for a small trip", async () => {
     const { db, batchCommit } = makeDb(
       [makeDoc("members", "amy", "amy")],

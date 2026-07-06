@@ -136,9 +136,9 @@ export async function removeMemberAndSyncUids(
 
   const writes: ((batch: WriteBatch) => void)[] = [
     (batch) => batch.delete(memberRef),
-    ...refsToUpdate.map(
-      (ref) => (batch: WriteBatch) => batch.update(ref, { memberUids }),
-    ),
+    ...refsToUpdate
+      .filter((ref) => ref.path !== memberRef.path)
+      .map((ref) => (batch: WriteBatch) => batch.update(ref, { memberUids })),
   ];
 
   await commitInChunks(db, writes);
