@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
   pull-requests: write
 
 concurrency:
@@ -50,11 +51,11 @@ jobs:
       - name: Pull Vercel preview environment
         run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
       - name: Build
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --yes --token="$VERCEL_TOKEN"
       - name: Deploy prebuilt preview
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN" | tail -1)
+          url=$(vercel deploy --prebuilt --yes --token="$VERCEL_TOKEN" | tail -1)
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Preview deployed to: $url"
       - name: Post or update sticky PR comment
