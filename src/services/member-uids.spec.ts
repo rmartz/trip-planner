@@ -27,17 +27,30 @@ function makeDb(members: FakeDoc[], stops: FakeDoc[], legs: FakeDoc[]) {
   const subGet = (docs: FakeDoc[]) =>
     vi.fn().mockResolvedValue({ docs, size: docs.length });
 
-  const memberDocDelete = vi.fn().mockResolvedValue(undefined);
-  const memberDocRef = {
-    path: "trips/trip-1/members/removed",
-    delete: memberDocDelete,
+  // Memoize one ref per UID so doc("bob") and doc("removed") are distinct —
+  // tests can assert the implementation targeted the correct UID.
+  const memberDocRefCache = new Map<
+    string,
+    { path: string; delete: ReturnType<typeof vi.fn> }
+  >();
+  const memberDocRefFor = (uid: string) => {
+    if (!memberDocRefCache.has(uid)) {
+      memberDocRefCache.set(uid, {
+        path: `trips/trip-1/members/${uid}`,
+        delete: vi.fn().mockResolvedValue(undefined),
+      });
+    }
+    return memberDocRefCache.get(uid)!;
   };
 
   const tripRef = {
     path: "trips/trip-1",
     collection: vi.fn((name: string) => {
       if (name === "members") {
-        return { get: subGet(members), doc: vi.fn(() => memberDocRef) };
+        return {
+          get: subGet(members),
+          doc: vi.fn((uid: string) => memberDocRefFor(uid)),
+        };
       }
       if (name === "stops") return { get: subGet(stops) };
       if (name === "legs") return { get: subGet(legs) };
@@ -58,10 +71,13 @@ function makeDb(members: FakeDoc[], stops: FakeDoc[], legs: FakeDoc[]) {
     }),
   };
 
+  const memberDocRef = memberDocRefFor("removed");
+
   return {
     db,
     tripRef,
     memberDocRef,
+    memberDocRefFor,
     batchUpdate,
     batchDelete,
     batchCommit,
@@ -234,7 +250,7 @@ describe("removeMemberAndSyncUids — atomic delete + fan-out", () => {
 
   it("excludes the removed uid from the fanned-out set", async () => {
     const stopDoc = makeDoc("stops", "stop-1");
-    const { db, batchUpdate } = makeDb(
+    const { db, memberDocRefFor, batchDelete, batchUpdate } = makeDb(
       [makeDoc("members", "amy", "amy"), makeDoc("members", "bob", "bob")],
       [stopDoc],
       [],
@@ -246,6 +262,7 @@ describe("removeMemberAndSyncUids — atomic delete + fan-out", () => {
       "bob",
     );
 
+    expect(batchDelete).toHaveBeenCalledWith(memberDocRefFor("bob"));
     const stopUpdate = batchUpdate.mock.calls.find(
       (call) => call[0] === stopDoc.ref,
     );
