@@ -7,8 +7,10 @@ import {
 } from "../invite";
 
 vi.mock("@/lib/firebase/admin", () => ({ getAdminFirestore: vi.fn() }));
+vi.mock("../member-uids", () => ({ syncTripMemberUids: vi.fn() }));
 
 import { getAdminFirestore } from "@/lib/firebase/admin";
+import { syncTripMemberUids } from "../member-uids";
 import { acceptInviteByLink } from "../invite";
 
 afterEach(() => {
@@ -192,5 +194,29 @@ describe("acceptInviteByLink — group-use multiple joins", () => {
     const result = await acceptInviteByLink("tok-abc", "uid-new");
     expect(result.tripId).toBe("trip-1");
     expect(result.alreadyMember).toBe(false);
+  });
+
+  it("fans out memberUids to every trip-scoped document for a new member", async () => {
+    const inviteDoc = makeInviteDoc({ mode: InviteMode.GroupUse });
+    const { db } = makeTransactionDb(inviteDoc, false);
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      db as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await acceptInviteByLink("tok-abc", "uid-new");
+
+    expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
+  });
+
+  it("fans out memberUids even when the user is already a member", async () => {
+    const inviteDoc = makeInviteDoc({ mode: InviteMode.GroupUse });
+    const { db } = makeTransactionDb(inviteDoc, true);
+    vi.mocked(getAdminFirestore).mockReturnValue(
+      db as unknown as ReturnType<typeof getAdminFirestore>,
+    );
+
+    await acceptInviteByLink("tok-abc", "uid-existing");
+
+    expect(syncTripMemberUids).toHaveBeenCalledWith(db, "trip-1");
   });
 });
