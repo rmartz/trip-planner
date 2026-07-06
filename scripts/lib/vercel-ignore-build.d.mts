@@ -2,4 +2,4 @@
 // TypeScript spec (src/ci/vercel-ignore-build.spec.ts) can import it under strict
 // type checking. Keep in sync with vercel-ignore-build.mjs.
 
-export function shouldDeployForTitle(title: string): boolean;
+export function shouldBuildForEnv(vercelEnv: string | undefined): boolean;

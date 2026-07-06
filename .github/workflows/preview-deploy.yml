@@ -7,11 +7,11 @@ name: Preview Deploy
 #
 # Requires repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID.
 #
-# NOTE: additive/validation phase — the title-based Vercel auto-preview
-# (scripts/vercel-ignore-build.mjs + vercel.json ignoreCommand, #411) is still
-# active. Once this label path is confirmed working, a follow-up flips that
-# script to skip all preview builds so label-based is the sole preview path,
-# fully satisfying #410's "no UAT label → no preview" criterion.
+# This is the sole preview-deploy path: Vercel's automatic Git-integration
+# preview build is disabled by the Ignored Build Step
+# (scripts/vercel-ignore-build.mjs, which now skips every non-production build),
+# so a PR gets a preview only when it carries `ready for UAT`. `vercel deploy`
+# here runs via the CLI, which bypasses that Ignored Build Step.
 on:
   pull_request:
     types: [labeled, synchronize, reopened]
