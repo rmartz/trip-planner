@@ -21,10 +21,18 @@ jobs:
   screenshots:
     name: Storybook screenshots
     runs-on: ubuntu-latest
+    # Hard backstop only. The capture script self-deadlines well below this
+    # (CAPTURE_DEADLINE_MS, default 4 min) and exits non-zero, so a hung/slow
+    # render surfaces as a `failure` (agent-fixable → fix-review) rather than
+    # a `cancelled` at this cap (which requires human escalation). Reaching
+    # this timeout should be rare and itself worth a look.
     timeout-minutes: 5
     # Advisory job: best-effort preview screenshots for human UAT, not a
-    # correctness gate. continue-on-error keeps a flaky Playwright/CDN/build/
-    # comment-API failure from blocking the PR.
+    # correctness gate. The job-level continue-on-error keeps a Playwright/CDN/
+    # build/comment-API failure non-blocking for the PR — but the capture
+    # step has no step-level continue-on-error, so its non-zero exit still
+    # reports this job red (visible, non-blocking), which is the desired
+    # fail-fast signal.
     continue-on-error: true
     # Skip forked PRs — their GITHUB_TOKEN is read-only and cannot push to
     # the per-PR screenshots branch regardless of the permissions block above.
