@@ -5,6 +5,8 @@ if [ -f ".git" ]; then
 fi
 
 ./scripts/check-conflict-markers.sh --staged
+# lint-staged runs `eslint --fix --max-warnings 0` on staged files, which
+# enforces the file-length hard cap via the `max-lines` rule — no separate
+# length check needed.
 pnpm exec lint-staged
 pnpm run env:validate
-./scripts/check-file-length.sh --staged

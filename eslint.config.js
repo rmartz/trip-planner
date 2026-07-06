@@ -44,6 +44,13 @@ export default tseslint.config(
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
+      // File-length hard cap (replaces the bespoke check-file-length.sh / File
+      // Length CI job). Source files: 400. Test files get 600 via a later
+      // last-match-wins override. Counts every line so the cap matches wc -l.
+      "max-lines": [
+        "error",
+        { max: 400, skipBlankLines: false, skipComments: false },
+      ],
       // Enforce alphabetical ordering of named members within each import statement.
       // ignoreDeclarationSort: true — import statement order is not enforced (grouping
       // by framework/internal/relative carries semantic value and is left to the author).
@@ -100,6 +107,22 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
       "@typescript-eslint/restrict-template-expressions": "off",
+    },
+  },
+  // File-length hard cap for test files — 600 vs the 400 source cap. Placed
+  // after the base rules block so last-match-wins raises the ceiling for specs
+  // and files under a `-tests/` dir (mirrors the old check-file-length.sh tiers).
+  {
+    files: [
+      "**/*.spec.{ts,tsx}",
+      "**/*.test.{ts,tsx}",
+      "**/*-tests/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "max-lines": [
+        "error",
+        { max: 600, skipBlankLines: false, skipComments: false },
+      ],
     },
   },
   ...storybook.configs["flat/recommended"],

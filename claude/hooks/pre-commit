@@ -4,4 +4,6 @@
 set -e
 ./scripts/check-conflict-markers.sh --staged
 pnpm run env:validate
-./scripts/check-file-length.sh --staged
+# The file-length hard cap is now the eslint `max-lines` rule, enforced by
+# `pnpm lint` in pre-push-verify (and CI). This hook does not run lint-staged,
+# so the cap is checked before push rather than at each agent commit.
