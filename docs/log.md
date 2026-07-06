@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-07-06** — Updated the memberUids Fan-Out Invariant System page for the
+  new `removeMemberAndSyncUids` removal seam: `removeGuest` now deletes the member
+  and fans out the post-removal set in one atomic batch (closing the crash window,
+  #426), and both fan-out seams chunk writes under Firestore's 500-write batch
+  limit (#427). Documented the atomicity guarantee and its best-effort degradation
+  past 499 writes.
 - **2026-07-02** — Added the memberUids Fan-Out Invariant System page documenting
   that the denormalized `memberUids` array must stay identical across the trip
   document and every `members`/`stops`/`legs` document on membership changes, and

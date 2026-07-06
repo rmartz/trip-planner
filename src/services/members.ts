@@ -4,7 +4,7 @@ import { firebaseToTripMember } from "@/lib/firebase/schema/trip";
 import { firebaseToNonAccountMember } from "@/lib/firebase/schema/non-account-member";
 import { TripRole } from "@/lib/types/trip";
 import { NotFoundError, PlannerOnlyError } from "./errors";
-import { syncTripMemberUids } from "./member-uids";
+import { removeMemberAndSyncUids } from "./member-uids";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
 
@@ -150,8 +150,7 @@ export async function removeGuest(
     throw new NotFoundError("Target member not found or is not a Guest");
   }
 
-  await tripRef.collection("members").doc(targetUid).delete();
-  await syncTripMemberUids(db, tripId);
+  await removeMemberAndSyncUids(db, tripId, targetUid);
 }
 
 export function generateClaimToken(): string {
