@@ -19,7 +19,7 @@ export function firebaseToNotification(
       "type",
     ),
     read: (data["read"] as boolean | undefined) ?? false,
-    createdAt: toDate(data["createdAt"]),
+    createdAt: toDate(data["createdAt"], "createdAt"),
     title: (data["title"] as string | undefined) ?? "",
     tripId: (data["tripId"] as string | undefined) ?? "",
     triggerType: toEnumWithDefault(

@@ -11,7 +11,7 @@ export function firebaseToUserProfile(
     uid,
     displayName: data["displayName"] as string | undefined,
     email: (data["email"] as string | undefined) ?? "",
-    createdAt: toDate(data["createdAt"]),
+    createdAt: toDate(data["createdAt"], "createdAt"),
   };
 }
 

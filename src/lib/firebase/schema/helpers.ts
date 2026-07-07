@@ -92,11 +92,18 @@ const timestampToDate = z
 
 /**
  * Convert a Firestore `Timestamp` (or Timestamp-like value) to a JS `Date`,
- * falling back to the current time when absent or invalid.
+ * falling back to the current time when absent or invalid. A present-but-invalid
+ * value is treated as drift and triggers a dev warning.
  */
-export function toDate(value: unknown): Date {
+export function toDate(value: unknown, fieldName?: string): Date {
   const result = timestampToDate.safeParse(value);
-  return result.success ? result.data : new Date();
+  if (!result.success) {
+    if (value !== undefined && value !== null) {
+      warnDrift(fieldName, "expected a Firestore Timestamp");
+    }
+    return new Date();
+  }
+  return result.data;
 }
 
 const linkedEntitySchema = z.object({

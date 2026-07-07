@@ -10,8 +10,8 @@ export function firebaseToUnavailableRange(
   return {
     rangeId,
     uid,
-    startDate: toDate(data["startDate"]),
-    endDate: toDate(data["endDate"]),
+    startDate: toDate(data["startDate"], "startDate"),
+    endDate: toDate(data["endDate"], "endDate"),
     note: data["note"] as string | undefined,
   };
 }

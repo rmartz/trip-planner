@@ -104,14 +104,25 @@ describe("toDate", () => {
     expect(toDate({ toDate: () => expected })).toBe(expected);
   });
 
-  it("falls back to a fresh Date for an absent value", () => {
+  it("falls back to a fresh Date for an absent value without warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const before = Date.now();
-    const result = toDate(undefined);
+    const result = toDate(undefined, "startDate");
     expect(result.getTime()).toBeGreaterThanOrEqual(before);
+    expect(warn).not.toHaveBeenCalled();
   });
 
-  it("falls back to a fresh Date for null", () => {
-    expect(toDate(null)).toBeInstanceOf(Date);
+  it("falls back to a fresh Date for null without warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    expect(toDate(null, "startDate")).toBeInstanceOf(Date);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("warns when a present value is not a Firestore Timestamp", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    toDate("not-a-timestamp", "createdAt");
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0]?.[0]).toContain("createdAt");
   });
 });
 

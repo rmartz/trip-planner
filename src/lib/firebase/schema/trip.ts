@@ -5,16 +5,15 @@ import type { Leg, Stop, Trip, TripMember } from "@/lib/types/trip";
 import { toDate, toEnumWithDefault, toStringArray } from "./helpers";
 
 export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
-  const settledAtRaw = data["settledAt"] as Timestamp | null | undefined;
   const gapCountRaw = data["gapCount"] as number | null | undefined;
   const transportGapCountRaw = data["transportGapCount"] as
     number | null | undefined;
   return {
     tripId,
     name: (data["name"] as string | undefined) ?? "",
-    startDate: toDate(data["startDate"]),
-    endDate: toDate(data["endDate"]),
-    createdAt: toDate(data["createdAt"]),
+    startDate: toDate(data["startDate"], "startDate"),
+    endDate: toDate(data["endDate"], "endDate"),
+    createdAt: toDate(data["createdAt"], "createdAt"),
     createdBy: (data["createdBy"] as string | undefined) ?? "",
     memberUids: toStringArray(data["memberUids"], "memberUids"),
     inviteToken: (data["inviteToken"] as string | undefined) ?? "",
@@ -22,7 +21,9 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
     ...(typeof transportGapCountRaw === "number" && {
       transportGapCount: transportGapCountRaw,
     }),
-    ...(settledAtRaw != null && { settledAt: settledAtRaw.toDate() }),
+    ...(data["settledAt"] != null && {
+      settledAt: toDate(data["settledAt"], "settledAt"),
+    }),
   };
 }
 
@@ -65,7 +66,7 @@ export function firebaseToTripMember(
     uid,
     tripId,
     role: toEnumWithDefault(TripRole, data["role"], TripRole.Guest, "role"),
-    joinedAt: toDate(data["joinedAt"]),
+    joinedAt: toDate(data["joinedAt"], "joinedAt"),
     memberUids: toStringArray(data["memberUids"], "memberUids"),
     displayName: undefined,
   };
@@ -96,8 +97,8 @@ export function firebaseToStop(
     stopId,
     tripId,
     name: (data["name"] as string | undefined) ?? "",
-    startDate: toDate(data["startDate"]),
-    endDate: toDate(data["endDate"]),
+    startDate: toDate(data["startDate"], "startDate"),
+    endDate: toDate(data["endDate"], "endDate"),
     order: (data["order"] as number | undefined) ?? 0,
     memberUids: toStringArray(data["memberUids"], "memberUids"),
   };
