@@ -1,17 +1,17 @@
 import { Timestamp } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore";
 import type { UserProfile } from "@/lib/types/user-profile";
+import { toDate } from "./helpers";
 
 export function firebaseToUserProfile(
   uid: string,
   data: DocumentData,
 ): UserProfile {
-  const createdAt = data["createdAt"] as Timestamp | null | undefined;
   return {
     uid,
     displayName: data["displayName"] as string | undefined,
     email: (data["email"] as string | undefined) ?? "",
-    createdAt: createdAt?.toDate() ?? new Date(),
+    createdAt: toDate(data["createdAt"], "createdAt"),
   };
 }
 

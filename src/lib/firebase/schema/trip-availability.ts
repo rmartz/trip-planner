@@ -1,12 +1,6 @@
 import type { DocumentData } from "firebase/firestore";
 import type { TripAvailability } from "@/lib/types/trip-availability";
-
-function toAvailableDates(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((item): item is string => typeof item === "string");
-}
+import { toStringArray } from "./helpers";
 
 export function firebaseToTripAvailability(
   uid: string,
@@ -16,7 +10,7 @@ export function firebaseToTripAvailability(
   return {
     uid,
     tripId,
-    availableDates: toAvailableDates(data["availableDates"]),
+    availableDates: toStringArray(data["availableDates"], "availableDates"),
   };
 }
 

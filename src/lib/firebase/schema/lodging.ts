@@ -2,6 +2,7 @@ import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { LodgingStatus } from "@/lib/types/lodging";
 import type { LodgingRecord } from "@/lib/types/lodging";
+import { toEnumWithDefault } from "./helpers";
 
 function isTimestampLike(value: unknown): value is { toDate: () => Date } {
   return (
@@ -11,21 +12,17 @@ function isTimestampLike(value: unknown): value is { toDate: () => Date } {
   );
 }
 
-const LODGING_STATUS_VALUES = new Set(Object.values(LodgingStatus));
-
-function isLodgingStatus(value: unknown): value is LodgingStatus {
-  return LODGING_STATUS_VALUES.has(value as LodgingStatus);
-}
-
 export function firebaseToLodging(
   uid: string,
   stopId: string,
   data: DocumentData,
 ): LodgingRecord {
-  const statusValue = data["status"] as unknown;
-  const status = isLodgingStatus(statusValue)
-    ? statusValue
-    : LodgingStatus.NeedLodging;
+  const status = toEnumWithDefault(
+    LodgingStatus,
+    data["status"],
+    LodgingStatus.NeedLodging,
+    "status",
+  );
 
   const updatedAtValue = data["updatedAt"] as unknown;
   if (!isTimestampLike(updatedAtValue)) {
