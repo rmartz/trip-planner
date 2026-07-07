@@ -1,10 +1,6 @@
-import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
-
-function toDate(value: Timestamp | null | undefined): Date {
-  return value?.toDate() ?? new Date();
-}
+import { toDate } from "./helpers";
 
 export function firebaseToUnavailableRange(
   rangeId: string,
@@ -14,8 +10,8 @@ export function firebaseToUnavailableRange(
   return {
     rangeId,
     uid,
-    startDate: toDate(data["startDate"] as Timestamp | null | undefined),
-    endDate: toDate(data["endDate"] as Timestamp | null | undefined),
+    startDate: toDate(data["startDate"]),
+    endDate: toDate(data["endDate"]),
     note: data["note"] as string | undefined,
   };
 }

@@ -1,40 +1,8 @@
 import type { DocumentData } from "firebase/firestore";
 import { ExpenseCategory, ExpenseSplitMethod } from "@/lib/types/expense";
-import type {
-  Expense,
-  ExpenseLinkedEntity,
-  ExpenseLinkedEntityType,
-} from "@/lib/types/expense";
+import type { Expense, ExpenseLinkedEntity } from "@/lib/types/expense";
 import { ExpenseUnitModel } from "@/lib/types/expense-settings";
-
-const EXPENSE_UNIT_MODEL_VALUES = new Set(Object.values(ExpenseUnitModel));
-
-function toUnitModel(value: unknown): ExpenseUnitModel | undefined {
-  return EXPENSE_UNIT_MODEL_VALUES.has(value as ExpenseUnitModel)
-    ? (value as ExpenseUnitModel)
-    : undefined;
-}
-
-function toParticipantUids(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((item): item is string => typeof item === "string");
-}
-
-function toLinkedEntity(value: unknown): ExpenseLinkedEntity | undefined {
-  if (value === null || value === undefined || typeof value !== "object") {
-    return undefined;
-  }
-  const obj = value as Record<string, unknown>;
-  const type = obj["type"] as ExpenseLinkedEntityType | undefined;
-  const entityId = obj["entityId"] as string | undefined;
-  const label = obj["label"] as string | undefined;
-  if (!type || !entityId || !label) {
-    return undefined;
-  }
-  return { type, entityId, label };
-}
+import { toEnumOrUndefined, toLinkedEntity, toStringArray } from "./helpers";
 
 function toNumericRecord(value: unknown): Record<string, number> | undefined {
   if (
@@ -65,10 +33,15 @@ export function firebaseToExpense(
   const linkedEntity = toLinkedEntity(data["linkedEntity"]);
   const participantAmounts = toNumericRecord(data["participantAmounts"]);
   const participantShares = toNumericRecord(data["participantShares"]);
-  const confirmedParticipantUids = toParticipantUids(
+  const confirmedParticipantUids = toStringArray(
     data["confirmedParticipantUids"],
+    "confirmedParticipantUids",
   );
-  const unitModel = toUnitModel(data["unitModel"]);
+  const unitModel = toEnumOrUndefined(
+    ExpenseUnitModel,
+    data["unitModel"],
+    "unitModel",
+  );
   return {
     expenseId,
     tripId,
@@ -79,7 +52,7 @@ export function firebaseToExpense(
       (data["category"] as ExpenseCategory | undefined) ??
       ExpenseCategory.Other,
     payerUid: (data["payerUid"] as string | undefined) ?? "",
-    participantUids: toParticipantUids(data["participantUids"]),
+    participantUids: toStringArray(data["participantUids"], "participantUids"),
     splitMethod:
       (data["splitMethod"] as ExpenseSplitMethod | undefined) ??
       ExpenseSplitMethod.Even,

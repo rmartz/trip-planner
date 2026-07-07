@@ -7,17 +7,7 @@ import type {
   ExpenseCategorySettings,
   ExpenseSettingsMap,
 } from "@/lib/types/expense-settings";
-
-const UNIT_MODEL_VALUES = new Set(Object.values(ExpenseUnitModel));
-
-function isExpenseUnitModel(value: unknown): value is ExpenseUnitModel {
-  return UNIT_MODEL_VALUES.has(value as ExpenseUnitModel);
-}
-
-function toUids(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is string => typeof item === "string");
-}
+import { toEnumWithDefault, toStringArray } from "./helpers";
 
 function parseCategorySettings(
   raw: unknown,
@@ -27,14 +17,17 @@ function parseCategorySettings(
     return { unitModel: defaultModel, defaultParticipantMemberIds: null };
   }
   const obj = raw as Record<string, unknown>;
-  const unitModel = isExpenseUnitModel(obj["unitModel"])
-    ? obj["unitModel"]
-    : defaultModel;
+  const unitModel = toEnumWithDefault(
+    ExpenseUnitModel,
+    obj["unitModel"],
+    defaultModel,
+    "unitModel",
+  );
   const rawIds = obj["defaultParticipantMemberIds"];
   const defaultParticipantMemberIds =
     rawIds === undefined || rawIds === null || !Array.isArray(rawIds)
       ? null
-      : toUids(rawIds);
+      : toStringArray(rawIds, "defaultParticipantMemberIds");
   return { unitModel, defaultParticipantMemberIds };
 }
 

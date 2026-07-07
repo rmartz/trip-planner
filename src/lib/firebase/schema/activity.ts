@@ -1,54 +1,11 @@
 import type { DocumentData } from "firebase/firestore";
-import {
-  TimeOfDaySlot,
-  TimeOfDaySlotType,
-  TransportationMode,
-} from "@/lib/types/activity";
+import { TimeOfDaySlot, TransportationMode } from "@/lib/types/activity";
 import type {
   Activity,
   ActivityGroupSize,
   ActivityTimeOfDaySlot,
 } from "@/lib/types/activity";
-
-function toPinnedSlot(value: unknown): TimeOfDaySlot | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-  return Object.values(TimeOfDaySlot).includes(value as TimeOfDaySlot)
-    ? (value as TimeOfDaySlot)
-    : undefined;
-}
-
-function toTimeOfDaySlot(value: unknown): ActivityTimeOfDaySlot | undefined {
-  if (
-    typeof value !== "object" ||
-    value === null ||
-    !("type" in value) ||
-    !("slots" in value)
-  ) {
-    return undefined;
-  }
-
-  const { type, slots } = value as {
-    type: TimeOfDaySlotType;
-    slots: unknown;
-  };
-  const resolvedSlots = Array.isArray(slots) ? (slots as TimeOfDaySlot[]) : [];
-
-  return { type, slots: resolvedSlots };
-}
-
-function toGroupSize(value: unknown): ActivityGroupSize | undefined {
-  if (typeof value !== "object" || value === null) {
-    return undefined;
-  }
-
-  const raw = value as { min?: unknown; max?: unknown };
-  const min = typeof raw.min === "number" ? raw.min : undefined;
-  const max = typeof raw.max === "number" ? raw.max : undefined;
-
-  return { min, max };
-}
+import { toEnumOrUndefined, toGroupSize, toTimeOfDaySlot } from "./helpers";
 
 export function firebaseToActivity(
   activityId: string,
@@ -60,7 +17,7 @@ export function firebaseToActivity(
   const groupSize = toGroupSize(data["groupSize"]);
   const pinnedSlot =
     data["pinned"] === true && data["pinnedSlot"] !== undefined
-      ? toPinnedSlot(data["pinnedSlot"])
+      ? toEnumOrUndefined(TimeOfDaySlot, data["pinnedSlot"], "pinnedSlot")
       : undefined;
   return {
     activityId,

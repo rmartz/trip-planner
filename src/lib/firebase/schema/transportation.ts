@@ -1,6 +1,7 @@
 import type { DocumentData } from "firebase/firestore";
 import { TransportationStatus } from "@/lib/types/transportation";
 import type { TransportationEntry } from "@/lib/types/transportation";
+import { toEnumWithDefault } from "./helpers";
 
 export function firebaseToTransportationEntry(
   entryId: string,
@@ -12,11 +13,12 @@ export function firebaseToTransportationEntry(
     entryId,
     legId,
     uid,
-    status: Object.values(TransportationStatus).includes(
-      data["status"] as TransportationStatus,
-    )
-      ? (data["status"] as TransportationStatus)
-      : TransportationStatus.NeedTransportation,
+    status: toEnumWithDefault(
+      TransportationStatus,
+      data["status"],
+      TransportationStatus.NeedTransportation,
+      "status",
+    ),
     routeName: (data["routeName"] as string | undefined) ?? "",
     ...(data["seatCount"] !== undefined
       ? { seatCount: data["seatCount"] as number }

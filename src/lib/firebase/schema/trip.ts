@@ -2,18 +2,7 @@ import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { TripRole } from "@/lib/types/trip";
 import type { Leg, Stop, Trip, TripMember } from "@/lib/types/trip";
-
-function toDate(value: Timestamp | null | undefined): Date {
-  return value?.toDate() ?? new Date();
-}
-
-function toMemberUids(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.filter((item): item is string => typeof item === "string");
-}
+import { toDate, toEnumWithDefault, toStringArray } from "./helpers";
 
 export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
   const settledAtRaw = data["settledAt"] as Timestamp | null | undefined;
@@ -23,11 +12,11 @@ export function firebaseToTrip(tripId: string, data: DocumentData): Trip {
   return {
     tripId,
     name: (data["name"] as string | undefined) ?? "",
-    startDate: toDate(data["startDate"] as Timestamp | null | undefined),
-    endDate: toDate(data["endDate"] as Timestamp | null | undefined),
-    createdAt: toDate(data["createdAt"] as Timestamp | null | undefined),
+    startDate: toDate(data["startDate"]),
+    endDate: toDate(data["endDate"]),
+    createdAt: toDate(data["createdAt"]),
     createdBy: (data["createdBy"] as string | undefined) ?? "",
-    memberUids: toMemberUids(data["memberUids"]),
+    memberUids: toStringArray(data["memberUids"], "memberUids"),
     inviteToken: (data["inviteToken"] as string | undefined) ?? "",
     ...(typeof gapCountRaw === "number" && { gapCount: gapCountRaw }),
     ...(typeof transportGapCountRaw === "number" && {
@@ -75,9 +64,9 @@ export function firebaseToTripMember(
   return {
     uid,
     tripId,
-    role: (data["role"] as TripRole | undefined) ?? TripRole.Guest,
-    joinedAt: toDate(data["joinedAt"] as Timestamp | null | undefined),
-    memberUids: toMemberUids(data["memberUids"]),
+    role: toEnumWithDefault(TripRole, data["role"], TripRole.Guest, "role"),
+    joinedAt: toDate(data["joinedAt"]),
+    memberUids: toStringArray(data["memberUids"], "memberUids"),
     displayName: undefined,
   };
 }
@@ -107,10 +96,10 @@ export function firebaseToStop(
     stopId,
     tripId,
     name: (data["name"] as string | undefined) ?? "",
-    startDate: toDate(data["startDate"] as Timestamp | null | undefined),
-    endDate: toDate(data["endDate"] as Timestamp | null | undefined),
+    startDate: toDate(data["startDate"]),
+    endDate: toDate(data["endDate"]),
     order: (data["order"] as number | undefined) ?? 0,
-    memberUids: toMemberUids(data["memberUids"]),
+    memberUids: toStringArray(data["memberUids"], "memberUids"),
   };
 }
 
@@ -143,7 +132,7 @@ export function firebaseToLeg(
     name: (data["name"] as string | undefined) ?? "",
     notes: data["notes"] as string | undefined,
     order: (data["order"] as number | undefined) ?? 0,
-    memberUids: toMemberUids(data["memberUids"]),
+    memberUids: toStringArray(data["memberUids"], "memberUids"),
     isActive: (data["isActive"] as boolean | undefined) ?? true,
   };
 }

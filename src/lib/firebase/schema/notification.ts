@@ -2,26 +2,32 @@ import { Timestamp } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { NotificationType } from "@/lib/types/notification";
 import type { Notification } from "@/lib/types/notification";
+import { toDate, toEnumWithDefault } from "./helpers";
 
 export function firebaseToNotification(
   notificationId: string,
   uid: string,
   data: DocumentData,
 ): Notification {
-  const createdAt = data["createdAt"] as Timestamp | null | undefined;
   return {
     notificationId,
     uid,
-    type:
-      (data["type"] as NotificationType | undefined) ??
+    type: toEnumWithDefault(
+      NotificationType,
+      data["type"],
       NotificationType.VoteReceived,
+      "type",
+    ),
     read: (data["read"] as boolean | undefined) ?? false,
-    createdAt: createdAt?.toDate() ?? new Date(),
+    createdAt: toDate(data["createdAt"]),
     title: (data["title"] as string | undefined) ?? "",
     tripId: (data["tripId"] as string | undefined) ?? "",
-    triggerType:
-      (data["triggerType"] as NotificationType | undefined) ??
+    triggerType: toEnumWithDefault(
+      NotificationType,
+      data["triggerType"],
       NotificationType.VoteReceived,
+      "triggerType",
+    ),
   };
 }
 
