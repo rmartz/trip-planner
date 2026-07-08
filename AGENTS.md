@@ -6,7 +6,11 @@
 
 ### Dependency pins
 
-- **Full version pins.** Every dependency in `package.json` must specify the full `major.minor.patch` version, with a range annotation (`^`/`~`) allowed — e.g. `^4.1.13`, never `^4` or `^4.1`. This makes every Dependabot bump (including minor/patch) show up as a `package.json` diff instead of landing only in `pnpm-lock.yaml`, where a tooling bump (e.g. Prettier) can silently change formatting or behavior. Exact pins (`16.2.7`) are also fine — the requirement is that the full version is present.
+- **Full version pins.** Every dependency in `package.json` must specify the full `major.minor.patch` version, with a range annotation (`^`/`~`) allowed — e.g. `^4.1.13`, never `^4` or `^4.1`. This makes every Dependabot bump (including minor/patch) show up as a `package.json` diff instead of landing only in `pnpm-lock.yaml`, where a tooling bump (e.g. Prettier) can silently change formatting or behavior. Exact pins (`16.2.7`) are also fine — the requirement is that the full version is present. Enforced in CI by `.github/workflows/package-pins.yml`.
+
+### GitHub Actions pins
+
+- **SHA-pin every third-party action.** Any external `uses:` in a workflow or composite action must reference the full 40-character commit SHA its tag resolves to, with a trailing **full-semver** version comment (`# vMAJOR.MINOR.PATCH`) — e.g. `uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0`, never `@v7` and never a partial `# v7` or a non-version note. Mutable tags/branches let a compromised upstream tag re-point at malicious code that then runs in CI; the SHA is immutable. The semver comment is what Dependabot's `github-actions` ecosystem parses to know the pinned release and keep the SHA updated, so it is required too (a missing or non-semver comment strands the pin). Local `./…` composite actions are in-repo and exempt. Enforced in CI by `.github/workflows/action-pins.yml`.
 
 ## Common Commands
 

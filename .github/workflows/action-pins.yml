@@ -1,0 +1,45 @@
+name: Action pins
+
+# Enforce the "SHA-pin GitHub Actions" rule (AGENTS.md "GitHub Actions pins"):
+# every third-party action referenced by `uses:` must be pinned to the full
+# 40-character commit SHA its tag resolves to, with a `# <version>` comment, so
+# a re-pointed upstream tag cannot inject code into CI.
+#
+# An allowlist (`paths`) is safe here because this check has a CLOSED input set:
+# its result depends solely on the paths below — the workflow / composite-action
+# YAML it scans, the validator + its library, and this workflow. Nothing outside
+# that set can change whether the actions are pinned, so the allowlist cannot
+# hide a real failure. (Same rationale as package-pins.yml / validate-config.yml;
+# contrast the documentation DENYLIST in ci-actions.yml, whose jobs have an OPEN
+# input set.)
+#
+# Absent vs. skipped: on a PR that touches none of these paths the check is
+# ABSENT rather than reported as skipped — non-blocking, since only a workflow /
+# action file (or this check itself) can change the outcome.
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - "scripts/check-action-pins.mjs"
+      - "scripts/lib/check-action-pins.mjs"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - "scripts/check-action-pins.mjs"
+      - "scripts/lib/check-action-pins.mjs"
+
+permissions:
+  contents: read
+
+jobs:
+  action-pins:
+    name: Check action pins
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      # The check uses only Node built-ins, so no pnpm install / setup is needed.
+      - run: node scripts/check-action-pins.mjs
