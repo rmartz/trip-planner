@@ -4,7 +4,7 @@
 // actions that are not pinned to a full 40-character commit SHA with a trailing
 // `# <version>` comment.
 //
-// The rule (see CLAUDE.md "GitHub Actions pins"): every third-party action must
+// The rule (see AGENTS.md "GitHub Actions pins"): every third-party action must
 // be pinned to the immutable commit SHA its tag resolves to — e.g.
 // `uses: actions/checkout@9c091bb… # v7.0.0` — never a mutable tag/branch. A
 // re-pointed upstream tag then cannot inject code into our CI. The trailing

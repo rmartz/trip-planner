@@ -1,6 +1,6 @@
 name: Action pins
 
-# Enforce the "SHA-pin GitHub Actions" rule (CLAUDE.md "GitHub Actions pins"):
+# Enforce the "SHA-pin GitHub Actions" rule (AGENTS.md "GitHub Actions pins"):
 # every third-party action referenced by `uses:` must be pinned to the full
 # 40-character commit SHA its tag resolves to, with a `# <version>` comment, so
 # a re-pointed upstream tag cannot inject code into CI.

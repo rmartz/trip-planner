@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Enforces the "SHA-pin GitHub Actions" rule from CLAUDE.md: every third-party
+ * Enforces the "SHA-pin GitHub Actions" rule from AGENTS.md: every third-party
  * action referenced by `uses:` in a workflow or composite action must be pinned
  * to the full 40-character commit SHA its tag resolves to, with a trailing
  * `# <version>` comment — e.g. `uses: actions/checkout@9c091bb… # v7.0.0`.
  * Mutable tags/branches are rejected so a re-pointed upstream tag cannot inject
  * code into CI. Local `./…` composite actions are skipped (in-repo, immutable).
  *
- * Scans `.github/workflows/*.{yml,yaml}` and `.github/actions/**\/action.{yml,yaml}`,
+ * Recursively scans all `*.{yml,yaml}` files under `.github/workflows/**` and `.github/actions/**`,
  * runs the pure validator on each, and exits 1 with one line per offender;
  * otherwise exits 0. Uses only Node built-ins, so CI runs it with no install.
  */
