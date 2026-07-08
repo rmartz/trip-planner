@@ -15,6 +15,13 @@
 // refs, so they are skipped. `docker://` refs are out of scope for this check.
 
 const SHA = /^[0-9a-f]{40}$/;
+// The trailing comment must be a full semver version (optional `v` prefix,
+// optional prerelease/build suffix) — e.g. `v7.0.0`. Dependabot parses this
+// version out of the comment to know the pinned release and compute updates, so
+// a non-version comment (or a partial `v7` / `v7.0`) would strand the pin. This
+// mirrors the full `major.minor.patch` requirement of the package-pins rule.
+const SEMVER_COMMENT =
+  /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 // Capture the `uses:` value and an optional trailing `# comment`. The value is
 // everything up to whitespace; the comment (if any) follows ` # `.
 const USES_LINE = /^\s*-?\s*uses:\s*(\S+)(?:\s+#\s*(.*\S))?\s*$/;
@@ -65,7 +72,16 @@ export function findUnpinnedActionsInText(content) {
         line: index + 1,
         uses: ref,
         reason:
-          "SHA-pinned but missing a trailing `# <version>` comment (Dependabot needs it to track/update the pin)",
+          "SHA-pinned but missing a trailing `# <version>` comment (e.g. `# v7.0.0`) — Dependabot needs it to track/update the pin",
+      });
+      return;
+    }
+
+    if (!SEMVER_COMMENT.test(comment)) {
+      offenders.push({
+        line: index + 1,
+        uses: ref,
+        reason: `SHA-pinned but the comment "# ${comment}" is not a full semver version (e.g. \`# v7.0.0\`) — Dependabot parses the version from it to update the pin`,
       });
     }
   });

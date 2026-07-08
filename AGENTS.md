@@ -10,7 +10,7 @@
 
 ### GitHub Actions pins
 
-- **SHA-pin every third-party action.** Any external `uses:` in a workflow or composite action must reference the full 40-character commit SHA its tag resolves to, with a trailing `# <version>` comment — e.g. `uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0`, never `@v7`. Mutable tags/branches let a compromised upstream tag re-point at malicious code that then runs in CI; the SHA is immutable. The `# <version>` comment is what lets Dependabot's `github-actions` ecosystem keep the SHA updated, so it is required too. Local `./…` composite actions are in-repo and exempt. Enforced in CI by `.github/workflows/action-pins.yml`.
+- **SHA-pin every third-party action.** Any external `uses:` in a workflow or composite action must reference the full 40-character commit SHA its tag resolves to, with a trailing **full-semver** version comment (`# vMAJOR.MINOR.PATCH`) — e.g. `uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0`, never `@v7` and never a partial `# v7` or a non-version note. Mutable tags/branches let a compromised upstream tag re-point at malicious code that then runs in CI; the SHA is immutable. The semver comment is what Dependabot's `github-actions` ecosystem parses to know the pinned release and keep the SHA updated, so it is required too (a missing or non-semver comment strands the pin). Local `./…` composite actions are in-repo and exempt. Enforced in CI by `.github/workflows/action-pins.yml`.
 
 ## Common Commands
 

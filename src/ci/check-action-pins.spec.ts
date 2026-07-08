@@ -16,6 +16,13 @@ describe("findUnpinnedActionsInText — SHA-pinned refs pass", () => {
     const yaml = `      uses: owner/repo/.github/workflows/x.yml@${SHA} # v1.2.3`;
     expect(findUnpinnedActionsInText(yaml)).toEqual([]);
   });
+
+  it("accepts a full semver without the v prefix and with a prerelease", () => {
+    const noV = `      - uses: a/b@${SHA} # 1.2.3`;
+    const prerelease = `      - uses: a/b@${SHA} # v1.2.3-rc.1`;
+    expect(findUnpinnedActionsInText(noV)).toEqual([]);
+    expect(findUnpinnedActionsInText(prerelease)).toEqual([]);
+  });
 });
 
 describe("findUnpinnedActionsInText — local and docker refs are skipped", () => {
@@ -58,12 +65,26 @@ describe("findUnpinnedActionsInText — mutable refs fail", () => {
   });
 });
 
-describe("findUnpinnedActionsInText — SHA without a version comment fails", () => {
-  it("flags a SHA pin missing the trailing comment", () => {
+describe("findUnpinnedActionsInText — the version comment is required and must be semver", () => {
+  it("flags a SHA pin with no trailing comment", () => {
     const yaml = `      - uses: actions/checkout@${SHA}`;
     const offenders = findUnpinnedActionsInText(yaml);
     expect(offenders).toHaveLength(1);
     expect(offenders[0]?.reason).toContain("comment");
+  });
+
+  it("flags a non-version comment (Dependabot cannot parse a version from it)", () => {
+    const yaml = `      - uses: actions/checkout@${SHA} # pinned upstream`;
+    const offenders = findUnpinnedActionsInText(yaml);
+    expect(offenders).toHaveLength(1);
+    expect(offenders[0]?.reason).toContain("semver");
+  });
+
+  it("flags a partial version comment (`v7` / `v7.0`) — full major.minor.patch required", () => {
+    const major = `      - uses: actions/checkout@${SHA} # v7`;
+    const majorMinor = `      - uses: actions/checkout@${SHA} # v7.0`;
+    expect(findUnpinnedActionsInText(major)).toHaveLength(1);
+    expect(findUnpinnedActionsInText(majorMinor)).toHaveLength(1);
   });
 });
 
