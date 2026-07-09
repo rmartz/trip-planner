@@ -11,17 +11,77 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    # Group only minor/patch bumps; major bumps fall outside the groups and get
-    # individual PRs, since they are more likely to need code changes.
+    # Grouping strategy (order matters — Dependabot assigns each bump to the
+    # FIRST group whose patterns/update-types/dependency-type all match):
+    #   1. Version-locked families — grouped across ALL update types (major +
+    #      minor + patch) so interdependent packages always move atomically.
+    #   2. prettier — major/minor split into its own PR (reformat risk).
+    #   3. dev/prod catch-alls — remaining minor/patch batched by dependency type.
+    # Non-family MAJOR bumps (firebase, next, husky, playwright, @tanstack/*, …)
+    # match no group and get individual PRs, deliberately isolated for review.
     groups:
-      # Prettier major/minor bumps can reformat code (see trip-split#114), so
-      # isolate them into their own PR for standalone review. Listed first to win
-      # group precedence; patch bumps don't match update-types here and fall
-      # through to dev-dependencies, so trivial Prettier patches still ride along
-      # with the normal grouped minor/patch updates.
+      # --- Version-locked families (listed first to win precedence) ---
+      # Each family is a set of packages that ship on a shared version line (or
+      # whose majors are dictated by one member), so bumping one without the rest
+      # breaks the build. Update-types are intentionally unrestricted (major AND
+      # minor AND patch): a react patch without react-dom is as broken as a major,
+      # and the prod/dev catch-alls below would otherwise scatter a family (e.g.
+      # react/react-dom from their @types) across two PRs.
+      react:
+        # react + react-dom ship the same version; the @types track react's
+        # major. Spans prod (react, react-dom) and dev (the @types).
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      redux:
+        # react-redux is the React binding for Redux Toolkit; their majors are
+        # coupled, so move them together.
+        patterns:
+          - "@reduxjs/toolkit"
+          - "react-redux"
+      storybook:
+        # Every @storybook/* package, the storybook CLI, and the eslint plugin
+        # share one Storybook version line — a Storybook major must move them all.
+        # Listed before vite/eslint so @storybook/addon-vitest and
+        # eslint-plugin-storybook route here, not to those groups.
+        patterns:
+          - "storybook"
+          - "@storybook/*"
+          - "eslint-plugin-storybook"
+      vite:
+        # vite + its react plugin + vitest + @vitest/* are one interlocked
+        # toolchain (the @vitejs/plugin-react ↔ vite major coupling), so bump
+        # them together.
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "vitest"
+          - "@vitest/*"
+      eslint:
+        # eslint + @eslint/js share a version line; typescript-eslint and the
+        # react-hooks plugin track the eslint major.
+        patterns:
+          - "eslint"
+          - "@eslint/js"
+          - "typescript-eslint"
+          - "eslint-plugin-react-hooks"
+      tailwind:
+        # tailwindcss core + its postcss plugin ship in lockstep; a mismatch
+        # fails the build.
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      # Prettier (and its plugins, e.g. prettier-plugin-tailwindcss) drive
+      # formatting output, so a major/minor bump can reformat the codebase and
+      # fail the Format check with no other visible cause — isolate those into
+      # their own PR. Patch bumps don't match update-types here and fall through
+      # to dev-dependencies, so trivial Prettier patches still ride the normal
+      # grouped minor/patch updates.
       prettier:
         patterns:
-          - "prettier"
+          - "prettier*"
         update-types:
           - "major"
           - "minor"
