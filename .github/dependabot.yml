@@ -23,13 +23,26 @@ updates:
       # --- Version-locked families (listed first to win precedence) ---
       # Each family is a set of packages that ship on a shared version line (or
       # whose majors are dictated by one member), so bumping one without the rest
-      # breaks the build. Update-types are intentionally unrestricted (major AND
-      # minor AND patch): a react patch without react-dom is as broken as a major,
-      # and the prod/dev catch-alls below would otherwise scatter a family (e.g.
-      # react/react-dom from their @types) across two PRs.
+      # breaks the build.
+      #
+      # Update-types scope depends on whether the family crosses the dev/prod
+      # boundary:
+      #   * CROSS-BOUNDARY families (react — react/react-dom are prod, the @types
+      #     are dev) group ALL update types. Their minor/patch would otherwise
+      #     split across the dev-dependencies and production-dependencies groups,
+      #     so only a family group keeps them atomic.
+      #   * SINGLE-BOUNDARY families (all-dev or all-prod) group MAJOR only. Their
+      #     minor/patch are already batched atomically by the dev-dependencies /
+      #     production-dependencies catch-alls (same type, same PR), so the family
+      #     group is only needed for majors — which would otherwise each open as a
+      #     lockstep-breaking individual PR. This trims the extra per-family
+      #     minor/patch PRs. (Relies on Dependabot routing a family member's
+      #     non-major bump to the catch-all group; see PR history for the live
+      #     verification of that behavior.)
       react:
         # react + react-dom ship the same version; the @types track react's
-        # major. Spans prod (react, react-dom) and dev (the @types).
+        # major. Spans prod (react, react-dom) and dev (the @types) — so it must
+        # group all update types.
         patterns:
           - "react"
           - "react-dom"
@@ -37,42 +50,54 @@ updates:
           - "@types/react-dom"
       redux:
         # react-redux is the React binding for Redux Toolkit; their majors are
-        # coupled, so move them together.
+        # coupled. Both prod → minor/patch ride production-dependencies.
         patterns:
           - "@reduxjs/toolkit"
           - "react-redux"
+        update-types:
+          - "major"
       storybook:
         # Every @storybook/* package, the storybook CLI, and the eslint plugin
         # share one Storybook version line — a Storybook major must move them all.
         # Listed before vite/eslint so @storybook/addon-vitest and
-        # eslint-plugin-storybook route here, not to those groups.
+        # eslint-plugin-storybook route here, not to those groups. All dev →
+        # minor/patch ride dev-dependencies.
         patterns:
           - "storybook"
           - "@storybook/*"
           - "eslint-plugin-storybook"
+        update-types:
+          - "major"
       vite:
         # vite + its react plugin + vitest + @vitest/* are one interlocked
-        # toolchain (the @vitejs/plugin-react ↔ vite major coupling), so bump
-        # them together.
+        # toolchain (the @vitejs/plugin-react ↔ vite major coupling). All dev →
+        # minor/patch ride dev-dependencies.
         patterns:
           - "vite"
           - "@vitejs/*"
           - "vitest"
           - "@vitest/*"
+        update-types:
+          - "major"
       eslint:
         # eslint + @eslint/js share a version line; typescript-eslint and the
-        # react-hooks plugin track the eslint major.
+        # react-hooks plugin track the eslint major. All dev → minor/patch ride
+        # dev-dependencies.
         patterns:
           - "eslint"
           - "@eslint/js"
           - "typescript-eslint"
           - "eslint-plugin-react-hooks"
+        update-types:
+          - "major"
       tailwind:
-        # tailwindcss core + its postcss plugin ship in lockstep; a mismatch
-        # fails the build.
+        # tailwindcss core + its postcss plugin ship in lockstep. All dev →
+        # minor/patch ride dev-dependencies.
         patterns:
           - "tailwindcss"
           - "@tailwindcss/*"
+        update-types:
+          - "major"
       # Prettier (and its plugins, e.g. prettier-plugin-tailwindcss) drive
       # formatting output, so a major/minor bump can reformat the codebase and
       # fail the Format check with no other visible cause — isolate those into
