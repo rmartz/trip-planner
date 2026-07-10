@@ -15,7 +15,9 @@ updates:
     # FIRST group whose patterns/update-types/dependency-type all match):
     #   1. Version-locked families — grouped across ALL update types (major +
     #      minor + patch) so interdependent packages always move atomically.
-    #   2. prettier — major/minor split into its own PR (reformat risk).
+    #   2. prettier / typescript — major/minor split into their own PR
+    #      (formatting churn / a language-version change is more significant
+    #      than a normal dependency bump and warrants standalone visibility).
     #   3. dev/prod catch-alls — remaining minor/patch batched by dependency type.
     # Non-family MAJOR bumps (firebase, next, husky, playwright, @tanstack/*, …)
     # match no group and get individual PRs, deliberately isolated for review.
@@ -107,6 +109,18 @@ updates:
       prettier:
         patterns:
           - "prettier*"
+        update-types:
+          - "major"
+          - "minor"
+      # TypeScript is the language/compiler itself — a major or minor bump can
+      # introduce new compiler behavior or stricter checks, a more significant
+      # change than a routine dependency update, so isolate those into their own
+      # PR for visibility. Patch bumps don't match update-types here and fall
+      # through to dev-dependencies, so trivial TypeScript patches still ride the
+      # normal grouped minor/patch updates.
+      typescript:
+        patterns:
+          - "typescript"
         update-types:
           - "major"
           - "minor"
