@@ -82,7 +82,8 @@ per-domain migration order are tracked in #454.
   PR against #454 and leave a note instead of forcing it into unrelated work.
 - **Respect import direction.** Lower layers stay UI-agnostic — `lib/` and
   `services/` must not import components or routes, and nothing imports route files
-  under `app/`. This layering is enforced by `eslint-plugin-boundaries`.
+  under `app/`. This layering will be enforced by `eslint-plugin-boundaries`
+  once [#456](https://github.com/rmartz/trip-planner/pull/456) lands.
 
 ## Code Conventions
 
