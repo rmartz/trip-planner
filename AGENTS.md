@@ -58,6 +58,33 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
   Storybook story files, where the only allowed default export is the required
   `export default meta`; stories and components must remain named exports).
 
+### Vertical structure (improve-on-write)
+
+The codebase is migrating from a type-siloed layout (top-level `components/`,
+`hooks/`, `services/`, `store/`) toward **domain verticals** — a feature's
+components, hooks, services, and types living together behind a public `index.ts`,
+so "code that changes together lives together." The target structure and the
+per-domain migration order are tracked in #454.
+
+- **Leave it cleaner than you found it (Boy Scout Rule).** When you edit a file that
+  still lives in a type silo, opportunistically move it — and the closely-related
+  files you are already touching — toward its domain vertical instead of adding to
+  the silo. This incremental improve-on-write is the primary engine for #454: most
+  of the migration should fall out of normal feature work rather than waiting for
+  dedicated refactor PRs. It mirrors the refactor-on-write expectation for oversized
+  files.
+- **Do not grow the anti-pattern.** Land new domain code in its vertical from the
+  start (per the target layout in #454); do not add new files to the legacy
+  top-level `components/` / `hooks/` / `services/` silos.
+- **Scope the cleanup to what you touch.** Extract along the seam you are already
+  working in; do not embark on a sprawling reorg of untouched domains. If a move
+  would balloon the diff (rewriting dozens of importers), open a dedicated per-domain
+  PR against #454 and leave a note instead of forcing it into unrelated work.
+- **Respect import direction.** Lower layers stay UI-agnostic — `lib/` and
+  `services/` must not import components or routes, and nothing imports route files
+  under `app/`. This layering will be enforced by `eslint-plugin-boundaries`
+  once [#456](https://github.com/rmartz/trip-planner/pull/456) lands.
+
 ## Code Conventions
 
 - **Favor type inference.** Explicit generic type arguments (for example, `someFn<Foo>(...)`) are a code smell when TypeScript can infer them.
