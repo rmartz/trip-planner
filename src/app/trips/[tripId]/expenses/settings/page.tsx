@@ -112,15 +112,16 @@ export default function ExpenseSettingsPage() {
               }),
             ) as Parameters<typeof updateSettings>[0];
             setSaveError(null);
-            updateSettings(settingsMap).then(
-              () => {
+            async function saveSettings() {
+              try {
+                await updateSettings(settingsMap);
                 router.push(`/trips/${tripId}/expenses`);
-              },
-              (err: unknown) => {
+              } catch (err) {
                 console.error("Failed to save expense settings", err);
                 setSaveError(COPY.saveErrorText);
-              },
-            );
+              }
+            }
+            void saveSettings();
           }}
           onCancel={() => {
             router.push(`/trips/${tripId}/expenses`);

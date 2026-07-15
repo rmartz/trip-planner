@@ -1,9 +1,10 @@
 import type { DocumentData } from "firebase/firestore";
-import { TimeOfDaySlot, TransportationMode } from "@/lib/types/activity";
+import { TimeOfDaySlot } from "@/lib/types/activity";
 import type {
   Activity,
   ActivityGroupSize,
   ActivityTimeOfDaySlot,
+  TransportationMode,
 } from "@/lib/types/activity";
 import { toEnumOrUndefined, toGroupSize, toTimeOfDaySlot } from "./helpers";
 
