@@ -9,7 +9,7 @@ import type {
   ExpenseLinkedEntity,
   ExpenseLinkedEntityType,
 } from "@/lib/types/expense";
-import { ExpenseUnitModel } from "@/lib/types/expense-settings";
+import type { ExpenseUnitModel } from "@/lib/types/expense-settings";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 import {
   ExpenseUnitModelField,

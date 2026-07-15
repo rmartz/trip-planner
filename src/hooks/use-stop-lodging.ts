@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { type LodgingRecord, LodgingStatus } from "@/lib/types/lodging";
+import type { LodgingStatus } from "@/lib/types/lodging";
+import type { LodgingRecord } from "@/lib/types/lodging";
 
 interface LodgingRecordJson {
   guestCount?: number;

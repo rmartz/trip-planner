@@ -42,6 +42,62 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      // Statically enforce code-style conventions that AGENTS.md previously
+      // stated only in prose. Every rule here is core ESLint or typescript-eslint
+      // (already installed) — no new dependency.
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          prefer: "type-imports",
+          fixStyle: "separate-type-imports",
+          // Allow bare `import()` type queries: the idiomatic
+          // `vi.importActual<typeof import("mod")>()` mock pattern relies on
+          // them, and they are not the inline-named-type anti-pattern below
+          // (that is caught by the no-restricted-syntax rule).
+          disallowTypeAnnotations: false,
+        },
+      ],
+      "@typescript-eslint/no-import-type-side-effects": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          // Inline `import("…").Type` grabbing a named type — use a module-level
+          // `import type { … }`. Qualifier-only, so bare `typeof import("…")`
+          // (module-type queries, e.g. vi.importActual) stay allowed.
+          selector: "TSImportType[qualifier]",
+          message:
+            'No function-style imports: use a module-level `import type { … } from "…"` instead of inline `import("…").Type`.',
+        },
+        {
+          selector: "CallExpression[callee.type='ArrowFunctionExpression']",
+          message:
+            "No IIFEs: extract a named helper or compute the value with a plain expression.",
+        },
+        {
+          selector: "CallExpression[callee.type='FunctionExpression']",
+          message:
+            "No IIFEs: extract a named helper or compute the value with a plain expression.",
+        },
+        {
+          selector: "CallExpression[callee.property.name='then']",
+          message: "Use async/await, not a .then() chain.",
+        },
+        {
+          selector: "CallExpression[callee.name='test']",
+          message: "Use describe/it from Vitest, not test().",
+        },
+        {
+          selector: "CallExpression[callee.object.name='test']",
+          message: "Use describe/it from Vitest, not test.each/test.skip/etc.",
+        },
+        {
+          selector: "CallExpression[callee.property.name='toBeInTheDocument']",
+          message:
+            "Do not use .toBeInTheDocument(); assert .toBeDefined() or check .textContent.",
+        },
+      ],
+    },
   },
   {
     files: ["src/**/*.{ts,tsx}", "*.{ts,tsx}"],

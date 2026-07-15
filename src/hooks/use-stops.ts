@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Stop } from "@/lib/types/trip";
-import { TripRole } from "@/lib/types/trip";
+import type { TripRole } from "@/lib/types/trip";
 
 interface StopJson {
   stopId: string;
