@@ -34,50 +34,21 @@
 
 import { execFileSync } from "child_process";
 import { readFileSync } from "fs";
+import { lockedPackages, parseKey } from "./lib/check-release-age.mjs";
 
 const baseRef = process.argv[2] ?? "origin/main";
 const minDays = Number(process.env.RELEASE_AGE_MIN_DAYS ?? "7");
+if (!Number.isFinite(minDays) || minDays <= 0) {
+  throw new Error(
+    `RELEASE_AGE_MIN_DAYS must be a positive number (got "${process.env.RELEASE_AGE_MIN_DAYS}")`,
+  );
+}
 const minMs = minDays * 24 * 60 * 60 * 1000;
-
-const SEMVER_VERSION = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
-
-/**
- * Collect the `name@version` keys from the top-level `packages:` block of a
- * pnpm v9 lockfile. That block lists each resolved package canonically, without
- * the peer-dependency suffixes that appear in `snapshots:`, so its keys are
- * exactly the `name@version` pairs we want. Returns a Set of "name@version".
- */
-function lockedPackages(lockfileText) {
-  const packages = new Set();
-  let inPackages = false;
-  for (const rawLine of lockfileText.split("\n")) {
-    const topLevel = /^(\S.*):\s*$/.exec(rawLine);
-    if (topLevel) {
-      inPackages = topLevel[1] === "packages";
-      continue;
-    }
-    if (!inPackages) continue;
-    // A package key is indented exactly two spaces and ends with a colon.
-    const entry = /^ {2}(\S.*):\s*$/.exec(rawLine);
-    if (entry) packages.add(entry[1].replace(/^['"]|['"]$/g, ""));
-  }
-  return packages;
-}
-
-/** Split a `name@version` key into its name and semver version, else undefined. */
-function parseKey(key) {
-  const at = key.lastIndexOf("@");
-  if (at <= 0) return undefined;
-  const name = key.slice(0, at);
-  const version = key.slice(at + 1).split("(")[0];
-  if (!SEMVER_VERSION.test(version)) return undefined;
-  return { name, version };
-}
 
 /** Publish timestamp (ms) for name@version, or undefined if unresolvable. */
 async function publishedAt(name, version) {
   const url = `https://registry.npmjs.org/${name.replace("/", "%2F")}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!res.ok) return undefined;
   const time = (await res.json()).time?.[version];
   return time ? Date.parse(time) : undefined;
@@ -101,9 +72,13 @@ for (const { name, version } of introduced) {
   try {
     published = await publishedAt(name, version);
   } catch (err) {
-    console.warn(
-      `  warning: could not check ${name}@${version}: ${err.message}`,
-    );
+    if (err.name === "TimeoutError" || err.name === "AbortError") {
+      console.warn(`  warning: timeout checking ${name}@${version} — skipping`);
+    } else {
+      console.warn(
+        `  warning: could not check ${name}@${version}: ${err.message}`,
+      );
+    }
     continue;
   }
   if (published === undefined) continue; // private / workspace / unpublished
