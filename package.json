@@ -20,6 +20,7 @@
     "prepare": "husky",
     "env:validate": "node scripts/validate-config.mjs",
     "pins:check": "node scripts/check-package-pins.mjs",
+    "release-age:check": "node scripts/check-release-age.mjs",
     "backfill:transport-gap-count": "node scripts/backfill-transport-gap-count.mjs",
     "migrate:member-uids": "node scripts/migrate-member-uids.mjs"
   },
