@@ -25,18 +25,18 @@ vi.mock("@/components/nav/AppShell", () => ({
 
 const plannerOverviewSpy = vi.fn();
 
-vi.mock("@/components/transport/TransportPlannerOverviewView", () => ({
+vi.mock("@/features/transport/TransportPlannerOverviewView", () => ({
   TransportPlannerOverviewView: (props: unknown) => {
     plannerOverviewSpy(props);
     return <div data-testid="transport-planner-overview" />;
   },
 }));
 
-vi.mock("@/hooks/use-transport-summaries", () => ({
+vi.mock("@/features/transport/use-transport-summaries", () => ({
   useTransportSummaries: vi.fn(),
 }));
 
-import { useTransportSummaries } from "@/hooks/use-transport-summaries";
+import { useTransportSummaries } from "@/features/transport/use-transport-summaries";
 import TransportPage from "./page";
 
 afterEach(() => {
