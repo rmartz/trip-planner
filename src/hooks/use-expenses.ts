@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Expense } from "@/lib/types/expense";
-import {
+import type {
   ExpenseCategory,
   ExpenseLinkedEntityType,
   ExpenseSplitMethod,

@@ -1,8 +1,15 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import boundaries from "eslint-plugin-boundaries";
 import reactHooks from "eslint-plugin-react-hooks";
 import storybook from "eslint-plugin-storybook";
+
+// Allowed dependency direction for the layering policy below (a layer may import
+// the listed lower layers). Keeps the seven near-identical policies readable.
+const canImport = (...types) => ({
+  to: { element: { types: { anyOf: types } } },
+});
 
 export default tseslint.config(
   {
@@ -34,6 +41,62 @@ export default tseslint.config(
         project: ["./tsconfig.json"],
         tsconfigRootDir: import.meta.dirname,
       },
+    },
+    rules: {
+      // Statically enforce code-style conventions that AGENTS.md previously
+      // stated only in prose. Every rule here is core ESLint or typescript-eslint
+      // (already installed) — no new dependency.
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          prefer: "type-imports",
+          fixStyle: "separate-type-imports",
+          // Allow bare `import()` type queries: the idiomatic
+          // `vi.importActual<typeof import("mod")>()` mock pattern relies on
+          // them, and they are not the inline-named-type anti-pattern below
+          // (that is caught by the no-restricted-syntax rule).
+          disallowTypeAnnotations: false,
+        },
+      ],
+      "@typescript-eslint/no-import-type-side-effects": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          // Inline `import("…").Type` grabbing a named type — use a module-level
+          // `import type { … }`. Qualifier-only, so bare `typeof import("…")`
+          // (module-type queries, e.g. vi.importActual) stay allowed.
+          selector: "TSImportType[qualifier]",
+          message:
+            'No function-style imports: use a module-level `import type { … } from "…"` instead of inline `import("…").Type`.',
+        },
+        {
+          selector: "CallExpression[callee.type='ArrowFunctionExpression']",
+          message:
+            "No IIFEs: extract a named helper or compute the value with a plain expression.",
+        },
+        {
+          selector: "CallExpression[callee.type='FunctionExpression']",
+          message:
+            "No IIFEs: extract a named helper or compute the value with a plain expression.",
+        },
+        {
+          selector: "CallExpression[callee.property.name='then']",
+          message: "Use async/await, not a .then() chain.",
+        },
+        {
+          selector: "CallExpression[callee.name='test']",
+          message: "Use describe/it from Vitest, not test().",
+        },
+        {
+          selector: "CallExpression[callee.object.name='test']",
+          message: "Use describe/it from Vitest, not test.each/test.skip/etc.",
+        },
+        {
+          selector: "CallExpression[callee.property.name='toBeInTheDocument']",
+          message:
+            "Do not use .toBeInTheDocument(); assert .toBeDefined() or check .textContent.",
+        },
+      ],
     },
   },
   {
@@ -76,6 +139,86 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node,
       },
+    },
+  },
+  // Architectural layering (eslint-plugin-boundaries). Enforce the dependency
+  // direction between the current top-level src/ layers: lower layers stay
+  // decoupled from UI and routes, so `lib`/`services` never import components or
+  // pages and nothing imports route files under `app/`. Elements are the
+  // type-siloed dirs today; as the codebase migrates to domain verticals (#454)
+  // these element definitions move with it.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    plugins: { boundaries },
+    settings: {
+      "import/resolver": {
+        typescript: { alwaysTryTypes: true, project: "./tsconfig.json" },
+      },
+      "boundaries/elements": [
+        { type: "app", pattern: "src/app/**" },
+        { type: "components", pattern: "src/components/**" },
+        { type: "hooks", pattern: "src/hooks/**" },
+        { type: "services", pattern: "src/services/**" },
+        { type: "server", pattern: "src/server/**" },
+        { type: "store", pattern: "src/store/**" },
+        { type: "lib", pattern: "src/lib/**" },
+      ],
+    },
+    rules: {
+      // Files outside the element map (src/proxy.ts, src/test-setup, root configs)
+      // are intentionally unclassified — do not flag them.
+      "boundaries/no-unknown": "off",
+      "boundaries/no-unknown-files": "off",
+      "boundaries/dependencies": [
+        "error",
+        {
+          default: "disallow",
+          policies: [
+            {
+              from: { element: { types: "app" } },
+              allow: canImport(
+                "app",
+                "components",
+                "hooks",
+                "services",
+                "server",
+                "store",
+                "lib",
+              ),
+            },
+            {
+              from: { element: { types: "components" } },
+              allow: canImport(
+                "components",
+                "hooks",
+                "services",
+                "store",
+                "lib",
+              ),
+            },
+            {
+              from: { element: { types: "hooks" } },
+              allow: canImport("hooks", "services", "store", "lib"),
+            },
+            {
+              from: { element: { types: "services" } },
+              allow: canImport("services", "server", "lib"),
+            },
+            {
+              from: { element: { types: "server" } },
+              allow: canImport("server", "lib"),
+            },
+            {
+              from: { element: { types: "store" } },
+              allow: canImport("store", "services", "lib"),
+            },
+            {
+              from: { element: { types: "lib" } },
+              allow: canImport("lib"),
+            },
+          ],
+        },
+      ],
     },
   },
   // Root-level framework config files (Sentry, Next.js) use SDK types that don't

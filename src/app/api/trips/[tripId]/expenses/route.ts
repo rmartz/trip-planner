@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { addExpense, getExpensesForTrip } from "@/services/expenses";
 import { getTripMemberRole, getTripMemberUids } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
-import {
+import type {
   ExpenseCategory,
   ExpenseLinkedEntityType,
   ExpenseSplitMethod,

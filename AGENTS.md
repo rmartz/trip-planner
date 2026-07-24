@@ -40,10 +40,10 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
 
 ## TypeScript
 
-- Strict mode throughout. No `any` types. No `@ts-ignore`.
+- Strict mode throughout. No `any` types, no `@ts-ignore` (ESLint-enforced via `typescript-eslint` strict).
 - Do not use `null` unless required for API compatibility or when explicitly distinguishing `null` from `undefined`. Prefer `undefined` for absent/optional values throughout the codebase.
 - Prefer explicit `interface` names scoped to their component (e.g., `interface UserProfileCardProps` not `interface Props`).
-- Use `async/await`, not `.then()` chains.
+- Use `async/await`, not `.then()` chains (ESLint-enforced).
 
 ## File Organization
 
@@ -58,12 +58,38 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
   Storybook story files, where the only allowed default export is the required
   `export default meta`; stories and components must remain named exports).
 
+### Vertical structure (improve-on-write)
+
+The codebase is migrating from a type-siloed layout (top-level `components/`,
+`hooks/`, `services/`, `store/`) toward **domain verticals** — a feature's
+components, hooks, services, and types living together behind a public `index.ts`,
+so "code that changes together lives together." The target structure and the
+per-domain migration order are tracked in #454.
+
+- **Leave it cleaner than you found it (Boy Scout Rule).** When you edit a file that
+  still lives in a type silo, opportunistically move it — and the closely-related
+  files you are already touching — toward its domain vertical instead of adding to
+  the silo. This incremental improve-on-write is the primary engine for #454: most
+  of the migration should fall out of normal feature work rather than waiting for
+  dedicated refactor PRs. It mirrors the refactor-on-write expectation for oversized
+  files.
+- **Do not grow the anti-pattern.** Land new domain code in its vertical from the
+  start (per the target layout in #454); do not add new files to the legacy
+  top-level `components/` / `hooks/` / `services/` silos.
+- **Scope the cleanup to what you touch.** Extract along the seam you are already
+  working in; do not embark on a sprawling reorg of untouched domains. If a move
+  would balloon the diff (rewriting dozens of importers), open a dedicated per-domain
+  PR against #454 and leave a note instead of forcing it into unrelated work.
+- **Respect import direction.** Lower layers stay UI-agnostic — `lib/` and
+  `services/` must not import components or routes, and nothing imports route files
+  under `app/`. This layering is enforced by `eslint-plugin-boundaries`.
+
 ## Code Conventions
 
 - **Favor type inference.** Explicit generic type arguments (for example, `someFn<Foo>(...)`) are a code smell when TypeScript can infer them.
 - **No spurious variables.** Do not assign a value to a variable only to immediately return it on the next line — return the expression directly instead.
-- **No IIFEs.** Do not use immediately-invoked function expressions. Extract the logic into a named helper function or compute the value with a plain expression instead.
-- **No function-style imports.** Do not use inline `import("…").Type` syntax in type annotations. Use module-level `import type { … } from "…"` statements at the top of the file. Dynamic `await import("…")` for services that require conditional loading (e.g., Sentry instrumentation) is acceptable.
+- **No IIFEs** (ESLint-enforced). Extract the logic into a named helper function or compute the value with a plain expression instead.
+- **No function-style imports** (ESLint-enforced). Use a module-level `import type { … } from "…"` instead of inline `import("…").Type`. Bare `typeof import("…")` module-type queries (e.g. `vi.importActual`) and dynamic `await import("…")` for conditional loading (e.g., Sentry instrumentation) remain acceptable.
 - **No unnecessary helpers.** Do not extract logic into a helper function unless it separates significant logic or belongs in a different module. Three similar lines is better than a premature abstraction.
 - **Alphabetical ordering** minimizes merge conflicts and makes additions predictable in situations where order carries no semantic value:
   - **Enum members** and **constant object keys** (e.g. `as const` lookup tables): always alphabetize. Not automatically enforced — apply when writing new code and when touching existing enums/objects.
@@ -132,13 +158,13 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
 - Test files are co-located with their component: `ComponentName.spec.tsx`.
 - When adding or modifying a UI component, add or update its test to verify rendering behavior and key prop-driven states.
 - Use `@testing-library/react` with `vitest`. Always call `afterEach(cleanup)`.
-- Do not use `.toBeInTheDocument()` — use `.toBeDefined()` or check `.textContent` instead.
+- Do not use `.toBeInTheDocument()` (ESLint-enforced) — use `.toBeDefined()` or check `.textContent` instead.
 - Assert against copy constants (e.g., `HOME_PAGE_COPY`) rather than hardcoded strings.
 - Test presentational view components directly; avoid mocking hooks in tests where possible.
 
 ## Testing Conventions
 
-- Use `describe`/`it` from Vitest (not `test`).
+- Use `describe`/`it` from Vitest, not `test` (ESLint-enforced).
 - Test fixture generators use `make{DomainName}()` (e.g., `makeUser()`, `makeSession()`).
 - When splitting large test files, organize into `{module}-tests/` directories.
 

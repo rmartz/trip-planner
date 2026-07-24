@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
-import { InviteError } from "@/lib/types/invite";
+import type { InviteError } from "@/lib/types/invite";
 import { InvitePageView } from "./InvitePageView";
 
 interface InvitePageProps {
@@ -57,13 +57,15 @@ export default function InvitePage({ params }: InvitePageProps) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    void params.then(async ({ token: t }) => {
+    async function loadInvite() {
+      const { token: t } = await params;
       setToken(t);
       const result = await fetchTripSummary(t);
       setTrip(result.trip);
       setInviteError(result.inviteError);
       setLoaded(true);
-    });
+    }
+    void loadInvite();
   }, [params]);
 
   async function handleJoin() {

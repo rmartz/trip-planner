@@ -1,7 +1,7 @@
 "use client";
 
 import { VoteRow } from "@/components/ui/VoteRow";
-import { InterestVote } from "@/lib/types/interest-vote";
+import type { InterestVote } from "@/lib/types/interest-vote";
 import { TripRole } from "@/lib/types/trip";
 import { ACTIVITIES_TRIP_PAGE_COPY } from "./ActivitiesTripPageView.copy";
 

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Leg } from "@/lib/types/trip";
-import { TripRole } from "@/lib/types/trip";
+import type { TripRole } from "@/lib/types/trip";
 
 interface LegJson {
   legId: string;

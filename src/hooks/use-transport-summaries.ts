@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import type { Leg } from "@/lib/types/trip";
-import { TripRole } from "@/lib/types/trip";
+import type { TripRole } from "@/lib/types/trip";
 import type {
   TransportCarOffer,
   TransportLegDemand,
