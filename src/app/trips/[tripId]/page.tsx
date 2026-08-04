@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
-import { useTransportSummaries } from "@/hooks/use-transport-summaries";
+import { useTransportSummaries } from "@/features/transport";
 import { useTrip } from "@/hooks/use-trip";
 import { computeTransportGapCount } from "@/lib/trips/transport";
 import { TripOverviewPageView } from "./TripOverviewPageView";

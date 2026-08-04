@@ -6,8 +6,8 @@ import { AppShell } from "@/components/nav/AppShell";
 import {
   type TransportLegSummary,
   TransportPlannerOverviewView,
-} from "@/components/transport/TransportPlannerOverviewView";
-import { useTransportSummaries } from "@/hooks/use-transport-summaries";
+  useTransportSummaries,
+} from "@/features/transport";
 import { TRANSPORT_PAGE_COPY } from "./copy";
 
 interface TransportPageProps {

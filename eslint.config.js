@@ -156,6 +156,9 @@ export default tseslint.config(
       },
       "boundaries/elements": [
         { type: "app", pattern: "src/app/**" },
+        // Domain verticals (#454): each src/features/<domain> holds a feature's
+        // components/hooks/(services)/types together behind a public index.ts.
+        { type: "feature", pattern: "src/features/**" },
         { type: "components", pattern: "src/components/**" },
         { type: "hooks", pattern: "src/hooks/**" },
         { type: "services", pattern: "src/services/**" },
@@ -178,6 +181,22 @@ export default tseslint.config(
               from: { element: { types: "app" } },
               allow: canImport(
                 "app",
+                "feature",
+                "components",
+                "hooks",
+                "services",
+                "server",
+                "store",
+                "lib",
+              ),
+            },
+            {
+              // A domain vertical may compose other verticals and reach the
+              // shared lower layers; it must not import route files under app/.
+              // (Lower layers still cannot import a feature — no inversion.)
+              from: { element: { types: "feature" } },
+              allow: canImport(
+                "feature",
                 "components",
                 "hooks",
                 "services",
