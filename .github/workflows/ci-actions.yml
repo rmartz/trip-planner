@@ -168,11 +168,21 @@ jobs:
   storybook-tests:
     name: Storybook Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    # Coarse backstop only. A Playwright version bump busts the browser cache
+    # (keyed on pnpm-lock.yaml), forcing a cold Chromium download that alone runs
+    # ~3 min — the old 3-min *job* budget conflated that one-time install with the
+    # test run, so a bump PR timed out mid-download (the whole job reported
+    # "cancelled") before any test executed. The real hang guard is the per-step
+    # timeout on `pnpm test:storybook` below; this value only has to fit a cold
+    # install + that test step.
+    timeout-minutes: 8
     needs: detect-changes
     if: needs.detect-changes.outputs.code_changed == 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/playwright
+      # Honest guard on test EXECUTION only — kept tight so a genuine test hang
+      # still fails fast, independent of the one-time browser install above.
       - run: pnpm test:storybook
+        timeout-minutes: 3
