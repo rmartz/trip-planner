@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPageView } from "@/components/calendar/CalendarPageView";
+import { AddRangeModal, CalendarPageView } from "@/features/calendar";
 import { useUnavailableRanges } from "@/hooks/use-unavailable-ranges";
 import { useTrips } from "@/hooks/use-trips";
-import { AddRangeModal } from "@/components/calendar/AddRangeModal";
 
 export default function CalendarPage() {
   const today = new Date();
