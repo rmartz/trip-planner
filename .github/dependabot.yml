@@ -4,10 +4,16 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # Let new releases age 7 days before opening update PRs, reducing exposure
-    # to supply-chain attacks where a malicious version is published then yanked.
-    cooldown:
-      default-days: 7
+    # NOTE: no `cooldown` on the npm ecosystem (deliberately — do not re-add).
+    # Dependabot enforces `cooldown` by passing pnpm a `minimumReleaseAge`, and
+    # every branch rebase (required to keep a PR current with main before merge)
+    # regenerates the lockfile with the *latest* transitive dependencies — in a
+    # fast-moving tree some are almost always younger than the window. That made
+    # the release-age CI gate fail on essentially every rebase, so these PRs
+    # could not be merged without retrying for a lucky freshness window. The gate
+    # (.github/workflows/release-age.yml + scripts/check-release-age*) and this
+    # cooldown were removed together. The github-actions ecosystem below keeps its
+    # cooldown: those bumps are direct-only, so the failure mode does not apply.
     commit-message:
       prefix: "chore"
       include: "scope"
