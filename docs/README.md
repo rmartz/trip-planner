@@ -61,6 +61,8 @@ but the table should stay authoritative.
 
 ### Scripts
 
+- [check-agents-md](scripts/check-agents-md.md) — enforce that every AGENTS.md is
+  paired with a bare `@AGENTS.md` CLAUDE.md wrapper.
 - [check-package-pins](scripts/check-package-pins.md) — enforce full
   `major.minor.patch` dependency pins in `package.json`.
 - [validate-config](scripts/validate-config.md) — validate config against
