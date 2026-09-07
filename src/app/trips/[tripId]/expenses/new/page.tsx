@@ -3,7 +3,7 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { Button } from "@/components/ui/button";
-import { useActivities } from "@/hooks/use-activities";
+import { useActivities } from "@/features/activities";
 import { useCreateExpense } from "@/hooks/use-create-expense";
 import { useLegs } from "@/hooks/use-legs";
 import { useStops } from "@/hooks/use-stops";
