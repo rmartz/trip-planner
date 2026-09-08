@@ -73,3 +73,17 @@ describe("directoryViolations — symlinked CLAUDE.md fails", () => {
     ]);
   });
 });
+
+describe("directoryViolations — non-regular-file CLAUDE.md fails", () => {
+  it("flags a CLAUDE.md that is not a regular file (e.g. a directory)", () => {
+    const violations = directoryViolations({
+      hasAgents: true,
+      hasClaude: true,
+      claude: { symlink: false, file: false, content: "" },
+    });
+
+    expect(violations).toEqual([
+      "CLAUDE.md is not a regular file (e.g. a directory); it must be a real file containing only `@AGENTS.md`",
+    ]);
+  });
+});
