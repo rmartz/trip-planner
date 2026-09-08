@@ -125,7 +125,8 @@ per-domain migration order are tracked in #454.
   retrieve relevant context (scripts, subsystems).
 - **Every non-reserved `docs/` page must have OKF frontmatter** with a non-empty
   `type` (`title`, `description`, `resource`, `tags` recommended); use a `type`
-  from the vocabulary table in `docs/index.md`. `README.md` is exempt — it is
+  from the vocabulary table in [`docs/okf.md`](docs/okf.md), which explains the
+  OKF format and points to the authoritative spec. `README.md` is exempt — it is
   reserved for general, non-index documentation.
 - When you add a `docs/` page, add it to its directory's `index.md` (creating that
   `index.md` — and linking it from the parent `index.md` — if the directory is

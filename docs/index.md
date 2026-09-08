@@ -8,40 +8,11 @@ timestamp: 2026-06-18
 # Documentation
 
 Reference pages for agents (and humans) to retrieve before a task. This directory
-follows Google's [Open Knowledge Format
-(OKF)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md):
-one concept per markdown file, each with YAML frontmatter, cross-linked with plain
-markdown links so the pages form a traversable graph.
-
-## Frontmatter
-
-Every page carries YAML frontmatter. Only `type` is required; the rest are
-recommended:
-
-```yaml
----
-type: Script # the type vocabulary below
-title: validate-config
-description: One-line summary of what this documents.
-resource: scripts/validate-config.mjs # repo-relative path to the documented file
-tags: [deployment, config]
-timestamp: 2026-06-18
----
-```
-
-## Type vocabulary
-
-| `type`   | Meaning                                                                      |
-| -------- | ---------------------------------------------------------------------------- |
-| `Index`  | A directory listing (this page).                                             |
-| `Log`    | A dated change-history file (per OKF's reserved `log.md` convention).        |
-| `Script` | An executable helper in `scripts/`.                                          |
-| `System` | A cross-cutting subsystem spanning several files (a pipeline, a data layer). |
-
-`Convention` is reserved for future use (e.g. documenting a workflow or process
-that is not tied to a single script or subsystem). Add new types here when a page
-genuinely does not fit the existing set — OKF consumers tolerate unknown types,
-but the table should stay authoritative.
+is an [Open Knowledge Format (OKF)](okf.md) bundle: one concept per markdown file,
+each with YAML frontmatter, cross-linked so the pages form a navigable graph. See
+[okf.md](okf.md) for the format, the frontmatter fields, and the type vocabulary,
+and the [authoritative OKF spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+for anything beyond it.
 
 ## Sections
 
