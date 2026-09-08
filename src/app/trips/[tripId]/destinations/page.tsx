@@ -2,9 +2,11 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
-import { ScreenDestinationsTripView } from "@/components/destinations/ScreenDestinationsTripView";
+import {
+  ScreenDestinationsTripView,
+  useTripDestinations,
+} from "@/features/destinations";
 import { useTrip } from "@/hooks/use-trip";
-import { useTripDestinations } from "@/hooks/use-trip-destinations";
 import { DESTINATIONS_TRIP_PAGE_COPY } from "./DestinationsTripPageView.copy";
 
 export default function DestinationsTripPage() {
