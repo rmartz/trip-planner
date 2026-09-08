@@ -1,0 +1,48 @@
+name: Docs structure
+
+# Enforce the docs/ OKF conventions (AGENTS.md "Documentation"): every
+# non-reserved docs/ page carries YAML frontmatter with a non-empty `type`, and
+# the reference set is navigable — every content page is listed in its
+# directory's index.md, and every subdirectory index.md is linked from its
+# parent's, so a reader can walk index.md -> sub/index.md -> sub/page.md.
+#
+# An allowlist (`paths`) is safe here because this check has a CLOSED input set:
+# its result depends solely on the paths below — the docs/ tree it walks, the
+# validator + its library, and this workflow. Nothing outside that set can
+# change whether docs/ is conformant, so the allowlist cannot hide a real
+# failure. This mirrors the package-pins.yml / action-pins.yml / agents-md.yml
+# gating and intentionally differs from the documentation DENYLIST used for the
+# heavy test/build jobs, whose input set is open.
+#
+# Absent vs. skipped: on a PR that does not touch these paths the check is
+# ABSENT (it never starts) rather than reported as skipped, so it is
+# non-blocking and `main` is left unprotected for non-docs changes — the same
+# rationale as validate-config.yml. That is acceptable because only a docs/ file
+# (or this check itself) can change the outcome.
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "scripts/check-docs.mjs"
+      - "scripts/lib/check-docs.mjs"
+      - ".github/workflows/docs.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/check-docs.mjs"
+      - "scripts/lib/check-docs.mjs"
+      - ".github/workflows/docs.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: Check docs structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The check uses only Node built-ins, so no pnpm install / setup is needed.
+      - run: node scripts/check-docs.mjs

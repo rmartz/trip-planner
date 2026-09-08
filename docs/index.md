@@ -43,37 +43,24 @@ that is not tied to a single script or subsystem). Add new types here when a pag
 genuinely does not fit the existing set — OKF consumers tolerate unknown types,
 but the table should stay authoritative.
 
-## Pages
+## Sections
 
-### Systems
+Pages are grouped into per-directory indexes, so navigation flows
+`index.md → sub/index.md → sub/page.md`. This root index links each section
+index; each section index lists its own pages.
 
-- [Deployment Config Pipeline](systems/deployment-config.md) — how public config
-  in `deployment/{env}.yml` is structured and validated against the schema.
-- [Debug Auth (Staging/Preview Impersonation)](systems/debug-auth.md) — the
-  staging-only custom-token sign-in mode for synthetic profiles, and its
-  defense-in-depth safety layers.
-- [Storybook Screenshot Previews](systems/storybook-screenshots.md) — how PR
-  Storybook screenshots are captured, hosted on a per-PR branch, posted as a
-  sticky comment, and cleaned up.
-- [memberUids Fan-Out Invariant](systems/member-uids-fan-out.md) — how the
-  denormalized `memberUids` array is kept in sync across every trip-scoped
-  document on membership changes, and why it is a security requirement.
-
-### Scripts
-
-- [check-agents-md](scripts/check-agents-md.md) — enforce that every AGENTS.md is
-  paired with a bare `@AGENTS.md` CLAUDE.md wrapper.
-- [check-package-pins](scripts/check-package-pins.md) — enforce full
-  `major.minor.patch` dependency pins in `package.json`.
-- [validate-config](scripts/validate-config.md) — validate config against
-  `deployment/schema.yml`.
-- [migrate-member-uids](scripts/migrate-member-uids.md) — backfill the
-  `memberUids` array on trip documents.
-- [backfill-transport-gap-count](scripts/backfill-transport-gap-count.md) —
-  backfill the computed `transportGapCount` field on trip documents.
-- [seed-test-profiles](scripts/seed-test-profiles.md) — idempotent seeder for the
-  synthetic debug-auth profiles in the staging Firebase project.
-- [vercel-ignore-build](scripts/vercel-ignore-build.md) — Vercel Ignored Build
-  Step gate that deploys previews only for `feat:`/`fix:` PRs.
+- [Systems](systems/index.md) — cross-cutting subsystems: pipelines, data
+  layers, and their invariants.
+- [Scripts](scripts/index.md) — executable helpers in `scripts/` and the CI
+  validators that guard the repo's conventions.
 
 See [log.md](log.md) for the change history.
+
+## Enforcement
+
+This structure is enforced in CI by the `Docs structure` workflow
+(`scripts/check-docs.mjs`, run locally with `pnpm run docs:check`): every
+non-reserved page must carry frontmatter with a non-empty `type`, and every page
+must be reachable from this index through the per-directory `index.md` files. See
+[`scripts/check-docs.md`](scripts/check-docs.md). `README.md` is exempt (reserved
+for general, non-index documentation).

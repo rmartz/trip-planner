@@ -118,12 +118,21 @@ per-domain migration order are tracked in #454.
 - Keep documentation in sync with the code — outdated docs are worse than no docs.
 - Reference docs live in `docs/`, structured per Google's Open Knowledge Format
   (OKF): one concept per markdown file with YAML frontmatter, cross-linked and
-  indexed by [`docs/README.md`](docs/README.md). Read the index before a task to
+  indexed by per-directory `index.md` files (OKF's reserved index filename). The
+  root [`docs/index.md`](docs/index.md) links each section's `index.md`, which in
+  turn lists that directory's pages, so navigation flows
+  `index.md → sub/index.md → sub/page.md`. Read the index before a task to
   retrieve relevant context (scripts, subsystems).
-- When you add a `docs/` page, give it OKF frontmatter (`type` is required;
-  `title`, `description`, `resource`, `tags` recommended), use a `type` from the
-  vocabulary table in `docs/README.md`, link it from the index, and add a dated
-  entry to `docs/log.md`.
+- **Every non-reserved `docs/` page must have OKF frontmatter** with a non-empty
+  `type` (`title`, `description`, `resource`, `tags` recommended); use a `type`
+  from the vocabulary table in `docs/index.md`. `README.md` is exempt — it is
+  reserved for general, non-index documentation.
+- When you add a `docs/` page, add it to its directory's `index.md` (creating that
+  `index.md` — and linking it from the parent `index.md` — if the directory is
+  new), and add a dated entry to `docs/log.md`.
+- This structure is enforced in CI by the `Docs structure` workflow
+  (`scripts/check-docs.mjs`, run locally with `pnpm run docs:check`). See
+  [`docs/scripts/check-docs.md`](docs/scripts/check-docs.md).
 
 ## Agent Directive Files
 
