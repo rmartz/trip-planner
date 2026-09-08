@@ -5,7 +5,7 @@ import {
   PublishScheduleForbiddenError,
   usePublishSchedule,
 } from "@/hooks/use-publish-schedule";
-import { useActivities } from "@/hooks/use-activities";
+import { useActivities } from "@/features/activities";
 import type { Activity } from "@/lib/types/activity";
 import { ScheduleBuilderView } from "./ScheduleBuilderView";
 import type { ProposedActivityItem } from "./ScheduleBuilderView";

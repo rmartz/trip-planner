@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { UnavailableRangeManager } from "@/components/unavailability/UnavailableRangeManager";
+import { UnavailableRangeManager } from "@/features/unavailability";
 import { AppShell } from "@/components/nav/AppShell";
 import { SETTINGS_PAGE_COPY } from "./settings.copy";
 

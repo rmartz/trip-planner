@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-07** — Added the `check-agents-md` Script page for the new agent
+  directive-file convention: directives are authored once in `AGENTS.md`, every
+  `AGENTS.md` is paired with a companion `CLAUDE.md`, and every `CLAUDE.md` is a
+  bare `@AGENTS.md` wrapper (no directives, no symlinks), enforced by the
+  `Agent directive files` CI workflow. The repo's own `CLAUDE.md` symlink was replaced
+  with a real bare wrapper. (#496)
 - **2026-07-06** — Updated the memberUids Fan-Out Invariant System page for the
   new `removeMemberAndSyncUids` removal seam: `removeGuest` now deletes the member
   and fans out the post-removal set in one atomic batch (closing the crash window,
