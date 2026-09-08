@@ -7,12 +7,12 @@ import {
   LodgingGuestOfferStatus,
   LodgingGuestOverviewView,
   type LodgingGuestStopSummary,
-} from "@/components/lodging/LodgingGuestOverviewView";
-import { LodgingHostGuestPicker } from "@/components/lodging/LodgingHostGuestPicker";
-import { LodgingPlannerOverviewView } from "@/components/lodging/LodgingPlannerOverviewView";
-import type { LodgingStopSummary } from "@/components/lodging/LodgingPlannerOverviewView";
+  LodgingHostGuestPicker,
+  LodgingPlannerOverviewView,
+  type LodgingStopSummary,
+  stopLodgingQueryOptions,
+} from "@/features/lodging";
 import { useAuth } from "@/hooks/use-auth";
-import { stopLodgingQueryOptions } from "@/hooks/use-stop-lodging";
 import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
 import type { NonAccountMember } from "@/lib/types/non-account-member";

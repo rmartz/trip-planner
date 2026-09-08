@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { LodgingGuestOfferStatus } from "@/components/lodging/LodgingGuestOverviewView";
+import { LodgingGuestOfferStatus } from "@/features/lodging/LodgingGuestOverviewView";
 import { LodgingStatus } from "@/lib/types/lodging";
 import { type Stop, TripRole } from "@/lib/types/trip";
 
@@ -30,7 +30,7 @@ vi.mock("@/hooks/use-trip-members", () => ({
   })),
 }));
 
-vi.mock("@/hooks/use-stop-lodging", () => ({
+vi.mock("@/features/lodging/use-stop-lodging", () => ({
   stopLodgingQueryOptions: vi.fn((_tripId: string, stopId: string) => ({
     queryFn: vi.fn(),
     queryKey: ["lodging", "trip-1", stopId],
@@ -47,7 +47,7 @@ vi.mock("next/navigation", () => ({
 
 const guestOverviewSpy = vi.fn();
 
-vi.mock("@/components/lodging/LodgingGuestOverviewView", () => ({
+vi.mock("@/features/lodging/LodgingGuestOverviewView", () => ({
   LodgingGuestOfferStatus: {
     Accepted: "accepted",
     Declined: "declined",
@@ -59,13 +59,13 @@ vi.mock("@/components/lodging/LodgingGuestOverviewView", () => ({
   },
 }));
 
-vi.mock("@/components/lodging/LodgingPlannerOverviewView", () => ({
+vi.mock("@/features/lodging/LodgingPlannerOverviewView", () => ({
   LodgingPlannerOverviewView: () => (
     <div data-testid="lodging-planner-overview" />
   ),
 }));
 
-vi.mock("@/components/lodging/LodgingHostGuestPicker", () => ({
+vi.mock("@/features/lodging/LodgingHostGuestPicker", () => ({
   LodgingHostGuestPicker: ({ stopId }: { stopId: string }) => (
     <div data-testid={`picker-${stopId}`} />
   ),
