@@ -37,7 +37,7 @@ vi.mock("@/features/lodging/use-stop-lodging", () => ({
   })),
 }));
 
-vi.mock("@/components/nav/AppShell", () => ({
+vi.mock("@/features/nav/AppShell", () => ({
   AppShell: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 

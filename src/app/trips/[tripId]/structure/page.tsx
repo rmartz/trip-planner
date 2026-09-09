@@ -13,7 +13,7 @@ import { useReorderStops } from "@/hooks/use-reorder-stops";
 import { TripStructurePageView } from "./TripStructurePageView";
 import { AddStopFormView } from "./AddStopFormView";
 import { RemoveLegConfirmModalView } from "@/features/trips";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { TRIP_STRUCTURE_COPY } from "./copy";
 
 interface TripStructurePageProps {

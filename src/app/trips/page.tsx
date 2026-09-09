@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
-import { useTrips } from "@/features/trips";
+import { PhasePill, useTrips } from "@/features/trips";
 import type { Trip } from "@/lib/types/trip";
 import { getTripPhase } from "@/lib/trips/phase";
 import { formatDateRange } from "@/lib/trips/format";
-import { PhasePill } from "@/components/trips/PhasePill";
 import { TRIPS_PAGE_COPY } from "./copy";
 
 interface TripRowProps {

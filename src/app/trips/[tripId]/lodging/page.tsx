@@ -13,7 +13,7 @@ import {
   stopLodgingQueryOptions,
 } from "@/features/lodging";
 import { useAuth } from "@/hooks/use-auth";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { useStops } from "@/hooks/use-stops";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
 import { tripMembersQueryOptions } from "@/features/trips";

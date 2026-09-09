@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArchivePageView } from "./ArchivePageView";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import type { Leg } from "@/lib/types/trip";
 import { ARCHIVE_PAGE_COPY } from "./ArchivePageView.copy";
 

@@ -14,7 +14,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ back: mockBack, push: mockPush }),
 }));
 
-vi.mock("@/components/nav/AppShell", () => ({
+vi.mock("@/features/nav/AppShell", () => ({
   AppShell: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 

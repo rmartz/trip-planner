@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { useTransportSummaries } from "@/features/transport";
 import { useTrip } from "@/features/trips";
 import { computeTransportGapCount } from "@/lib/trips/transport";

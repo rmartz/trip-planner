@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { useMarkAllNotificationsRead } from "@/hooks/use-mark-all-notifications-read";
 import { useMarkNotificationRead } from "@/hooks/use-mark-notification-read";
 import { useNotifications } from "@/hooks/use-notifications";

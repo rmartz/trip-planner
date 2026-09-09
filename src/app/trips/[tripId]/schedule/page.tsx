@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { SchedulePageView } from "./SchedulePageView";
 import type { ScheduleDay } from "./SchedulePageView";
 import { SCHEDULE_PAGE_COPY } from "./SchedulePageView.copy";

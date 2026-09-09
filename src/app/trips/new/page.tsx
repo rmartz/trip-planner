@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCreateTrip } from "@/hooks/use-create-trip";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { CreateTripPageView } from "./CreateTripPageView";
 import { CREATE_TRIP_PAGE_COPY } from "./copy";
 

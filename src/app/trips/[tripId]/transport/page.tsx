@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import {
   type TransportLegSummary,
   TransportPlannerOverviewView,

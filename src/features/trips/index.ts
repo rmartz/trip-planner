@@ -2,6 +2,7 @@
 // "@/features/trips"; the individual modules below are internals.
 export * from "./HomeDashboard";
 export * from "./InviteLinkCard";
+export * from "./PhasePill";
 export * from "./RemoveLegConfirmModalView";
 export * from "./ScreenAvailabilityView";
 export * from "./TripAvailabilityGridView";
