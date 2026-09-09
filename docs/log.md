@@ -7,6 +7,15 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-08** — Migrated the index from the flat `docs/README.md` to OKF's
+  reserved per-directory `index.md` (`docs/index.md`, `docs/scripts/index.md`,
+  `docs/systems/index.md`); `README.md` is freed for general documentation. Added
+  the `check-docs` Script page and the `Docs structure` CI workflow, which
+  enforces OKF frontmatter on every non-reserved page and index-navigability
+  (`index.md → sub/index.md → sub/page.md`). Added `docs/okf.md` (the first
+  `Convention` page) explaining the OKF format and linking the authoritative
+  Google spec; the frontmatter/type-vocabulary detail moved there from the
+  index. (#501)
 - **2026-09-07** — Added the `check-agents-md` Script page for the new agent
   directive-file convention: directives are authored once in `AGENTS.md`, every
   `AGENTS.md` is paired with a companion `CLAUDE.md`, and every `CLAUDE.md` is a
