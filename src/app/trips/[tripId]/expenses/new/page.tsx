@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { Button } from "@/components/ui/button";
 import { useActivities } from "@/features/activities";
 import { useCreateExpense } from "@/hooks/use-create-expense";

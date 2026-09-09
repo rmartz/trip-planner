@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { useStops } from "@/hooks/use-stops";
 import { useTrip } from "@/features/trips";
 import { TripRole } from "@/lib/types/trip";

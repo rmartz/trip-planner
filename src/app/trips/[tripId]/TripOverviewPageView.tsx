@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Trip } from "@/lib/types/trip";
 import { getTripPhase } from "@/lib/trips/phase";
 import { formatDateRange } from "@/lib/trips/format";
-import { PhasePill } from "@/components/trips/PhasePill";
+import { PhasePill } from "@/features/trips";
 import { TRIP_OVERVIEW_PAGE_COPY } from "./TripOverviewPageView.copy";
 
 interface SectionLink {

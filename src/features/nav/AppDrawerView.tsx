@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Trip } from "@/lib/types/trip";
-import { PhasePill } from "@/components/trips/PhasePill";
+import { PhasePill } from "@/features/trips";
 import { getTripPhase } from "@/lib/trips/phase";
 import { APP_DRAWER_COPY } from "./AppDrawer.copy";
 

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { TripPhase } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
-import { PHASE_PILL_COPY } from "@/components/trips/PhasePill.copy";
+import { PHASE_PILL_COPY } from "@/features/trips/PhasePill.copy";
 import { TripOverviewPageView } from "./TripOverviewPageView";
 import { TRIP_OVERVIEW_PAGE_COPY } from "./TripOverviewPageView.copy";
 

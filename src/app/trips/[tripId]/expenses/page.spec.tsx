@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushSpy }),
 }));
 
-vi.mock("@/components/nav/AppShell", () => ({
+vi.mock("@/features/nav/AppShell", () => ({
   AppShell: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 

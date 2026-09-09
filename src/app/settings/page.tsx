@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { UnavailableRangeManager } from "@/features/unavailability";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { SETTINGS_PAGE_COPY } from "./settings.copy";
 
 export default function SettingsPage() {

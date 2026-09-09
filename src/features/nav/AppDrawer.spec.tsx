@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { AppDrawerView } from "./AppDrawerView";
 import { APP_DRAWER_COPY } from "./AppDrawer.copy";
-import { PHASE_PILL_COPY } from "@/components/trips/PhasePill.copy";
+import { PHASE_PILL_COPY } from "@/features/trips/PhasePill.copy";
 import { TripPhase } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 

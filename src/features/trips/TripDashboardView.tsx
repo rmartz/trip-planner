@@ -5,7 +5,7 @@ import { BellIcon, MenuIcon } from "lucide-react";
 import type { Trip } from "@/lib/types/trip";
 import { getTripPhase } from "@/lib/trips/phase";
 import { formatDateRange } from "@/lib/trips/format";
-import { PhasePill } from "@/components/trips/PhasePill";
+import { PhasePill } from "./PhasePill";
 import { TRIP_DASHBOARD_COPY } from "./TripDashboardView.copy";
 
 function formatCountdown(startDate: Date, today: Date): string {

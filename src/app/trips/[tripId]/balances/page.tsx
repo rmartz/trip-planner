@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { AppShell } from "@/components/nav/AppShell";
+import { AppShell } from "@/features/nav";
 import { useExpenses } from "@/hooks/use-expenses";
 import { useTrip, useTripMembers } from "@/features/trips";
 import { computeNetBalances } from "@/lib/trips/expenses";
