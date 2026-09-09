@@ -12,8 +12,11 @@ updates:
     # the release-age CI gate fail on essentially every rebase, so these PRs
     # could not be merged without retrying for a lucky freshness window. The gate
     # (.github/workflows/release-age.yml + scripts/check-release-age*) and this
-    # cooldown were removed together. The github-actions ecosystem below keeps its
-    # cooldown: those bumps are direct-only, so the failure mode does not apply.
+    # cooldown were removed together. The github-actions ecosystem below also
+    # uses no `cooldown`: cooldowns add merge friction without reliably closing
+    # the supply-chain window (Dependabot keeps PRs current, so even an
+    # older-release bump pulls the latest transitive deps), so none is used
+    # anywhere — do not re-add.
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -149,10 +152,6 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # Let new releases age 7 days before opening update PRs, reducing exposure
-    # to supply-chain attacks where a malicious version is published then yanked.
-    cooldown:
-      default-days: 7
     commit-message:
       prefix: "chore"
       include: "scope"
