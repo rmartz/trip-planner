@@ -1,8 +1,11 @@
 // Pure, dependency-free validation for the docs/ OKF conventions enforced by
 // the Docs structure CI check. Two independent rule groups:
 //
-//   1. Frontmatter — every non-reserved `*.md` under docs/ carries a parseable
-//      YAML frontmatter block with a non-empty `type` field (OKF SPEC §3.1).
+//   1. Frontmatter — every non-reserved `*.md` under docs/ carries fenced
+//      frontmatter (opening and closing `---`) with a non-empty `type` scalar
+//      (OKF SPEC §3.1). The check validates structural presence only — it does
+//      not parse YAML, so structurally malformed YAML that contains a `type`
+//      scalar will pass.
 //   2. Navigability — every content page is listed in its directory's index.md,
 //      and every subdirectory's index.md is linked from its parent's index.md,
 //      so a reader can walk index.md -> sub/index.md -> sub/page.md (OKF §8).
@@ -51,12 +54,18 @@ export function frontmatterError(content) {
 }
 
 // Extracts the target of every inline markdown link `[text](target)`, dropping
-// an optional `"title"` suffix. Returns raw targets; the caller resolves them.
+// an optional `"title"` suffix. Strips fenced code blocks (triple-backtick or
+// triple-tilde) before scanning so links inside code examples are not counted
+// as real navigability links. Returns raw targets; the caller resolves them.
 export function extractLinkTargets(markdown) {
+  const stripped = markdown.replace(
+    /^(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n\1\s*$/gm,
+    "",
+  );
   const targets = [];
   const linkPattern = /\[[^\]]*\]\(([^)]+)\)/g;
   let match;
-  while ((match = linkPattern.exec(markdown)) !== null) {
+  while ((match = linkPattern.exec(stripped)) !== null) {
     const raw = match[1].trim();
     const spaceIndex = raw.indexOf(" ");
     targets.push(spaceIndex === -1 ? raw : raw.slice(0, spaceIndex));
@@ -82,7 +91,9 @@ export function navigationViolations(dirs) {
   } of dirs) {
     const dirLabel = rel === "" ? "docs" : `docs/${rel}`;
     if (!hasIndex) {
-      violations.push(`${dirLabel}: has content pages but no ${INDEX_FILE}`);
+      violations.push(
+        `${dirLabel}: has content (pages or subdirectory indexes) but no ${INDEX_FILE}`,
+      );
       continue;
     }
     const indexLabel = `${dirLabel}/${INDEX_FILE}`;

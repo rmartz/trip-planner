@@ -49,6 +49,22 @@ describe("extractLinkTargets — parses inline links", () => {
 
     expect(targets).toEqual(["scripts/index.md", "systems/x.md"]);
   });
+
+  it("ignores links inside fenced code blocks", () => {
+    const markdown = [
+      "Real link: [page](scripts/check-docs.md)",
+      "",
+      "```markdown",
+      "Example link: [see also](systems/index.md)",
+      "```",
+      "",
+      "~~~",
+      "Another example: [other](scripts/index.md)",
+      "~~~",
+    ].join("\n");
+
+    expect(extractLinkTargets(markdown)).toEqual(["scripts/check-docs.md"]);
+  });
 });
 
 describe("navigationViolations — compliant tree passes", () => {
@@ -87,7 +103,7 @@ describe("navigationViolations — missing index fails", () => {
     ]);
 
     expect(violations).toEqual([
-      "docs/scripts: has content pages but no index.md",
+      "docs/scripts: has content (pages or subdirectory indexes) but no index.md",
     ]);
   });
 });

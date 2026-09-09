@@ -2,8 +2,9 @@
 /**
  * Enforces the docs/ OKF conventions across the repository:
  *
- *   1. Frontmatter — every non-reserved `*.md` under docs/ carries a parseable
- *      YAML frontmatter block with a non-empty `type` field.
+ *   1. Frontmatter — every non-reserved `*.md` under docs/ carries fenced
+ *      frontmatter (opening and closing `---`) with a non-empty `type` scalar.
+ *      The check validates structural presence only — it does not parse YAML.
  *   2. Navigability — every content page is listed in its directory's index.md,
  *      and every subdirectory's index.md is linked from its parent's index.md,
  *      so a reader can walk index.md -> sub/index.md -> sub/page.md.

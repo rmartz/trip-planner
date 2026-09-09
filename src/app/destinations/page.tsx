@@ -1,16 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useDestinations } from "@/hooks/use-destinations";
+import {
+  AttachDestinationPickerView,
+  DestinationCatalogView,
+  DestinationDetailView,
+  DestinationFormView,
+  ShareDestinationPickerView,
+  useDestinations,
+} from "@/features/destinations";
+import type {
+  DestinationFormInput,
+  ShareablePlanner,
+} from "@/features/destinations";
 import { useTrips } from "@/hooks/use-trips";
 import { useAuth } from "@/hooks/use-auth";
-import { DestinationCatalogView } from "@/components/destinations/DestinationCatalogView";
-import { DestinationDetailView } from "@/components/destinations/DestinationDetailView";
-import { DestinationFormView } from "@/components/destinations/DestinationFormView";
-import { AttachDestinationPickerView } from "@/components/destinations/AttachDestinationPickerView";
-import { ShareDestinationPickerView } from "@/components/destinations/ShareDestinationPickerView";
-import type { DestinationFormInput } from "@/components/destinations/DestinationFormView";
-import type { ShareablePlanner } from "@/components/destinations/ShareDestinationPickerView";
 import { TripRole } from "@/lib/types/trip";
 import type { Destination } from "@/lib/types/destination";
 import type { Stop, Trip } from "@/lib/types/trip";
