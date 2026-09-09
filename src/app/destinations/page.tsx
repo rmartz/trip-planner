@@ -13,7 +13,7 @@ import type {
   DestinationFormInput,
   ShareablePlanner,
 } from "@/features/destinations";
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "@/features/trips";
 import { useAuth } from "@/hooks/use-auth";
 import { TripRole } from "@/lib/types/trip";
 import type { Destination } from "@/lib/types/destination";

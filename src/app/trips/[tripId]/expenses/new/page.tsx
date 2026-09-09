@@ -7,8 +7,7 @@ import { useActivities } from "@/features/activities";
 import { useCreateExpense } from "@/hooks/use-create-expense";
 import { useLegs } from "@/hooks/use-legs";
 import { useStops } from "@/hooks/use-stops";
-import { useTrip } from "@/hooks/use-trip";
-import { useTripMembers } from "@/hooks/use-trip-members";
+import { useTrip, useTripMembers } from "@/features/trips";
 import {
   ExpenseCategory,
   ExpenseLinkedEntityType,

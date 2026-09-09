@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
-import { useTrip } from "@/hooks/use-trip";
-import { useTripMembers } from "@/hooks/use-trip-members";
+import { useTrip, useTripMembers } from "@/features/trips";
 import {
   useExpenseSettings,
   useUpdateExpenseSettings,

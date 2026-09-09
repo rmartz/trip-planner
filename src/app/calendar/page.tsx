@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AddRangeModal, CalendarPageView } from "@/features/calendar";
 import { useUnavailableRanges } from "@/hooks/use-unavailable-ranges";
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "@/features/trips";
 
 export default function CalendarPage() {
   const today = new Date();

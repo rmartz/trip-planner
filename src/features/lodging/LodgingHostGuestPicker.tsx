@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { tripMembersQueryOptions } from "@/hooks/use-trip-members";
+import { tripMembersQueryOptions } from "@/features/trips";
 import { LodgingHostGuestPickerView } from "./LodgingHostGuestPickerView";
 
 interface LodgingInviteesResponse {

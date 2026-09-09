@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/nav/AppShell";
 import { useStops } from "@/hooks/use-stops";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
-import { tripMembersQueryOptions } from "@/hooks/use-trip-members";
+import { tripMembersQueryOptions } from "@/features/trips";
 import { LodgingStatus } from "@/lib/types/lodging";
 import { type Stop, TripRole } from "@/lib/types/trip";
 import { LODGING_PAGE_COPY } from "./copy";
