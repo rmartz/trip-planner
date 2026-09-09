@@ -147,18 +147,6 @@ per-domain migration order are tracked in #454.
 - This pairing is enforced in CI by the `Agent directive files` workflow (`scripts/check-agents-md.mjs`,
   run locally with `pnpm run agents:check`). See [`docs/scripts/check-agents-md.md`](docs/scripts/check-agents-md.md).
 
-## Agent Directive Files
-
-- **All directives live in `AGENTS.md`.** `AGENTS.md` is the single source of truth for a
-  directory's agent instructions; author and edit directives there, never in `CLAUDE.md`.
-- **Every `AGENTS.md` has a companion `CLAUDE.md`** in the same directory, and every `CLAUDE.md`
-  has a companion `AGENTS.md`. The two files are always paired.
-- **Every `CLAUDE.md` is a bare wrapper** whose only content is the Claude Code import line
-  `@AGENTS.md` — no directives, no other text, no symlinks. This feeds the `AGENTS.md` directives
-  to Claude Code while keeping them authored once.
-- This pairing is enforced in CI by the `Agent directive files` workflow (`scripts/check-agents-md.mjs`,
-  run locally with `pnpm run agents:check`). See [`docs/scripts/check-agents-md.md`](docs/scripts/check-agents-md.md).
-
 ## React / Next.js Standards
 
 ### Framework
