@@ -16,7 +16,7 @@ vi.mock("@/components/nav/AppShell", () => ({
   AppShell: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/hooks/use-trip", () => ({
+vi.mock("@/features/trips/use-trip", () => ({
   useTrip: vi.fn(),
 }));
 
@@ -34,13 +34,13 @@ vi.mock("@/hooks/use-expenses", () => ({
     .mockReturnValue({ data: [], isLoading: false, isError: false }),
 }));
 
-vi.mock("@/hooks/use-trip-members", () => ({
+vi.mock("@/features/trips/use-trip-members", () => ({
   useTripMembers: vi.fn().mockReturnValue({ data: [] }),
 }));
 
 import { useLegs } from "@/hooks/use-legs";
 import { useStops } from "@/hooks/use-stops";
-import { useTrip } from "@/hooks/use-trip";
+import { useTrip } from "@/features/trips/use-trip";
 import ExpensesPage from "./page";
 
 afterEach(() => {

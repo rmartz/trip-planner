@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { AvailabilityPageView } from "./AvailabilityPageView";
 import { AVAILABILITY_PAGE_COPY } from "./AvailabilityPageView.copy";
-import { SCREEN_AVAILABILITY_COPY } from "@/components/trips/ScreenAvailabilityView.copy";
+import { SCREEN_AVAILABILITY_COPY } from "@/features/trips/ScreenAvailabilityView.copy";
 import type { Trip } from "@/lib/types/trip";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ScreenAvailabilityView } from "@/components/trips/ScreenAvailabilityView";
+import { ScreenAvailabilityView } from "@/features/trips";
 import { toDateKey } from "@/lib/dates";
 import type { Trip } from "@/lib/types/trip";
 import type { UnavailableRange } from "@/lib/types/unavailable-range";

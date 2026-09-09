@@ -2,8 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
-import { useTrip } from "@/hooks/use-trip";
-import { useTrips } from "@/hooks/use-trips";
+import { useTrip, useTrips } from "@/features/trips";
 import { useUnavailableRanges } from "@/hooks/use-unavailable-ranges";
 import { AvailabilityPageView } from "./AvailabilityPageView";
 import { AVAILABILITY_PAGE_COPY } from "./AvailabilityPageView.copy";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "./use-trips";
 import { HOME_DASHBOARD_COPY } from "./HomeDashboard.copy";
 import { TripDashboardView } from "./TripDashboardView";
 
