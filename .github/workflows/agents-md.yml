@@ -1,0 +1,49 @@
+name: Agent directive files
+
+# Enforce the agent directive-file convention (AGENTS.md "Agent Directive
+# Files"): directives are authored once in AGENTS.md, every AGENTS.md is paired
+# with a companion CLAUDE.md, and every CLAUDE.md is a bare `@AGENTS.md` wrapper
+# (no directives, no other text, no symlinks).
+#
+# An allowlist (`paths`) is safe here because this check has a CLOSED input set:
+# its result depends solely on the paths below — the AGENTS.md / CLAUDE.md files
+# it walks, the validator + its library, and this workflow. Nothing outside that
+# set can change whether the tree is compliant, so the allowlist cannot hide a
+# real failure. This mirrors the package-pins.yml / action-pins.yml gating and
+# intentionally differs from the documentation DENYLIST used for the heavy
+# test/build jobs, whose input set is open.
+#
+# Absent vs. skipped: on a PR that does not touch these paths the check is
+# ABSENT (it never starts) rather than reported as skipped, so it is
+# non-blocking and `main` is left unprotected for non-directive changes — the
+# same rationale as validate-config.yml. That is acceptable because only a
+# directive file (or this check itself) can change the outcome.
+on:
+  pull_request:
+    paths:
+      - "**/AGENTS.md"
+      - "**/CLAUDE.md"
+      - "scripts/check-agents-md.mjs"
+      - "scripts/lib/check-agents-md.mjs"
+      - ".github/workflows/agents-md.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**/AGENTS.md"
+      - "**/CLAUDE.md"
+      - "scripts/check-agents-md.mjs"
+      - "scripts/lib/check-agents-md.mjs"
+      - ".github/workflows/agents-md.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  agents-md:
+    name: Check agent directive files
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The check uses only Node built-ins, so no pnpm install / setup is needed.
+      - run: node scripts/check-agents-md.mjs
