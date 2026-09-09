@@ -6,7 +6,7 @@ import {
   ScreenDestinationsTripView,
   useTripDestinations,
 } from "@/features/destinations";
-import { useTrip } from "@/hooks/use-trip";
+import { useTrip } from "@/features/trips";
 import { DESTINATIONS_TRIP_PAGE_COPY } from "./DestinationsTripPageView.copy";
 
 export default function DestinationsTripPage() {

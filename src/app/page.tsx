@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { LandingPageView } from "@/components/marketing/LandingPageView";
-import { HomeDashboard } from "@/components/trips/HomeDashboard";
+import { HomeDashboard } from "@/features/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
 
 // The proxy sets X-User-Id only for a verified session, so its presence

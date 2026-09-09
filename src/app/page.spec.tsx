@@ -3,7 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "./page";
 import { LANDING_PAGE_COPY } from "@/components/marketing/LandingPageView.copy";
-import { TRIP_DASHBOARD_COPY } from "@/components/trips/TripDashboardView.copy";
+import { TRIP_DASHBOARD_COPY } from "@/features/trips/TripDashboardView.copy";
 
 afterEach(() => {
   cleanup();
@@ -11,10 +11,10 @@ afterEach(() => {
 });
 
 vi.mock("next/headers", () => ({ headers: vi.fn() }));
-vi.mock("@/hooks/use-trips");
+vi.mock("@/features/trips/use-trips");
 
 import { headers } from "next/headers";
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "@/features/trips/use-trips";
 
 function mockUserHeader(uid: string | undefined) {
   vi.mocked(headers).mockResolvedValue({

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { TripRole } from "@/lib/types/trip";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
-import { InviteLinkCard } from "@/components/trips/InviteLinkCard";
+import { InviteLinkCard } from "@/features/trips";
 import { MEMBERS_PAGE_COPY } from "./MembersPageView.copy";
 
 interface AccountMemberRowProps {

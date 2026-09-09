@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
-import { useTrip } from "@/hooks/use-trip";
+import { useTrip } from "@/features/trips";
 import {
   ActivitiesTripPageView,
   type ActivityProposal,

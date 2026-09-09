@@ -23,7 +23,7 @@ vi.mock("@/hooks/use-stops", () => ({
   useStops: vi.fn(),
 }));
 
-vi.mock("@/hooks/use-trip-members", () => ({
+vi.mock("@/features/trips/use-trip-members", () => ({
   tripMembersQueryOptions: vi.fn(() => ({
     queryFn: vi.fn(),
     queryKey: ["trip-members", "trip-1"],

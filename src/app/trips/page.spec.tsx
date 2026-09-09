@@ -9,9 +9,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-vi.mock("@/hooks/use-trips");
+vi.mock("@/features/trips/use-trips");
 
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "@/features/trips/use-trips";
 
 function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return {

@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "./use-trips";
 import type { Trip } from "@/lib/types/trip";
 import { getTripPhase } from "@/lib/trips/phase";
-import { PhasePill } from "./PhasePill";
+import { PhasePill } from "@/components/trips/PhasePill";
 import { TRIP_LIST_COPY } from "./TripList.copy";
 
 function formatDateRange(startDate: Date, endDate: Date): string {

@@ -12,7 +12,7 @@ import { useUpdateStop } from "@/hooks/use-update-stop";
 import { useReorderStops } from "@/hooks/use-reorder-stops";
 import { TripStructurePageView } from "./TripStructurePageView";
 import { AddStopFormView } from "./AddStopFormView";
-import { RemoveLegConfirmModalView } from "@/components/trips/RemoveLegConfirmModalView";
+import { RemoveLegConfirmModalView } from "@/features/trips";
 import { AppShell } from "@/components/nav/AppShell";
 import { TRIP_STRUCTURE_COPY } from "./copy";
 

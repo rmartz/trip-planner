@@ -4,9 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/nav/AppShell";
 import { useLegs } from "@/hooks/use-legs";
 import { useStops } from "@/hooks/use-stops";
-import { useTrip } from "@/hooks/use-trip";
+import { useTrip, useTripMembers } from "@/features/trips";
 import { useExpenses } from "@/hooks/use-expenses";
-import { useTripMembers } from "@/hooks/use-trip-members";
 import { ExpenseLinkedEntityType } from "@/lib/types/expense";
 import {
   type ExpenseListItem,

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { TripList } from "./TripList";
 import { TRIP_LIST_COPY } from "./TripList.copy";
-import { PHASE_PILL_COPY } from "./PhasePill.copy";
+import { PHASE_PILL_COPY } from "@/components/trips/PhasePill.copy";
 import { TripPhase } from "@/lib/types/trip";
 import type { Trip } from "@/lib/types/trip";
 
@@ -11,9 +11,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-vi.mock("@/hooks/use-trips");
+vi.mock("./use-trips");
 
-import { useTrips } from "@/hooks/use-trips";
+import { useTrips } from "./use-trips";
 
 function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return {
