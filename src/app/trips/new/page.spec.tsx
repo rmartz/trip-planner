@@ -10,6 +10,12 @@ afterEach(() => {
 vi.mock("@/hooks/use-create-trip");
 vi.mock("next/navigation");
 
+// AppShell is not under test here; stubbing it keeps this spec from pulling in
+// the auth/Sentry provider chain, matching the other page specs in this repo.
+vi.mock("@/features/nav/AppShell", () => ({
+  AppShell: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 import { useCreateTrip } from "@/hooks/use-create-trip";
 import { useRouter } from "next/navigation";
 import { CreateTripPageView } from "./CreateTripPageView";
