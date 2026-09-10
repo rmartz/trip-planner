@@ -31,12 +31,19 @@ OKF reserves two filenames (SPEC §3.1); this repo uses both:
 | `index.md` | A directory listing. One per content-bearing directory; see below.       |
 | `log.md`   | A dated change history. The repo keeps a single top-level [log](log.md). |
 
+An `index.md` is **exempt** from the frontmatter/`type` requirement: per SPEC §8
+an index carries **no frontmatter at all**, with one exception — the bundle-root
+[`docs/index.md`](index.md) MAY carry a single `okf_version` key (and nothing
+else). Nested `index.md` files open straight into their listing body. `log.md`
+keeps its `type` (SPEC §9).
+
 `README.md` is **not** an OKF concept — it is reserved here for general,
 non-index documentation and is exempt from the frontmatter and index rules.
 
 ## Frontmatter
 
-Every non-reserved page opens with a YAML frontmatter block. Only `type` is
+Every non-reserved page opens with a YAML frontmatter block (the reserved
+`index.md` and `README.md` are the exceptions — see above). Only `type` is
 required (a concept carrying just `type` is fully conformant per SPEC §3.1); the
 rest are recommended:
 
@@ -57,11 +64,13 @@ timestamp: 2026-06-18
 
 | `type`       | Meaning                                                                            |
 | ------------ | ---------------------------------------------------------------------------------- |
-| `Index`      | A directory listing (an `index.md`).                                               |
 | `Log`        | A dated change-history file (the reserved `log.md`).                               |
 | `Script`     | An executable helper in `scripts/`.                                                |
 | `System`     | A cross-cutting subsystem spanning several files (a pipeline, a data layer).       |
 | `Convention` | A repo-wide convention or process not tied to one script or subsystem (this page). |
+
+(An `index.md` no longer carries a `type` — it is frontmatter-exempt per §8, so
+there is no `Index` type.)
 
 Add a new row here when a page genuinely does not fit the existing set — OKF
 consumers tolerate unknown types, but this table should stay authoritative for

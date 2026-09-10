@@ -7,6 +7,14 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-10** — Brought the reserved `index.md` files into OKF §8
+  conformance: removed the disallowed `type`/`title`/`description`/`timestamp`
+  frontmatter from `docs/index.md`, `docs/scripts/index.md`, and
+  `docs/systems/index.md` (the bundle-root `docs/index.md` keeps only
+  `okf_version`; the nested indexes carry none). The `check-docs` validator now
+  checks `index.md` with a dedicated `indexFrontmatterError` rule that rejects
+  any frontmatter beyond `okf_version`, and `okf.md` documents the exemption.
+  (#511)
 - **2026-09-08** — Migrated the index from the flat `docs/README.md` to OKF's
   reserved per-directory `index.md` (`docs/index.md`, `docs/scripts/index.md`,
   `docs/systems/index.md`); `README.md` is freed for general documentation. Added

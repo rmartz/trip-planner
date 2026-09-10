@@ -1,10 +1,3 @@
----
-type: Index
-title: Systems
-description: Cross-cutting subsystems — pipelines, data layers, and their invariants.
-timestamp: 2026-09-08
----
-
 # Systems
 
 Cross-cutting subsystems that span several files. Return here from the

@@ -5,15 +5,19 @@
 //      frontmatter (opening and closing `---`) with a non-empty `type` scalar
 //      (OKF SPEC §3.1). The check validates structural presence only — it does
 //      not parse YAML, so structurally malformed YAML that contains a `type`
-//      scalar will pass.
+//      scalar will pass. `index.md` is instead validated by
+//      `indexFrontmatterError`: per OKF §8 an index carries no frontmatter,
+//      except a bundle-root `index.md` MAY carry an `okf_version` key.
 //   2. Navigability — every content page is listed in its directory's index.md,
 //      and every subdirectory's index.md is linked from its parent's index.md,
 //      so a reader can walk index.md -> sub/index.md -> sub/page.md (OKF §8).
 //
 // `index.md` and `log.md` are OKF-reserved filenames; `README.md` is treated as
 // a general-documentation landing file. All three are exempt from the
-// navigability "must be listed" rule. Only `README.md` is exempt from the
-// frontmatter rule — the repo convention gives index.md/log.md a `type` too.
+// navigability "must be listed" rule. `README.md` is exempt from the frontmatter
+// rule; `index.md` is exempt from the `type` requirement (OKF §8) and instead
+// must carry no frontmatter beyond an optional bundle-root `okf_version`; the
+// reserved `log.md` keeps its `type` (OKF §9).
 //
 // The filesystem walk and link resolution live in the CLI wrapper
 // (scripts/check-docs.mjs); this module holds the pure decision logic so it can
@@ -49,6 +53,32 @@ export function frontmatterError(content) {
     .replace(/^["']|["']$/g, "");
   if (value.length === 0) {
     return "frontmatter `type` field is empty";
+  }
+  return undefined;
+}
+
+// Returns an error string when an `index.md`'s frontmatter violates OKF §8, or
+// undefined when it is conformant. An index carries no frontmatter at all, with
+// one exception: a bundle-root `index.md` MAY carry an `okf_version` key. A file
+// that opens straight into its body (no `---` fence) is therefore conformant;
+// any frontmatter block is rejected unless its only key is `okf_version`. Like
+// `frontmatterError`, this validates structure only — it does not parse YAML.
+export function indexFrontmatterError(content) {
+  const lines = content.split("\n");
+  if (lines[0].trim() !== "---") {
+    return undefined;
+  }
+  const end = lines.findIndex((line, i) => i > 0 && line.trim() === "---");
+  if (end === -1) {
+    return "frontmatter block is not closed with `---`";
+  }
+  const disallowed = lines
+    .slice(1, end)
+    .map((line) => line.match(/^([A-Za-z0-9_-]+)\s*:/))
+    .filter((match) => match !== null && match[1] !== "okf_version")
+    .map((match) => match[1]);
+  if (disallowed.length > 0) {
+    return `index frontmatter may only contain \`okf_version\` (found: ${disallowed.join(", ")})`;
   }
   return undefined;
 }

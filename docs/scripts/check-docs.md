@@ -29,9 +29,11 @@ violation:
 - **Frontmatter** — every non-reserved `*.md` file opens with a YAML frontmatter
   block (`---` … `---`) containing a non-empty `type` field, per
   [OKF SPEC](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-  §3.1. `README.md` is exempt: OKF reserves only `index.md` and `log.md`, and
-  `README.md` is treated as a general-documentation landing file rather than an
-  OKF concept.
+  §3.1. `README.md` is exempt: it is treated as a general-documentation landing
+  file rather than an OKF concept. An `index.md` is exempt from the `type` rule
+  and validated by the §8 rule instead — it must carry **no** frontmatter beyond
+  an optional bundle-root `okf_version`; the reserved `log.md` keeps its `type`
+  (§9).
 - **Navigability** — every directory that holds content has an `index.md`; that
   `index.md` links every content page in its own directory; and it links the
   `index.md` of every subdirectory that itself holds content. By induction the
@@ -43,8 +45,9 @@ Exits `0` when the tree is compliant; exits `1` with a `path: reason` line per
 violation.
 
 The decision logic lives in the dependency-free `scripts/lib/check-docs.mjs`
-(with a `.d.mts` declaration): `frontmatterError`, `extractLinkTargets`, and
-`navigationViolations`. The filesystem walk and markdown-link resolution stay in
+(with a `.d.mts` declaration): `frontmatterError`, `indexFrontmatterError`,
+`extractLinkTargets`, and `navigationViolations`. The filesystem walk and
+markdown-link resolution stay in
 the CLI, so those pure checks are unit-tested from
 `src/ci/check-docs.spec.ts` without touching disk. The script uses only Node
 built-ins, so CI runs it without installing dependencies.

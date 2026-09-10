@@ -16,6 +16,8 @@ export interface DirectoryDescriptor {
 
 export function frontmatterError(content: string): string | undefined;
 
+export function indexFrontmatterError(content: string): string | undefined;
+
 export function extractLinkTargets(markdown: string): string[];
 
 export function navigationViolations(dirs: DirectoryDescriptor[]): string[];
