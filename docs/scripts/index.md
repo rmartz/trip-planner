@@ -1,10 +1,3 @@
----
-type: Index
-title: Scripts
-description: Executable helpers in scripts/ and the CI validators that guard the repo's conventions.
-timestamp: 2026-09-08
----
-
 # Scripts
 
 Executable helpers in `scripts/` and the zero-dependency CI validators that guard

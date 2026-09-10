@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractLinkTargets,
   frontmatterError,
+  indexFrontmatterError,
   navigationViolations,
 } from "../../scripts/lib/check-docs.mjs";
 
@@ -38,6 +39,70 @@ describe("frontmatterError — missing or empty type fails", () => {
 
   it("flags a frontmatter block whose type is empty", () => {
     expect(frontmatterError("---\ntype:\n---\n")).toBeDefined();
+  });
+});
+
+describe("indexFrontmatterError — an index with no frontmatter passes", () => {
+  it("accepts a nested index that opens straight into its body", () => {
+    expect(
+      indexFrontmatterError("# Scripts\n\n- [check-docs](check-docs.md)\n"),
+    ).toBeUndefined();
+  });
+});
+
+describe("indexFrontmatterError — an okf_version-only block passes for the bundle root", () => {
+  it("accepts a bundle-root index carrying only okf_version", () => {
+    expect(
+      indexFrontmatterError(
+        '---\nokf_version: "0.2"\n---\n\n# Documentation\n',
+        true,
+      ),
+    ).toBeUndefined();
+  });
+});
+
+describe("indexFrontmatterError — disallowed keys fail", () => {
+  it("flags a type/title/description/timestamp block on an index", () => {
+    const error = indexFrontmatterError(
+      "---\ntype: Index\ntitle: Scripts\ndescription: y\ntimestamp: 2026-09-08\n---\n",
+    );
+
+    expect(error).toBeDefined();
+    expect(error).toContain("type");
+    expect(error).toContain("title");
+  });
+
+  it("flags an okf_version block that also carries a second key (bundle root)", () => {
+    expect(
+      indexFrontmatterError(
+        '---\nokf_version: "0.2"\ntitle: Scripts\n---\n',
+        true,
+      ),
+    ).toBeDefined();
+  });
+
+  it("flags an empty frontmatter block", () => {
+    expect(indexFrontmatterError("---\n---\n")).toBeDefined();
+  });
+
+  it("flags an indented disallowed key", () => {
+    expect(indexFrontmatterError("---\n  title: foo\n---\n")).toBeDefined();
+  });
+});
+
+describe("indexFrontmatterError — nested index rejects okf_version", () => {
+  it("flags a nested index carrying only okf_version", () => {
+    expect(
+      indexFrontmatterError('---\nokf_version: "0.2"\n---\n'),
+    ).toBeDefined();
+  });
+});
+
+describe("indexFrontmatterError — an unclosed block fails", () => {
+  it("flags an index whose frontmatter fence is never closed", () => {
+    expect(
+      indexFrontmatterError("---\nokf_version: 0.2\n\n# Documentation\n"),
+    ).toBeDefined();
   });
 });
 

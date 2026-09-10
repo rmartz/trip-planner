@@ -1,8 +1,5 @@
 ---
-type: Index
-title: Documentation Index
-description: OKF-structured reference pages for trip-planner scripts and subsystems.
-timestamp: 2026-06-18
+okf_version: "0.2"
 ---
 
 # Documentation

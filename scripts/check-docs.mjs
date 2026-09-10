@@ -5,6 +5,8 @@
  *   1. Frontmatter — every non-reserved `*.md` under docs/ carries fenced
  *      frontmatter (opening and closing `---`) with a non-empty `type` scalar.
  *      The check validates structural presence only — it does not parse YAML.
+ *      `index.md` is exempt from the `type` rule (OKF §8) and instead must
+ *      carry no frontmatter beyond an optional bundle-root `okf_version`.
  *   2. Navigability — every content page is listed in its directory's index.md,
  *      and every subdirectory's index.md is linked from its parent's index.md,
  *      so a reader can walk index.md -> sub/index.md -> sub/page.md.
@@ -24,6 +26,7 @@ import {
   NON_CONTENT_FILES,
   extractLinkTargets,
   frontmatterError,
+  indexFrontmatterError,
   navigationViolations,
 } from "./lib/check-docs.mjs";
 
@@ -81,13 +84,19 @@ function resolveLinks(markdown, absDir) {
 const allDirs = walkDirs(docsRoot, []);
 
 // Rule 1: frontmatter on every non-reserved page (README.md is a general-doc
-// landing file and is exempt).
+// landing file and is exempt). An `index.md` is validated by the §8 rule
+// (no frontmatter beyond an optional bundle-root `okf_version`) instead of the
+// `type` rule that governs content pages.
 const frontmatterViolations = [];
 for (const absDir of allDirs) {
   for (const name of mdFilesIn(absDir)) {
     if (name === "README.md") continue;
     const abs = join(absDir, name);
-    const error = frontmatterError(readFileSync(abs, "utf8"));
+    const content = readFileSync(abs, "utf8");
+    const error =
+      name === INDEX_FILE
+        ? indexFrontmatterError(content, absDir === docsRoot)
+        : frontmatterError(content);
     if (error) frontmatterViolations.push(`docs/${toRel(abs)}: ${error}`);
   }
 }
