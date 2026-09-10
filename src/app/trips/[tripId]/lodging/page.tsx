@@ -176,20 +176,14 @@ export default function LodgingPage({ params }: LodgingPageProps) {
       ) : (
         <LodgingGuestOverviewView
           stops={guestStopSummaries}
-          onAcceptOffer={(stopId, offerId) => {
+          onAcceptOffer={() => {
             // Accept mutations are out of scope for this scaffold (#41).
-            void stopId;
-            void offerId;
           }}
-          onDeclineOffer={(stopId, offerId) => {
+          onDeclineOffer={() => {
             // Decline mutations are out of scope for this scaffold (#41).
-            void stopId;
-            void offerId;
           }}
-          onToggleSortedOwn={(stopId, sortedOwn) => {
+          onToggleSortedOwn={() => {
             // Sorted-own status mutations are out of scope for this scaffold (#42).
-            void stopId;
-            void sortedOwn;
           }}
         />
       )}

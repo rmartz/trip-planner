@@ -32,10 +32,8 @@ export default function ActivitiesTripPage() {
         proposals={STUB_PROPOSALS}
         isLoading={isLoading}
         isError={isError}
-        onVote={(proposalId, vote) => {
+        onVote={() => {
           // Vote mutations are out of scope for this scaffold (#51 / #52).
-          void proposalId;
-          void vote;
         }}
       />
     </AppShell>

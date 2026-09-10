@@ -73,13 +73,11 @@ export default function RsvpPage() {
         viewerRole={viewerRole}
         isLoading={isLoading}
         isError={isError}
-        onConfirm={(activityId) => {
+        onConfirm={() => {
           // RSVP confirm mutations are out of scope for this scaffold (#55).
-          void activityId;
         }}
-        onDecline={(activityId) => {
+        onDecline={() => {
           // RSVP decline mutations are out of scope for this scaffold (#55).
-          void activityId;
         }}
       />
     </AppShell>
