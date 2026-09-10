@@ -95,7 +95,7 @@ for (const absDir of allDirs) {
     const content = readFileSync(abs, "utf8");
     const error =
       name === INDEX_FILE
-        ? indexFrontmatterError(content)
+        ? indexFrontmatterError(content, absDir === docsRoot)
         : frontmatterError(content);
     if (error) frontmatterViolations.push(`docs/${toRel(abs)}: ${error}`);
   }

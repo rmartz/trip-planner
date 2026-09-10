@@ -16,7 +16,10 @@ export interface DirectoryDescriptor {
 
 export function frontmatterError(content: string): string | undefined;
 
-export function indexFrontmatterError(content: string): string | undefined;
+export function indexFrontmatterError(
+  content: string,
+  isBundleRoot?: boolean,
+): string | undefined;
 
 export function extractLinkTargets(markdown: string): string[];
 

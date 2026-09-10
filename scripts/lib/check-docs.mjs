@@ -63,7 +63,7 @@ export function frontmatterError(content) {
 // that opens straight into its body (no `---` fence) is therefore conformant;
 // any frontmatter block is rejected unless its only key is `okf_version`. Like
 // `frontmatterError`, this validates structure only — it does not parse YAML.
-export function indexFrontmatterError(content) {
+export function indexFrontmatterError(content, isBundleRoot = false) {
   const lines = content.split("\n");
   if (lines[0].trim() !== "---") {
     return undefined;
@@ -72,13 +72,21 @@ export function indexFrontmatterError(content) {
   if (end === -1) {
     return "frontmatter block is not closed with `---`";
   }
-  const disallowed = lines
+  const keys = lines
     .slice(1, end)
-    .map((line) => line.match(/^([A-Za-z0-9_-]+)\s*:/))
-    .filter((match) => match !== null && match[1] !== "okf_version")
+    .map((line) => line.match(/^\s*([A-Za-z0-9_-]+)\s*:/))
+    .filter((match) => match !== null)
     .map((match) => match[1]);
+  if (keys.length === 0) {
+    return "index frontmatter block is empty; remove the fence";
+  }
+  const disallowed = isBundleRoot
+    ? keys.filter((key) => key !== "okf_version")
+    : keys;
   if (disallowed.length > 0) {
-    return `index frontmatter may only contain \`okf_version\` (found: ${disallowed.join(", ")})`;
+    return isBundleRoot
+      ? `index frontmatter may only contain \`okf_version\` (found: ${disallowed.join(", ")})`
+      : `nested index may not carry any frontmatter (found: ${disallowed.join(", ")})`;
   }
   return undefined;
 }

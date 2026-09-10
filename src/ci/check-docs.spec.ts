@@ -50,11 +50,12 @@ describe("indexFrontmatterError — an index with no frontmatter passes", () => 
   });
 });
 
-describe("indexFrontmatterError — an okf_version-only block passes", () => {
+describe("indexFrontmatterError — an okf_version-only block passes for the bundle root", () => {
   it("accepts a bundle-root index carrying only okf_version", () => {
     expect(
       indexFrontmatterError(
         '---\nokf_version: "0.2"\n---\n\n# Documentation\n',
+        true,
       ),
     ).toBeUndefined();
   });
@@ -71,9 +72,28 @@ describe("indexFrontmatterError — disallowed keys fail", () => {
     expect(error).toContain("title");
   });
 
-  it("flags an okf_version block that also carries a second key", () => {
+  it("flags an okf_version block that also carries a second key (bundle root)", () => {
     expect(
-      indexFrontmatterError('---\nokf_version: "0.2"\ntitle: Scripts\n---\n'),
+      indexFrontmatterError(
+        '---\nokf_version: "0.2"\ntitle: Scripts\n---\n',
+        true,
+      ),
+    ).toBeDefined();
+  });
+
+  it("flags an empty frontmatter block", () => {
+    expect(indexFrontmatterError("---\n---\n")).toBeDefined();
+  });
+
+  it("flags an indented disallowed key", () => {
+    expect(indexFrontmatterError("---\n  title: foo\n---\n")).toBeDefined();
+  });
+});
+
+describe("indexFrontmatterError — nested index rejects okf_version", () => {
+  it("flags a nested index carrying only okf_version", () => {
+    expect(
+      indexFrontmatterError('---\nokf_version: "0.2"\n---\n'),
     ).toBeDefined();
   });
 });
