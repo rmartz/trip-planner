@@ -13,6 +13,35 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+describe("isoDate schema", () => {
+  it("rejects an impossible calendar date that passes the regex", () => {
+    const result = createTripTool.inputSchema.safeParse({
+      name: "Trip",
+      startDate: "2025-02-30",
+      endDate: "2025-03-01",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an invalid month that passes the regex", () => {
+    const result = createTripTool.inputSchema.safeParse({
+      name: "Trip",
+      startDate: "2025-13-01",
+      endDate: "2025-13-02",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a valid calendar date", () => {
+    const result = createTripTool.inputSchema.safeParse({
+      name: "Trip",
+      startDate: "2025-02-28",
+      endDate: "2025-03-01",
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
 describe("create_trip tool", () => {
   it("creates the trip under the caller's identity, ignoring any argument uid", async () => {
     vi.mocked(createTripForUser).mockResolvedValue("trip-created");

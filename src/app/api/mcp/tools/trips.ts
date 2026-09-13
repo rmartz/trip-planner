@@ -20,7 +20,18 @@ function parseLocalDate(value: string): Date {
 
 const isoDate = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date");
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date")
+  .refine((value) => {
+    const year = parseInt(value.slice(0, 4), 10);
+    const month = parseInt(value.slice(5, 7), 10);
+    const day = parseInt(value.slice(8, 10), 10);
+    const date = new Date(year, month - 1, day);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    );
+  }, "Date does not exist in the calendar");
 
 export const listTripsTool = defineTool({
   name: "list_trips",
