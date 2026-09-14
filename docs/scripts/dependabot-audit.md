@@ -13,8 +13,10 @@ Turns "which Dependabot groups are worth keeping?" into a measured question.
 
 The grouping in [`.github/dependabot.yml`](../../.github/dependabot.yml) is a set
 of bets: that isolating certain packages (`prettier`, `typescript`) keeps their
-breakages out of the shared batch, and that version-locked families (`react`,
-`vite`) must bump atomically. trip-planner deliberately runs everything else
+breakages out of the shared batch, and that some version-locked families must bump
+atomically — `react` groups all update types (cross-boundary requirement), while
+`vite` groups major updates only (its minor/patch bumps are intentionally
+individual). trip-planner deliberately runs everything else
 **ungrouped** (there is no dev/prod catch-all) so each bump's outcome is
 attributable to a single package. This script checks the bets against history —
 it reads every Dependabot PR the repository has ever opened, classifies how each

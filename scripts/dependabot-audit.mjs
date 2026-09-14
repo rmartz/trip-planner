@@ -72,7 +72,8 @@ function main() {
   const otherPrs = listPrs(repo, ["body", "author"]).filter(
     (pr) =>
       pr.author?.login !== "app/dependabot" &&
-      pr.author?.login !== "dependabot",
+      pr.author?.login !== "dependabot" &&
+      pr.author?.login !== "dependabot[bot]",
   );
 
   const report = renderMarkdown(buildReport(dependabotPrs, otherPrs), repo);

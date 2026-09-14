@@ -15,6 +15,7 @@
 const KNOWN_GROUPS = [
   "dev-dependencies",
   "eslint",
+  "github-actions",
   "prettier",
   "production-dependencies",
   "react",
@@ -76,7 +77,11 @@ function fixReferences(otherPrs, dependabotNums) {
 function isRed(rollup) {
   return (rollup || []).some(
     (c) =>
+      c.conclusion === "ACTION_REQUIRED" ||
+      c.conclusion === "CANCELLED" ||
       c.conclusion === "FAILURE" ||
+      c.conclusion === "STARTUP_FAILURE" ||
+      c.conclusion === "TIMED_OUT" ||
       c.state === "FAILURE" ||
       c.state === "ERROR",
   );
@@ -125,10 +130,15 @@ export function buildReport(dependabotPrs, otherPrs) {
         stuck: 0,
         pending: 0,
         churn: 0,
+        mechanics: 0,
       });
     }
     const bucket = groups.get(row.group);
-    bucket[row.outcome === CLEAN ? "clean" : row.outcome] += 1;
+    if (row.mechanics) {
+      bucket.mechanics += 1;
+    } else {
+      bucket[row.outcome === CLEAN ? "clean" : row.outcome] += 1;
+    }
   }
   return { rows, groups };
 }
@@ -174,13 +184,13 @@ export function renderMarkdown({ rows, groups }, repo) {
   );
   lines.push("");
   lines.push(
-    "| Group | Clean | Needed fix | Stuck | Churn | Intervention rate |",
+    "| Group | Clean | Needed fix | Stuck | Churn | Mechanics | Intervention rate |",
   );
-  lines.push("| --- | --: | --: | --: | --: | --- |");
+  lines.push("| --- | --: | --: | --: | --: | --: | --- |");
   for (const [name, bucket] of [...groups.entries()].sort()) {
     const r = rate(bucket);
     lines.push(
-      `| \`${name}\` | ${bucket.clean} | ${bucket[NEEDED_FIX]} | ${bucket.stuck} | ${bucket.churn} | ${r.label} |`,
+      `| \`${name}\` | ${bucket.clean} | ${bucket[NEEDED_FIX]} | ${bucket.stuck} | ${bucket.churn} | ${bucket.mechanics} | ${r.label} |`,
     );
   }
   lines.push("");

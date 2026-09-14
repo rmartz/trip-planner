@@ -33,6 +33,7 @@ export interface GroupBucket {
   stuck: number;
   pending: number;
   churn: number;
+  mechanics: number;
 }
 
 export interface AuditReport {

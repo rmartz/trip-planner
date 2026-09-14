@@ -29,6 +29,12 @@ describe("groupOf — GitHub Actions bumps", () => {
       "github-actions",
     );
   });
+
+  it("classifies a 'the github-actions group' title as github-actions", () => {
+    expect(groupOf("Bump the github-actions group with 2 updates")).toBe(
+      "github-actions",
+    );
+  });
 });
 
 describe("groupOf — ungrouped single package", () => {
@@ -88,6 +94,23 @@ describe("buildReport — stuck vs pending open PRs", () => {
     );
 
     expect(row.outcome).toBe("pending");
+  });
+
+  it("marks an open bump with a TIMED_OUT check conclusion as stuck", () => {
+    const row = rowFor(
+      [
+        {
+          number: 17,
+          title: "Bump typescript from 6.0.3 to 7.0.2 in the typescript group",
+          state: "OPEN",
+          statusCheckRollup: [{ conclusion: "TIMED_OUT" }],
+        },
+      ],
+      [],
+      17,
+    );
+
+    expect(row.outcome).toBe("stuck");
   });
 });
 
@@ -161,5 +184,27 @@ describe("buildReport — lockfile repair is flagged group-independent", () => {
 
     expect(row.outcome).toBe("needed-fix");
     expect(row.mechanics).toBe(true);
+  });
+
+  it("excludes a mechanics row from the group's needed-fix bucket", () => {
+    const { groups } = buildReport(
+      [
+        {
+          number: 18,
+          title: "Bump the react group with 4 updates",
+          state: "CLOSED",
+        },
+      ],
+      [
+        {
+          number: 93,
+          title: "Repair corrupt pnpm-lock after #18",
+          state: "MERGED",
+        },
+      ],
+    );
+    const bucket = groups.get("react");
+    expect(bucket?.["needed-fix"]).toBe(0);
+    expect(bucket?.mechanics).toBe(1);
   });
 });
