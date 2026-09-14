@@ -10,6 +10,8 @@ the repo's conventions. Return here from the
   `index.md` navigability across `docs/`.
 - [check-package-pins](check-package-pins.md) — enforce full
   `major.minor.patch` dependency pins in `package.json`.
+- [dependabot-audit](dependabot-audit.md) — classify every Dependabot PR's
+  outcome and report per-group intervention rates.
 - [validate-config](validate-config.md) — validate config against
   `deployment/schema.yml`.
 - [migrate-member-uids](migrate-member-uids.md) — backfill the `memberUids`

@@ -1,0 +1,52 @@
+name: Dependabot audit
+
+# Standing evidence for the grouping strategy in .github/dependabot.yml
+# (issue #526). scripts/dependabot-audit.mjs classifies every Dependabot PR the
+# repo has ever opened (clean / needed-fix / stuck / churn), attributes each to
+# its group, and reports per-group intervention rates. The result is written to
+# the job summary and upserted into a single tracking issue so the rates stay
+# watchable over time. Runs monthly and on demand — it only reads the GitHub
+# API (via `gh`) and Node built-ins, so no pnpm install / setup is needed.
+
+on:
+  schedule:
+    # 09:00 UTC on the 1st of each month.
+    - cron: "0 9 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: dependabot-audit
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  audit:
+    name: Grouping-outcome audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ISSUE_TITLE: "Dependabot grouping audit"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Run audit
+        run: node scripts/dependabot-audit.mjs --out report.md
+
+      - name: Publish to job summary
+        run: cat report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upsert tracking issue
+        run: |
+          number=$(gh issue list --state all --search "$ISSUE_TITLE in:title" \
+            --json number,title --jq ".[] | select(.title == \"$ISSUE_TITLE\") | .number" | head -n 1)
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file report.md
+            gh issue reopen "$number" 2>/dev/null || true
+          else
+            gh issue create --title "$ISSUE_TITLE" --body-file report.md --label dependencies --label DevOps
+          fi
