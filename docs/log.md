@@ -7,6 +7,13 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-14** — Added the `dependabot-audit` Script page for the new
+  grouping-outcome audit: `scripts/dependabot-audit.mjs` classifies every
+  Dependabot PR (clean / needed-fix / stuck / churn), attributes each to its
+  group, and reports per-group intervention rates, run monthly by the
+  `Dependabot audit` workflow into a standing tracking issue. Companion to
+  un-grouping the dev/prod catch-alls in `.github/dependabot.yml` so bump
+  outcomes become attributable per package. (#526)
 - **2026-09-10** — Brought the reserved `index.md` files into OKF §8
   conformance: removed the disallowed `type`/`title`/`description`/`timestamp`
   frontmatter from `docs/index.md`, `docs/scripts/index.md`, and
