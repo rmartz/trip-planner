@@ -11,21 +11,23 @@ timestamp: 2026-09-14
 
 Turns "which Dependabot groups are worth keeping?" into a measured question.
 
-The grouping in [`.github/dependabot.yml`](../../.github/dependabot.yml) is a set
-of bets: that isolating certain packages (`prettier`, `typescript`) keeps their
-breakages out of the shared batch, and that some version-locked families must bump
-atomically — `react` groups all update types (cross-boundary requirement), while
-`vite` groups major updates only (its minor/patch bumps are intentionally
-individual). trip-planner deliberately runs everything else
-**ungrouped** (there is no dev/prod catch-all) so each bump's outcome is
-attributable to a single package. This script checks the bets against history —
-it reads every Dependabot PR the repository has ever opened, classifies how each
-one ended, and reports the per-group rate at which a bump needed a human fix.
+The grouping in [`.github/dependabot.yml`](../../.github/dependabot.yml) defaults
+to two base groups — every dev dependency batches into `dev-dependencies`, every
+prod dependency into `production-dependencies`, across all update types — and
+splits a package out only when it has earned one: `react` on a **functional**
+basis (it must stay aligned across the prod/dev boundary) and `typescript` on a
+**data** basis (its major repeatedly blocked CI). This script checks that the
+split-outs are justified and watches whether a base group has started hiding a
+package that should itself be split — it reads every Dependabot PR the repository
+has ever opened, classifies how each one ended, and reports the per-group rate at
+which a bump needed a human fix.
 
-A group whose ungrouped members start needing fixes has earned a group; a group
-that never needs one is a candidate to re-batch. That re-batch criterion is what
-the audit exists to measure — it is the evidence trail behind
-[issue #526](https://github.com/rmartz/trip-planner/issues/526).
+A base group whose intervention rate is driven by one package has surfaced a
+split-out candidate; a split-out group that never needs a fix is a candidate to
+fold back in. That re-split/re-batch criterion is what the audit exists to
+measure — it is the evidence trail behind
+[issue #532](https://github.com/rmartz/trip-planner/issues/532) (correcting
+[#526](https://github.com/rmartz/trip-planner/issues/526)).
 
 ## Usage
 
