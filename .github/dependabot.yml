@@ -20,128 +20,65 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    # Grouping strategy — EVIDENCE-BASED (issue #526; measured over time by the
-    # standing "Dependabot grouping audit" issue that scripts/dependabot-audit.mjs
+    # Grouping strategy — DEFAULT TO GROUPED, split out only on demonstrated need
+    # (issue #532, correcting #526/#528; measured over time by the standing
+    # "Dependabot grouping audit" issue that scripts/dependabot-audit.mjs
     # produces). Order matters: Dependabot assigns each bump to the FIRST group
     # whose patterns/update-types/dependency-type all match.
-    #   1. Version-locked families — interdependent packages that must move
-    #      atomically or the build breaks. Kept because the coupling is a
-    #      FUNCTIONAL fact, not a breaking-change guess (react also spans the
-    #      prod/dev boundary). See per-family notes below.
-    #   2. prettier / typescript — isolated on a breaking-change basis the audit
-    #      has BORNE OUT: the typescript 6→7 major failed CI across four separate
-    #      PRs (#461/#480/#485/#490) and never merged, and a prettier bump failed
-    #      the Format check (#431). Isolating them keeps such a failure from
-    #      blocking an entire batch of unrelated updates.
-    #   3. Everything else gets an INDIVIDUAL PR — there is deliberately NO
-    #      dev/prod catch-all group. The former dev-/production-dependencies
-    #      catch-alls batched 6–19 packages per PR, so when one failed CI the
-    #      culprit was unattributable and the PR was simply closed and retried
-    #      (#275/#492/#493/#494), erasing the signal. Un-grouping makes each
-    #      bump's outcome attributable to a single package — the data the audit
-    #      needs to decide, per package, whether any of them has EARNED a group.
-    #      dev vs prod stay separate for free (an individual PR never mixes them).
-    # Re-batch criterion: add a group back only when the audit shows its members
-    # repeatedly need a companion fix PR to unblock, or a new functional
-    # version-locked family appears — never on an untested assumption alone.
+    #
+    # The DEFAULT is two base groups: every dev dependency batches into
+    # dev-dependencies, every prod dependency into production-dependencies, across
+    # ALL update types (one low-noise PR per boundary per week). A package is
+    # split into its own group ONLY when it has earned one, for one of two
+    # reasons:
+    #   * FUNCTIONAL — it must move in lockstep ACROSS the prod/dev boundary, so a
+    #     base group (which is per-boundary) would split it. Only `react`
+    #     qualifies (react/react-dom are prod; the @types are dev). A
+    #     single-boundary lockstep family needs no split: its base group already
+    #     batches that whole boundary into one PR, so the members move together.
+    #   * DATA — the audit shows the package repeatedly breaks or blocks its base
+    #     group. Only `typescript` qualifies so far: the 6→7 major failed CI
+    #     across four PRs (#461/#480/#485/#490) and never merged, so isolating it
+    #     keeps a stuck compiler bump from blocking the whole dev batch.
+    #
+    # Everything else — the former redux/storybook/vite/eslint/tailwind
+    # "version-locked family" split-outs and the former prettier isolation, all
+    # added WITHOUT data — is folded back into the base groups. Re-split a package
+    # only when the audit shows its base group's intervention rate is driven by
+    # that package; never on an untested assumption alone.
     groups:
-      # --- Version-locked families (listed first to win precedence) ---
-      # Each family is a set of packages that ship on a shared version line (or
-      # whose majors are dictated by one member), so bumping one without the rest
-      # breaks the build. This coupling is a functional fact, so these groups are
-      # retained regardless of the un-grouping described above.
-      #
-      # Update-types scope depends on whether the family crosses the dev/prod
-      # boundary:
-      #   * CROSS-BOUNDARY families (react — react/react-dom are prod, the @types
-      #     are dev) group ALL update types, so a react minor/patch stays atomic
-      #     across the boundary instead of splitting into separate per-package
-      #     individual PRs.
-      #   * SINGLE-BOUNDARY families (all-dev or all-prod) group MAJOR only. Only
-      #     a major forces the lockstep; their minor/patch are independently
-      #     applicable and open individual (attributable) PRs like any other
-      #     un-grouped package.
+      # --- Earned split-outs (listed first to win precedence) ---
       react:
-        # react + react-dom ship the same version; the @types track react's
-        # major. Spans prod (react, react-dom) and dev (the @types) — so it must
-        # group all update types.
+        # FUNCTIONAL split (cross-boundary lockstep). react + react-dom (prod) and
+        # their @types (dev) ship on one version line; the @types track react's
+        # major. A base group is per-boundary, so only a dedicated all-update-
+        # types group keeps the prod and dev halves aligned.
         patterns:
           - "react"
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
-      redux:
-        # react-redux is the React binding for Redux Toolkit; their majors are
-        # coupled. Both prod → minor/patch open individual PRs.
-        patterns:
-          - "@reduxjs/toolkit"
-          - "react-redux"
-        update-types:
-          - "major"
-      storybook:
-        # Every @storybook/* package, the storybook CLI, and the eslint plugin
-        # share one Storybook version line — a Storybook major must move them all.
-        # Listed before vite/eslint so @storybook/addon-vitest and
-        # eslint-plugin-storybook route here, not to those groups. All dev →
-        # minor/patch open individual PRs.
-        patterns:
-          - "storybook"
-          - "@storybook/*"
-          - "eslint-plugin-storybook"
-        update-types:
-          - "major"
-      vite:
-        # vite + its react plugin + vitest + @vitest/* are one interlocked
-        # toolchain (the @vitejs/plugin-react ↔ vite major coupling). All dev →
-        # minor/patch open individual PRs.
-        patterns:
-          - "vite"
-          - "@vitejs/*"
-          - "vitest"
-          - "@vitest/*"
-        update-types:
-          - "major"
-      eslint:
-        # eslint + @eslint/js share a version line; typescript-eslint and the
-        # react-hooks plugin track the eslint major. All dev → minor/patch open
-        # individual PRs.
-        patterns:
-          - "eslint"
-          - "@eslint/js"
-          - "typescript-eslint"
-          - "eslint-plugin-react-hooks"
-        update-types:
-          - "major"
-      tailwind:
-        # tailwindcss core + its postcss plugin ship in lockstep. All dev →
-        # minor/patch open individual PRs.
-        patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
-        update-types:
-          - "major"
-      # Prettier (and its plugins, e.g. prettier-plugin-tailwindcss) drive
-      # formatting output, so a major/minor bump can reformat the codebase and
-      # fail the Format check with no other visible cause — isolate those into
-      # their own PR. Patch bumps don't match update-types here, so a trivial
-      # Prettier patch opens its own individual (attributable) PR.
-      prettier:
-        patterns:
-          - "prettier*"
-        update-types:
-          - "major"
-          - "minor"
-      # TypeScript is the language/compiler itself — a major or minor bump can
-      # introduce new compiler behavior or stricter checks, a more significant
-      # change than a routine dependency update, so isolate those into their own
-      # PR for visibility. Patch bumps don't match update-types here, so a trivial
-      # TypeScript patch opens its own individual (attributable) PR.
       typescript:
+        # DATA split. The compiler itself: the 6→7 major failed Lint+Build across
+        # #461/#480/#485/#490 and never merged. Isolating major/minor keeps a
+        # stuck compiler bump from blocking the dev batch; a patch rides the
+        # dev-dependencies base group.
         patterns:
           - "typescript"
         update-types:
           - "major"
           - "minor"
+      # --- Base groups (the default home for everything else) ---
+      dev-dependencies:
+        # Every development dependency, all update types, in one weekly PR.
+        dependency-type: development
+        patterns:
+          - "*"
+      production-dependencies:
+        # Every production dependency, all update types, in one weekly PR.
+        dependency-type: production
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directory: /

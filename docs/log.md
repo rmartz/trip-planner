@@ -7,6 +7,15 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-15** — Corrected the Dependabot grouping model (#532, reversing part
+  of #526/#528): the default is now two base groups (`dev-dependencies` /
+  `production-dependencies`, all update types), with a package split out only
+  when justified — `react` (functional, cross-boundary alignment) and
+  `typescript` (data, its major repeatedly blocked CI). The former
+  redux/storybook/vite/eslint/tailwind/prettier split-outs were folded back into
+  the base groups. The `dependabot-audit` page was updated to describe measuring
+  whether a base group hides a split-out candidate, rather than everything being
+  ungrouped.
 - **2026-09-14** — Added the `dependabot-audit` Script page for the new
   grouping-outcome audit: `scripts/dependabot-audit.mjs` classifies every
   Dependabot PR (clean / needed-fix / stuck / churn), attributes each to its
