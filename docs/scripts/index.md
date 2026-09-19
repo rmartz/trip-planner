@@ -4,10 +4,6 @@ Executable helpers in `scripts/` and the zero-dependency CI validators that guar
 the repo's conventions. Return here from the
 [documentation index](../index.md).
 
-- [check-agents-md](check-agents-md.md) — enforce that every AGENTS.md is paired
-  with a bare `@AGENTS.md` CLAUDE.md wrapper.
-- [check-docs](check-docs.md) — enforce OKF frontmatter and per-directory
-  `index.md` navigability across `docs/`.
 - [check-package-pins](check-package-pins.md) — enforce full
   `major.minor.patch` dependency pins in `package.json`.
 - [dependabot-audit](dependabot-audit.md) — classify every Dependabot PR's

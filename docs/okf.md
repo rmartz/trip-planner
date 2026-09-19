@@ -88,6 +88,6 @@ one-line description (SPEC §8).
 
 ## Enforcement
 
-The frontmatter and navigation rules are enforced in CI by the `Docs structure`
-workflow — see [`scripts/check-docs.md`](scripts/check-docs.md). Run it locally
-with `pnpm run docs:check`.
+The frontmatter and navigation rules are enforced in CI by the
+`@rmartz/repo-hygiene` reusable workflow (`.github/workflows/repo-hygiene.yml`,
+the `okf` and `okf-index` checks).

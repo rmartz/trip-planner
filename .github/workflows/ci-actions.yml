@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded runs on the same PR/ref; never cancel a push to main.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # Decide whether the heavy code-validation jobs (Tests, Storybook Tests, Build,
   # Typecheck) need to run for this event. The rule is a DENYLIST, never an
