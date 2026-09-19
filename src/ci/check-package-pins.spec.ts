@@ -1,17 +1,15 @@
 import { describe, expect, it } from "vitest";
 // The pins check is plain ESM (.mjs) so CI can run it with only Node built-ins
 // (no pnpm install). This spec imports that same module directly so the
-// full-major.minor.patch detection logic is verified under TypeScript tooling.
+// exact major.minor.patch detection logic is verified under TypeScript tooling.
 import { findUnpinnedDependencies } from "../../scripts/lib/check-package-pins.mjs";
 
-describe("findUnpinnedDependencies — full pins pass", () => {
-  it("accepts caret, tilde, exact, and prerelease full pins", () => {
+describe("findUnpinnedDependencies — exact pins pass", () => {
+  it("accepts exact and prerelease pins with no range operator", () => {
     const pkg = {
       dependencies: {
-        "caret-full": "^4.3.1",
         "exact-full": "19.2.7",
-        "tilde-full": "~1.2.3",
-        "prerelease-full": "^1.2.3-rc.1",
+        "prerelease-full": "1.2.3-rc.1",
       },
     };
 
@@ -19,22 +17,32 @@ describe("findUnpinnedDependencies — full pins pass", () => {
   });
 });
 
-describe("findUnpinnedDependencies — bare major fails", () => {
-  it("flags a caret range with only a major version", () => {
-    const pkg = { dependencies: { "bare-major": "^4" } };
+describe("findUnpinnedDependencies — caret range fails", () => {
+  it("flags a caret range even with a full major.minor.patch base", () => {
+    const pkg = { dependencies: { "caret-full": "^4.3.1" } };
 
     expect(findUnpinnedDependencies(pkg)).toEqual([
-      { name: "bare-major", range: "^4" },
+      { name: "caret-full", range: "^4.3.1" },
     ]);
   });
 });
 
-describe("findUnpinnedDependencies — major.minor fails", () => {
-  it("flags a caret range missing the patch version", () => {
-    const pkg = { devDependencies: { "major-minor": "^4.1" } };
+describe("findUnpinnedDependencies — tilde range fails", () => {
+  it("flags a tilde range even with a full major.minor.patch base", () => {
+    const pkg = { devDependencies: { "tilde-full": "~1.2.3" } };
 
     expect(findUnpinnedDependencies(pkg)).toEqual([
-      { name: "major-minor", range: "^4.1" },
+      { name: "tilde-full", range: "~1.2.3" },
+    ]);
+  });
+});
+
+describe("findUnpinnedDependencies — abbreviated version fails", () => {
+  it("flags a version missing the patch component", () => {
+    const pkg = { dependencies: { "major-minor": "4.1" } };
+
+    expect(findUnpinnedDependencies(pkg)).toEqual([
+      { name: "major-minor", range: "4.1" },
     ]);
   });
 });
