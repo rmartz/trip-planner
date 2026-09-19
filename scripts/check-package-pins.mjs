@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Enforces the "full version pin" rule from CLAUDE.md: every registry dependency
- * in package.json must specify a full major.minor.patch version, with an
- * optional `^`/`~` range annotation (e.g. `^4.1.13`, `~1.2.3`, or exact
- * `19.2.7`) — never a bare `^4` or `^4.1`. Non-registry specifiers
- * (workspace:, catalog:, file:, git+, github:, npm: aliases, http(s):) are
- * skipped.
+ * Enforces the "exact version pin" rule from AGENTS.md: every registry dependency
+ * in package.json must pin an exact major.minor.patch version with NO range
+ * operator (e.g. `19.2.7`) — never `^4.1.13`, `~1.2.3`, `^4`, or `^4.1`. A
+ * trailing prerelease/build suffix (`-rc.1`, `+build`) is allowed. Non-registry
+ * specifiers (workspace:, catalog:, file:, git+, github:, npm: aliases,
+ * http(s):) are skipped.
  *
  * Reads the root package.json, runs the pure validator, and exits 1 with one
- * line per offender if any range is underspecified; otherwise exits 0.
+ * line per offender if any range is not an exact pin; otherwise exits 0.
  *
  * Uses only Node built-ins, so CI can run it without installing dependencies.
  */
@@ -26,17 +26,17 @@ const offenders = findUnpinnedDependencies(pkg);
 
 if (offenders.length > 0) {
   console.error(
-    `package.json — ${offenders.length} dependency range(s) not fully pinned:`,
+    `package.json — ${offenders.length} dependency range(s) not exactly pinned:`,
   );
   for (const { name, range } of offenders) {
     console.error(
-      `  package.json: ${name} "${range}" — must pin full major.minor.patch (e.g. ^1.2.3)`,
+      `  package.json: ${name} "${range}" — must pin an exact major.minor.patch (e.g. 1.2.3)`,
     );
   }
   console.error(
-    "\nPin each dependency to a full major.minor.patch version (a `^`/`~` range annotation is allowed).",
+    "\nPin each dependency to an exact major.minor.patch version (no `^`/`~` range operator).",
   );
   process.exit(1);
 }
 
-console.log("package.json — all dependency ranges are fully pinned");
+console.log("package.json — all dependency ranges are exactly pinned");
