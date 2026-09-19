@@ -1,0 +1,30 @@
+name: Repo Hygiene
+
+# Shared low-cost hygiene guards from @rmartz/repo-hygiene, replacing the former
+# bespoke action-pins.yml / docs.yml / agents-md.yml workflows (and their
+# scripts/check-*.mjs validators). Omitting the `checks` input runs the package's
+# default-on set (conflict-markers, action-pins, docs-links, okf, okf-index,
+# md-pairing, file-caps), so a newly-added default-on check auto-joins on the next
+# Dependabot bump with no edit here. Per-check severity is tuned in
+# .repo-hygiene.yml. Dependabot's github-actions ecosystem keeps the @<sha> pin
+# current.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repo-hygiene-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hygiene:
+    permissions:
+      contents: read
+      packages: read # install the public @rmartz/repo-hygiene package via GITHUB_TOKEN
+    uses: rmartz/repo-hygiene/.github/workflows/hygiene.yml@a0607d987a9ab7b86d6ed489459ba4ee9832d6c6 # v3.0.0
+    with:
+      config: .repo-hygiene.yml

@@ -1,0 +1,42 @@
+# Per-check config for the @rmartz/repo-hygiene reusable workflow
+# (.github/workflows/repo-hygiene.yml). Every enabled check gates at `error` —
+# a healthy repo runs them all at error; `warn` is only ever a temporary
+# migration ramp, never a standing state.
+checks:
+  # Merge-conflict markers in tracked content (CI backstop for the pre-commit
+  # scripts/check-conflict-markers.sh --staged guard).
+  conflict-markers:
+    severity: error
+
+  # Third-party `uses:` refs must be SHA-pinned with a full `# vX.Y.Z` comment.
+  # Replaces the former action-pins.yml.
+  action-pins:
+    severity: error
+
+  # Markdown links under docs/ must resolve.
+  docs-links:
+    severity: error
+
+  # OKF frontmatter on every non-reserved docs/ page. Matches the former
+  # check-docs.mjs policy: require a non-empty `type` only (title/description are
+  # present repo-wide but not gated here), and do not require a `resource` field.
+  okf:
+    severity: error
+    types: "*"
+    resourceExemptTypes: "*"
+
+  # docs/ navigability: every page reachable via index.md -> sub/index.md -> page.
+  # Replaces the index-navigation half of the former check-docs.mjs.
+  okf-index:
+    severity: error
+
+  # AGENTS.md / CLAUDE.md pairing, and each CLAUDE.md is the bare `@AGENTS.md`
+  # wrapper. Replaces the former agents-md.yml.
+  md-pairing:
+    severity: error
+    wrapper: true
+
+  # File-length caps stay advisory here: length is already hard-gated by the
+  # ESLint `max-lines` rule (400 source / 600 test) run in the Lint job.
+  file-caps:
+    severity: warn

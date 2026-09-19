@@ -26,9 +26,8 @@ See [log.md](log.md) for the change history.
 
 ## Enforcement
 
-This structure is enforced in CI by the `Docs structure` workflow
-(`scripts/check-docs.mjs`, run locally with `pnpm run docs:check`): every
+This structure is enforced in CI by the `@rmartz/repo-hygiene` reusable workflow
+(`.github/workflows/repo-hygiene.yml`, the `okf` and `okf-index` checks): every
 non-reserved page must carry frontmatter with a non-empty `type`, and every page
-must be reachable from this index through the per-directory `index.md` files. See
-[`scripts/check-docs.md`](scripts/check-docs.md). `README.md` is exempt (reserved
-for general, non-index documentation).
+must be reachable from this index through the per-directory `index.md` files.
+`README.md` is exempt (reserved for general, non-index documentation).

@@ -7,6 +7,14 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-18** — Migrated the bespoke hygiene CI checks to the shared
+  `@rmartz/repo-hygiene` reusable workflow (#537). Removed the `docs.yml` /
+  `agents-md.yml` / `action-pins.yml` workflows and their `scripts/check-*.mjs`
+  validators (and the `check-docs` / `check-agents-md` Script pages); the `okf`,
+  `okf-index`, `md-pairing`, and `action-pins` checks now cover the same
+  conventions, plus a `conflict-markers` and `docs-links` CI backstop. The
+  `check-package-pins` validator stays bespoke (repo-hygiene's `package-pins`
+  cannot enforce exact pins).
 - **2026-09-15** — Corrected the Dependabot grouping model (#532, reversing part
   of #526/#528): the default is now two base groups (`dev-dependencies` /
   `production-dependencies`, all update types), with a package split out only
