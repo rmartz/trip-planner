@@ -1,7 +1,7 @@
 ---
 type: Script
 title: check-package-pins
-description: Enforces the full major.minor.patch dependency-pin rule on package.json; runs in CI on package-changing PRs.
+description: Enforces the exact major.minor.patch dependency-pin rule on package.json; runs in CI on package-changing PRs.
 resource: scripts/check-package-pins.mjs
 tags: [dependencies, ci, validation]
 timestamp: 2026-06-30
@@ -9,13 +9,12 @@ timestamp: 2026-06-30
 
 # check-package-pins.mjs
 
-Enforces the "full version pin" rule (see CLAUDE.md "Dependency pins"): every
-registry dependency in `package.json` must specify a full `major.minor.patch`
-version, with an optional `^`/`~` range annotation — e.g. `^4.1.13`, `~1.2.3`,
-or the exact `19.2.7`, never a bare `^4` or `^4.1`. Full pins make every
-Dependabot bump (including minor/patch) surface as a `package.json` diff rather
-than landing silently in the lockfile. Exposed as `pnpm run pins:check` and run
-in CI via the `Package pins` workflow.
+Enforces the "exact version pin" rule (see AGENTS.md "Dependency pins"): every
+registry dependency in `package.json` must pin an exact `major.minor.patch`
+version with **no** range operator — e.g. `19.2.7`, never `^4.1.13`, `~1.2.3`,
+`^4`, or `^4.1`. Exact pins make every Dependabot bump (including minor/patch)
+surface as a `package.json` diff rather than landing silently in the lockfile.
+Exposed as `pnpm run pins:check` and run in CI via the `Package pins` workflow.
 
 ## Usage
 
@@ -27,10 +26,11 @@ node scripts/check-package-pins.mjs
 ## Behavior
 
 Reads the root `package.json` and checks each entry in `dependencies` and
-`devDependencies`. A range is an offender when, after stripping a single leading
-`^` or `~`, its base does not start with `major.minor.patch`. A trailing
-prerelease/build suffix (`-rc.1`, `+build`) is allowed. Exits `0` when all
-ranges are fully pinned, `1` (with one line per offender) otherwise.
+`devDependencies`. A range is an offender when it is not an exact
+`major.minor.patch` pin — any leading `^`/`~` operator, or an abbreviated
+`4`/`4.1`, fails. A trailing prerelease/build suffix (`-rc.1`, `+build`) is
+allowed. Exits `0` when all ranges are exact pins, `1` (with one line per
+offender) otherwise.
 
 Non-registry specifiers are skipped (never offenders): `workspace:*`,
 `catalog:`/`catalog:<name>`, `link:`, `file:`, `git+…`, `http(s)://…`,

@@ -6,7 +6,7 @@
 
 ### Dependency pins
 
-- **Full version pins.** Every dependency in `package.json` must specify the full `major.minor.patch` version, with a range annotation (`^`/`~`) allowed — e.g. `^4.1.13`, never `^4` or `^4.1`. This makes every Dependabot bump (including minor/patch) show up as a `package.json` diff instead of landing only in `pnpm-lock.yaml`, where a tooling bump (e.g. Prettier) can silently change formatting or behavior. Exact pins (`16.2.7`) are also fine — the requirement is that the full version is present. Enforced in CI by `.github/workflows/package-pins.yml`.
+- **Exact version pins.** Every dependency in `package.json` must pin an exact `major.minor.patch` version with **no** range operator — e.g. `4.1.13`, never `^4.1.13`, `~1.2.3`, `^4`, or `^4.1`. This is a deployed app that publishes no package, so an exact pin forces every version change (including a within-range patch/minor) into its own reviewed, CI'd `package.json` diff — the trusted patch/minor bumps auto-merge via bot-automerge — instead of slipping in through an unrelated PR's `pnpm-lock.yaml` regen, where a tooling bump (e.g. Prettier) could silently change formatting or behavior. A trailing prerelease/build suffix (`-rc.1`, `+build`) is allowed. Enforced in CI by `.github/workflows/package-pins.yml`.
 
 ### GitHub Actions pins
 
