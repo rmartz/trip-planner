@@ -22,6 +22,7 @@ concurrency:
 
 jobs:
   hygiene:
+    timeout-minutes: 5
     permissions:
       contents: read
       packages: read # install the public @rmartz/repo-hygiene package via GITHUB_TOKEN
