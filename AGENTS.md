@@ -10,7 +10,7 @@
 
 ### GitHub Actions pins
 
-- **SHA-pin every third-party action.** Any external `uses:` in a workflow or composite action must reference the full 40-character commit SHA its tag resolves to, with a trailing **full-semver** version comment (`# vMAJOR.MINOR.PATCH`) — e.g. `uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0`, never `@v7` and never a partial `# v7` or a non-version note. Mutable tags/branches let a compromised upstream tag re-point at malicious code that then runs in CI; the SHA is immutable. The semver comment is what Dependabot's `github-actions` ecosystem parses to know the pinned release and keep the SHA updated, so it is required too (a missing or non-semver comment strands the pin). Local `./…` composite actions are in-repo and exempt. Enforced in CI by `.github/workflows/action-pins.yml`.
+- **SHA-pin every third-party action.** Any external `uses:` in a workflow or composite action must reference the full 40-character commit SHA its tag resolves to, with a trailing **full-semver** version comment (`# vMAJOR.MINOR.PATCH`) — e.g. `uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0`, never `@v7` and never a partial `# v7` or a non-version note. Mutable tags/branches let a compromised upstream tag re-point at malicious code that then runs in CI; the SHA is immutable. The semver comment is what Dependabot's `github-actions` ecosystem parses to know the pinned release and keep the SHA updated, so it is required too (a missing or non-semver comment strands the pin). Local `./…` composite actions are in-repo and exempt. Enforced in CI by the `@rmartz/repo-hygiene-action` composite Action (`.github/workflows/repo-hygiene.yml`, the `action-pins` check).
 
 ## Common Commands
 
@@ -131,9 +131,9 @@ per-domain migration order are tracked in #454.
 - When you add a `docs/` page, add it to its directory's `index.md` (creating that
   `index.md` — and linking it from the parent `index.md` — if the directory is
   new), and add a dated entry to `docs/log.md`.
-- This structure is enforced in CI by the `Docs structure` workflow
-  (`scripts/check-docs.mjs`, run locally with `pnpm run docs:check`). See
-  [`docs/scripts/check-docs.md`](docs/scripts/check-docs.md).
+- This structure is enforced in CI by the `@rmartz/repo-hygiene-action`
+  composite Action (`.github/workflows/repo-hygiene.yml`, the `okf` and
+  `okf-index` checks).
 
 ## Agent Directive Files
 
@@ -144,8 +144,8 @@ per-domain migration order are tracked in #454.
 - **Every `CLAUDE.md` is a bare wrapper** whose only content is the Claude Code import line
   `@AGENTS.md` — no directives, no other text, no symlinks. This feeds the `AGENTS.md` directives
   to Claude Code while keeping them authored once.
-- This pairing is enforced in CI by the `Agent directive files` workflow (`scripts/check-agents-md.mjs`,
-  run locally with `pnpm run agents:check`). See [`docs/scripts/check-agents-md.md`](docs/scripts/check-agents-md.md).
+- This pairing is enforced in CI by the `@rmartz/repo-hygiene-action` composite Action
+  (`.github/workflows/repo-hygiene.yml`, the `md-pairing` check with `wrapper: true`).
 
 ## React / Next.js Standards
 

@@ -1,0 +1,33 @@
+name: Repo Hygiene
+
+# Shared low-cost hygiene guards from the @rmartz/repo-hygiene-action composite
+# Action — the successor to the former repo-hygiene reusable workflow, now split
+# into repo-hygiene (the CLI/logic) and repo-hygiene-action (the Action that runs
+# it). Unlike the reusable workflow, the consumer owns this job: it checks out the
+# workspace, then runs the action as a step. Omitting `checks` runs the package's
+# default-on set (conflict-markers, action-pins, docs-links, okf, okf-index,
+# md-pairing, file-caps), so a newly-added default-on check auto-joins on the next
+# Dependabot bump. Per-check severity is tuned in .repo-hygiene.yml. Dependabot's
+# github-actions ecosystem keeps the @<sha> pins current.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read # read the public @rmartz/repo-hygiene package from GitHub Packages
+
+concurrency:
+  group: repo-hygiene-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: rmartz/repo-hygiene-action@66118369122afacf29241703137f60cbfa0315f0 # v1.0.0
+        with:
+          config: .repo-hygiene.yml
