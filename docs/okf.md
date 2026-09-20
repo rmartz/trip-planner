@@ -89,5 +89,5 @@ one-line description (SPEC §8).
 ## Enforcement
 
 The frontmatter and navigation rules are enforced in CI by the
-`@rmartz/repo-hygiene` reusable workflow (`.github/workflows/repo-hygiene.yml`,
-the `okf` and `okf-index` checks).
+`@rmartz/repo-hygiene-action` composite Action
+(`.github/workflows/repo-hygiene.yml`, the `okf` and `okf-index` checks).

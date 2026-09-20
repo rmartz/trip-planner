@@ -8,7 +8,7 @@ timestamp: 2026-06-18
 # Change Log
 
 - **2026-09-18** — Migrated the bespoke hygiene CI checks to the shared
-  `@rmartz/repo-hygiene` reusable workflow (#537). Removed the `docs.yml` /
+  `@rmartz/repo-hygiene-action` composite Action (#537). Removed the `docs.yml` /
   `agents-md.yml` / `action-pins.yml` workflows and their `scripts/check-*.mjs`
   validators (and the `check-docs` / `check-agents-md` Script pages); the `okf`,
   `okf-index`, `md-pairing`, and `action-pins` checks now cover the same
