@@ -1,0 +1,29 @@
+name: bot-automerge
+
+# Enables GitHub-native auto-merge for trusted bot PRs (Dependabot patch/minor
+# bumps) via the @rmartz/bot-automerge-action composite Action, so low-impact
+# dependency bumps land without hand-holding while human PRs stay gated exactly as
+# before. The Action only makes an eligible bot PR auto-merge; the repo's required
+# status checks — including merge-safety — are what actually gate the merge.
+#
+# Uses pull_request_target (not pull_request): a Dependabot PR runs with a
+# read-only token, and enabling auto-merge needs base-context write. Dependabot's
+# github-actions ecosystem keeps the @<sha> pins current.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled]
+
+permissions:
+  contents: write # enable GitHub-native auto-merge on the PR
+  pull-requests: write # read PR metadata + turn on auto-merge
+  packages: read # install the public @rmartz/bot-automerge package
+
+jobs:
+  bot-automerge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: rmartz/bot-automerge-action@7acd74697ddcce0319ca0d6733681dc76d4e60d6 # v1.0.0
+        with:
+          pr: ${{ github.event.pull_request.number }}
