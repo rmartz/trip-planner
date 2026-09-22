@@ -7,6 +7,18 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-09-22** — Adopted the shared
+  [`rmartz/storybook-ci`](https://github.com/rmartz/storybook-ci) reusable
+  workflows (#554). The bespoke Storybook CI — `pr-screenshots.yml`,
+  `.github/scripts/storybook-screenshots.mjs`, the per-PR `gh-screenshots-pr-<N>`
+  image branch with its `pr-screenshots-cleanup.yml`, the `storybook-tests` /
+  `build-storybook` jobs in `ci-actions.yml`, and the `.github/actions/playwright`
+  composite — is replaced by two thin callers (`storybook-tests.yml`,
+  `storybook-screenshots.yml`) pinned by SHA. Gallery images are now GitHub
+  user-attachments (`gh --attach`), which needs a `STORYBOOK_SCREENSHOT_PAT`
+  secret; capture scope widens from changed-stories-only to `colocation`. The
+  System page was renamed `storybook-screenshots.md` → `storybook-ci.md` to match
+  its wider subject.
 - **2026-09-18** — Migrated the bespoke hygiene CI checks to the shared
   `@rmartz/repo-hygiene-action` composite Action (#537). Removed the `docs.yml` /
   `agents-md.yml` / `action-pins.yml` workflows and their `scripts/check-*.mjs`

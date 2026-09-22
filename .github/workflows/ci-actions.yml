@@ -14,12 +14,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Decide whether the heavy code-validation jobs (Tests, Storybook Tests, Build,
-  # Typecheck) need to run for this event. The rule is a DENYLIST, never an
-  # allowlist: run the full suite by default and skip only when EVERY changed
-  # file is provably-inert documentation. A new or unanticipated file type
-  # therefore fails *safe* (runs the suite) rather than *open* (skips it). See
-  # issue #392. Pushes to main always run (post-merge: don't try to be clever).
+  # Decide whether the heavy code-validation jobs (Tests, Build, Typecheck) need
+  # to run for this event. The rule is a DENYLIST, never an allowlist: run the
+  # full suite by default and skip only when EVERY changed file is provably-inert
+  # documentation. A new or unanticipated file type therefore fails *safe* (runs
+  # the suite) rather than *open* (skips it). See issue #392. Pushes to main
+  # always run (post-merge: don't try to be clever).
+  #
+  # The Storybook jobs (Storybook Tests, Storybook Build) are no longer here —
+  # they moved to storybook-tests.yml, which delegates to the shared
+  # rmartz/storybook-ci reusable workflow and reimplements this same denylist as
+  # its own `detect-changes` job (#554).
   detect-changes:
     name: Detect code changes
     runs-on: ubuntu-latest
@@ -123,28 +128,6 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm build
 
-  # Gating compile check for the PRODUCTION Storybook bundle. This is a distinct
-  # render surface from the two jobs above: `build` (`pnpm build`) is the Next.js
-  # bundler, and `storybook-tests` renders stories through Vitest's transform —
-  # neither exercises `build-storybook`. Without this job, `pnpm build-storybook`
-  # runs ONLY in pr-screenshots.yml's advisory `screenshots` job, where it is both
-  # story-gated (skipped for non-story changes) and under job-level
-  # `continue-on-error` (a break reports neutral). A change that breaks the
-  # Storybook build — a `.storybook/` preset, a preview decorator, an addon/MDX
-  # config — would therefore ship green. Gating it here on the broad `code_changed`
-  # denylist closes both holes. See rmartz/ai discussion #6 and
-  # docs/guidance/storybook-screenshot-ci.md.
-  build-storybook:
-    name: Build Storybook
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    needs: detect-changes
-    if: needs.detect-changes.outputs.code_changed == 'true'
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: ./.github/actions/setup
-      - run: pnpm build-storybook
-
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
@@ -155,39 +138,3 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
       - run: pnpm tsc
-
-  # PROTECTED INVARIANT: this job must run on every CODE-touching PR with no
-  # `on.pull_request.paths` / `paths-ignore` filter. The story files ARE the
-  # Storybook test suite (storybookTest()), so running them on every code change
-  # is the always-on regression net that catches a visual/behavioral regression
-  # introduced by a *non-Storybook* edit (a component, hook, CSS, or util) — an
-  # edit that, by design, does NOT trigger screenshot generation in
-  # pr-screenshots.yml. Do NOT path-filter this job to "optimize" CI: that would
-  # let such a regression sneak past. See issue #391.
-  #
-  # The ONLY permitted skip is the documentation-only gate (#392): a doc-only PR
-  # changes no code, so there is nothing the suite could regress. That gate is
-  # the `if: needs.detect-changes.outputs.code_changed == 'true'` below — a
-  # job-level condition, NOT an `on.pull_request.paths` filter — so the
-  # always-on-for-code invariant holds.
-  storybook-tests:
-    name: Storybook Tests
-    runs-on: ubuntu-latest
-    # Coarse backstop only. A Playwright version bump busts the browser cache
-    # (keyed on pnpm-lock.yaml), forcing a cold Chromium download that alone runs
-    # ~3 min — the old 3-min *job* budget conflated that one-time install with the
-    # test run, so a bump PR timed out mid-download (the whole job reported
-    # "cancelled") before any test executed. The real hang guard is the per-step
-    # timeout on `pnpm test:storybook` below; this value only has to fit a cold
-    # install + that test step.
-    timeout-minutes: 8
-    needs: detect-changes
-    if: needs.detect-changes.outputs.code_changed == 'true'
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/playwright
-      # Honest guard on test EXECUTION only — kept tight so a genuine test hang
-      # still fails fast, independent of the one-time browser install above.
-      - run: pnpm test:storybook
-        timeout-minutes: 3
