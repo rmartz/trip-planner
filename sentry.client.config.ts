@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import { beforeSend } from "@/lib/sentry/beforeSend";
+import { getDataCollection } from "@/lib/sentry/dataCollection";
 
 Sentry.init({
   dsn: process.env["NEXT_PUBLIC_SENTRY_DSN"],
@@ -12,9 +13,10 @@ Sentry.init({
 
   // Sends IP addresses, cookies, and request headers. Off by default; opt in via
   // NEXT_PUBLIC_SENTRY_ENABLE_SENSITIVE_DATA=true (development only).
-  sendDefaultPii:
+  dataCollection: getDataCollection(
     process.env.NODE_ENV === "development" &&
-    process.env["NEXT_PUBLIC_SENTRY_ENABLE_SENSITIVE_DATA"] === "true",
+      process.env["NEXT_PUBLIC_SENTRY_ENABLE_SENSITIVE_DATA"] === "true",
+  ),
   tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
 
   // Drop expected auth failures — only capture unexpected errors
