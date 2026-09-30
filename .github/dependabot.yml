@@ -12,11 +12,11 @@ updates:
     # the release-age CI gate fail on essentially every rebase, so these PRs
     # could not be merged without retrying for a lucky freshness window. The gate
     # (.github/workflows/release-age.yml + scripts/check-release-age*) and this
-    # cooldown were removed together. The github-actions ecosystem below also
-    # uses no `cooldown`: cooldowns add merge friction without reliably closing
-    # the supply-chain window (Dependabot keeps PRs current, so even an
-    # older-release bump pulls the latest transitive deps), so none is used
-    # anywhere — do not re-add.
+    # cooldown were removed together. (Since 2026-07-14 Dependabot applies a
+    # 3-day default wait even with no `cooldown` configured; this repo has no
+    # `@rmartz/*` npm deps to exempt from it.) The github-actions ecosystem below
+    # declares a cooldown only to exempt first-party `rmartz/*` releases from
+    # that default; third-party actions keep the default wait.
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -84,6 +84,14 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # First-party `rmartz/*` actions and reusable workflows are exempt from the
+    # default wait: they're published from our own repos with provenance, so it
+    # adds no supply-chain protection and only holds fixes back from the fleet.
+    cooldown:
+      # Explicit, so declaring the block can't change the third-party default.
+      default-days: 3
+      exclude:
+        - "rmartz/*"
     commit-message:
       prefix: "chore"
       include: "scope"
