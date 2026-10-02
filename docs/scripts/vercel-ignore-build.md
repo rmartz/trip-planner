@@ -50,8 +50,9 @@ wrongly skipped.
 The pure, dependency-free `scripts/lib/vercel-ignore-build.mjs` (with a `.d.mts`
 declaration) exports `shouldDeployForTitle(title)`. It tests the title against
 `^(feat|fix)(\([^)]+\))?!?:` — optional scope, optional `!`, then `:` — a
-**case-sensitive** mirror of the repo's pr-title-lint
-(`.github/workflows/pr-title-lint.yml`), so `Feat:`/`FIX:` do not qualify. The
+**case-sensitive** mirror of the title grammar enforced by pr-policy's `title`
+check (part of the [`pr-policy`](../systems/pr-policy.md) check), so
+`Feat:`/`FIX:` do not qualify. The
 same module is imported by both the CLI wrapper and the spec at
 `src/ci/vercel-ignore-build.spec.ts`. The CLI uses only Node built-ins and the
 global `fetch`, so Vercel runs it without installing dependencies.
