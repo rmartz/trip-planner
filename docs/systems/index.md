@@ -11,6 +11,9 @@ Cross-cutting subsystems that span several files. Return here from the
 - [Storybook CI](storybook-ci.md) — how the gating Storybook test/build checks
   and the advisory per-PR screenshot gallery are delegated to the shared
   `rmartz/storybook-ci` reusable workflows, and the PAT the gallery needs.
+- [pr-policy](pr-policy.md) — the shared PR content checks that post the
+  `pr-policy` verdict; this repo keeps the UAT gate (a PR waits for
+  `no UAT needed` or `UAT passed`).
 - [memberUids Fan-Out Invariant](member-uids-fan-out.md) — how the denormalized
   `memberUids` array is kept in sync across every trip-scoped document on
   membership changes, and why it is a security requirement.

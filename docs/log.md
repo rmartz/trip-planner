@@ -7,6 +7,10 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-10-01** — Added the `pr-policy` caller workflow
+  (`.github/workflows/pr-policy.yml`, `rmartz/pr-policy-action` v1.4.5) and its
+  [pr-policy](systems/pr-policy.md) System page. It posts the `pr-policy`
+  verdict and keeps the UAT gate; it is not yet a required check.
 - **2026-09-22** — Adopted the shared
   [`rmartz/storybook-ci`](https://github.com/rmartz/storybook-ci) reusable
   workflows (#554). The bespoke Storybook CI — `pr-screenshots.yml`,
