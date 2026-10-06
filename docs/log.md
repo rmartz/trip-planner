@@ -7,6 +7,10 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-10-01** — Retired the standalone `pr-title-lint.yml` workflow (the
+  `Validate PR title` check). PR titles are now validated by pr-policy's `title`
+  check, part of the [`pr-policy`](systems/pr-policy.md) check, which enforces
+  the same Conventional-Commit grammar.
 - **2026-10-01** — Added the `pr-policy` caller workflow
   (`.github/workflows/pr-policy.yml`, `rmartz/pr-policy-action` v1.4.5) and its
   [pr-policy](systems/pr-policy.md) System page. It posts the `pr-policy`

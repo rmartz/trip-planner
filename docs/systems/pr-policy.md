@@ -23,7 +23,8 @@ The checks, and what makes each one red or pending, are listed in
 [pr-policy's check docs](https://github.com/rmartz/pr-policy/blob/main/docs/checks/index.md).
 The version in force is the one bundled by the pinned action. In short: red
 means the author has something to fix (a bad title, for example), and pending
-means a person has to act.
+means a person has to act. The `title` check is this repo's only PR-title
+validation; it replaced the standalone `pr-title-lint.yml` workflow.
 
 **This repo keeps the UAT gate**, because it is a Next.js app with something to
 user-test. A code PR stays pending until it carries `no UAT needed` (the review
