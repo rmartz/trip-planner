@@ -2,18 +2,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { addExpense, getExpensesForTrip } from "@/services/expenses";
 import { getTripMemberRole, getTripMemberUids } from "@/services/trips";
 import { X_USER_ID_HEADER } from "@/lib/constants";
-import type {
-  ExpenseCategory,
-  ExpenseLinkedEntityType,
-  ExpenseSplitMethod,
-} from "@/lib/types/expense";
 import {
-  EXPENSE_CATEGORY_VALUES,
-  EXPENSE_LINKED_ENTITY_TYPE_VALUES,
-  EXPENSE_SPLIT_METHOD_VALUES,
-  isValidCurrencyCode,
-  parseUnitModel,
-} from "./expense-validation";
+  type ExpenseLinkedEntityType,
+  isExpenseCategory,
+  isExpenseLinkedEntityType,
+  isExpenseSplitMethod,
+} from "@/lib/types/expense";
+import { isValidCurrencyCode, parseUnitModel } from "./expense-validation";
 
 interface RouteContext {
   params: Promise<{ tripId: string }>;
@@ -112,16 +107,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  if (!EXPENSE_CATEGORY_VALUES.has(body.category as ExpenseCategory)) {
+  if (!isExpenseCategory(body.category)) {
     return NextResponse.json(
       { error: "category must be a valid expense category" },
       { status: 400 },
     );
   }
 
-  if (
-    !EXPENSE_SPLIT_METHOD_VALUES.has(body.splitMethod as ExpenseSplitMethod)
-  ) {
+  if (!isExpenseSplitMethod(body.splitMethod)) {
     return NextResponse.json(
       { error: "splitMethod must be a valid expense split method" },
       { status: 400 },
@@ -190,8 +183,9 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       }
     | undefined;
   if (linkedEntityRaw !== undefined) {
+    const linkedEntityType = linkedEntityRaw["type"];
     if (
-      typeof linkedEntityRaw["type"] !== "string" ||
+      typeof linkedEntityType !== "string" ||
       typeof linkedEntityRaw["entityId"] !== "string" ||
       typeof linkedEntityRaw["label"] !== "string"
     ) {
@@ -203,11 +197,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    if (
-      !EXPENSE_LINKED_ENTITY_TYPE_VALUES.has(
-        linkedEntityRaw["type"] as ExpenseLinkedEntityType,
-      )
-    ) {
+    if (!isExpenseLinkedEntityType(linkedEntityType)) {
       return NextResponse.json(
         { error: "linkedEntity.type must be a valid linked entity type" },
         { status: 400 },
@@ -215,7 +205,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }
 
     linkedEntity = {
-      type: linkedEntityRaw["type"] as ExpenseLinkedEntityType,
+      type: linkedEntityType,
       entityId: linkedEntityRaw["entityId"],
       label: linkedEntityRaw["label"],
     };
@@ -231,10 +221,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     name: body.name.trim(),
     amount: body.amount,
     currency: body.currency,
-    category: body.category as ExpenseCategory,
+    category: body.category,
     payerUid: body.payerUid,
     participantUids: body.participantUids,
-    splitMethod: body.splitMethod as ExpenseSplitMethod,
+    splitMethod: body.splitMethod,
     ...(linkedEntity !== undefined ? { linkedEntity } : {}),
     ...(unitModel !== undefined ? { unitModel } : {}),
   });

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   ExpenseSettingsCategory,
   ExpenseUnitModel,
+  isExpenseUnitModel,
 } from "@/lib/types/expense-settings";
 import { EXPENSE_SETTINGS_PAGE_COPY } from "./ExpenseSettingsPageView.copy";
 
@@ -81,7 +82,10 @@ function ExpenseSettingsCategoryRow({
           id={`unit-model-${config.category}`}
           value={config.unitModel}
           onChange={(e) => {
-            onChangeUnitModel(e.target.value as ExpenseUnitModel);
+            const { value } = e.target;
+            if (isExpenseUnitModel(value)) {
+              onChangeUnitModel(value);
+            }
           }}
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >

@@ -9,7 +9,11 @@ import type {
   ExpenseLinkedEntity,
   ExpenseLinkedEntityType,
 } from "@/lib/types/expense";
-import type { ExpenseUnitModel } from "@/lib/types/expense-settings";
+import { createEnumGuard } from "@/lib/enum-guard";
+import {
+  type ExpenseUnitModel,
+  isExpenseUnitModel,
+} from "@/lib/types/expense-settings";
 import { EXPENSE_ENTRY_FORM_COPY } from "./ExpenseEntryFormView.copy";
 import {
   ExpenseUnitModelField,
@@ -25,6 +29,8 @@ export enum ExpenseEntryCategory {
   Other = "other",
   Transport = "transport",
 }
+
+const isExpenseEntryCategory = createEnumGuard(ExpenseEntryCategory);
 
 export interface ExpenseEntryMemberOption {
   memberId: string;
@@ -182,8 +188,8 @@ export function ExpenseEntryFormView({
         : {}),
       participantMemberIds: participantIds,
       payerMemberId,
-      ...(unitModelValue !== UNIT_MODEL_CATEGORY_DEFAULT
-        ? { unitModel: unitModelValue as ExpenseUnitModel }
+      ...(isExpenseUnitModel(unitModelValue)
+        ? { unitModel: unitModelValue }
         : {}),
     });
   }
@@ -238,7 +244,10 @@ export function ExpenseEntryFormView({
           id="expense-category"
           value={category}
           onChange={(e) => {
-            setCategory(e.target.value as ExpenseEntryCategory);
+            const { value } = e.target;
+            if (isExpenseEntryCategory(value)) {
+              setCategory(value);
+            }
           }}
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >
