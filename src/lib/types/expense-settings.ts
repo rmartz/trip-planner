@@ -1,3 +1,5 @@
+import { createEnumGuard } from "@/lib/enum-guard";
+
 export enum ExpenseSettingsCategory {
   Activities = "activities",
   Food = "food",
@@ -11,6 +13,8 @@ export enum ExpenseUnitModel {
   SharedBucket = "shared_bucket",
   UsageShare = "usage_share",
 }
+
+export const isExpenseUnitModel = createEnumGuard(ExpenseUnitModel);
 
 export interface ExpenseCategorySettings {
   defaultParticipantMemberIds: string[] | null;

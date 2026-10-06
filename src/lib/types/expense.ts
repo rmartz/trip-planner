@@ -1,3 +1,4 @@
+import { createEnumGuard } from "@/lib/enum-guard";
 import type { ExpenseUnitModel } from "./expense-settings";
 
 export enum ExpenseCategory {
@@ -20,6 +21,12 @@ export enum ExpenseSplitMethod {
   Riders = "riders",
   Rsvp = "rsvp",
 }
+
+export const isExpenseCategory = createEnumGuard(ExpenseCategory);
+export const isExpenseLinkedEntityType = createEnumGuard(
+  ExpenseLinkedEntityType,
+);
+export const isExpenseSplitMethod = createEnumGuard(ExpenseSplitMethod);
 
 export interface ExpenseLinkedEntity {
   type: ExpenseLinkedEntityType;

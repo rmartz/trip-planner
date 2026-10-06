@@ -6,7 +6,7 @@ import {
 import { getTripMemberRole } from "@/services/trips";
 import {
   ExpenseSettingsCategory,
-  ExpenseUnitModel,
+  isExpenseUnitModel,
 } from "@/lib/types/expense-settings";
 import type { ExpenseSettingsMap } from "@/lib/types/expense-settings";
 import { TripRole } from "@/lib/types/trip";
@@ -19,8 +19,6 @@ interface RouteContext {
 const KNOWN_CATEGORIES = new Set<string>(
   Object.values(ExpenseSettingsCategory),
 );
-const KNOWN_UNIT_MODELS = new Set<string>(Object.values(ExpenseUnitModel));
-
 function parseCategories(raw: unknown): ExpenseSettingsMap | null {
   if (
     raw === null ||
@@ -47,7 +45,7 @@ function parseCategories(raw: unknown): ExpenseSettingsMap | null {
     }
     const entry = value as Record<string, unknown>;
     const unitModel = entry["unitModel"];
-    if (typeof unitModel !== "string" || !KNOWN_UNIT_MODELS.has(unitModel)) {
+    if (!isExpenseUnitModel(unitModel)) {
       return null;
     }
     const ids = entry["defaultParticipantMemberIds"];
@@ -62,7 +60,7 @@ function parseCategories(raw: unknown): ExpenseSettingsMap | null {
       participantIds = ids;
     }
     result[category] = {
-      unitModel: unitModel as ExpenseUnitModel,
+      unitModel,
       defaultParticipantMemberIds: participantIds,
     };
   }

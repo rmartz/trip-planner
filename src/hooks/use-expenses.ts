@@ -19,7 +19,7 @@ interface ExpenseJson {
   participantUids: string[];
   splitMethod: ExpenseSplitMethod;
   linkedEntity?: {
-    type: string;
+    type: ExpenseLinkedEntityType;
     entityId: string;
     label: string;
   };
@@ -46,7 +46,7 @@ async function fetchExpenses(tripId: string): Promise<Expense[]> {
     ...(e.linkedEntity !== undefined
       ? {
           linkedEntity: {
-            type: e.linkedEntity.type as ExpenseLinkedEntityType,
+            type: e.linkedEntity.type,
             entityId: e.linkedEntity.entityId,
             label: e.linkedEntity.label,
           },

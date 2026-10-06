@@ -178,9 +178,11 @@ describe("expenseSettingsToFirebase", () => {
 
     const result = expenseSettingsToFirebase(settings);
 
-    const knownKeys = new Set(Object.values(ExpenseSettingsCategory));
+    const knownKeys: ReadonlySet<string> = new Set(
+      Object.values(ExpenseSettingsCategory),
+    );
     for (const key of Object.keys(result)) {
-      expect(knownKeys.has(key as ExpenseSettingsCategory)).toBe(true);
+      expect(knownKeys.has(key)).toBe(true);
     }
   });
 });
