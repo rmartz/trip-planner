@@ -27,8 +27,10 @@ updates:
     # whose patterns/update-types/dependency-type all match.
     #
     # The DEFAULT is two base groups: every dev dependency batches into
-    # dev-dependencies, every prod dependency into production-dependencies, across
-    # ALL update types (one low-noise PR per boundary per week). A package is
+    # dev-dependencies, every prod dependency into production-dependencies, for
+    # patch and minor bumps only (one low-noise PR per boundary per week). Every
+    # major opens as its own PR, so a pending major can never hold the routine
+    # batch back from auto-merge (rmartz/ai#130, rmartz/ai#132). A package is
     # split into its own group ONLY when it has earned one, for one of two
     # reasons:
     #   * FUNCTIONAL — it must move in lockstep ACROSS the prod/dev boundary, so a
@@ -60,25 +62,30 @@ updates:
           - "@types/react-dom"
       typescript:
         # DATA split. The compiler itself: the 6→7 major failed Lint+Build across
-        # #461/#480/#485/#490 and never merged. Isolating major/minor keeps a
-        # stuck compiler bump from blocking the dev batch; a patch rides the
-        # dev-dependencies base group.
+        # #461/#480/#485/#490 and never merged. Isolating every compiler bump
+        # (majors included) keeps a stuck compiler bump from blocking the dev
+        # batch.
         patterns:
           - "typescript"
-        update-types:
-          - "major"
-          - "minor"
       # --- Base groups (the default home for everything else) ---
       dev-dependencies:
-        # Every development dependency, all update types, in one weekly PR.
+        # Every development dependency, patch and minor only, in one weekly PR;
+        # each major opens its own PR.
         dependency-type: development
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
       production-dependencies:
-        # Every production dependency, all update types, in one weekly PR.
+        # Every production dependency, patch and minor only, in one weekly PR;
+        # each major opens its own PR.
         dependency-type: production
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: github-actions
     directory: /
@@ -95,8 +102,12 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    # Group all GitHub Actions updates together (no patch/minor split).
+    # Group patch and minor GitHub Actions updates together; each major opens its
+    # own PR.
     groups:
       github-actions:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
