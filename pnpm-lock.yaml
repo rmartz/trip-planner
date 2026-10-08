@@ -15,14 +15,14 @@ importers:
         specifier: 1.8.0
         version: 1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@modelcontextprotocol/server':
-        specifier: 2.2.0
-        version: 2.2.0
+        specifier: 2.3.0
+        version: 2.3.0
       '@reduxjs/toolkit':
         specifier: 2.13.0
         version: 2.13.0(react-redux@9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1))(react@19.3.0)
       '@sentry/nextjs':
-        specifier: 11.3.0
-        version: 11.3.0(@babel/core@7.29.7)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.106.2(esbuild@0.28.2))
+        specifier: 11.4.0
+        version: 11.4.0(@babel/core@7.29.7)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.106.2(esbuild@0.28.2))
       '@tanstack/react-query':
         specifier: 5.104.1
         version: 5.104.1(react@19.3.0)
@@ -42,11 +42,11 @@ importers:
         specifier: 14.5.0
         version: 14.5.0(@firebase/app-compat@0.5.18)(@firebase/app@0.16.2)
       lucide-react:
-        specifier: 1.50.0
-        version: 1.50.0(@types/react@19.3.0)(react@19.3.0)
+        specifier: 1.52.0
+        version: 1.52.0(@types/react@19.3.0)(react@19.3.0)
       mcp-handler:
         specifier: 2.2.0
-        version: 2.2.0(@modelcontextprotocol/server@2.2.0)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 2.2.0(@modelcontextprotocol/server@2.3.0)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       next:
         specifier: 16.3.8
         version: 16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -1058,12 +1058,12 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inquirer/ansi@2.0.8':
-    resolution: {integrity: sha512-WpQM+Ti6Z40EFwwt+uL2p4UabT+W179zHp6HhLVOzfbwnVn05IPO/eXIZXGNqcT1jbQ15SujNLzQ39k4QPPxBQ==}
+  '@inquirer/ansi@2.0.9':
+    resolution: {integrity: sha512-0Ywt3S8tqM6TWUcsRlBFQ1x+X3/o8kktX0ZiKAnByYb9GFDknnOhse1PVtfiD2BXPI8ar+BWx9PV9R0lQIcygw==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
 
-  '@inquirer/confirm@6.3.2':
-    resolution: {integrity: sha512-Xvr/0HggjddPtGppuqVmxhTw+Hr8PvsZ/k0HmOEaAqQEt80OITNkFWnsdNmyT0/eM4Ab+iJLx2R8rctlEyfSVg==}
+  '@inquirer/confirm@6.3.3':
+    resolution: {integrity: sha512-ImOBgpl/sJTFp8naeSkNu4S0Sf8F8pxv3/CUx+LoBAdQvCVqFz6rSB2A/oZYsJge3+yphbEDxEkfaRNYq1OU0A==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1071,8 +1071,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/core@12.0.3':
-    resolution: {integrity: sha512-wsSy0sznmXwkty+2PzZwx00Cazc/E0r0B7mAzdGROz2Ct+DFZXaK7WDjGZvgjRldxH5ZhFVfF2lgkYrqgOw2KA==}
+  '@inquirer/core@12.0.4':
+    resolution: {integrity: sha512-M5fB67y7jPObI45vhD82RskWwCSm0scOvenV/I6K8tIi2gfr9DXqQqJ+iw+Wi6SgapikdOiJibYzz1gW47fsDg==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1084,8 +1084,8 @@ packages:
     resolution: {integrity: sha512-EAWgUTGQ/Umgga51dE3B2PUHbufuXarDfg86uVgoSgNHNNQnyFKcOrQLWVqYMghuSyHh8+2HUH0Js9cTC1WAdg==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
 
-  '@inquirer/type@4.1.1':
-    resolution: {integrity: sha512-yJoHYrMnxIsJZCY+0Vb66Dy3he3kL3e2wOBKhoSwWWAzZAY82emlxwgprCtp6yRixvNRNq9ztfRWQYPNr3Go7A==}
+  '@inquirer/type@4.2.0':
+    resolution: {integrity: sha512-2rnHX8RPo4glJYqnFc/v3nQeIhDcjyRRyaT7MGcfL/8xv/8K03SXYoA2tX06WVSKywWOE/ncbG3dtuzLjR5TCQ==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1143,8 +1143,8 @@ packages:
       '@types/react': '>=16'
       react: '>=16'
 
-  '@modelcontextprotocol/core@2.2.0':
-    resolution: {integrity: sha512-iLhmprRmWI8EcosOA3wVvww22z02NkgqhV4fBH6f/odQBsi7xnJc0HGmi21yWO+/iKw2yzqVE127Zhna5/+JXw==}
+  '@modelcontextprotocol/core@2.3.0':
+    resolution: {integrity: sha512-09BHFaNVBe5pB2AhzCfLj0cqmsKLERvZQ4FblzP90UMGLaXVqdZPByFjURwsUYCmxonUW2yAwgTTvle+8O2/8w==}
     engines: {node: '>=20'}
 
   '@modelcontextprotocol/sdk@1.32.0':
@@ -1157,8 +1157,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@modelcontextprotocol/server@2.2.0':
-    resolution: {integrity: sha512-qFnltjus6Gk8Lx6J1w2RXmr3YPN22MNT6qD6zjAkaiWIlFIFxWClz0rXHNuJF/KSUyn5YGhkSvXkWDbQHVLFEQ==}
+  '@modelcontextprotocol/server@2.3.0':
+    resolution: {integrity: sha512-+6b0LdsQLmHsvS7J6sQJ4weTpzUn61fU1JKS+321/+IyDYoHW5CR2Tgqcs6GgAAQvlesCo6yX3xttgmx+XGtJw==}
     engines: {node: '>=20'}
 
   '@mswjs/interceptors@0.41.9':
@@ -1933,16 +1933,16 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
-  '@sentry/browser-utils@11.3.0':
-    resolution: {integrity: sha512-NlRjv0v/7nZmE7mr4Kf8+TsVfTVD7pfo4JFh8fNFWc8rHAcnBn75mMrvnaVutcgM46o2iKQyqNDuDragp0uDAA==}
+  '@sentry/browser-utils@11.4.0':
+    resolution: {integrity: sha512-RPQefmLDslO8KsRiSuXNXcReAhJy0rEVi2pbez5HpEn2adipuhgebwDMulac6RYoIUa8liFcBueru0ancW1vhA==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/browser@11.3.0':
-    resolution: {integrity: sha512-CgRjeYj/Y1jBZnd/rpIgzK78FCFC5p5qJkHM9vGhxsiJ4oWzZglAQREZunHXtDKk2GusBae5/cx+Y/U3puN65Q==}
+  '@sentry/browser@11.4.0':
+    resolution: {integrity: sha512-jhq5t6nw8KdBq8i3Uyq5vBCHXehtEM+F5f/OoVxuPS2TtSbGizGjqzhAi24EmTNs4DRlQgYpKPdTOBDTMv49HA==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/bundler-plugins@11.3.0':
-    resolution: {integrity: sha512-LMG1/aS389Yak9+7JiNqBuBsWhhAKnOMz6SqVEGNpK3ynDjLMmYW2/nQ6jDgPhxV2T6rSCegshtr1xbK86JpPw==}
+  '@sentry/bundler-plugins@11.4.0':
+    resolution: {integrity: sha512-THgOMIaA0AMVF4TiCIbugK2jlLYCBIhRF0gclrj7Fte3RMZytkXeH8XeoaR6C6MJTyLCNkEOEccwX9Jj2xOc8g==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
     peerDependencies:
       '@babel/core': ^7.18.5
@@ -1960,32 +1960,32 @@ packages:
     resolution: {integrity: sha512-7SouCAX3qx+AzLsxb6gbl3dKVWNhp2wFjdYQ/T90sGwqPPQUoZVA9YwsWwvx07hqcCiSqFW9mUAzyUftASnuhQ==}
     engines: {node: '>=14'}
 
-  '@sentry/core@11.3.0':
-    resolution: {integrity: sha512-ZRexUGcm/0hojTCPTb4ZoNm0wGQsHv93t2Z/E3U1w8XFakb5DKkTx+z1tBi3KXKLo9xjGlhYyiob9cF0D2MLoQ==}
+  '@sentry/core@11.4.0':
+    resolution: {integrity: sha512-kAhK8XVJuzu1IKx9uSu04OISxTU9BcIyDVOWbY/ATUCYr5Z6L7GRBtOGOlYCbxEuPtdZCw5TrbphnBsyO9fuTA==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/feedback@11.3.0':
-    resolution: {integrity: sha512-V+RKyL5LavKdgjzDbaUjZwK0PKPLJVWFqPJzEeZxDnaYC4trYE7b+9VQ3ikoEMMJR26fpMHyhXCWxsiaZaaZ3g==}
+  '@sentry/feedback@11.4.0':
+    resolution: {integrity: sha512-vGcTGvNMgaL5J+LCwK+HVpubU/4/3TRAexVaJi0VcZmr9LnoGiZlWAQunjvWNsabvvkXs120WbXYc8nHysRNzw==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/nextjs@11.3.0':
-    resolution: {integrity: sha512-4knZwFOXI7bzD65KtrZ+5h6qQe5//wQ3t3NEbpZjZMfjngFhN6GJ84cA4hhGIhjuAMdYQTlKDMTuTzvoi240dw==}
+  '@sentry/nextjs@11.4.0':
+    resolution: {integrity: sha512-MrEb0n9KsLfxjb+nX+zluPQH7ojKt2HqWkBU6CCi7pI5/tBZOXPTuQ74vkuyOEza5IhCmHxwevEdFIcBFPWJ4Q==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
     peerDependencies:
       next: ^14.0 || ^15.0.0-rc.0 || ^16.0.0-0
 
-  '@sentry/node@11.3.0':
-    resolution: {integrity: sha512-pCpdOI+erDY2DdQN2cnlRTbC1xgLgv+vXdGJGNw0DANszVMxw+TVyFZbUZNkun5pv8P1Ma0X0LoxFJCXQNGOug==}
+  '@sentry/node@11.4.0':
+    resolution: {integrity: sha512-fW587LsZnsuGt1V++59xFCtZ/7jGO3GQq1F+l/Jx5DS18QApXQ99vlfS9H5bxuWixfi5/22ea9M8XjFpkkuzQg==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/opentelemetry@11.3.0':
-    resolution: {integrity: sha512-4flXrXRoCejIgs5lHnoMSDnFWIZL1rEkeoEEhh73oK6oqGePIAYiyCDNOJe7p0VWYusy42AqkGP2MDIyG08pyg==}
+  '@sentry/opentelemetry@11.4.0':
+    resolution: {integrity: sha512-GGDmV+VIGU1p3KGtgR32wrRJejSfEuafbEcSUK7Ww5oxDMYJyHXRSbFjVvGMoAG1ezTl0U6WtMUoWmalsfYHZg==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
     peerDependencies:
       '@opentelemetry/api': ^1.9.0
 
-  '@sentry/react@11.3.0':
-    resolution: {integrity: sha512-tp7garlnE4vcLNFET8gNABgS/79iuKFvFw83gHyPL7ze2JvU1QBQwd/IVC68Bsq/5WuuMZkbXchjXcfb3LO2Fg==}
+  '@sentry/react@11.4.0':
+    resolution: {integrity: sha512-8HfNapqjif93dcQ2E6rH/TUyTOSaRe7EOfIKyjcXdkktK2DISbvAHdzVT2ctV9DQ8zBxuUaCzzHcF7s18EYf2w==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
     peerDependencies:
       react: 17.x || 18.x || 19.x
@@ -1994,24 +1994,24 @@ packages:
       react-router:
         optional: true
 
-  '@sentry/replay-canvas@11.3.0':
-    resolution: {integrity: sha512-69afmS8SbNKUk7ncerpM8iuylNeVz8Wn8j043+jr7+Kgy+a5Ip4Noom0ejRk0uSyNcuuCyBHify8f4ZNJgGGqw==}
+  '@sentry/replay-canvas@11.4.0':
+    resolution: {integrity: sha512-zfsf90ckrOl/+Z4D4kg4MNY46V4jzUFSZolm+RcrdobS4qikE4xBMvDy1bKZHk+LKfj+K6dxjgZQbasgzHcZ6w==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/replay@11.3.0':
-    resolution: {integrity: sha512-AkN/s+vBrKJCwzDx4UJYqXbfGBsNlRiVsxzpygb83FcXixjYpuJBgMMXs3CU3TOAQmg9+f1JSLyyK8E2Zyhl/g==}
+  '@sentry/replay@11.4.0':
+    resolution: {integrity: sha512-DdgAGaFLOyixQEWGuw8kKcGAVZV8RVVX2kMVV5WqSOMI9if7lhvXdhV+3L0JnZRX7X/6RBqYxYH/C1E0hK43qg==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/server-runtime-injection@11.3.0':
-    resolution: {integrity: sha512-IZyUo9j6416r2HK1sITPkNCRryvsxbPacW1X0CrjLx9SPuwqxx2iFdifUv5mtPj00NFaQMfKCq1uUfgktyNuZg==}
+  '@sentry/server-runtime-injection@11.4.0':
+    resolution: {integrity: sha512-8IaiqIJuJySztjxdC0UXP3lHlBAr8HsI8kUMEDV7REYhgmz2+B4BmKyyvaZfeasJlAvzkvSOLZ/Xco7kPikZdQ==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/server-utils@11.3.0':
-    resolution: {integrity: sha512-yaUgvegTIC4c/zpiInD009WqiUvx3w96Hjb846LEsQIzdYKP4hXnLL2DNd1vm9E4IM064Ixs8f2Kc/zFIhSR+A==}
+  '@sentry/server-utils@11.4.0':
+    resolution: {integrity: sha512-GA4RvjRXyKFawD7Zi5AlgHPvm9Q8d9VeWer6g9qj4mDavi+VuNFhRmhgsv1qU1l3hlUeMYCpbKhpDOaOH/TcoQ==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
-  '@sentry/vercel-edge@11.3.0':
-    resolution: {integrity: sha512-QE16TxvknMioPg4iuWnaH9DFJya6QabU5uL5NJOmYv1mpJdqbk+NTI/u2dNu5J/YFInPrMnIUQdfXoj+2b3B/A==}
+  '@sentry/vercel-edge@11.4.0':
+    resolution: {integrity: sha512-0C56mHahJLpbIOD7eQxUWtDs+IU8qWLJO0ZsFH2/bIWEIldvEeLAucEyfBmTcEwYW6/Uen/HN0T0SBt/8co1fA==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
 
   '@shadcn/registry@0.1.0':
@@ -4188,8 +4188,8 @@ packages:
   lru-memoizer@3.0.0:
     resolution: {integrity: sha512-m83w/cYXLdUIboKSPxzPAGfYnk+vqeDYXuoSrQRw1q+yVEd8IXhvMufN8Q5TIPe7e2jyX4SRNrDJI2Skw1yznQ==}
 
-  lucide-react@1.50.0:
-    resolution: {integrity: sha512-RqHPQtKX6S9IE1xOL4oTHHsVQbcwJWTnmlxI6AdI9IpOwKiy7q+COPCQyMepI/Qu1x3h7sunpyEMvqtgFbgNiQ==}
+  lucide-react@1.52.0:
+    resolution: {integrity: sha512-TUgPtl5ZI9WgxOcbu4ckaC5B3l1qxPQrCMgb6OfUB9owx/OvSJfcf93SMgUWAxRw5/1XDfh9uI5F5iNGXCcGDQ==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -6587,22 +6587,22 @@ snapshots:
   '@img/sharp-win32-x64@0.35.5':
     optional: true
 
-  '@inquirer/ansi@2.0.8':
+  '@inquirer/ansi@2.0.9':
     optional: true
 
-  '@inquirer/confirm@6.3.2(@types/node@26.6.4)':
+  '@inquirer/confirm@6.3.3(@types/node@26.6.4)':
     dependencies:
-      '@inquirer/core': 12.0.3(@types/node@26.6.4)
-      '@inquirer/type': 4.1.1(@types/node@26.6.4)
+      '@inquirer/core': 12.0.4(@types/node@26.6.4)
+      '@inquirer/type': 4.2.0(@types/node@26.6.4)
     optionalDependencies:
       '@types/node': 26.6.4
     optional: true
 
-  '@inquirer/core@12.0.3(@types/node@26.6.4)':
+  '@inquirer/core@12.0.4(@types/node@26.6.4)':
     dependencies:
-      '@inquirer/ansi': 2.0.8
+      '@inquirer/ansi': 2.0.9
       '@inquirer/figures': 2.0.9
-      '@inquirer/type': 4.1.1(@types/node@26.6.4)
+      '@inquirer/type': 4.2.0(@types/node@26.6.4)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.2
       mute-stream: 3.0.0
@@ -6614,7 +6614,7 @@ snapshots:
   '@inquirer/figures@2.0.9':
     optional: true
 
-  '@inquirer/type@4.1.1(@types/node@26.6.4)':
+  '@inquirer/type@4.2.0(@types/node@26.6.4)':
     optionalDependencies:
       '@types/node': 26.6.4
     optional: true
@@ -6679,7 +6679,7 @@ snapshots:
       '@types/react': 19.3.0
       react: 19.3.0
 
-  '@modelcontextprotocol/core@2.2.0':
+  '@modelcontextprotocol/core@2.3.0':
     dependencies:
       zod: 4.6.5
 
@@ -6705,9 +6705,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modelcontextprotocol/server@2.2.0':
+  '@modelcontextprotocol/server@2.3.0':
     dependencies:
-      '@modelcontextprotocol/core': 2.2.0
+      '@modelcontextprotocol/core': 2.3.0
       zod: 4.6.5
 
   '@mswjs/interceptors@0.41.9':
@@ -7169,24 +7169,24 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
-  '@sentry/browser-utils@11.3.0':
+  '@sentry/browser-utils@11.4.0':
     dependencies:
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
+      '@sentry/core': 11.4.0
       web-vitals: 6.2.2
 
-  '@sentry/browser@11.3.0':
+  '@sentry/browser@11.4.0':
     dependencies:
-      '@sentry/browser-utils': 11.3.0
+      '@sentry/browser-utils': 11.4.0
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
-      '@sentry/feedback': 11.3.0
-      '@sentry/replay': 11.3.0
-      '@sentry/replay-canvas': 11.3.0
+      '@sentry/core': 11.4.0
+      '@sentry/feedback': 11.4.0
+      '@sentry/replay': 11.4.0
+      '@sentry/replay-canvas': 11.4.0
 
-  '@sentry/bundler-plugins@11.3.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))':
+  '@sentry/bundler-plugins@11.4.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))':
     dependencies:
-      '@sentry/core': 11.3.0
+      '@sentry/core': 11.4.0
       dotenv: 17.4.2
       glob: 13.0.6
       magic-string: 1.4.2
@@ -7200,28 +7200,28 @@ snapshots:
 
   '@sentry/conventions@0.25.0': {}
 
-  '@sentry/core@11.3.0':
+  '@sentry/core@11.4.0':
     dependencies:
       '@sentry/conventions': 0.25.0
 
-  '@sentry/feedback@11.3.0':
+  '@sentry/feedback@11.4.0':
     dependencies:
-      '@sentry/core': 11.3.0
+      '@sentry/core': 11.4.0
 
-  '@sentry/nextjs@11.3.0(@babel/core@7.29.7)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.106.2(esbuild@0.28.2))':
+  '@sentry/nextjs@11.4.0(@babel/core@7.29.7)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.106.2(esbuild@0.28.2))':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@rollup/plugin-commonjs': 28.0.1(rollup@4.64.0)
-      '@sentry/browser-utils': 11.3.0
-      '@sentry/bundler-plugins': 11.3.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))
+      '@sentry/browser-utils': 11.4.0
+      '@sentry/bundler-plugins': 11.4.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
-      '@sentry/node': 11.3.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))
-      '@sentry/opentelemetry': 11.3.0(@opentelemetry/api@1.9.1)
-      '@sentry/react': 11.3.0(react@19.3.0)
-      '@sentry/server-runtime-injection': 11.3.0
-      '@sentry/server-utils': 11.3.0
-      '@sentry/vercel-edge': 11.3.0
+      '@sentry/core': 11.4.0
+      '@sentry/node': 11.4.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))
+      '@sentry/opentelemetry': 11.4.0(@opentelemetry/api@1.9.1)
+      '@sentry/react': 11.4.0(react@19.3.0)
+      '@sentry/server-runtime-injection': 11.4.0
+      '@sentry/server-utils': 11.4.0
+      '@sentry/vercel-edge': 11.4.0
       next: 16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       rollup: 4.64.0
       stacktrace-parser: 0.1.11
@@ -7231,59 +7231,59 @@ snapshots:
       - react-router
       - webpack
 
-  '@sentry/node@11.3.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))':
+  '@sentry/node@11.4.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@sentry/bundler-plugins': 11.3.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))
+      '@sentry/bundler-plugins': 11.4.0(@babel/core@7.29.7)(rollup@4.64.0)(webpack@5.106.2(esbuild@0.28.2))
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
-      '@sentry/opentelemetry': 11.3.0(@opentelemetry/api@1.9.1)
-      '@sentry/server-runtime-injection': 11.3.0
-      '@sentry/server-utils': 11.3.0
+      '@sentry/core': 11.4.0
+      '@sentry/opentelemetry': 11.4.0(@opentelemetry/api@1.9.1)
+      '@sentry/server-runtime-injection': 11.4.0
+      '@sentry/server-utils': 11.4.0
     transitivePeerDependencies:
       - '@babel/core'
       - rollup
       - webpack
 
-  '@sentry/opentelemetry@11.3.0(@opentelemetry/api@1.9.1)':
+  '@sentry/opentelemetry@11.4.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
+      '@sentry/core': 11.4.0
 
-  '@sentry/react@11.3.0(react@19.3.0)':
+  '@sentry/react@11.4.0(react@19.3.0)':
     dependencies:
-      '@sentry/browser': 11.3.0
+      '@sentry/browser': 11.4.0
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
+      '@sentry/core': 11.4.0
       react: 19.3.0
 
-  '@sentry/replay-canvas@11.3.0':
+  '@sentry/replay-canvas@11.4.0':
     dependencies:
-      '@sentry/core': 11.3.0
-      '@sentry/replay': 11.3.0
+      '@sentry/core': 11.4.0
+      '@sentry/replay': 11.4.0
 
-  '@sentry/replay@11.3.0':
+  '@sentry/replay@11.4.0':
     dependencies:
-      '@sentry/browser-utils': 11.3.0
-      '@sentry/core': 11.3.0
+      '@sentry/browser-utils': 11.4.0
+      '@sentry/core': 11.4.0
 
-  '@sentry/server-runtime-injection@11.3.0':
+  '@sentry/server-runtime-injection@11.4.0':
     dependencies:
-      '@sentry/core': 11.3.0
-      '@sentry/server-utils': 11.3.0
+      '@sentry/core': 11.4.0
+      '@sentry/server-utils': 11.4.0
 
-  '@sentry/server-utils@11.3.0':
+  '@sentry/server-utils@11.4.0':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@sentry/conventions': 0.25.0
-      '@sentry/core': 11.3.0
+      '@sentry/core': 11.4.0
 
-  '@sentry/vercel-edge@11.3.0':
+  '@sentry/vercel-edge@11.4.0':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@sentry/core': 11.3.0
-      '@sentry/server-utils': 11.3.0
+      '@sentry/core': 11.4.0
+      '@sentry/server-utils': 11.4.0
 
   '@shadcn/registry@0.1.0(typescript@6.0.3)':
     dependencies:
@@ -9611,7 +9611,7 @@ snapshots:
       lodash.clonedeep: 4.5.0
       lru-cache: 11.5.3
 
-  lucide-react@1.50.0(@types/react@19.3.0)(react@19.3.0):
+  lucide-react@1.52.0(@types/react@19.3.0)(react@19.3.0):
     dependencies:
       react: 19.3.0
     optionalDependencies:
@@ -9629,9 +9629,9 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mcp-handler@2.2.0(@modelcontextprotocol/server@2.2.0)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)):
+  mcp-handler@2.2.0(@modelcontextprotocol/server@2.3.0)(next@16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)):
     dependencies:
-      '@modelcontextprotocol/server': 2.2.0
+      '@modelcontextprotocol/server': 2.3.0
       chalk: 5.6.2
       commander: 11.1.0
     optionalDependencies:
@@ -9690,7 +9690,7 @@ snapshots:
 
   msw@2.14.6(@types/node@26.6.4)(typescript@6.0.3):
     dependencies:
-      '@inquirer/confirm': 6.3.2(@types/node@26.6.4)
+      '@inquirer/confirm': 6.3.3(@types/node@26.6.4)
       '@mswjs/interceptors': 0.41.9
       '@open-draft/deferred-promise': 3.0.0
       '@types/statuses': 2.0.6
