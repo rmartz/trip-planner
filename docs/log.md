@@ -7,6 +7,11 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-10-13** — Added a `ci` Dependabot group for prettier
+  (+ `prettier-plugin-*`) and the eslint family: pr-policy requires a `ci` title
+  for any eslint/prettier version change, so they no longer ride the
+  `dev-dependencies` base group. The `dependabot-audit` page and the audit's
+  known groups were updated to match.
 - **2026-10-01** — Retired the standalone `pr-title-lint.yml` workflow (the
   `Validate PR title` check). PR titles are now validated by pr-policy's `title`
   check, part of the [`pr-policy`](systems/pr-policy.md) check, which enforces
