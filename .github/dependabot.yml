@@ -43,11 +43,17 @@ updates:
     #     across four PRs (#461/#480/#485/#490) and never merged, so isolating it
     #     keeps a stuck compiler bump from blocking the whole dev batch.
     #
-    # Everything else — the former redux/storybook/vite/eslint/tailwind
-    # "version-locked family" split-outs and the former prettier isolation, all
-    # added WITHOUT data — is folded back into the base groups. Re-split a package
-    # only when the audit shows its base group's intervention rate is driven by
-    # that package; never on an untested assumption alone.
+    # Separately, a POLICY split: the CI-sensitive tools (prettier and the
+    # eslint family) cannot share a base group at all, because pr-policy
+    # requires a `ci` title for any eslint/prettier version change — riding in a
+    # base group, one would block the whole routine batch. They go to the `ci`
+    # group below.
+    #
+    # Everything else — the former redux/storybook/vite/tailwind
+    # "version-locked family" split-outs, all added WITHOUT data — is folded back
+    # into the base groups. Re-split a package only when the audit shows its base
+    # group's intervention rate is driven by that package; never on an untested
+    # assumption alone.
     groups:
       # --- Earned split-outs (listed first to win precedence) ---
       react:
@@ -67,6 +73,20 @@ updates:
         # batch.
         patterns:
           - "typescript"
+      ci:
+        # POLICY split. CI-sensitive tools in one group: pr-policy requires a
+        # `ci` title for any eslint/prettier version change (the formatter/linter
+        # can fail files a PR never touched), so they must not ride in a base
+        # group where they would block every routine bump. Plugins and configs
+        # move in lockstep with their tool. No update-types filter, so a major
+        # brings its family with it.
+        patterns:
+          - "prettier"
+          - "prettier-plugin-*"
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+          - "typescript-eslint"
       # --- Base groups (the default home for everything else) ---
       dev-dependencies:
         # Every development dependency, patch and minor only, in one weekly PR;

@@ -16,7 +16,10 @@ to two base groups — every dev dependency batches into `dev-dependencies`, eve
 prod dependency into `production-dependencies`, across all update types — and
 splits a package out only when it has earned one: `react` on a **functional**
 basis (it must stay aligned across the prod/dev boundary) and `typescript` on a
-**data** basis (its major repeatedly blocked CI). This script checks that the
+**data** basis (its major repeatedly blocked CI). Separately, the CI-sensitive
+prettier/eslint families sit in a `ci` group on a **policy** basis: pr-policy
+requires a `ci` title for any eslint/prettier version change, so they cannot
+ride a base group without blocking it. This script checks that the
 split-outs are justified and watches whether a base group has started hiding a
 package that should itself be split — it reads every Dependabot PR the repository
 has ever opened, classifies how each one ended, and reports the per-group rate at

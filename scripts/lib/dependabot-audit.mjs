@@ -13,6 +13,7 @@
 // production-dependencies catch-alls are retained here so historical grouped
 // PRs classify correctly, even though those groups no longer exist.
 const KNOWN_GROUPS = [
+  "ci",
   "dev-dependencies",
   "eslint",
   "github-actions",
