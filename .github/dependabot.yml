@@ -30,7 +30,7 @@ updates:
     # dev-dependencies, every prod dependency into production-dependencies, for
     # patch and minor bumps only (one low-noise PR per boundary per week). Every
     # major opens as its own PR, so a pending major can never hold the routine
-    # batch back from auto-merge (rmartz/ai#130, rmartz/ai#132). A package is
+    # batch back from auto-merge. A package is
     # split into its own group ONLY when it has earned one, for one of two
     # reasons:
     #   * FUNCTIONAL — it must move in lockstep ACROSS the prod/dev boundary, so a
