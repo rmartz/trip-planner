@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-10-13** — Adopted the shared
+  [`rmartz/vercel-preview-ci`](https://github.com/rmartz/vercel-preview-ci)
+  reusable workflow (#557). `preview-deploy.yml` is now a thin caller pinned by
+  SHA, and Git-integration previews are disabled by `git.deploymentEnabled` in
+  `vercel.json`. The `vercel-ignore-build` Ignored Build Step script, its helper,
+  spec, and Script page are removed.
 - **2026-10-13** — Added a `ci` Dependabot group for prettier
   (+ `prettier-plugin-*`) and the eslint family: pr-policy requires a `ci` title
   for any eslint/prettier version change, so they no longer ride the

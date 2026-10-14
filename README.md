@@ -113,7 +113,7 @@ project-root/
 
 1. Import your repository in the [Vercel dashboard](https://vercel.com/new)
 2. Add all environment variables from `.env.example`
-3. Deploy — Vercel handles preview deployments on PRs and production deployments on merge to `main`
+3. Deploy — Vercel handles production deployments on merge to `main`. Preview deployments are **label-gated**: a preview is built (by `.github/workflows/preview-deploy.yml`, a caller of the shared [`rmartz/vercel-preview-ci`](https://github.com/rmartz/vercel-preview-ci) workflow) only while a PR carries `UAT ready`, not on every push. `vercel.json`'s `git.deploymentEnabled` turns off Vercel's own preview builds
 
 ### Environment Configuration
 
