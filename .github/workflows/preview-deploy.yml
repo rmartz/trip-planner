@@ -23,5 +23,5 @@ permissions:
 
 jobs:
   preview:
-    uses: rmartz/vercel-preview-ci/.github/workflows/vercel-preview.yml@129b1339e8b7d80f20e5af6fe6f78ea99da5ad0d # v1.0.0
+    uses: rmartz/vercel-preview-ci/.github/workflows/vercel-preview.yml@0c0611a278f9818849f3de35167d4c1192c5661d # v1.0.1
     secrets: inherit
