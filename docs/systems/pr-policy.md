@@ -41,9 +41,9 @@ of these need the workflow's `statuses: write`.
 
 **The `status` trigger.** pr-policy gates UAT and CI sign-off on pr-lifecycle's
 `pr-lifecycle/sign-off` commit status once a head carries one, so the caller
-also re-runs on `status`, filtered to that context. This repo runs no
-pr-lifecycle caller yet, so no such status arrives and pr-policy keeps using its
-own classification (the exemptions above).
+also re-runs on `status`, filtered to that context. This repo runs
+[pr-lifecycle](pr-lifecycle.md) labels-only, which posts no such status yet, so
+pr-policy keeps using its own classification (the exemptions above).
 
 ## Why `pull_request_target`
 

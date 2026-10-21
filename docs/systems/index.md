@@ -11,6 +11,8 @@ Cross-cutting subsystems that span several files. Return here from the
 - [Storybook CI](storybook-ci.md) — how the gating Storybook test/build checks
   and the advisory per-PR screenshot gallery are delegated to the shared
   `rmartz/storybook-ci` reusable workflows, and the PAT the gallery needs.
+- [pr-lifecycle](pr-lifecycle.md) — the shared reconciler, run labels-only,
+  that keeps each PR's lifecycle and UAT labels in step with its facts.
 - [pr-policy](pr-policy.md) — the shared PR content checks that post the
   `pr-policy` verdict; this repo keeps the UAT gate (a PR waits for
   `no UAT needed` or `UAT passed`).
