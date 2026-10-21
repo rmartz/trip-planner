@@ -4,7 +4,7 @@ title: pr-policy
 description: The shared @rmartz/pr-policy PR content checks, run via rmartz/pr-policy-action on pull_request_target, which post the pr-policy verdict; as a Next.js app this repo keeps the UAT gate.
 resource: .github/workflows/pr-policy.yml
 tags: [ci, github-actions, pr-policy, uat]
-timestamp: 2026-10-01
+timestamp: 2026-10-20
 ---
 
 # pr-policy
@@ -38,6 +38,12 @@ commit status. The status keeps the merge gate working when GitHub supersedes
 the check suite the check-run landed in. The action also posts one
 informational status per check (`pr-policy / title`, `pr-policy / uat`, …). All
 of these need the workflow's `statuses: write`.
+
+**The `status` trigger.** pr-policy gates UAT and CI sign-off on pr-lifecycle's
+`pr-lifecycle/sign-off` commit status once a head carries one, so the caller
+also re-runs on `status`, filtered to that context. This repo runs no
+pr-lifecycle caller yet, so no such status arrives and pr-policy keeps using its
+own classification (the exemptions above).
 
 ## Why `pull_request_target`
 
