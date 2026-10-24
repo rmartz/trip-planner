@@ -22,6 +22,7 @@ const KNOWN_GROUPS = [
   "react",
   "redux",
   "storybook",
+  "storybook-ci",
   "tailwind",
   "typescript",
   "vite",
