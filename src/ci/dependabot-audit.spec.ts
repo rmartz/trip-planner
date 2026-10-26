@@ -21,6 +21,14 @@ describe("groupOf — named group titles", () => {
       groupOf("Bump typescript from 6.0.3 to 7.0.2 in the typescript group"),
     ).toBe("typescript");
   });
+
+  it("reads 'the storybook-ci group' apart from the storybook family", () => {
+    expect(
+      groupOf(
+        "chore(deps): bump the storybook-ci group across 1 directory with 2 updates",
+      ),
+    ).toBe("storybook-ci");
+  });
 });
 
 describe("groupOf — GitHub Actions bumps", () => {
