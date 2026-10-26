@@ -29,7 +29,10 @@ validation; it replaced the standalone `pr-title-lint.yml` workflow.
 **This repo keeps the UAT gate**, because it is a Next.js app with something to
 user-test. A code PR stays pending until it carries `no UAT needed` (the review
 agent's call) or a person's `UAT passed` (the legacy `tested` label also
-counts). Test-only (including Storybook stories), docs, CI, dependency-only,
+counts). UAT covers only the app's user-facing behavior. CI and other tooling
+(workflows, actions, `scripts/`, lint, format and test config) is never
+user-facing; a CI loosening needs `CI change approved` instead. Test-only
+(including Storybook stories), docs, CI and tooling, dependency-only,
 metadata-only, and `refactor`-titled PRs are exempt automatically. The caller
 must not set `skip-uat`.
 
