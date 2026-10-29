@@ -33,9 +33,8 @@ const config: StorybookConfig = {
             alias: [
               {
                 find: /^react\/compiler-runtime$/,
-                replacement: require.resolve(
-                  "next/dist/compiled/react/compiler-runtime",
-                ),
+                replacement:
+                  require.resolve("next/dist/compiled/react/compiler-runtime"),
               },
             ],
           },
