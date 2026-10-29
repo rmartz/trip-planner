@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SyntheticEvent } from "react";
 import {
   Sheet,
@@ -38,14 +38,18 @@ export function AddRangeModalView({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [note, setNote] = useState("");
+  const [wasOpen, setWasOpen] = useState(open);
 
-  useEffect(() => {
+  // Clear the form whenever the sheet closes. Adjusting state during render
+  // (rather than in an effect) avoids an extra render with stale values.
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (!open) {
       setStartDate("");
       setEndDate("");
       setNote("");
     }
-  }, [open]);
+  }
 
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();

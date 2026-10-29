@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { tripMembersQueryOptions } from "@/features/trips";
 import { LodgingHostGuestPickerView } from "./LodgingHostGuestPickerView";
@@ -57,9 +57,9 @@ export function LodgingHostGuestPicker({
   tripId,
 }: LodgingHostGuestPickerProps) {
   const queryClient = useQueryClient();
-  const [selectedUids, setSelectedUids] = useState<ReadonlySet<string>>(
-    () => new Set(),
-  );
+  // Unsaved edits to the selection; until the host toggles a guest, the
+  // selection is whatever the server last reported.
+  const [editedUids, setEditedUids] = useState<ReadonlySet<string>>();
 
   const membersQuery = useQuery(tripMembersQueryOptions(tripId));
   const inviteesQuery = useQuery({
@@ -67,11 +67,8 @@ export function LodgingHostGuestPicker({
     queryFn: () => fetchLodgingInvitees(tripId, stopId),
   });
 
-  useEffect(() => {
-    if (inviteesQuery.data !== undefined) {
-      setSelectedUids(new Set(inviteesQuery.data.invitedUids));
-    }
-  }, [inviteesQuery.data]);
+  const selectedUids: ReadonlySet<string> =
+    editedUids ?? new Set(inviteesQuery.data?.invitedUids);
 
   const saveMutation = useMutation({
     mutationFn: (invitedUids: string[]) =>
@@ -85,6 +82,7 @@ export function LodgingHostGuestPicker({
           queryKey: ["lodging", tripId, stopId],
         }),
       ]);
+      setEditedUids(undefined);
     },
   });
 
@@ -124,8 +122,8 @@ export function LodgingHostGuestPicker({
         });
       }}
       onToggleGuest={(uid) => {
-        setSelectedUids((currentSelectedUids) => {
-          const nextSelectedUids = new Set(currentSelectedUids);
+        setEditedUids((currentEditedUids) => {
+          const nextSelectedUids = new Set(currentEditedUids ?? selectedUids);
 
           if (nextSelectedUids.has(uid)) {
             nextSelectedUids.delete(uid);

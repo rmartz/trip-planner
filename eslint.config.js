@@ -105,7 +105,9 @@ export default tseslint.config(
       "react-hooks": reactHooks,
     },
     rules: {
-      "react-hooks/rules-of-hooks": "error",
+      // The recommended preset adds the React Compiler rules (purity, refs,
+      // immutability, …) on top of the classic hooks rules.
+      ...reactHooks.configs["recommended-latest"].rules,
       "react-hooks/exhaustive-deps": "error",
       // File-length hard cap (replaces the bespoke check-file-length.sh / File
       // Length CI job). Source files: 400. Test files get 600 via a later
