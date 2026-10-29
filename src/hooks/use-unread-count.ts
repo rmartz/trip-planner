@@ -9,19 +9,18 @@ import {
 } from "@/lib/firebase/schema/unread-count";
 
 export function useUnreadCount(uid: string | undefined): number {
-  const [unreadCount, setUnreadCount] = useState(0);
+  // Tag the count with the uid it was read for, so a signed-out user (or one
+  // whose subscription hasn't reported yet) never sees another user's count.
+  const [latest, setLatest] = useState<{ uid: string; count: number }>();
 
   useEffect(() => {
-    if (uid === undefined) {
-      setUnreadCount(0);
-      return;
-    }
+    if (uid === undefined) return;
 
     const countRef = ref(getClientDatabase(), getUnreadCountPath(uid));
     return onValue(countRef, (snapshot) => {
-      setUnreadCount(parseUnreadCount(snapshot.val()));
+      setLatest({ uid, count: parseUnreadCount(snapshot.val()) });
     });
   }, [uid]);
 
-  return unreadCount;
+  return latest !== undefined && latest.uid === uid ? latest.count : 0;
 }

@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { MembersPageView } from "./MembersPageView";
 import type { TripMember } from "@/lib/types/trip";
 import type { NonAccountMember } from "@/lib/types/non-account-member";
@@ -13,31 +14,19 @@ interface MembersData {
   nonAccountMembers: NonAccountMember[];
 }
 
+async function fetchMembers(tripId: string): Promise<MembersData> {
+  const res = await fetch(`/api/trips/${tripId}/members`);
+  if (!res.ok) throw new Error("Failed to fetch members");
+  return (await res.json()) as MembersData;
+}
+
 function useMembers(tripId: string) {
-  const [data, setData] = useState<MembersData | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["trip-members-detail", tripId],
+    queryFn: () => fetchMembers(tripId),
+  });
 
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setIsError(false);
-    try {
-      const res = await fetch(`/api/trips/${tripId}/members`);
-      if (!res.ok) throw new Error("Failed to fetch members");
-      const json = (await res.json()) as MembersData;
-      setData(json);
-    } catch {
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [tripId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  return { data, isLoading, isError, load };
+  return { data, isLoading, isError, load: refetch };
 }
 
 function useInviteToken(tripId: string) {
