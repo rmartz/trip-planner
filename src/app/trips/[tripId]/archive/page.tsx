@@ -1,33 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { ArchivePageView } from "./ArchivePageView";
 import { AppShell } from "@/features/nav";
 import type { Leg } from "@/lib/types/trip";
 import { ARCHIVE_PAGE_COPY } from "./ArchivePageView.copy";
 
-function useArchivedLegs(tripId: string) {
-  const [legs, setLegs] = useState<Leg[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/trips/${tripId}/legs/archived`);
-      if (!res.ok) return;
-      const data = (await res.json()) as { legs: Leg[] };
-      setLegs(data.legs);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [tripId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  return { legs, isLoading, load };
+async function fetchArchivedLegs(tripId: string): Promise<Leg[]> {
+  const res = await fetch(`/api/trips/${tripId}/legs/archived`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch archived legs (${String(res.status)})`);
+  }
+  const data = (await res.json()) as { legs: Leg[] };
+  return data.legs;
 }
 
 export default function ArchivePage() {
@@ -35,7 +22,10 @@ export default function ArchivePage() {
   const tripId = params.tripId;
   const router = useRouter();
 
-  const { legs, load } = useArchivedLegs(tripId);
+  const { data: legs = [], refetch: load } = useQuery({
+    queryKey: ["archived-legs", tripId],
+    queryFn: () => fetchArchivedLegs(tripId),
+  });
 
   const handleRestore = useCallback(
     async (legId: string) => {
