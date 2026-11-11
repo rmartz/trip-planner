@@ -29,6 +29,12 @@ updates:
       # (and the exact 7.x pin) once a compiler release fixes react/react#37406.
       - dependency-name: "@babel/core"
         versions: [">= 8.0.0"]
+      # @types/node tracks the Node runtime's major, which Dependabot never bumps
+      # (`.nvmrc`, the setup action's `node-version: 24.x`, the Vercel runtime).
+      # A lone types major would type-check APIs the runtime lacks, so it moves by
+      # hand with the runtime upgrade. Minors and patches still flow.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     # Grouping strategy — DEFAULT TO GROUPED, split out only on demonstrated need
     # (issue #532, correcting #526/#528; measured over time by the standing
     # "Dependabot grouping audit" issue that scripts/dependabot-audit.mjs
