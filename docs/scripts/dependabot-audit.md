@@ -23,7 +23,10 @@ ride a base group without blocking it. This script checks that the
 split-outs are justified and watches whether a base group has started hiding a
 package that should itself be split — it reads every Dependabot PR the repository
 has ever opened, classifies how each one ended, and reports the per-group rate at
-which a bump needed a human fix.
+which a bump needed a human fix. One package never gets a major PR at all:
+`@types/node` majors are ignored because Dependabot can't move the Node runtime
+with them (`.nvmrc`, the setup action's `node-version` and the Vercel runtime),
+so the types major is bumped by hand with the runtime upgrade.
 
 A base group whose intervention rate is driven by one package has surfaced a
 split-out candidate; a split-out group that never needs a fix is a candidate to
