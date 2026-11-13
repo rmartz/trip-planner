@@ -39,4 +39,7 @@ jobs:
   storybook-tests:
     uses: rmartz/storybook-ci/.github/workflows/storybook-tests.yml@2cf1c787fd9cf92ff16fc177f4f49028c34e4c48 # v2.0.1
     with:
+      # The shared default (24.x) lags the 26.x that .github/actions/setup,
+      # package.json `engines` and Vercel run.
+      node-version: 26.x
       test-command: pnpm test:storybook
