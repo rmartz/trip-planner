@@ -4,7 +4,7 @@ Guidelines for contributing to projects built from this template.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) v24+
+- [Node.js](https://nodejs.org/) v26
 - [pnpm](https://pnpm.io/) v10+
 
 ## Setup

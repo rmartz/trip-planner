@@ -24,7 +24,7 @@ A template repository for building Next.js applications with Firebase, deployed 
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) v24+
+- [Node.js](https://nodejs.org/) v26
 - [pnpm](https://pnpm.io/) v10+
 - A [Firebase project](https://console.firebase.google.com/) with Realtime Database enabled
 - A [Vercel account](https://vercel.com/) (for deployment)

@@ -30,7 +30,9 @@ updates:
       - dependency-name: "@babel/core"
         versions: [">= 8.0.0"]
       # @types/node tracks the Node runtime's major, which Dependabot never bumps
-      # (`.nvmrc`, the setup action's `node-version: 24.x`, the Vercel runtime).
+      # (`.nvmrc`, the setup action's `node-version: 26.x`, the preview-deploy
+      # caller's `node-version`, and `package.json` `engines.node`, which pins
+      # the Vercel runtime).
       # A lone types major would type-check APIs the runtime lacks, so it moves by
       # hand with the runtime upgrade. Minors and patches still flow.
       - dependency-name: "@types/node"
