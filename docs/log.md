@@ -7,6 +7,9 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-11-26** — Moved the Node runtime to 26. The `dependabot-audit` page's
+  list of hand-moved Node pins now includes `package.json` `engines.node` and
+  the preview-deploy caller's `node-version`.
 - **2026-10-13** — Adopted the shared
   [`rmartz/vercel-preview-ci`](https://github.com/rmartz/vercel-preview-ci)
   reusable workflow (#557). `preview-deploy.yml` is now a thin caller pinned by
