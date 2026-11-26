@@ -4,7 +4,7 @@ title: pr-policy
 description: The shared @rmartz/pr-policy PR content checks, run via rmartz/pr-policy-action on pull_request_target, which post the pr-policy verdict; as a Next.js app this repo keeps the UAT gate.
 resource: .github/workflows/pr-policy.yml
 tags: [ci, github-actions, pr-policy, uat]
-timestamp: 2026-10-20
+timestamp: 2026-11-26
 ---
 
 # pr-policy
@@ -28,8 +28,7 @@ validation; it replaced the standalone `pr-title-lint.yml` workflow.
 
 **This repo keeps the UAT gate**, because it is a Next.js app with something to
 user-test. A code PR stays pending until it carries `no UAT needed` (the review
-agent's call) or a person's `UAT passed` (the legacy `tested` label also
-counts). UAT covers only the app's user-facing behavior. CI and other tooling
+agent's call) or a person's `UAT passed` on the current head. UAT covers only the app's user-facing behavior. CI and other tooling
 (workflows, actions, `scripts/`, lint, format and test config) is never
 user-facing; a CI loosening needs `CI change approved` instead. Test-only
 (including Storybook stories), docs, CI and tooling, dependency-only,
@@ -42,17 +41,8 @@ the check suite the check-run landed in. The action also posts one
 informational status per check (`pr-policy / title`, `pr-policy / uat`, …). All
 of these need the workflow's `statuses: write`.
 
-**The `status` trigger.** pr-policy gates UAT and CI sign-off on pr-lifecycle's
-`pr-lifecycle/sign-off` commit status once a head carries one, so the caller
-also re-runs on `status`, filtered to that context. [pr-lifecycle](pr-lifecycle.md) posts it with the
-`rmartz-pr-lifecycle` App token, which the caller trusts by default
-(`sign-off-status-creators`). pr-policy falls back to its own classification only
-while a head has no status.
-
-**The UAT label is required.** With `require-uat-label: true`, pr-policy holds a PR
-that carries no UAT label, so every merge has an explicit UAT determination.
-pr-lifecycle writes that label with `GITHUB_TOKEN`, which starts no `labeled` run, so
-the caller also re-runs when the `pr-lifecycle` workflow completes (`workflow_run`).
+The caller runs only on `pull_request_target` events, so adding or removing a
+sign-off label re-runs the gate directly.
 
 ## Why `pull_request_target`
 

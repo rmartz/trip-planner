@@ -7,6 +7,12 @@ timestamp: 2026-06-18
 
 # Change Log
 
+- **2026-11-26** — Retired pr-lifecycle: removed its caller workflow and System
+  page. The [pr-policy](systems/pr-policy.md) caller moved to
+  `rmartz/pr-policy-action` v2.0.0, which drops the sign-off-status and
+  UAT-label inputs and the `status` / `workflow_run` triggers. The preview
+  caller moved to `rmartz/vercel-preview-ci` v3.0.0, which gates on a
+  functional title type or the `preview` label instead of `UAT ready`.
 - **2026-11-26** — Moved the Node runtime to 26. The `dependabot-audit` page's
   list of hand-moved Node pins now includes `package.json` `engines.node` and
   the preview-deploy caller's `node-version`.
