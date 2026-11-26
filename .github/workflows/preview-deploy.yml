@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   preview:
-    uses: rmartz/vercel-preview-ci/.github/workflows/vercel-preview.yml@a8d050a79e096643d7b0d01ff205e6e454ceb47d # v1.4.2
+    uses: rmartz/vercel-preview-ci/.github/workflows/vercel-preview.yml@52dca86876bf76f85b11a8fe0365879ab7e0f110 # v3.0.0
     with:
       # Match the Node major that package.json `engines.node` pins on Vercel;
       # v1.4.2 defaults to 24.x.
