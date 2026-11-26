@@ -25,9 +25,9 @@ package that should itself be split — it reads every Dependabot PR the reposit
 has ever opened, classifies how each one ended, and reports the per-group rate at
 which a bump needed a human fix. One package never gets a major PR at all:
 `@types/node` majors are ignored because Dependabot can't move the Node runtime
-with them (`.nvmrc`, the setup action's `node-version`, the preview-deploy
-caller's `node-version`, and `package.json` `engines.node`, which pins the
-Vercel runtime),
+with them (`.nvmrc`, the setup action's `node-version`, and `package.json`
+`engines.node`, which pins the Vercel runtime; the preview-deploy caller relies
+on `rmartz/vercel-preview-ci`'s Node default, so check it still matches),
 so the types major is bumped by hand with the runtime upgrade.
 
 A base group whose intervention rate is driven by one package has surfaced a
