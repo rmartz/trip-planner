@@ -121,7 +121,7 @@ Public, non-secret environment config (Firebase project IDs, Sentry org/project,
 
 To change a value, edit the relevant `deployment/{env}.yml` by hand (only `NEXT_PUBLIC_*` / allowlisted keys) and run `pnpm run env:validate`.
 
-Local tooling to push config to Vercel and rotate secrets is being replaced by the planned `envctl` CLI. The former `update-config.sh` / `deploy-config.sh` / `rotate-keys.sh` helpers were removed when `vercel-deploy-scripts` (which transitively supplied the `vercel` CLI they used) was dropped; until `envctl` lands, push and secret rotation are done manually via the Vercel dashboard/CLI.
+Local tooling to push config to Vercel and rotate secrets is being replaced by the planned `envctl` CLI. The former `update-config.sh` / `deploy-config.sh` / `rotate-keys.sh` helpers were removed when the archived deploy-scripts package (which transitively supplied the `vercel` CLI they used) was dropped; until `envctl` lands, push and secret rotation are done manually via the Vercel dashboard/CLI.
 
 ### GitHub Actions
 

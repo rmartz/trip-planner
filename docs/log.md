@@ -125,7 +125,7 @@ timestamp: 2026-06-18
 - **2026-06-28** — Removed the `update-config`, `deploy-config`, and `rotate-keys`
   Script pages and trimmed the deployment-config System page: those scripts were
   deleted because the `vercel` CLI they used is gone after dropping
-  `vercel-deploy-scripts`; their role is slated for the planned `envctl` CLI.
+  the archived deploy-scripts package; their role is slated for the planned `envctl` CLI.
   Config validation (`validate-config` / `env:validate`) and the YAML configs are
   retained. (#381)
 - **2026-06-28** — Added the Debug Auth System page and the `seed-test-profiles`
@@ -134,7 +134,7 @@ timestamp: 2026-06-18
   prefix, an allowlist, a `synthetic` token claim, and the
   `NEXT_PUBLIC_ENABLE_DEBUG_AUTH` flag. (#379)
 - **2026-06-24** — Removed the gitleaks secret-scan from the deployment-config
-  pipeline along with the `vercel-deploy-scripts` dependency; config validation
+  pipeline along with the archived deploy-scripts dependency; config validation
   (`env:validate`) is retained. Updated the `validate-config` and
   deployment-config pages accordingly. (#377)
 - **2026-06-23** — Added the `backfill-transport-gap-count` Script page for the
