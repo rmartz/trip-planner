@@ -36,7 +36,7 @@ Public (non-secret) environment config lives in `deployment/{env}.yml` and is va
 
 - To edit a value, update the relevant `deployment/{env}.yml` by hand (only `NEXT_PUBLIC_*` / allowlisted keys).
 - Deployment config is validated on every commit via `.husky/pre-commit` and in CI via `.github/workflows/validate-config.yml` (`scripts/validate-config.mjs`).
-- Local tooling to push config to Vercel and rotate secrets (formerly `deploy-config.sh` / `update-config.sh` / `rotate-keys.sh`) is being replaced by the planned `envctl` CLI; those scripts were removed once `vercel-deploy-scripts` (which transitively provided the `vercel` CLI) was dropped.
+- Local tooling to push config to Vercel and rotate secrets (formerly `deploy-config.sh` / `update-config.sh` / `rotate-keys.sh`) is being replaced by the planned `envctl` CLI; those scripts were removed once the archived deploy-scripts package (which transitively provided the `vercel` CLI) was dropped.
 
 ## TypeScript
 

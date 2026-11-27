@@ -42,9 +42,9 @@ env:validate`) checks every key against `schema.yml`. Runs in CI (the
   `validate-config` workflow) and on every commit via the pre-commit hook.
 - **Push to Vercel / rotate secrets**: pending the planned `envctl` CLI. The
   former `deploy-config.sh` / `rotate-keys.sh` helpers were removed when
-  `vercel-deploy-scripts` (which transitively supplied the `vercel` CLI they
-  used) was dropped; perform these steps manually via the Vercel dashboard/CLI in
-  the meantime.
+  the archived deploy-scripts package (which transitively supplied the `vercel`
+  CLI they used) was dropped; perform these steps manually via the Vercel
+  dashboard/CLI in the meantime.
 
 ## Guardrails
 
