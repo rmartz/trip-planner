@@ -7,8 +7,8 @@ timestamp: 2026-06-18
 
 # Change Log
 
-- **2026-11-26** — Retired pr-lifecycle: removed its caller workflow and System
-  page. The [pr-policy](systems/pr-policy.md) caller moved to
+- **2026-11-26** — Removed the caller workflow and System page for the retired
+  PR automation. The [pr-policy](systems/pr-policy.md) caller moved to
   `rmartz/pr-policy-action` v2.0.0, which drops the sign-off-status and
   UAT-label inputs and the `status` / `workflow_run` triggers. The preview
   caller moved to `rmartz/vercel-preview-ci` v3.0.0, which gates on a
